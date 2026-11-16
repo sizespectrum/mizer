@@ -26,8 +26,6 @@ feeding level
 ``` r
 # \donttest{
 str(getFeedingLevel(NS_params))
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 #>  'ArraySpeciesBySize' num [1:12, 1:100] 0.622 0.622 0.605 0.621 0.616 ...
 #>  - attr(*, "dimnames")=List of 2
 #>   ..$ sp: chr [1:12] "Sprat" "Sandeel" "N.pout" "Herring" ...
@@ -35,6 +33,9 @@ str(getFeedingLevel(NS_params))
 #>  - attr(*, "value_name")= chr "Feeding level"
 #>  - attr(*, "type")= chr "proportion"
 #>  - attr(*, "representation")= chr "point"
-#>  - attr(*, "params")=Formal class 'MizerParams' [package "mizer"] with 48 slots
+#>  - attr(*, "size_grid")=List of 2
+#>   ..$ grid : chr "w"
+#>   ..$ index: int [1:100] 1 2 3 4 5 6 7 8 9 10 ...
+#>  - attr(*, "params")=Formal class 'MizerParams' [package "mizer"] with 50 slots
 # }
 ```

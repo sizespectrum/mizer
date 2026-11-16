@@ -86,6 +86,7 @@ this column is set to all 1s.
 ## See also
 
 Other functions for setting parameters:
+[`balanceRDD()`](https://sizespectrum.org/mizer/reference/balanceRDD.md),
 [`gear_params()`](https://sizespectrum.org/mizer/reference/gear_params.md),
 [`setExtDiffusion()`](https://sizespectrum.org/mizer/reference/setExtDiffusion.md),
 [`setExtEncounter()`](https://sizespectrum.org/mizer/reference/setExtEncounter.md),

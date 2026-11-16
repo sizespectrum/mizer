@@ -54,6 +54,22 @@ N(sim)["2010", "Cod", ]    # size vector for Cod in year 2010
 finalN(sim)["Cod", ]       # size vector for Cod at the final time step
 ```
 
+Size subsetting keeps the original coordinates and bin widths of wrapped
+arrays, including sparse, reordered and repeated selections. When bin
+averaging is enabled, a bin average stays at its original bin centre;
+selecting distant columns does not create wider bins between them. The
+same holds for time slices and resource arrays. Keep matrix or array
+dimensions with `drop = FALSE` when you want to retain the specialised
+printing, summaries and plotting methods:
+
+``` r
+
+mort <- getPredMort(params)
+selected <- mort[, c(10, 20, 30), drop = FALSE]
+as.data.frame(selected)                 # original sizes, in selection order
+plot(selected)
+```
+
 ------------------------------------------------------------------------
 
 ## Summary functions
@@ -91,6 +107,72 @@ getSSB(sim)                              # SSB of all species over time
 getBiomass(sim, min_w = 10, max_w = 1e4) # biomass of 10g–10kg fish
 getYield(sim)["2010", ]                  # yield in year 2010
 ```
+
+------------------------------------------------------------------------
+
+## Including resources and components in biomass
+
+[`getBiomass()`](https://sizespectrum.org/mizer/reference/getBiomass.md)
+measures species by default. Use `include` to request the resource or
+extension components explicitly:
+
+``` r
+
+biomass <- getBiomass(sim, include = c("species", "resource", "components"))
+plot(biomass)
+# The convenience plot uses the same measurement:
+plotBiomass(sim, include = c("species", "resource", "components"))
+```
+
+`"components"` requests every component. Use `"component:pool"` for one
+component, or `"component:pool/detritus"` for one of its named series.
+Series identifiers are stable even when display labels coincide. Inspect
+`attr(biomass, "series")` for labels, colours and physical sources, and
+`attr(biomass, "coverage")` for the availability of each requested
+measurement at each saved time. An unavailable measurement is `NA` with
+a reason; it is not zero. Plot captions report missing measurements, and
+`total = TRUE` requires complete coverage. Selecting the same physical
+source through two providers is an error.
+
+The resource uses its full size grid unless a filter is requested.
+Components must explicitly support each requested size filter; an
+unsupported filter makes their measurement unavailable. Biomass
+measurement does not establish that a component is steady: use
+[`getSteadyAssessment()`](https://sizespectrum.org/mizer/reference/getSteadyAssessment.md)
+for convergence.
+
+Default species-only results keep the existing numeric vector for params
+and
+[`ArrayTimeBySpecies`](https://sizespectrum.org/mizer/reference/ArrayTimeBySpecies.md)
+for simulations. Explicit resource/component inclusion adds metadata,
+with a `MizerBiomass` numeric vector for params. Both extended results
+can be plotted directly. Subsetting retains the selected metadata;
+arithmetic returns plain numeric values.
+
+------------------------------------------------------------------------
+
+## Mortality causes
+
+[`getMortByCause()`](https://sizespectrum.org/mizer/reference/getMortByCause.md)
+reports the authoritative total separately from its diagnostic
+breakdown:
+
+``` r
+
+mortality <- getMortByCause(params)
+mortality$complete
+names(mortality$causes)
+plot(mortality$causes$predation)
+```
+
+The built-in breakdown contains predation, fishing, external mortality
+and registered additive contributions. `metadata` supplies cause labels
+and colours. A replacement total-mortality provider needs its own
+declared decomposition; otherwise the report retains the total and
+explains why the breakdown is incomplete. A declared complete breakdown
+that disagrees with the total is an error. For simulations this check
+runs at each selected saved time, before any averaging. The unexplained
+`residual` is a diagnostic difference, not an invented mortality cause.
 
 ------------------------------------------------------------------------
 
@@ -171,9 +253,8 @@ Three things are worth knowing:
   is named `"time"` is lined up with the times of the simulation rather
   than multiplied out against them.
 
-The result is already an
-[`ArrayTimeBySpecies`](https://sizespectrum.org/mizer/reference/ArrayTimeBySpecies.md)
-when it is one, so you inherit the whole toolkit described below —
+The result is already an `ArrayTimeBySpecies` when it is one, so you
+inherit the whole toolkit described below —
 [`plot()`](https://sizespectrum.org/mizer/reference/plot.md),
 [`plot2()`](https://sizespectrum.org/mizer/reference/plot2.md),
 [`plotRelative()`](https://sizespectrum.org/mizer/reference/plotRelative.md),

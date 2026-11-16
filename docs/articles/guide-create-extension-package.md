@@ -276,7 +276,9 @@ like this:
 3.  R finds `getBiomass.mizerShelf` and calls it.
 4.  `getBiomass.mizerShelf` calls
     [`NextMethod()`](https://rdrr.io/r/base/UseMethod.html).
-5.  R finds the standard mizer `getBiomass.MizerParams` and calls it.
+5.  R finds the standard mizer
+    [`getBiomass.MizerParams`](https://sizespectrum.org/mizer/reference/getBiomass.md)
+    and calls it.
 6.  The standard result is returned to step 4, shelf biomasses are
     added, the result is returned to step 2, and `mizerFoo`’s biomasses
     are added on top.
@@ -482,6 +484,67 @@ Three rules:
     `project*` method. The two mechanisms are separate and should not be
     mixed for the same rate within an extension package.
 
+#### The diet follows `getEncounterByPrey()`
+
+[`getDiet()`](https://sizespectrum.org/mizer/reference/getDiet.md) and
+[`getTrophicLevel()`](https://sizespectrum.org/mizer/reference/getTrophicLevel.md)
+need the encounter rate split by food source, and they get the split
+from the S3 generic
+[`getEncounterByPrey()`](https://sizespectrum.org/mizer/reference/getEncounterByPrey.md),
+not from
+[`projectEncounter()`](https://sizespectrum.org/mizer/reference/mizerEncounter.md).
+They check it against the total from
+[`getEncounter()`](https://sizespectrum.org/mizer/reference/getEncounter.md).
+A
+[`projectEncounter()`](https://sizespectrum.org/mizer/reference/mizerEncounter.md)
+method of yours therefore needs a matching
+[`getEncounterByPrey()`](https://sizespectrum.org/mizer/reference/getEncounterByPrey.md)
+method, which makes the same change and calls
+[`NextMethod()`](https://rdrr.io/r/base/UseMethod.html):
+
+``` r
+
+#' @method getEncounterByPrey mizerMyExtension
+#' @export
+getEncounterByPrey.mizerMyExtension <- function(params, n, n_pp, n_other,
+                                                t = 0, ...) {
+    by_prey <- NextMethod()
+    # Add your encounter as a food source of its own, named in the `prey`
+    # dimension
+    extra <- extraEncounter(params, n, n_pp, n_other, t, ...)
+    dn <- dimnames(by_prey)
+    dn$prey <- c(dn$prey, "My food")
+    array(c(by_prey, extra), dim = dim(by_prey) + c(0, 0, 1), dimnames = dn)
+}
+```
+
+A method that changes a parameter, such as the search volume, changes it
+in `params` before
+[`NextMethod()`](https://rdrr.io/r/base/UseMethod.html), exactly as its
+[`projectEncounter()`](https://sizespectrum.org/mizer/reference/mizerEncounter.md)
+method does. Without the method,
+[`getDiet()`](https://sizespectrum.org/mizer/reference/getDiet.md) and
+[`getTrophicLevel()`](https://sizespectrum.org/mizer/reference/getTrophicLevel.md)
+find that the split does not add up to the total, scale all food sources
+in proportion, and tell the user that the split is exact only if your
+change affects all of them equally. Do not check the result against
+[`getEncounter()`](https://sizespectrum.org/mizer/reference/getEncounter.md)
+inside the method: the parameters it passes on have already been
+changed, so the encounter rate calculated from them would contain your
+change twice.
+
+[`getTrophicLevel()`](https://sizespectrum.org/mizer/reference/getTrophicLevel.md)
+takes from your method only how much food each prey species and the
+resource provide. Which prey sizes that food comes from it takes from
+the predation kernel stored in the model. If your extension changes the
+kernel during the projection rather than storing it with
+[`setPredKernel()`](https://sizespectrum.org/mizer/reference/setPredKernel.md),
+also give
+[`getTrophicLevel()`](https://sizespectrum.org/mizer/reference/getTrophicLevel.md)
+a method that stores the kernel in force at time `t` with
+[`setPredKernel()`](https://sizespectrum.org/mizer/reference/setPredKernel.md)
+and calls [`NextMethod()`](https://rdrr.io/r/base/UseMethod.html).
+
 #### How `setRateFunction()` and `project*` methods interact
 
 A user who calls `setRateFunction(params, "Encounter", "myFn")` is
@@ -528,6 +591,175 @@ a temperature scalar is meant to modulate. Do not declare `gamma` as a
 given species parameter merely to protect it from your own method or
 component; that is no longer necessary, and it costs the model the
 ability to let `gamma` follow `f0`.
+
+#### But they do go through your `get_*_default()` method
+
+That non-dispatching measurement is right for an extension that
+*modulates* a rate mizer already has. It is wrong for an extension that
+changes the model’s structure — most of all one that replaces the single
+resource spectrum by a resource system of its own. The `gamma` values
+that
+[`newMultispeciesParams()`](https://sizespectrum.org/mizer/reference/newMultispeciesParams.md)
+auto-derived at construction time were calibrated against the resource
+that was there then. Swapping that resource out afterwards does not
+re-derive them, so every species that did not come with a `gamma` of its
+own is left calibrated against a resource the model no longer has.
+
+Nothing in core mizer can notice this for you, and re-calling
+[`get_gamma_default()`](https://sizespectrum.org/mizer/reference/get_gamma_default.md)
+will not fix it, both because its measurement deliberately does not see
+your resource system and because `species_params(params)$gamma` is
+already populated (only `NA` entries are filled by
+[`get_gamma_default()`](https://sizespectrum.org/mizer/reference/get_gamma_default.md)).
+The five functions involved are therefore S3 generics, so you can supply
+the part that mizer cannot know:
+
+| Generic | What a method should return |
+|----|----|
+| [`measure_avail_energy()`](https://sizespectrum.org/mizer/reference/measure_avail_energy.md) | the coefficient \\A_i\\ in \\E_i(w) = A_i w^{2 + q_i - \lambda}\\, the energy the reference state makes available |
+| [`get_gamma_default()`](https://sizespectrum.org/mizer/reference/get_gamma_default.md) | search volume coefficient `gamma` for each species |
+| [`get_f0_default()`](https://sizespectrum.org/mizer/reference/get_f0_default.md) | target feeding level `f0` for each species |
+| [`get_h_default()`](https://sizespectrum.org/mizer/reference/get_h_default.md) | maximum intake rate coefficient `h` |
+| [`get_ks_default()`](https://sizespectrum.org/mizer/reference/get_ks_default.md) | standard metabolic rate coefficient `ks` |
+
+[`measure_avail_energy()`](https://sizespectrum.org/mizer/reference/measure_avail_energy.md)
+is usually the only one you need. It is the single point at which
+[`get_gamma_default()`](https://sizespectrum.org/mizer/reference/get_gamma_default.md)
+and
+[`get_f0_default()`](https://sizespectrum.org/mizer/reference/get_f0_default.md)
+look at the prey in the model, placing the reference resource on an
+untruncated power law across
+[`w_full`](https://sizespectrum.org/mizer/reference/w.md) so that
+evaluating at `w[length(w)]` recovers the scale-free coefficient \\A_i\\
+without upper-cutoff distortion. A method for it redirects both defaults
+at your resource system without your having to reimplement either:
+
+``` r
+
+#' @export
+measure_avail_energy.mizerShelf <- function(params, ...) {
+    # Put the extension's own resources into the untruncated power-law
+    # reference state and return the coefficient A_i for each species.
+}
+```
+
+If your extension instead calibrates `gamma` against size-truncated
+resource spectra at a species-specific reference size (such as `w_inf`
+or `w_min`), register methods for
+[`get_gamma_default()`](https://sizespectrum.org/mizer/reference/get_gamma_default.md)
+and
+[`get_f0_default()`](https://sizespectrum.org/mizer/reference/get_f0_default.md)
+directly.
+
+On every rebuild of the species parameters,
+[`setParams()`](https://sizespectrum.org/mizer/reference/setParams.md)
+runs the rate setters, and three of them fill in the values the user did
+not give by calling these generics:
+[`setSearchVolume()`](https://sizespectrum.org/mizer/reference/setSearchVolume.md)
+calls
+[`get_gamma_default()`](https://sizespectrum.org/mizer/reference/get_gamma_default.md),
+which measures through
+[`measure_avail_energy()`](https://sizespectrum.org/mizer/reference/measure_avail_energy.md);
+[`setMaxIntakeRate()`](https://sizespectrum.org/mizer/reference/setMaxIntakeRate.md)
+calls
+[`get_h_default()`](https://sizespectrum.org/mizer/reference/get_h_default.md);
+and
+[`setMetabolicRate()`](https://sizespectrum.org/mizer/reference/setMetabolicRate.md)
+calls
+[`get_ks_default()`](https://sizespectrum.org/mizer/reference/get_ks_default.md).
+An object of your class therefore picks up your methods for these four
+on every rebuild — including when a user edits a species parameter or
+hands an explicitly given `gamma` back to mizer by removing it from
+[`given_species_params()`](https://sizespectrum.org/mizer/reference/species_params.md).
+To re-derive these defaults at the moment your setup or resource-setting
+function swaps the resource out, trigger a rebuild from
+[`given_species_params()`](https://sizespectrum.org/mizer/reference/species_params.md)
+once the object carries your extension class:
+
+``` r
+
+params <- mizer::recordExtension(
+    params, "mizerShelf",
+    version = as.character(utils::packageVersion("mizerShelf")))
+params <- mizer::coerceToExtensionClass(params)
+species_params(params) <- species_params(params)
+```
+
+That no-op assignment rebuilds `species_params(params)` from
+`given_species_params(params)` — dropping the single-resource `gamma`
+that was not given by the user while keeping any explicitly supplied
+values — and re-runs `setParams(params)`, which calls your methods.
+Leaving this step out would leave the stale single-resource `gamma` in
+`species_params(params)`, where
+[`reconcileSpeciesParams()`](https://sizespectrum.org/mizer/reference/reconcileSpeciesParams.md)
+(and hence
+[`readParams()`](https://sizespectrum.org/mizer/reference/saveParams.md))
+would mistake it for a value set by hand and freeze it into
+`given_species_params(params)`.
+
+#### A rebuild does not calculate `f0`
+
+[`get_f0_default()`](https://sizespectrum.org/mizer/reference/get_f0_default.md)
+is the exception. No rate setter calls it, so a rebuild never applies
+your method for it: mizer calls it only in
+[`newTraitParams()`](https://sizespectrum.org/mizer/reference/newTraitParams.md)
+and
+[`newSingleSpeciesParams()`](https://sizespectrum.org/mizer/reference/newSingleSpeciesParams.md),
+before the model has your class. Nor is there a single-resource `f0` for
+the rebuild to drop, because mizer never stores a calculated `f0`.
+`species_params(params)` holds `f0` only where the user gave it, and
+elsewhere the default calculations use 0.6.
+
+Your method therefore takes effect only where it is called. Call
+`get_f0_default(params)` yourself wherever your package needs the
+feeding level that a species’ given `gamma` leads to on your resources.
+If that value should become the species’ `f0`, assign it after the
+rebuild, but only for the species whose `gamma` was given and whose `f0`
+was not:
+
+``` r
+
+given <- given_species_params(params)
+gamma_given <- if (is.null(given$gamma)) FALSE else !is.na(given$gamma)
+f0_given <- if (is.null(given$f0)) FALSE else !is.na(given$f0)
+derive <- which(gamma_given & !f0_given)
+if (length(derive) > 0) {
+    f0 <- get_f0_default(params)
+    species_params(params)[derive, "f0"] <- f0[derive]
+}
+```
+
+Keep that restriction. On a built model every species has a `gamma`, so
+[`get_f0_default()`](https://sizespectrum.org/mizer/reference/get_f0_default.md)
+returns a value for each of them. For a species whose `gamma` was
+calculated from `f0` it returns that `f0` again up to rounding, and
+storing it would freeze it as if the user had given it. The restriction
+also leaves alone an `f0` the user chose.
+
+The assigned `f0` is recorded as given, so later rebuilds keep it, and
+the rebuild it triggers uses it for the default `h` and, through `h`,
+`ks`. A species whose `h` was not given therefore gets a new `h`, with
+which its `gamma` leads to a different feeding level again: in one test,
+storing an `f0` of 0.75 gave an `h` for which
+[`get_f0_default()`](https://sizespectrum.org/mizer/reference/get_f0_default.md)
+returned 0.80. Give `h` as well if the two must agree exactly. Core
+mizer does not take this step: for a species with a given `gamma` it
+calculates the default `h` from the given `f0`, or from 0.6.
+
+Two rules for a
+[`measure_avail_energy()`](https://sizespectrum.org/mizer/reference/measure_avail_energy.md)
+or `get_*_default()` method:
+
+- Return a property of the *species parameters*, not of the model’s
+  dynamics. Leave out any dynamic modulation of the search volume, and
+  any additive encounter contribution, that your extension applies.
+  Folding such a factor in folds it into `gamma`, and since `gamma` then
+  determines the search volume, the factor gets re-applied on every
+  rebuild (issues \#577 and \#586).
+- Call [`NextMethod()`](https://rdrr.io/r/base/UseMethod.html) if what
+  you are doing is adding to mizer’s reference state rather than
+  replacing it, so that another extension in the chain still gets its
+  turn.
 
 ### Creating objects: the two commands
 
@@ -650,15 +882,18 @@ method.
 There are two situations where writing a method for your `...Sim` class
 is necessary:
 
-1.  **Overriding non-rate mizer generics.** Functions like
+1.  **Overriding a summary with semantics outside the shared
+    capabilities.** A component’s biomass is normally registered with
+    `biomass_fun`, so core
     [`getBiomass()`](https://sizespectrum.org/mizer/reference/getBiomass.md)
-    or [`getN()`](https://sizespectrum.org/mizer/reference/getN.md) are
-    summary accessors rather than step-by-step projection rates. When an
-    extension adds external dynamical components (e.g. `Detritus` and
-    `Carrion` in `mizerShelf`), you define both `getBiomass.mizerShelf`
-    (for `MizerParams`) and `getBiomass.mizerShelfSim` (for `MizerSim`)
-    so that `getBiomass(sim)` and `plotBiomass(sim)` include the
-    component biomasses across time.
+    handles both parameters and simulations. Callers explicitly select
+    it with `include = "component:name"`;
+    [`plotBiomass()`](https://sizespectrum.org/mizer/reference/plotBiomass.md)
+    plots the getter’s result. A component can return several named
+    series, or have no meaningful biomass at all. Do not infer biomass
+    from scalar state or copy the plotting code. Only a summary that
+    cannot be expressed by the shared contract needs separate params and
+    simulation methods.
 
 2.  **Providing new extension-specific `get*` rate accessors.** If your
     package introduces its own rate diagnostic function (such as
@@ -806,10 +1041,40 @@ calling
 See [Replacing `setRateFunction()` with method
 dispatch](#replacing-setratefunction-with-method-dispatch).
 
+If the package has a
+[`projectEncounter()`](https://sizespectrum.org/mizer/reference/mizerEncounter.md)
+method, give
+[`getEncounterByPrey()`](https://sizespectrum.org/mizer/reference/getEncounterByPrey.md)
+a method that makes the same change. See [The diet follows
+`getEncounterByPrey()`](#the-diet-follows-getencounterbyprey).
+
 Store all extension-specific state in `other_params(params)` or in new
 components created with
 [`setComponent()`](https://sizespectrum.org/mizer/reference/setComponent.md),
 never as extra top-level list elements or new slots.
+
+Assemble and register the capabilities the extension actually supports:
+equations/custom steps, quantitative convergence, tuning strategies,
+species/ grid/scaling transformations, biomass and mortality
+diagnostics. Projection support alone does not supply the others. Use
+the [guide to extending
+mizer](https://sizespectrum.org/mizer/articles/guide-extend-mizer.md)
+for their contracts and examples.
+
+Register declarations after the final effective providers and extension
+classes are in place. Update saved objects explicitly in the package’s
+upgrade method; changing a reusable definition does not change older
+models. Test each provider-bound family independently after replacing a
+provider.
+
+Keep structural prescribed inputs separate from conditional analysis and
+temporary tuning constraints. Declare time dependence independently of a
+stationary tuning strategy. Missing support must remain visible.
+
+Transform owned arrays before dependent rates and initial guesses use
+them. Test species addition with `steady = FALSE`, removal, reordering,
+renaming, grid changes and both scaling operations. No late repair
+should hide a failure earlier in the operation.
 
 Add and remove any species parameter column of your own through
 `species_params(params)$my_col <- value` and
@@ -826,6 +1091,21 @@ never by assigning into `params@other_mort` or `params@other_encounter`
 directly. See [Metadata-only extensions:
 mizerStarvation](#metadata-only-extensions-mizerstarvation).
 
+If your package changes the resource structure of the model, define a
+[`measure_avail_energy()`](https://sizespectrum.org/mizer/reference/measure_avail_energy.md)
+(or
+[`get_gamma_default()`](https://sizespectrum.org/mizer/reference/get_gamma_default.md)
+/
+[`get_f0_default()`](https://sizespectrum.org/mizer/reference/get_f0_default.md))
+method and rebuild the species parameters with
+`species_params(params) <- species_params(params)` after
+`coerceToExtensionClass(params)` so that the `gamma` default is derived
+against your resources rather than against the one mizer replaced. The
+rebuild does not apply an `f0` calculation; if you need one, store its
+result yourself. See [But they do go through your `get_*_default()`
+method](#but-they-do-go-through-your-get__default-method) and [A rebuild
+does not calculate `f0`](#a-rebuild-does-not-calculate-f0).
+
 Report anything you tell the user with
 [`signal_info()`](https://sizespectrum.org/mizer/reference/signal_info.md)
 inside a
@@ -841,10 +1121,10 @@ that your overrides do not break core behaviour. See [Running mizer’s
 test suite against your
 subclass](#running-mizers-test-suite-against-your-subclass).
 
-For metadata-only packages, only the storage item and the reporting item
-apply, and
+For metadata-only packages, S3 dispatch items do not apply and
 [`coerceToExtensionClass()`](https://sizespectrum.org/mizer/reference/coerceToExtensionClass.md)
-is not needed. Their setup functions should still call
+is not needed. Capability declarations still apply to the components and
+rate contributions they provide. Their setup functions should still call
 [`recordExtension()`](https://sizespectrum.org/mizer/reference/recordExtension.md),
 stamping the package version and requirement when their component is
 first created.
@@ -885,7 +1165,7 @@ Edit `tests/testthat/helper.R` and, immediately **after**
 `NS_params_small` has been fully built (just before `NS_sim_small` is
 created), insert code that replaces it with an object of your class.
 Because
-[`devtools::load_all()`](https://devtools.r-lib.org/reference/load_all.html)
+[`devtools::load_all()`](https://rdrr.io/pkg/devtools/man/load_all.html)
 sources the helper inside mizer’s own namespace, attached packages are
 not on the lookup path there, so:
 
@@ -926,8 +1206,8 @@ the next line and will then be of your `...Sim` class automatically.
 ### Step 3: Run the suite
 
 Run the tests from the root of the mizer source tree. Use
-[`devtools::test()`](https://devtools.r-lib.org/reference/test.html)
-rather than
+[`devtools::test()`](https://rdrr.io/pkg/devtools/man/test.html) rather
+than
 [`testthat::test_dir()`](https://testthat.r-lib.org/reference/test_dir.html):
 it calls `load_all()`, which is required because some mizer tests use
 mizer’s internal (unexported) functions.
@@ -1003,6 +1283,17 @@ migration. It must be idempotent, must **not** call
 [`NextMethod()`](https://rdrr.io/r/base/UseMethod.html), and must
 **not** touch the version stamp — mizer’s orchestrator re-stamps the
 object after calling your method.
+
+Public setters such as
+[`setComponent()`](https://sizespectrum.org/mizer/reference/setComponent.md)
+and
+[`setProcess()`](https://sizespectrum.org/mizer/reference/setProcess.md)
+can be used inside the upgrade. Their validation does not restart the
+same candidate’s upgrade chain. The old version remains visible during
+your method; mizer stamps the new version only after it returns
+successfully. A failed upgrade leaves the caller’s original object
+unchanged and can be retried after correcting the failure. Do not
+pre-stamp the object as a recursion workaround.
 
 ``` r
 

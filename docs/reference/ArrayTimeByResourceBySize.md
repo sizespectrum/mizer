@@ -74,6 +74,9 @@ attributes:
 
 - `params` – the `MizerParams` object that the value was computed from.
 
+Size selections and extracted time slices retain their original model
+coordinates, including reordered and repeated columns.
+
 ## See also
 
 [`print()`](https://sizespectrum.org/mizer/reference/print.md),

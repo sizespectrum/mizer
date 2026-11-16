@@ -1,8 +1,8 @@
 # Get the size grid for an ArrayResourceBySize object
 
-Internal helper that returns the full prey/resource size grid
-`params@w_full`, or the numeric vector parsed from the names of `x` if
-no `params` is attached.
+Internal helper that follows the stored mapping to the full
+prey/resource size grid. Falls back to numeric names when no model grid
+is available.
 
 ## Usage
 

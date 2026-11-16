@@ -3,7 +3,7 @@
 ## Introduction
 
 In this tutorial we will use the [ggplot2
-package](https://ggplot2.tidyverse.org/) and the  
+package](https://ggplot2.tidyverse.org/) and the\
 [plotly package for R](https://plot.ly/r/) to visualise the results from
 mizer simulations.
 
@@ -72,7 +72,7 @@ str(biomass)
     ##  - attr(*, "value_name")= chr "Biomass"
     ##  - attr(*, "units")= chr "g"
     ##  - attr(*, "type")= chr "value"
-    ##  - attr(*, "params")=Formal class 'MizerParams' [package "mizer"] with 48 slots
+    ##  - attr(*, "params")=Formal class 'MizerParams' [package "mizer"] with 50 slots
 
 This array can be converted with the
 [`melt()`](https://rdrr.io/pkg/reshape2/man/melt.html) function to a
@@ -364,7 +364,10 @@ str(final_n)
     ##  - attr(*, "units")= chr "1/g"
     ##  - attr(*, "type")= chr "density"
     ##  - attr(*, "representation")= chr "point"
-    ##  - attr(*, "params")=Formal class 'MizerParams' [package "mizer"] with 48 slots
+    ##  - attr(*, "size_grid")=List of 2
+    ##   ..$ grid : chr "w"
+    ##   ..$ index: int [1:100] 1 2 3 4 5 6 7 8 9 10 ...
+    ##  - attr(*, "params")=Formal class 'MizerParams' [package "mizer"] with 50 slots
 
 We use the [`melt()`](https://rdrr.io/pkg/reshape2/man/melt.html)
 function to convert this array into a data frame.

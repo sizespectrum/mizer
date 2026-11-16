@@ -9,11 +9,13 @@
 Multiplies all rates in the model by a given factor. Rescaling all rates by
 a factor \(f\) is equivalent to rescaling time by \(f\): it speeds up
 (or slows down) all dynamics without affecting the steady state of each
-species, provided the resource spectrum is held at its steady-state value."><meta property="og:description" content="
+species and resource. Extension providers must declare how their dynamics
+transform under this change of time scale."><meta property="og:description" content="
 Multiplies all rates in the model by a given factor. Rescaling all rates by
 a factor \(f\) is equivalent to rescaling time by \(f\): it speeds up
 (or slows down) all dynamics without affecting the steady state of each
-species, provided the resource spectrum is held at its steady-state value."><meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png"><meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R"><meta name="twitter:card" content="summary"><meta name="twitter:creator" content="@mizer_model"><meta name="twitter:site" content="@mizer_model"></head><body>
+species and resource. Extension providers must declare how their dynamics
+transform under this change of time scale."><meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png"><meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R"><meta name="twitter:card" content="summary"><meta name="twitter:creator" content="@mizer_model"><meta name="twitter:site" content="@mizer_model"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -21,7 +23,7 @@ species, provided the resource spectrum is held at its steady-state value."><met
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0.9011</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -100,7 +102,8 @@ species, provided the resource spectrum is held at its steady-state value."><met
 Multiplies all rates in the model by a given factor. Rescaling all rates by
 a factor \(f\) is equivalent to rescaling time by \(f\): it speeds up
 (or slows down) all dynamics without affecting the steady state of each
-species, provided the resource spectrum is held at its steady-state value.</p>
+species and resource. Extension providers must declare how their dynamics
+transform under this change of time scale.</p>
     </div>
 
     <div class="section level2">
@@ -141,11 +144,20 @@ parameter)</p></li>
 parameter)</p></li>
 <li><p>Catchability (<code>catchability</code> slot and <code>catchability</code> column in
 <code>gear_params</code>)</p></li>
-<li><p>Maximum reproduction rate (<code>R_max</code> species parameter)</p></li>
-<li><p>Resource growth rate (<code>rr_pp</code> slot)</p></li>
+<li><p>Reproduction rate parameters (<code>R_max</code> and
+<code>constant_reproduction</code> multiply by the factor; <code>ricker_b</code> and
+<code>sheperd_b</code> divide by it)</p></li>
+<li><p>Resource growth rate (<code>rr_pp</code> slot and <code>r_pp</code> resource parameter)</p></li>
 </ul><p>Both the rate arrays stored in the MizerParams slots and the associated
 species parameters in <code>species_params</code> and <code>given_species_params</code> are
-rescaled, so that the parameters remain consistent with the rate arrays.</p>
+rescaled, so that the parameters remain consistent with the rate arrays.
+Changed scalar coefficients are recorded as given values, including those
+previously calculated by mizer. Existing manually set arrays retain their
+protection from recalculation.</p>
+<p>Components and custom providers require declared transformation support.
+Their hooks run after the core fields are scaled and before final validation,
+with the original model available for reference. Component states are left
+to their hooks; there is no automatic state rescaling.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

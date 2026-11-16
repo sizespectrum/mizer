@@ -482,6 +482,15 @@ function.
   simple power law, and `psi` is determined strictly by the maturity
   ogive and the reproductive investment proportion.
 
+The edition that is active when a model is created is recorded in the
+model, and every default that `mizer` fills in for that model later on,
+for example when it recalculates the model after you have changed a
+species parameter, is chosen with that edition. Changing the active
+edition therefore affects only models created afterwards.
+`defaults_edition(params)` tells you the edition of a model. Models
+created with a version of `mizer` that did not yet record the edition
+are of edition 1.
+
 ------------------------------------------------------------------------
 
 ## Worked Example

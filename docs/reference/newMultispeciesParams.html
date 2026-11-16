@@ -23,7 +23,7 @@ details in the sections below the list."><meta property="og:image" content="http
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0.9011</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -138,7 +138,7 @@ details in the sections below the list.</p>
 <span>  selectivity <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  catchability <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  initial_effort <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  second_order_w <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  second_order_w <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  info_level <span class="op">=</span> <span class="fu"><a href="default_info_level.html">default_info_level</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  z0 <span class="op">=</span> <span class="fu">deprecated</span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  r_pp <span class="op">=</span> <span class="fu">deprecated</span><span class="op">(</span><span class="op">)</span></span>
@@ -331,7 +331,11 @@ bin-averaged from the start (unlike setting <code><a href="second_order_w.html">
 existing object). The <code>flux</code> scheme governs time projection only, so the
 robust first-order upwind scheme is used for the construction-time
 steady-state solve and the chosen scheme is then activated for the returned
-model. Defaults to <code>FALSE</code> (the first-order behaviour of previous mizer).</p></dd>
+model. By default the model gets the scheme of the active
+<code><a href="defaults_edition.html">defaults_edition()</a></code>: the second-order scheme, as with <code>TRUE</code>, from
+edition 3 on, and the first-order scheme of previous mizer versions, as
+with <code>FALSE</code>, in earlier editions. A value that sets only one of the two
+entries leaves the other at the default of the edition.</p></dd>
 
 
 <dt id="arg-info-level">info_level<a class="anchor" aria-label="anchor" href="#arg-info-level"></a></dt>

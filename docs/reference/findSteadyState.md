@@ -14,6 +14,11 @@ findSteadyState(
   solver = c("project", "newton"),
   effort = params@initial_effort,
   info_level = default_info_level(),
+  scope = c("whole", "conditional"),
+  fixed = character(),
+  criterion = c("state", "biomass"),
+  tolerances = NULL,
+  atol = 1e-12,
   ...
 )
 ```
@@ -44,14 +49,39 @@ findSteadyState(
   default is taken from the `mizer_info_level` option, see
   [`default_info_level()`](https://sizespectrum.org/mizer/reference/default_info_level.md).
 
+- scope:
+
+  `"whole"` or `"conditional"`.
+
+- fixed:
+
+  Owners held fixed for a conditional assessment. Use `"consumers"`,
+  `"resource"`, or `"component:name"` for a component named `name`. This
+  must be empty for whole-model assessments and nonempty for conditional
+  assessments.
+
+- criterion:
+
+  `"state"` for the absolute state residual, or `"biomass"` for net
+  biomass drift in the built-in checks.
+
+- tolerances:
+
+  Optional named numeric vector overriding individual tolerances. Names
+  are `owner/measure`, as shown in the `measures` table.
+
+- atol:
+
+  Absolute tolerance for built-in checks, in grams per year.
+
 - ...:
 
   Arguments for the chosen solver.
 
   With `solver = "project"`: `distance_func`, `t_max`, `t_check`, `dt`,
   `distance_tol`, `residual_tol`, `amplitude_tol`, `amp_rel_tol`,
-  `extinction_threshold`, `progress_bar` and `method`, all as described
-  in
+  `extinction_threshold`, `progress_bar`, `method`, `subcycle`,
+  `max_courant` and `max_substeps`, all as described in
   [`projectUntilSettled()`](https://sizespectrum.org/mizer/reference/projectUntilSettled.md).
   There is no `t_save`, because no trajectory is returned.
 
@@ -108,8 +138,10 @@ the fish and appends the resource steady-state equation to the system,
 so the resource density and the feeding levels it implies are
 self-consistent even where consumers are satiated. That equation is
 written for the default semichemostat resource dynamics, so
-`solver = "newton"` stops with an error for any other
-`resource_dynamics`; use `solver = "project"` there.
+`solver = "newton"` stops with an error for any other dynamic
+`resource_dynamics`; use `solver = "project"` there, or explicitly fix
+the resource in a conditional analysis. Dynamic extension components
+likewise require explicit conditional exclusions for Newton.
 
 The Newton iteration also needs the residual \\F(N)\\ to be continuous.
 A custom rate function registered with
@@ -196,9 +228,7 @@ the dynamics themselves would run away from.
 ``` r
 # \donttest{
 params <- findSteadyState(NS_params, solver = "newton")
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-#> ℹ The biomasses of the solution change at up to 6e-07 per year.
+#> The biomasses of the solution change at up to 6e-07 per year.
 plotSpectra(params)
 
 # }

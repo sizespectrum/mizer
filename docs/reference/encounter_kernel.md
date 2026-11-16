@@ -28,8 +28,8 @@ An array (predator species x predator size x prey size).
 
 ## Details
 
-On the default first-order path this is just the point-sampled kernel
-returned by
+On the first-order path this is just the point-sampled kernel returned
+by
 [`pred_kernel()`](https://sizespectrum.org/mizer/reference/setPredKernel.md).
 When second-order bin-averaging is switched on (see
 [`second_order_w()`](https://sizespectrum.org/mizer/reference/second_order_w.md))

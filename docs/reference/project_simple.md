@@ -20,6 +20,10 @@ project_simple(
   other_dynamics_fns,
   rates_fns,
   method = c("euler", "predictor_corrector", "tr_bdf2"),
+  subcycle = FALSE,
+  max_courant = 1,
+  max_substeps = 10000,
+  info_level = default_info_level(),
   ...
 )
 ```
@@ -80,6 +84,27 @@ project_simple(
   The numerical method to use for the consumer density update. See
   [`project()`](https://sizespectrum.org/mizer/reference/project.md).
 
+- subcycle:
+
+  Whether to split requested steps using the growth Courant target, as
+  in [`project()`](https://sizespectrum.org/mizer/reference/project.md).
+  Default `FALSE`.
+
+- max_courant:
+
+  Positive growth Courant target, as in
+  [`project()`](https://sizespectrum.org/mizer/reference/project.md).
+
+- max_substeps:
+
+  Positive integer cap per requested step, as in
+  [`project()`](https://sizespectrum.org/mizer/reference/project.md).
+
+- info_level:
+
+  Level of information reported; see
+  [`default_info_level()`](https://sizespectrum.org/mizer/reference/default_info_level.md).
+
 - ...:
 
   Other arguments that are passed on to the rate functions.
@@ -99,16 +124,13 @@ for every saved value. The function also does not save its intermediate
 results but only returns the result at time `t + dt * steps`. During
 this time it uses the constant fishing effort `effort`.
 
-The functional arguments can be calculated from slots in the `params`
-object with
-
-    resource_dynamics_fn <- get(params@resource_dynamics)
-    other_dynamics_fns <- lapply(params@other_dynamics, get)
-    rates_fns <- lapply(params@rates_funcs, get)
-
-The reason the function does not do that itself is to shave 20
-microseconds of its running time, which pays when the function is called
-hundreds of times in a row.
+The default method prepares the functional arguments from the model,
+including the derivatives of components registered with `rate_fun`.
+Callers that repeatedly advance the same model can supply prepared
+functions to reuse their dispatch. Component functions must retain the
+derivative metadata added during preparation; looking up
+`other_dynamics` names alone does not prepare an equation-only component
+for second-order integration.
 
 This function is also used by the steady-state finders. In between calls
 to `project_simple()` the

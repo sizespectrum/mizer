@@ -73,6 +73,11 @@ lightweight attributes:
 
 - `params` – the `MizerParams` object that the value was computed from.
 
+Subsetting preserves the original model sizes, including reordered and
+repeated selections. The same mapping is retained by time slices of
+[`ArrayTimeByResourceBySize()`](https://sizespectrum.org/mizer/reference/ArrayTimeByResourceBySize.md)
+objects.
+
 ## See also
 
 [`print()`](https://sizespectrum.org/mizer/reference/print.md),
@@ -88,8 +93,6 @@ lightweight attributes:
 ``` r
 # \donttest{
 mort <- getResourceMort(NS_params)
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 is.ArrayResourceBySize(mort)
 #> [1] TRUE
 summary(mort)

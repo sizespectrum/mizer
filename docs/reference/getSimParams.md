@@ -27,8 +27,6 @@ A named list of projection parameters.
 
 ``` r
 sim <- project(NS_params, t_max = 0.1, dt = 0.05, method = "predictor-corrector")
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 getSimParams(sim)
 #> $method
 #> [1] "predictor_corrector"
@@ -38,5 +36,18 @@ getSimParams(sim)
 #> 
 #> $flux_limiter
 #> [1] "none"
+#> 
+#> $subcycle
+#> [1] FALSE
+#> 
+#> $max_courant
+#> [1] 1
+#> 
+#> $max_substeps
+#> [1] 10000
+#> 
+#> $component_integration
+#> [1] component method    order     callback 
+#> <0 rows> (or 0-length row.names)
 #> 
 ```

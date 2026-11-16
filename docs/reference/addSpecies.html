@@ -27,7 +27,7 @@ low level."><meta property="og:image" content="https://sizespectrum.org/mizer/re
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0.9011</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -197,8 +197,10 @@ species will be calculated from their species parameters.</p>
 <p>After adding the new species, the background species are not retuned and
 the system is not run to steady state. This could be done with
 <code><a href="tuneSteadyState.html">tuneSteadyState()</a></code>.
-The new species will have a reproduction level of 1/4, this can then be
-changed with <code><a href="setBevertonHolt.html">reproduction_level&lt;-()</a></code>.</p>
+With Beverton-Holt reproduction, the new species receive a reproduction
+level of 1/4. Other reproduction laws retain their declared balancing
+strategy. Only the new species' recruitment is targeted; a coupled strategy
+that cannot honour a partial request must reject the operation.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

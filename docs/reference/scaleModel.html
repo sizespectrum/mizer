@@ -23,7 +23,7 @@ changing the abundances and rates accordingly."><meta property="og:image" conten
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0.9011</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -134,18 +134,21 @@ changing the abundances and rates accordingly.</p>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>If you rescale the model by a factor \(c\) then this function makes the
-following rescalings in the params object:</p><ul><li><p>The initial abundances are rescaled by \(c\).</p></li>
+following rescalings in the params object:</p><ul><li><p>The initial consumer and resource abundances are rescaled by \(c\).</p></li>
 <li><p>The search volume is rescaled by \(1/c\).</p></li>
 <li><p>The resource carrying capacity is rescaled by \(c\)</p></li>
-<li><p>The maximum reproduction rate \(R_{max}\) is rescaled by
-\(c\).</p></li>
+<li><p>Reproduction rate parameters <code>R_max</code> and <code>constant_reproduction</code>
+are multiplied by \(c\); <code>ricker_b</code> and <code>sheperd_b</code> are divided by it.</p></li>
 </ul><p>The effect of this is that the dynamics of the rescaled model are identical
 to those of the unscaled model, in the sense that it does not matter whether
 one first calls <code>scaleModel()</code> and then runs a simulation with
 <code><a href="project.html">project()</a></code> or whether one first runs a simulation and then rescales the
 resulting abundances.</p>
-<p>Note that if you use non-standard resource dynamics or other components then
-you may need to rescale additional parameters that appear in those dynamics.</p>
+<p>Components and custom providers must declare transformation support. Their
+hooks run after the core fields are scaled and before final validation, with
+the original model available for reference. A component can scale a stock
+while leaving intensive quantities, such as temperature, unchanged. Mizer
+does not infer how to transform an arbitrary component state.</p>
 <p>In practice you will need to use some observations to set the scale for your
 model. If you have biomass observations you can use <code><a href="calibrateBiomass.html">calibrateBiomass()</a></code>,
 if you have observed numbers you can use <code><a href="calibrateNumber.html">calibrateNumber()</a></code>.</p>

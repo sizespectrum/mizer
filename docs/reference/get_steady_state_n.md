@@ -1,8 +1,7 @@
 # Calculate steady state abundance
 
-This function calculates the steady state abundance by solving the
-transport equation with given growth and mortality rates. It sets up a
-tri-diagonal system and solves it.
+Solves the steady-state transport equation with growth, mortality and
+diffusion held fixed and the supplied abundance in each egg size class.
 
 ## Usage
 
@@ -15,7 +14,7 @@ get_steady_state_n(
   N0,
   max_iterations = 500,
   tol = 1e-10,
-  relax = 0.3
+  relax = 0.5
 )
 ```
 
@@ -43,41 +42,42 @@ get_steady_state_n(
 
 - max_iterations:
 
-  Maximum number of Picard iterations used when a flux limiter is
-  active.
+  Maximum number of defect-correction updates for a van Leer flux
+  limiter.
 
 - tol:
 
-  Relative convergence tolerance for the Picard iteration.
+  Relative tolerance for both the correction and the transport residual,
+  checked separately for every species.
 
 - relax:
 
-  Under-relaxation factor in (0, 1\] for the Picard iteration when a
-  flux limiter is active.
+  Under-relaxation factor in (0, 1\] for defect correction.
 
 ## Value
 
-A matrix with the steady state abundance
+A matrix with the steady-state abundance. Stops with an error naming the
+unconverged species if the iteration limit is reached.
 
 ## Details
 
-The spatial discretisation of the advective flux is read from the `flux`
-entry of the `second_order_w` slot of `params`. With a second-order flux
-scheme active the steady state must match the one that
-[`project()`](https://sizespectrum.org/mizer/reference/project.md)
-converges to. Because the limiter depends on the solution, the steady
-state is then found by an under-relaxed Picard iteration: the limiter is
-frozen at the current iterate, the resulting tridiagonal system is
-solved, and the iterate is updated towards that solution, repeating
-until it converges. (At `dt = 1` the limited operator is not diagonally
-dominant, so the plain fixed-point map only stalls; under-relaxation
-makes it converge.)
+The flux scheme is read from
+[`second_order_w()`](https://sizespectrum.org/mizer/reference/second_order_w.md).
+The upwind and centred systems are linear and are solved directly. With
+a van Leer limiter, defect correction solves the nonlinear equation
+using an upwind preconditioner with the same face placement and
+diffusion as the second-order scheme. Only the preconditioner has its
+reconstruction weights set to zero: the residual retains the model's
+chosen flux limiter.
 
-The returned abundance is held at zero above each species' `w_max`, the
-same upper boundary condition that
-[`project()`](https://sizespectrum.org/mizer/reference/project.md)
-imposes (via `zero_above_support()` in
-[`project_n()`](https://sizespectrum.org/mizer/reference/project_n.md))
-and that the Newton solver solves on. Without this the bottom-up solve
-would carry density above `w_max` whenever growth is still positive
-there or diffusion pushes density past it.
+Each present species is solved with unit egg abundance and then rescaled
+to `N0`, because the limiter is unchanged by multiplying a species'
+spectrum by a positive constant. This prevents species with large egg
+abundances from hiding non-convergence in other species. Convergence
+requires both a small correction and a small residual of the original
+transport equation, so clipping negative iterates cannot turn a stalled
+iteration into a solution.
+
+Abundance is held at zero below the egg size and above the support top
+given by `support_top_idx()`, matching the boundary conditions of
+[`project()`](https://sizespectrum.org/mizer/reference/project.md).

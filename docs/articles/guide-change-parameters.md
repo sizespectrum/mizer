@@ -228,18 +228,24 @@ named in `pred_kernel_type` too; its arguments become the required
 columns.
 
 Other species parameters are used **directly** and build no array
-(changing them just changes the model): `alpha` (assimilation), `w_min`
-(egg size), `erepro` and `R_max` (reproduction), `interaction_resource`,
-and the length–weight parameters `a`, `b`.
+(changing them just changes the model): `erepro` and `R_max`
+(reproduction), `interaction_resource`, and the length–weight parameters
+`a`, `b`. The assimilation efficiency `alpha` and the egg size `w_min`
+are used directly too, but they are also inputs to the default for `h`:
+when `h` is derived from
+[`age_mat`](https://sizespectrum.org/mizer/reference/age_mat.md)
+(including estimates from von Bertalanffy parameters), changing either
+of them can change `h` and the parameters derived from it (see “Chained
+derivations” below). Without usable growth information, the fallback
+`h = 30` stays unchanged.
 
 ------------------------------------------------------------------------
 
 ## Gotchas from the way defaults are calculated
 
 Mizer fills in what you did not supply, and the derivations are chained:
-[`age_mat`](https://sizespectrum.org/mizer/reference/age_mat.md) → `h` →
-`gamma` and `ks`. Changing one parameter therefore rarely changes just
-that one thing.
+`age_mat` and `w_min` → `h` → `gamma` and `ks`. Changing one parameter
+therefore rarely changes just that one thing.
 
 The three sections below cover the traps this creates; for the
 mathematical derivations themselves see [Calculation of Default
@@ -378,12 +384,38 @@ If a user is puzzled that “changing `w_mat` changed my growth curve
 everywhere”, this is why. To pin a parameter against the chain, give it
 explicitly — a given value is never recalculated.
 
+The egg size `w_min` is in the formula for `h` too. Lowering it from 0.5
+g to 1 mg for a species with `w_mat = 500` and `age_mat = 4` raises `h`
+from 22.3 to 24.5, and `ks` and any `gamma` that is not given rise in
+proportion. Extending a species down to its true egg size, for example
+to model its larvae explicitly, therefore changes its adult energetics
+as well. To change only the egg size, first pin `h` at its current
+value:
+
+``` r
+
+given_species_params(params)$h <- species_params(params)$h
+```
+
+Pinning `h` is enough, because `w_min` reaches `gamma` and `ks` only
+through `h`. An egg size below the smallest weight of the model’s size
+grid, `min(w(params))`, is not accepted: `species_params<-()` raises it
+back to that minimum with a warning. The grid normally starts at the
+smallest egg size in the model, so this happens whenever you lower that
+one. Extend the grid first, then set the egg size:
+
+``` r
+
+params <- adjustSizeGrid(params, new_min_w = 0.001)
+species_params(params)["Cod", "w_min"] <- 0.001
+```
+
 ### `f0` and `fc` are calibration targets, not model outputs
 
 `gamma` is calibrated against an **idealised reference world**, not
 against your model: a pure power-law resource `kappa * w^-lambda`, with
-all fish abundances set to zero, and — under
-[`defaults_edition() < 2`](https://sizespectrum.org/mizer/reference/defaults_edition.md)
+all fish abundances set to zero, and — for a model of
+[`defaults_edition(params) < 2`](https://sizespectrum.org/mizer/reference/defaults_edition.md)
 — with `interaction_resource` forced to 1. External encounter and
 functions registered with
 [`other_encounter()`](https://sizespectrum.org/mizer/reference/other_mort.md)
@@ -402,9 +434,11 @@ alone, before those realised-dynamics additions.
   and call them the model’s feeding levels.
 - Setting `interaction_resource` to anything other than 1 leaves `gamma`
   untouched under edition 1, so the reduction falls straight through to
-  the realised feeding level and can starve a species outright. Under
-  `defaults_edition() >= 2`, `interaction_resource` is included in the
-  calibration.
+  the realised feeding level and can starve a species outright. For a
+  model of `defaults_edition(params) >= 2`, `interaction_resource` is
+  included in the calibration. The edition is that of the model,
+  recorded when it was created, not the one active when the
+  recalculation happens.
 - The resource scalars that enter the calibration **do** trigger a
   re-derivation. Since mizer 3.3, changing `lambda` recalculates every
   `q` and `gamma` that mizer calculated, and changing `kappa`
@@ -502,6 +536,43 @@ inter <- interaction_matrix(params)
 inter["Cod", "Herring"] <- 0.5
 interaction_matrix(params) <- inter        # or params <- setInteraction(params, inter)
 ```
+
+------------------------------------------------------------------------
+
+## Changing model structure and scale
+
+Use the model-level operations when a change affects more than a
+parameter column:
+[`addSpecies()`](https://sizespectrum.org/mizer/reference/addSpecies.md),
+[`removeSpecies()`](https://sizespectrum.org/mizer/reference/removeSpecies.md),
+[`renameSpecies()`](https://sizespectrum.org/mizer/reference/renameSpecies.md),
+[`reorderSpecies()`](https://sizespectrum.org/mizer/reference/reorderSpecies.md)
+and
+[`adjustSizeGrid()`](https://sizespectrum.org/mizer/reference/adjustSizeGrid.md).
+For a reorder, supply every species exactly once in its desired order.
+Reordering a species-parameter table alone leaves the model’s arrays
+inconsistent and is rejected by its replacement accessor.
+
+These operations preserve the model’s defaults edition. Extension-owned
+arrays and state need declared transformation support, which runs after
+the core structure is prepared and before dependent rates or
+steady-state calculations. If an operation reports missing support,
+update the extension package; projection support alone does not define
+how its data should be resized. Mizer does not infer species or size
+dimensions from an arbitrary extension array’s shape.
+
+[`scaleModel(params, factor)`](https://sizespectrum.org/mizer/reference/scaleModel.md)
+changes the abundance scale; `scaleRates(params, factor)` changes the
+speed of the dynamics. Both transform the corresponding built-in
+parameters as well as their arrays, so a later setter recalculation
+retains the scaling. Scaled scalar coefficients are recorded among the
+supplied species parameters; set one to `NA` in
+[`given_species_params()`](https://sizespectrum.org/mizer/reference/species_params.md)
+if you later want it derived afresh from the other parameters.
+Components use their own declared hooks: a stock may scale, while a
+temperature, proportion or text label stays unchanged. For
+extension-author details see the [guide to extending
+mizer](https://sizespectrum.org/mizer/articles/guide-extend-mizer.md).
 
 ------------------------------------------------------------------------
 

@@ -39,7 +39,7 @@ the trajectory leading to it.'><meta property="og:image" content="https://sizesp
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0.9011</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -148,6 +148,14 @@ the trajectory leading to it.</p>
 <span>  progress_bar <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  info_level <span class="op">=</span> <span class="fu"><a href="default_info_level.html">default_info_level</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"euler"</span>, <span class="st">"predictor_corrector"</span>, <span class="st">"tr_bdf2"</span><span class="op">)</span>,</span>
+<span>  subcycle <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  max_courant <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  max_substeps <span class="op">=</span> <span class="fl">10000</span>,</span>
+<span>  scope <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"whole"</span>, <span class="st">"conditional"</span><span class="op">)</span>,</span>
+<span>  fixed <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">character</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  criterion <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"state"</span>, <span class="st">"biomass"</span><span class="op">)</span>,</span>
+<span>  tolerances <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  atol <span class="op">=</span> <span class="fl">1e-12</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -202,22 +210,17 @@ between two saves.</p></dd>
 <dt id="arg-distance-tol">distance_tol<a class="anchor" aria-label="anchor" href="#arg-distance-tol"></a></dt>
 <dd><p>The run stops when the number returned by <code>distance_func</code>
 for two states <code>t_check</code> years apart drops below <code>distance_tol</code>, provided
-the drift criterion below is also met. Its meaning therefore depends on the
+the steady-state assessment below also passes. Its meaning depends on the
 distance function you supply. It was called <code>tol</code> before mizer 3.3.</p></dd>
 
 
 <dt id="arg-residual-tol">residual_tol<a class="anchor" aria-label="anchor" href="#arg-residual-tol"></a></dt>
 <dd><p><a href="https://lifecycle.r-lib.org/articles/stages.html#experimental" class="external-link"><img src="figures/lifecycle-experimental.svg" alt="[Experimental]"></a>
-The largest relative rate of biomass change, in 1/year, that a state may
-have and still be called a fixed point. This is the criterion of
-<code><a href="isSteady.html">isSteady()</a></code> and is measured with <code><a href="getSteadyResidual.html">getSteadyResidual()</a></code>, so it has the same
-meaning for every model and every distance function. Default <code>0.05</code>.</p>
-<p>It is a backstop against a distance function that has gone quiet while the
-model is still moving, not the main line of defence against a cycle: an
-oscillation of relative amplitude \(A\) and period \(T\) drifts at up
-to \(2\pi A/T\) per year, which for a small <code>amplitude_tol</code> can be below
-any sensible <code>residual_tol</code>. Cycles that small are caught by the cycle
-detection above, which is why that runs unconditionally.</p></dd>
+The relative tolerance for built-in state-change measures, in 1/year.
+Default <code>0.05</code>; see <code><a href="getSteadyAssessment.html">getSteadyAssessment()</a></code>. Component callbacks provide
+their own tolerances, which can be overridden with <code>tolerances</code>.
+<code>Inf</code> disables the assessment stopping gate; the reported assessment still
+uses the usual finite tolerance, so this does not declare a fixed point.</p></dd>
 
 
 <dt id="arg-amplitude-tol">amplitude_tol<a class="anchor" aria-label="anchor" href="#arg-amplitude-tol"></a></dt>
@@ -242,9 +245,10 @@ A species is treated as going extinct, stopping the run, once its
 reproduction rate (RDD) falls below this fraction of its value at the start
 of the run. For example the default <code>1e-6</code> treats a species as extinct once
 its reproduction has collapsed to a millionth of its initial level. Because
-it is relative to the initial reproduction, a species that starts with zero
-reproduction is flagged immediately, and (in <code><a href="tuneSteadyState.html">tuneSteadyState()</a></code>, where
-reproduction is held constant) a healthy species is never flagged.</p></dd>
+it is relative to the initial reproduction, a species that is present but
+starts with zero reproduction is flagged immediately, and (in
+<code><a href="tuneSteadyState.html">tuneSteadyState()</a></code>, where reproduction is held constant) a healthy species
+is never flagged. A species with no fish at the start is not tested.</p></dd>
 
 
 <dt id="arg-progress-bar">progress_bar<a class="anchor" aria-label="anchor" href="#arg-progress-bar"></a></dt>
@@ -262,6 +266,46 @@ default is taken from the <code>mizer_info_level</code> option, see
 <dt id="arg-method">method<a class="anchor" aria-label="anchor" href="#arg-method"></a></dt>
 <dd><p>The numerical method to use for the consumer density update.
 See <code><a href="project.html">project()</a></code>.</p></dd>
+
+
+<dt id="arg-subcycle">subcycle<a class="anchor" aria-label="anchor" href="#arg-subcycle"></a></dt>
+<dd><p>Whether to use coupled growth-Courant substeps, as in
+<code><a href="project.html">project()</a></code>. Default <code>FALSE</code>.</p></dd>
+
+
+<dt id="arg-max-courant">max_courant<a class="anchor" aria-label="anchor" href="#arg-max-courant"></a></dt>
+<dd><p>Positive growth Courant target, default 1; see
+<code><a href="project.html">project()</a></code>.</p></dd>
+
+
+<dt id="arg-max-substeps">max_substeps<a class="anchor" aria-label="anchor" href="#arg-max-substeps"></a></dt>
+<dd><p>Positive integer cap on substeps per requested <code>dt</code>,
+default 10000; see <code><a href="project.html">project()</a></code>.</p></dd>
+
+
+<dt id="arg-scope">scope<a class="anchor" aria-label="anchor" href="#arg-scope"></a></dt>
+<dd><p><code>"whole"</code> or <code>"conditional"</code>.</p></dd>
+
+
+<dt id="arg-fixed">fixed<a class="anchor" aria-label="anchor" href="#arg-fixed"></a></dt>
+<dd><p>Owners held fixed for a conditional assessment. Use
+<code>"consumers"</code>, <code>"resource"</code>, or <code>"component:name"</code> for a component named
+<code>name</code>. This must be empty for whole-model assessments and nonempty for
+conditional assessments.</p></dd>
+
+
+<dt id="arg-criterion">criterion<a class="anchor" aria-label="anchor" href="#arg-criterion"></a></dt>
+<dd><p><code>"state"</code> for the absolute state residual, or <code>"biomass"</code>
+for net biomass drift in the built-in checks.</p></dd>
+
+
+<dt id="arg-tolerances">tolerances<a class="anchor" aria-label="anchor" href="#arg-tolerances"></a></dt>
+<dd><p>Optional named numeric vector overriding individual
+tolerances. Names are <code>owner/measure</code>, as shown in the <code>measures</code> table.</p></dd>
+
+
+<dt id="arg-atol">atol<a class="anchor" aria-label="anchor" href="#arg-atol"></a></dt>
+<dd><p>Absolute tolerance for built-in checks, in grams per year.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -282,7 +326,7 @@ answer three different questions and should not be read as one:</p><dl><dt><code
 <dd><p>Why the run stopped: <code>"residual_tolerance"</code> (both
 convergence criteria were met), <code>"distance_tolerance"</code> (the distance
 function was satisfied but the state is still drifting — reachable with
-a loose <code>residual_tol</code>, and from the superseded <code><a href="superseded_steady.html">steady()</a></code>, which stops
+<code>residual_tol = Inf</code>, and from the superseded <code><a href="superseded_steady.html">steady()</a></code>, which stops
 on the distance criterion alone), <code>"cycle_detected"</code> (a limit cycle),
 <code>"time_limit"</code> (still changing at <code>t_max</code>) or <code>"extinction"</code> (a species
 died out). The steady-state finders can also return
@@ -295,8 +339,9 @@ statement about the numerics, not about the state.</p></dd>
 
 <dt><code>attractor</code></dt>
 <dd><p>What the state that was reached actually is:
-<code>"fixed_point"</code> when the biomass drift is within <code>residual_tol</code>,
-<code>"limit_cycle"</code> when a cycle was detected, and <code>NA</code> when it is neither
+<code>"fixed_point"</code> when the assessment passes in its recorded scope,
+<code>"limit_cycle"</code> when a cycle was detected and no required extension
+state lies outside the cycle diagnostic, and <code>NA</code> otherwise
 — a run stopped in mid-flight, or a species on its way out. This is the
 entry to test before treating a result as a steady state.</p></dd>
 
@@ -304,14 +349,14 @@ entry to test before treating a result as a steady state.</p></dd>
 <dd><p>The final value returned by <code>distance_func</code>.</p></dd>
 
 <dt><code>residual</code></dt>
-<dd><p>The largest absolute relative rate of biomass change,
-in 1/year, at the state that was reached. For each consumer species
-this is \((dB_i/dt) / B_i\), a biomass-weighted aggregate over its
-size classes; the resource is treated the same way and the other
-components contribute their own relative rates. Unlike
-<code>distance</code>, which compares two states <code>t_check</code> apart on whatever scale
-the distance function uses, this measures how far the state actually is
-from being a fixed point.</p></dd>
+<dd><p>The largest absolute relative rate of net biomass
+change among assessed consumer species and resource states, in 1/year.
+This compatibility diagnostic can hide compensating changes within a
+size spectrum and does not include extension-defined measures.</p></dd>
+
+<dt><code>assessment</code>, <code>scope</code></dt>
+<dd><p>The full <code><a href="getSteadyAssessment.html">getSteadyAssessment()</a></code> result and
+its scope. Inspect these before interpreting a fixed-point claim.</p></dd>
 
 <dt><code>years</code></dt>
 <dd><p>The number of years simulated. <code>NA</code> for a direct solve.</p></dd>
@@ -352,10 +397,12 @@ other; <code>t_check</code> and <code>t_save</code> need only be multiples of <c
 <code>extinction_threshold</code> times its value at the start of the run, or has become
 <code>NA</code>, that species is deemed to be on its way to extinction. A warning naming
 the affected species is issued and the run stops with
-<code>type = "extinction"</code>. Because the criterion is relative to the initial
-reproduction, a species that starts with zero reproduction is flagged
-immediately, whereas in <code><a href="tuneSteadyState.html">tuneSteadyState()</a></code>, where reproduction is held constant, a
-healthy species is never flagged.</p>
+<code>termination = "extinction"</code>. Because the criterion is relative to the
+initial reproduction, a species that is present but starts with zero
+reproduction is flagged immediately, whereas in <code><a href="tuneSteadyState.html">tuneSteadyState()</a></code>, where
+reproduction is held constant, a healthy species is never flagged. A species
+with no fish at the start of the run is not tested: it stays absent while the
+others settle, as it does with the Newton solver of <code><a href="findSteadyState.html">findSteadyState()</a></code>.</p>
 </div>
 
 <div class="section">
@@ -363,8 +410,9 @@ healthy species is never flagged.</p>
 
 
 <p>The recorded biomass series is examined to see whether the run has settled
-onto a limit cycle. If it has, the run stops with <code>type = "cycle"</code> and the
-period and amplitude of the cycle are reported.</p>
+onto a limit cycle. If it has, the run stops with
+<code>termination = "cycle_detected"</code> and the period and amplitude of the cycle
+are reported.</p>
 <p>It is made at every check, whether or not the state looks converged
 by the measure below. A cycle whose period divides <code>t_check</code> puts the two
 states that the distance function compares at the same phase, so it would
@@ -386,26 +434,30 @@ state at the current one, i.e. with two states
 <code><a href="distanceSSLogN.html">distanceSSLogN()</a></code> uses the sum of squared changes in log abundance, while
 <code><a href="tuneSteadyState.html">tuneSteadyState()</a></code> instead passes <code><a href="distanceMaxRelRDI.html">distanceMaxRelRDI()</a></code>, which uses the
 largest relative change in egg production.</p>
-<p>Second, the state actually reached must be a fixed point: the largest
-relative rate of biomass change there, as measured by <code><a href="getSteadyResidual.html">getSteadyResidual()</a></code>,
-must be at most <code>residual_tol</code>. The distance criterion on its own says only
-that the state stopped moving on the scale of the distance function, which is
-a different question — a distance function can be insensitive to the very
-motion that is left. When the distance criterion is met but the drift is not,
-the run carries on rather than declaring a fixed point.</p>
-<p>When both hold the run stops with <code>termination = "residual_tolerance"</code>. That
-is deliberately not called <code>"steady"</code>: <code>residual_tol</code> is a working tolerance
-rather than a proof, and the <code>residual</code> entry of the <code>"convergence"</code>
-attribute reports the drift that was actually reached.</p>
+<p>Second, <code><a href="getSteadyAssessment.html">getSteadyAssessment()</a></code> must confirm that every required dynamic
+state has settled. The default <code>criterion = "state"</code> measures state change
+without cancellation between size classes; <code>criterion = "biomass"</code> explicitly
+selects net biomass drift for the built-in states. Extension components
+supply their own named measures and tolerances. Missing required convergence
+support stops the search before projection begins.</p>
+<p>Whole-model assessment is the default. With <code>scope = "conditional"</code>, the
+states named by <code>fixed</code> are held fixed throughout the search and excluded
+from the assessment. The returned model retains its original dynamics and
+records the conditional scope. Holding consumers fixed is not supported by
+this solver.</p>
+<p>When both criteria hold, the run stops with
+<code>termination = "residual_tolerance"</code>. The <code>assessment</code> entry of the
+<code>"convergence"</code> attribute records the measures, tolerances and coverage.
+The separate <code>residual</code> entry retains its biomass-drift meaning.</p>
 <p>Even so, <code>t_check</code> should be an <em>odd</em> multiple of <code>dt</code>, which is why it
 defaults to <code>15 * dt</code>. A period-2 cycle (period <code>2 * dt</code>), the most common
 numerical oscillation, is otherwise sampled at the same phase at every check,
 and its amplitude can sit below <code>amplitude_tol</code> where the cycle detection
 deliberately ignores it.</p>
 <p>If none of the three checks fires before <code>t_max</code> is reached, the run stops
-with <code>type = "not_converged"</code>. In every case the outcome is recorded in the
-<code>"convergence"</code> attribute of the returned object, described under <em>Value</em>
-below.</p>
+with <code>termination = "time_limit"</code>. In every case the outcome is recorded in
+the <code>"convergence"</code> attribute of the returned object, described under
+<em>Value</em> below.</p>
 </div>
 
     </div>

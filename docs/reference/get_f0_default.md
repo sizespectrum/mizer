@@ -10,7 +10,7 @@ Only for internal use.
 ## Usage
 
 ``` r
-get_f0_default(params)
+get_f0_default(params, ...)
 ```
 
 ## Arguments
@@ -18,6 +18,10 @@ get_f0_default(params)
 - params:
 
   A MizerParams object
+
+- ...:
+
+  Unused.
 
 ## Value
 
@@ -46,9 +50,16 @@ also deliberately does not go through the extension dispatch chain, nor
 through an encounter function registered with
 [`setRateFunction()`](https://sizespectrum.org/mizer/reference/setRateFunction.md).
 
+This is an S3 generic. An extension package that replaces mizer's single
+resource by a resource system of its own directs the measurement at that
+system by registering a method for
+[`measure_avail_energy()`](https://sizespectrum.org/mizer/reference/measure_avail_energy.md),
+which is where the energy available in the reference state is measured.
+
 ## See also
 
 Other functions calculating defaults:
 [`get_gamma_default()`](https://sizespectrum.org/mizer/reference/get_gamma_default.md),
 [`get_h_default()`](https://sizespectrum.org/mizer/reference/get_h_default.md),
-[`get_ks_default()`](https://sizespectrum.org/mizer/reference/get_ks_default.md)
+[`get_ks_default()`](https://sizespectrum.org/mizer/reference/get_ks_default.md),
+[`measure_avail_energy()`](https://sizespectrum.org/mizer/reference/measure_avail_energy.md)

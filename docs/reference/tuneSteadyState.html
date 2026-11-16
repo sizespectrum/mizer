@@ -6,18 +6,32 @@
     }
   };
 </script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.1/jquery-3.6.1.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet"><script src="../extra.js"></script><meta property="og:title" content="Tune a model so that the state it is in becomes a steady state — tuneSteadyState"><meta name="description" content="
-Solves for the consumer size spectra while holding the reproduction rate
-(RDD), the resource and any other components at the values stored in
-params, and then adjusts the parameters that generate those held values so
-that they are steady too. This is the function to use while setting up and
-calibrating a model: holding the inputs to the fish dynamics fixed is what
-makes the search reliable."><meta property="og:description" content="
-Solves for the consumer size spectra while holding the reproduction rate
-(RDD), the resource and any other components at the values stored in
-params, and then adjusts the parameters that generate those held values so
-that they are steady too. This is the function to use while setting up and
-calibrating a model: holding the inputs to the fish dynamics fixed is what
-makes the search reliable."><meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png"><meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R"><meta name="twitter:card" content="summary"><meta name="twitter:creator" content="@mizer_model"><meta name="twitter:site" content="@mizer_model"></head><body>
+Solves for a model's steady state using declared tuning strategies. The
+built-in defaults hold final recruitment and the resource abundance fixed,
+then adjust reproduction parameters and resource capacity. Extensions declare
+which states their strategies hold or evolve, what parameters may change,
+and how the held targets are balanced. The restored candidate is checked
+against every effective equation rate before its final steady assessment.
+It is not the function for asking where a model with given parameters
+settles. Because the reproduction rate is held at its current value, it
+cannot reach a steady state in which a species' reproduction rate is very
+different, such as an alternative stable state or a state that exists
+because predation changes the reproduction of the prey. Because it
+re-derives erepro/R_max and cc_pp, two states found with it do not
+share parameters. Use findSteadyState() for those questions."><meta property="og:description" content="
+Solves for a model's steady state using declared tuning strategies. The
+built-in defaults hold final recruitment and the resource abundance fixed,
+then adjust reproduction parameters and resource capacity. Extensions declare
+which states their strategies hold or evolve, what parameters may change,
+and how the held targets are balanced. The restored candidate is checked
+against every effective equation rate before its final steady assessment.
+It is not the function for asking where a model with given parameters
+settles. Because the reproduction rate is held at its current value, it
+cannot reach a steady state in which a species' reproduction rate is very
+different, such as an alternative stable state or a state that exists
+because predation changes the reproduction of the prey. Because it
+re-derives erepro/R_max and cc_pp, two states found with it do not
+share parameters. Use findSteadyState() for those questions."><meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png"><meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R"><meta name="twitter:card" content="summary"><meta name="twitter:creator" content="@mizer_model"><meta name="twitter:site" content="@mizer_model"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -25,7 +39,7 @@ makes the search reliable."><meta property="og:image" content="https://sizespect
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0.9011</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -101,12 +115,19 @@ makes the search reliable."><meta property="og:image" content="https://sizespect
 
     <div class="ref-description section level2">
     <p><a href="https://lifecycle.r-lib.org/articles/stages.html#experimental" class="external-link"><img src="figures/lifecycle-experimental.svg" alt="[Experimental]"></a></p>
-<p>Solves for the consumer size spectra while holding the reproduction rate
-(RDD), the resource and any other components at the values stored in
-<code>params</code>, and then adjusts the parameters that generate those held values so
-that they are steady too. This is the function to use while setting up and
-calibrating a model: holding the inputs to the fish dynamics fixed is what
-makes the search reliable.</p>
+<p>Solves for a model's steady state using declared tuning strategies. The
+built-in defaults hold final recruitment and the resource abundance fixed,
+then adjust reproduction parameters and resource capacity. Extensions declare
+which states their strategies hold or evolve, what parameters may change,
+and how the held targets are balanced. The restored candidate is checked
+against every effective equation rate before its final steady assessment.</p>
+<p>It is not the function for asking where a model with given parameters
+settles. Because the reproduction rate is held at its current value, it
+cannot reach a steady state in which a species' reproduction rate is very
+different, such as an alternative stable state or a state that exists
+because predation changes the reproduction of the prey. Because it
+re-derives <code>erepro</code>/<code>R_max</code> and <code>cc_pp</code>, two states found with it do not
+share parameters. Use <code><a href="findSteadyState.html">findSteadyState()</a></code> for those questions.</p>
     </div>
 
     <div class="section level2">
@@ -117,6 +138,13 @@ makes the search reliable.</p>
 <span>  effort <span class="op">=</span> <span class="va">params</span><span class="op">@</span><span class="va">initial_effort</span>,</span>
 <span>  preserve <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"reproduction_level"</span>, <span class="st">"erepro"</span>, <span class="st">"R_max"</span><span class="op">)</span>,</span>
 <span>  info_level <span class="op">=</span> <span class="fu"><a href="default_info_level.html">default_info_level</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  scope <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"whole"</span>, <span class="st">"conditional"</span><span class="op">)</span>,</span>
+<span>  fixed <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">character</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  criterion <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"state"</span>, <span class="st">"biomass"</span><span class="op">)</span>,</span>
+<span>  tolerances <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  atol <span class="op">=</span> <span class="fl">1e-12</span>,</span>
+<span>  strategies <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  joint <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -142,10 +170,11 @@ effort stored in <code>params</code>.</p></dd>
 
 <dt id="arg-preserve">preserve<a class="anchor" aria-label="anchor" href="#arg-preserve"></a></dt>
 <dd><p><a href="https://lifecycle.r-lib.org/articles/stages.html#experimental" class="external-link"><img src="figures/lifecycle-experimental.svg" alt="[Experimental]"></a>
-Specifies whether the <code>reproduction_level</code> should be preserved (default)
-or the maximum reproduction rate <code>R_max</code> or the reproductive
-efficiency <code>erepro</code>. See <code><a href="setBevertonHolt.html">setBevertonHolt()</a></code> for an explanation
-of the <code>reproduction_level</code>.</p></dd>
+An explicit reproduction-preservation choice, such as <code>"erepro"</code>,
+<code>"R_max"</code> or <code>"reproduction_level"</code> for Beverton-Holt reproduction.
+Omitting this argument selects the provider's declared default strategy.
+Other laws support their own controls; unsupported choices error. Do not
+combine this selector with an explicit reproduction entry in <code>strategies</code>.</p></dd>
 
 
 <dt id="arg-info-level">info_level<a class="anchor" aria-label="anchor" href="#arg-info-level"></a></dt>
@@ -155,11 +184,50 @@ default is taken from the <code>mizer_info_level</code> option, see
 <code><a href="default_info_level.html">default_info_level()</a></code>.</p></dd>
 
 
+<dt id="arg-scope">scope<a class="anchor" aria-label="anchor" href="#arg-scope"></a></dt>
+<dd><p><code>"whole"</code> or <code>"conditional"</code>.</p></dd>
+
+
+<dt id="arg-fixed">fixed<a class="anchor" aria-label="anchor" href="#arg-fixed"></a></dt>
+<dd><p>Owners held fixed for a conditional assessment. Use
+<code>"consumers"</code>, <code>"resource"</code>, or <code>"component:name"</code> for a component named
+<code>name</code>. This must be empty for whole-model assessments and nonempty for
+conditional assessments.</p></dd>
+
+
+<dt id="arg-criterion">criterion<a class="anchor" aria-label="anchor" href="#arg-criterion"></a></dt>
+<dd><p><code>"state"</code> for the absolute state residual, or <code>"biomass"</code>
+for net biomass drift in the built-in checks.</p></dd>
+
+
+<dt id="arg-tolerances">tolerances<a class="anchor" aria-label="anchor" href="#arg-tolerances"></a></dt>
+<dd><p>Optional named numeric vector overriding individual
+tolerances. Names are <code>owner/measure</code>, as shown in the <code>measures</code> table.</p></dd>
+
+
+<dt id="arg-atol">atol<a class="anchor" aria-label="anchor" href="#arg-atol"></a></dt>
+<dd><p>Absolute tolerance for built-in checks, in grams per year.</p></dd>
+
+
+<dt id="arg-strategies">strategies<a class="anchor" aria-label="anchor" href="#arg-strategies"></a></dt>
+<dd><p>Optional named character vector selecting a strategy for
+each specified owner, such as <code>c(resource = "evolve")</code> or
+<code>c("component:pool" = "hold")</code>. Omitted owners use their declared defaults.</p></dd>
+
+
+<dt id="arg-joint">joint<a class="anchor" aria-label="anchor" href="#arg-joint"></a></dt>
+<dd><p>Names of joint strategies registered with <code><a href="setTuningStrategy.html">setTuningStrategy()</a></code>.
+<code>NULL</code> selects declared joint defaults; <code><a href="https://rdrr.io/r/base/character.html" class="external-link">character()</a></code> selects none. A joint
+strategy replaces the local defaults of its owners. Conflicting explicit
+local selections or overlapping joint ownership error.</p></dd>
+
+
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
 <dd><p>Arguments for the chosen solver.</p>
 <p>With <code>solver = "project"</code>: <code>t_max</code>, <code>t_check</code>, <code>dt</code>,
 <code>distance_tol</code>, <code>residual_tol</code>, <code>amplitude_tol</code>, <code>amp_rel_tol</code>,
-<code>extinction_threshold</code>, <code>progress_bar</code> and <code>method</code>, all as described in
+<code>extinction_threshold</code>, <code>progress_bar</code>, <code>method</code>, <code>subcycle</code>,
+<code>max_courant</code> and <code>max_substeps</code>, all as described in
 <code><a href="projectUntilSettled.html">projectUntilSettled()</a></code>. There is no <code>t_save</code>, because no trajectory is
 returned.
 Note that <code>distance_tol</code> here defaults to <code>0.1 * dt</code> and measures the
@@ -170,8 +238,8 @@ the residual reported in the result is measured again on the model that is
 actually returned.</p>
 <p>With <code>solver = "newton"</code>: <code>solver_tol</code> (default <code>1e-6</code>), a tolerance on
 the per-capita rate of change passed to <code><a href="https://bertcarnell.github.io/nleqslv/reference/nleqslv.html" class="external-link">nleqslv::nleqslv()</a></code>. It was called
-<code>residual_tol</code> before mizer 3.3, a name that now belongs to the biomass
-drift criterion above; <code>maxit</code>
+<code>residual_tol</code> before mizer 3.3, a name now used by the assessment
+criterion above; <code>maxit</code>
 (default <code>200</code>); <code>jacobian</code>, either <code>"update"</code> (default, the Jacobian is
 computed once and then updated cheaply each iteration — <code>nleqslv</code>'s
 <code>"Broyden"</code>) or <code>"recompute"</code> (a numerical Jacobian at every iteration —
@@ -190,22 +258,25 @@ guaranteed.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>Concretely, three things are held fixed during the search and two parameters
-are re-derived afterwards:</p><ul><li><p>The reproduction rate is pinned at <code>getRDD(params)</code>. Afterwards, if the
-model uses Beverton-Holt reproduction, <code><a href="setBevertonHolt.html">setBevertonHolt()</a></code> restores the
-density dependence so that it reproduces exactly that rate at the new
-spectra. Use <code>preserve</code> to say which of the reproduction parameters should
-be kept as it was.</p></li>
-<li><p>The resource abundance is held at <code>initialNResource(params)</code>. Afterwards
-the resource capacity <code>cc_pp</code> is recomputed so that this abundance is a
-steady state of the resource under the new spectra. If the capacity had
-been set by hand (frozen), it is rebalanced and thereby unfrozen.</p></li>
-<li><p>Other components are held constant throughout and are not adjusted.</p></li>
-</ul><p>So the model you get back is at a fixed point of the <em>full</em> dynamics, with
-reproduction and the resource free, and <code><a href="getStability.html">getStability()</a></code> can be applied to it
-directly. Contrast <code><a href="findSteadyState.html">findSteadyState()</a></code>, which changes no parameter and
-instead lets the reproduction rate and the resource move to wherever the
-parameters you already have put them.</p>
+    <p>Each provider supplies named strategies and a default. Use <code>strategies</code> to
+choose alternatives, and <code>joint</code> for declared strategies owning coupled
+processes. The selected strategies must cover the whole tuning operation
+without overlapping parameter ownership. Missing support, unknown stationary
+behaviour and unsupported solver combinations stop before the search.</p>
+<p>Recruitment targets come from the complete effective rate pipeline,
+including named replacements and extension wrappers. A held target replaces
+the final recruitment entering the equations, so wrappers are not applied a
+second time to a total that already includes their contribution.</p>
+<p>Balancers run once after the constrained search. They must preserve the
+candidate state and all effective target equation rates, including growth,
+diffusion, total mortality and final recruitment. Mizer independently checks
+the released model; it does not repair changed rates by solving the consumers
+again or by choosing an undeclared numerical balancing method.</p>
+<p>The <code>"convergence"</code> attribute separates <code>search_assessment</code>, measured with
+the selected state and rate constraints, from <code>assessment</code>, measured after
+restoring and balancing the model. Whole-model assessment is the default.
+Select <code>scope = "conditional"</code> with explicit <code>fixed</code> owners for a subsystem;
+those inputs must also be held by the selected tuning strategies.</p>
 <p>Holding those inputs fixed is what makes the search reliable, but it does not
 make the result certain: the state that is stored is only as close to a fixed
 point as the solver's tolerance allowed, and with <code>solver = "project"</code> the
@@ -216,7 +287,8 @@ Check the result rather than assuming it; see the section below.</p>
     <h2 id="choosing-a-solver">Choosing a solver<a class="anchor" aria-label="anchor" href="#choosing-a-solver"></a></h2>
     <p><code>solver = "project"</code> (the default) runs the dynamics until they settle, via
 <code><a href="projectUntilSettled.html">projectUntilSettled()</a></code>, using <code><a href="distanceMaxRelRDI.html">distanceMaxRelRDI()</a></code> as its distance
-function. It needs no extra packages and works with any resource dynamics.</p>
+function. It needs no extra packages. Every required dynamic state must
+provide convergence support.</p>
 <p><code>solver = "newton"</code> solves the steady-state equation directly with a
 Newton-type root finder from the <code>nleqslv</code> package. It converges even when
 the steady state is dynamically <strong>unstable</strong>, where the time-stepping solver
@@ -226,7 +298,9 @@ still matters — for example the spectra from a nearby stable
 parameterisation, or the (diverging) output of <code>solver = "project"</code>.</p>
 <p>Because the resource is held fixed either way, <code>solver = "newton"</code> here does
 not need the resource to be a semichemostat, unlike in <code><a href="findSteadyState.html">findSteadyState()</a></code>
-where the resource is one of the unknowns.</p>
+where the resource is one of the unknowns. The Newton solver does not solve
+extension component states; dynamic components require explicit conditional
+exclusions with <code>fixed</code>, or use the projection solver.</p>
     </div>
     <div class="section level2">
     <h2 id="what-you-get-back-may-not-be-a-steady-state">What you get back may not be a steady state<a class="anchor" aria-label="anchor" href="#what-you-get-back-may-not-be-a-steady-state"></a></h2>
@@ -265,6 +339,16 @@ whose biomasses are still moving reports the drift and adds "Reduce the
 tolerance on the distance function to converge further." — but they are
 suppressed by <code>info_level = 0</code>, so in a script the <code>"convergence"</code>
 attribute is the reliable check.</p>
+<p>Even a genuine fixed point can be one the model cannot sustain. <code>erepro</code>
+is the proportion of the energy invested in reproduction that ends up as
+egg biomass, so if a re-derived <code>erepro</code> is greater than 1, the
+reproduction rate held during the search is inconsistent with the state
+that was found. Usually this means that the state you asked for does not
+exist with births held at their current values; try <code><a href="findSteadyState.html">findSteadyState()</a></code>
+instead. mizer warns when this happens, but with the default <code>preserve</code>
+the warning reads the same for an <code>erepro</code> of 1.01 as for one of 1e34,
+and <code>info_level = 0</code> suppresses it, so look at the values:</p>
+<p></p><div class="sourceCode r"><pre><code><span><span class="fu"><a href="../reference/species_params.html">species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">erepro</span>          <span class="co"># greater than 1 is unrealistic</span></span></code></pre><p></p></div>
 <p>Finally, a genuine fixed point need not be a <em>stable</em> one. Use
 <code><a href="getStability.html">getStability()</a></code> to find out, and <code>solver = "newton"</code> to converge onto a
 fixed point that the dynamics themselves would run away from.</p>
@@ -282,7 +366,7 @@ fixed point that the dynamics themselves would run away from.</p>
 <span class="r-in"><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="newTraitParams.html">newTraitParams</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="species_params.html">species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">gamma</span><span class="op">[</span><span class="fl">5</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">3000</span></span></span>
 <span class="r-in"><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu">tuneSteadyState</span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Reached the convergence tolerance after 12 years. The biomasses change at up to 0.0025 per year.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Reached the convergence tolerance after 21 years. The biomasses change at up to 0.0026 per year. This is a conditional assessment with resource, consumers/recruitment held fixed.</span>
 <span class="r-in"><span><span class="fu"><a href="plotSpectra.html">plotSpectra</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="tuneSteadyState-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="co"># }</span></span></span>

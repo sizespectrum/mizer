@@ -40,7 +40,7 @@ newMultispeciesParams(
   selectivity = NULL,
   catchability = NULL,
   initial_effort = NULL,
-  second_order_w = FALSE,
+  second_order_w = NULL,
   info_level = default_info_level(),
   z0 = deprecated(),
   r_pp = deprecated()
@@ -233,8 +233,13 @@ newMultispeciesParams(
   on an existing object). The `flux` scheme governs time projection
   only, so the robust first-order upwind scheme is used for the
   construction-time steady-state solve and the chosen scheme is then
-  activated for the returned model. Defaults to `FALSE` (the first-order
-  behaviour of previous mizer).
+  activated for the returned model. By default the model gets the scheme
+  of the active
+  [`defaults_edition()`](https://sizespectrum.org/mizer/reference/defaults_edition.md):
+  the second-order scheme, as with `TRUE`, from edition 3 on, and the
+  first-order scheme of previous mizer versions, as with `FALSE`, in
+  earlier editions. A value that sets only one of the two entries leaves
+  the other at the default of the edition.
 
 - info_level:
 

@@ -19,7 +19,7 @@ slots. These functions extract that state from a MizerSim object."><meta propert
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0.9011</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -149,14 +149,14 @@ convenience wrapper around <code>getParams()</code> with no <code>time_range</co
 <p>The abundances set by <code>getParams()</code> are averages over the selected time
 range. By default this is an arithmetic mean; set <code>geometric_mean = TRUE</code> to
 use a geometric mean instead (this does not affect the effort or other
-components, which are always averaged arithmetically).</p>
+components, which are always averaged arithmetically). A single selected
+time preserves any component state. Averaging across times requires numeric
+component states with matching dimensions and names.</p>
     </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">sim</span> <span class="op">&lt;-</span> <span class="fu"><a href="project.html">project</a></span><span class="op">(</span><span class="va">NS_params</span>, t_max <span class="op">=</span> <span class="fl">20</span>, effort <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `b` column so using the isometric default b = 3 in w = a l^b.</span>
 <span class="r-in"><span><span class="co"># State at a specific time</span></span></span>
 <span class="r-in"><span><span class="va">params_10</span> <span class="op">&lt;-</span> <span class="fu">getParams</span><span class="op">(</span><span class="va">sim</span>, time_range <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># State averaged over the last 10 years</span></span></span>

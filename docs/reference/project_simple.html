@@ -15,7 +15,7 @@ It is of potential interest only to mizer extension authors."><meta property="og
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0.9011</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -109,6 +109,10 @@ It is of potential interest only to mizer extension authors.</p>
 <span>  <span class="va">other_dynamics_fns</span>,</span>
 <span>  <span class="va">rates_fns</span>,</span>
 <span>  method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"euler"</span>, <span class="st">"predictor_corrector"</span>, <span class="st">"tr_bdf2"</span><span class="op">)</span>,</span>
+<span>  subcycle <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  max_courant <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  max_substeps <span class="op">=</span> <span class="fl">10000</span>,</span>
+<span>  info_level <span class="op">=</span> <span class="fu"><a href="default_info_level.html">default_info_level</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -173,6 +177,24 @@ the rates. See Details.</p></dd>
 See <code><a href="project.html">project()</a></code>.</p></dd>
 
 
+<dt id="arg-subcycle">subcycle<a class="anchor" aria-label="anchor" href="#arg-subcycle"></a></dt>
+<dd><p>Whether to split requested steps using the growth Courant
+target, as in <code><a href="project.html">project()</a></code>. Default <code>FALSE</code>.</p></dd>
+
+
+<dt id="arg-max-courant">max_courant<a class="anchor" aria-label="anchor" href="#arg-max-courant"></a></dt>
+<dd><p>Positive growth Courant target, as in <code><a href="project.html">project()</a></code>.</p></dd>
+
+
+<dt id="arg-max-substeps">max_substeps<a class="anchor" aria-label="anchor" href="#arg-max-substeps"></a></dt>
+<dd><p>Positive integer cap per requested step, as in
+<code><a href="project.html">project()</a></code>.</p></dd>
+
+
+<dt id="arg-info-level">info_level<a class="anchor" aria-label="anchor" href="#arg-info-level"></a></dt>
+<dd><p>Level of information reported; see <code><a href="default_info_level.html">default_info_level()</a></code>.</p></dd>
+
+
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
 <dd><p>Other arguments that are passed on to the rate functions.</p></dd>
 
@@ -189,14 +211,12 @@ as possible to allow it to be used in a loop. For example, it is called in
 <code><a href="project.html">project()</a></code> once for every saved value. The function also does not save its
 intermediate results but only returns the result at time <code>t + dt * steps</code>.
 During this time it uses the constant fishing effort <code>effort</code>.</p>
-<p>The functional arguments can be calculated from slots in the <code>params</code> object
-with</p>
-<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a>resource_dynamics_fn <span class="ot">&lt;-</span> <span class="fu">get</span>(params<span class="sc">@</span>resource_dynamics)</span>
-<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a>other_dynamics_fns <span class="ot">&lt;-</span> <span class="fu">lapply</span>(params<span class="sc">@</span>other_dynamics, get)</span>
-<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a>rates_fns <span class="ot">&lt;-</span> <span class="fu">lapply</span>(params<span class="sc">@</span>rates_funcs, get)</span></code></pre><p></p></div>
-<p>The reason the function does not do that itself is to shave 20 microseconds
-of its running time, which pays when the function is called hundreds of
-times in a row.</p>
+<p>The default method prepares the functional arguments from the model,
+including the derivatives of components registered with <code>rate_fun</code>.
+Callers that repeatedly advance the same model can supply prepared functions
+to reuse their dispatch. Component functions must retain the derivative
+metadata added during preparation; looking up <code>other_dynamics</code> names alone
+does not prepare an equation-only component for second-order integration.</p>
 <p>This function is also used by the steady-state finders. In between calls to
 <code>project_simple()</code> the <code><a href="superseded_steady.html">steady()</a></code> function checks whether the values are
 still changing significantly, so that it can stop when a steady state has

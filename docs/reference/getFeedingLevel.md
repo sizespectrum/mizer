@@ -31,22 +31,22 @@ getFeedingLevel(object, ...)
 
   `n`
 
-  :   A matrix of species abundances (species x size). Defaults to the
-      initial abundances stored in `object`.
+  : A matrix of species abundances (species x size). Defaults to the
+    initial abundances stored in `object`.
 
   `n_pp`
 
-  :   A vector of the resource abundance by size. Defaults to the
-      initial resource abundance stored in `object`.
+  : A vector of the resource abundance by size. Defaults to the initial
+    resource abundance stored in `object`.
 
   `n_other`
 
-  :   A named list of the abundances of other dynamical components.
-      Defaults to the initial values stored in `object`.
+  : A named list of the abundances of other dynamical components.
+    Defaults to the initial values stored in `object`.
 
   `t`
 
-  :   The time for which to do the calculation. Defaults to 0.
+  : The time for which to do the calculation. Defaults to 0.
 
   **For a
   [MizerSim](https://sizespectrum.org/mizer/reference/MizerSim-class.md)
@@ -54,14 +54,14 @@ getFeedingLevel(object, ...)
 
   `time_range`
 
-  :   The time range over which to return the rates. Either a vector of
-      values, a vector of min and max time, or a single value. Defaults
-      to the whole time range of the simulation.
+  : The time range over which to return the rates. Either a vector of
+    values, a vector of min and max time, or a single value. Defaults to
+    the whole time range of the simulation.
 
   `drop`
 
-  :   If `TRUE` then any dimension of length 1 is removed from the
-      returned array.
+  : If `TRUE` then any dimension of length 1 is removed from the
+    returned array.
 
 ## Value
 
@@ -128,12 +128,8 @@ Other rate functions:
 params <- NS_params
 # Get initial feeding level
 fl <- getFeedingLevel(params)
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 # Project with constant fishing effort for all gears for 20 time steps
 sim <- project(params, t_max = 20, effort = 0.5)
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 # Get the feeding level at all saved time steps
 fl <- getFeedingLevel(sim)
 # Get the feeding level for years 15 - 20

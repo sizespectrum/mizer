@@ -39,7 +39,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0.9011</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -479,6 +479,7 @@
 <li>
 <strong>Edition 2</strong> (Available): Catchability is set to <span class="math inline">\(0.3\)</span> (instead of <span class="math inline">\(1\)</span>), initial fishing effort is <span class="math inline">\(1\)</span> (instead of <span class="math inline">\(0\)</span>), initial abundance is calculated using the steady-state solver instead of a simple power law, and <code>psi</code> is determined strictly by the maturity ogive and the reproductive investment proportion.</li>
 </ul>
+<p>The edition that is active when a model is created is recorded in the model, and every default that <code>mizer</code> fills in for that model later on, for example when it recalculates the model after you have changed a species parameter, is chosen with that edition. Changing the active edition therefore affects only models created afterwards. <code>defaults_edition(params)</code> tells you the edition of a model. Models created with a version of <code>mizer</code> that did not yet record the edition are of edition 1.</p>
 <hr></section><section class="level2"><h2 id="worked-example">Worked Example<a class="anchor" aria-label="anchor" href="#worked-example"></a>
 </h2>
 <p>The following code illustrates how <code>mizer</code> automatically calculates defaults when setting up a new model with only the species name and asymptotic size:</p>

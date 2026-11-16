@@ -3,7 +3,7 @@
 Calculates the diffusion rate \\D_i(w)\\ (grams^2/year) for each
 species. This diffusion rate has two components:
 
-1.  The diffusion due due to the variability in prey sizes. This is the
+1.  The diffusion due to the variability in prey sizes. This is the
     diffusion term from the jump-growth equation.
 
 2.  Any externally specified diffusion, which is added via
@@ -35,22 +35,22 @@ getDiffusion(object, ...)
 
   `n`
 
-  :   A matrix of species abundances (species x size). Defaults to the
-      initial abundances stored in `object`.
+  : A matrix of species abundances (species x size). Defaults to the
+    initial abundances stored in `object`.
 
   `n_pp`
 
-  :   A vector of the resource abundance by size. Defaults to the
-      initial resource abundance stored in `object`.
+  : A vector of the resource abundance by size. Defaults to the initial
+    resource abundance stored in `object`.
 
   `n_other`
 
-  :   A named list of the abundances of other dynamical components.
-      Defaults to the initial values stored in `object`.
+  : A named list of the abundances of other dynamical components.
+    Defaults to the initial values stored in `object`.
 
   `t`
 
-  :   The time for which to do the calculation. Defaults to 0.
+  : The time for which to do the calculation. Defaults to 0.
 
   **For a
   [MizerSim](https://sizespectrum.org/mizer/reference/MizerSim-class.md)
@@ -58,14 +58,14 @@ getDiffusion(object, ...)
 
   `time_range`
 
-  :   The time range over which to return the rates. Either a vector of
-      values, a vector of min and max time, or a single value. Defaults
-      to the whole time range of the simulation.
+  : The time range over which to return the rates. Either a vector of
+    values, a vector of min and max time, or a single value. Defaults to
+    the whole time range of the simulation.
 
   `drop`
 
-  :   If `TRUE` then any dimension of length 1 is removed from the
-      returned array.
+  : If `TRUE` then any dimension of length 1 is removed from the
+    returned array.
 
 ## Value
 
@@ -78,16 +78,19 @@ getDiffusion(object, ...)
 
 ## Details
 
-The diffusion due due to the variability in prey sizes is determined by
+The diffusion due to the variability in prey sizes is determined by
 summing over all prey species and the resource spectrum and then
 integrating over all prey sizes \\w_p\\, weighted by predation kernel
-\\\phi(w,w_p)\\: \$\$ d_i(w) =
-(1-f_i(w))(\alpha_i(1-\psi_i(w)))^2\gamma_i(w) \int \left( \theta\_{ip}
-N_R(w_p) + \sum\_{j} \theta\_{ij} N_j(w_p) \right) \phi_i(w,w_p) w_p^2
-\\ dw_p. \$\$ Here \\N_j(w)\\ is the abundance density of species \\j\\
-and \\N_R(w)\\ is the abundance density of resource. The overall
-prefactor \\\gamma_i(w)\\ determines the predation power of the
-predator. It could be interpreted as a search volume and is set with the
+\\\phi(w,w_p)\\: \$\$ D\_{pred.i}(w) = (1-f_i(w))\\\gamma_i(w) \int
+\left( \theta\_{ip} N_R(w_p) + \sum\_{j} \theta\_{ij} N_j(w_p) \right)
+\phi_i(w,w_p) (\alpha_i w_p)^2 \\ dw_p. \$\$ This has the same form as
+the rate at which the predator absorbs prey biomass, except that the
+factor \\\alpha_i w_p\\, the increase in the predator's mass from eating
+a prey of mass \\w_p\\, is squared. Here \\N_j(w)\\ is the abundance
+density of species \\j\\ and \\N_R(w)\\ is the abundance density of
+resource. The overall prefactor \\\gamma_i(w)\\ determines the predation
+power of the predator. It could be interpreted as a search volume and is
+set with the
 [`setSearchVolume()`](https://sizespectrum.org/mizer/reference/setSearchVolume.md)
 function. The predation kernel \\\phi(w,w_p)\\ is set with the
 [`setPredKernel()`](https://sizespectrum.org/mizer/reference/setPredKernel.md)
@@ -97,10 +100,12 @@ and the resource interaction vector \\\theta\_{ip}\\ is taken from the
 `interaction_resource` column in
 [`species_params()`](https://sizespectrum.org/mizer/reference/species_params.md).
 \\f(w)\\ is the feeding level calculated with
-[`getFeedingLevel()`](https://sizespectrum.org/mizer/reference/getFeedingLevel.md).
-\\\psi(w)\\ is the proportion of the available energy that is invested
-in reproduction instead of growth, obtained with
-[`psi()`](https://sizespectrum.org/mizer/reference/setReproduction.md).
+[`getFeedingLevel()`](https://sizespectrum.org/mizer/reference/getFeedingLevel.md),
+and \\\alpha_i\\ is the proportion of the consumed food that is
+absorbed, taken from the `alpha` column in
+[`species_params()`](https://sizespectrum.org/mizer/reference/species_params.md).
+The total diffusion rate is \\D_i(w) = D\_{pred.i}(w) + D\_{ext.i}(w)\\,
+where \\D\_{ext.i}(w)\\ is the external diffusion.
 
 The diffusion integral is normally evaluated efficiently with a fast
 Fourier transform, which assumes that the predation kernel depends only

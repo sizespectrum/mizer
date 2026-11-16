@@ -21,7 +21,7 @@ plotting functions (e.g. plotBiomass(), plotSpectra())."><meta property="og:imag
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0.9011</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -143,7 +143,11 @@ when <code>t_save</code> does not divide the period, so that the cycle closes.</
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>The object shows the <em>shape</em> of the mode — which species swing, how far, and
+    <p>This requires a current, complete stability analysis at an autonomous
+equilibrium. Conditional analyses are supported with their explicit fixed
+inputs retained; the returned <code>sim_params</code> records that scope and coverage.
+Older stability lists without this information must be recomputed.</p>
+<p>The object shows the <em>shape</em> of the mode — which species swing, how far, and
 in what phase relative to each other and to the resource. Whether the model
 actually settles onto this oscillation is a separate question, answered by
 the real part of the eigenvalue: it is a limit cycle only where that real

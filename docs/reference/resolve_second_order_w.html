@@ -5,13 +5,17 @@
       fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
     }
   };
-</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.1/jquery-3.6.1.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet"><script src="../extra.js"></script><meta property="og:title" content="Resolve a second_order_w value against the default scheme — resolve_second_order_w"><meta name="description" content='Internal helper that validates a second_order_w value against the default
-first-order slot (flux = "upwind", bin_average = FALSE) and returns the
-resulting named list. Used by the model constructors to work out the target
-flux and bin_average entries before the rest of the model is built.'><meta property="og:description" content='Internal helper that validates a second_order_w value against the default
-first-order slot (flux = "upwind", bin_average = FALSE) and returns the
-resulting named list. Used by the model constructors to work out the target
-flux and bin_average entries before the rest of the model is built.'><meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png"><meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R"><meta name="twitter:card" content="summary"><meta name="twitter:creator" content="@mizer_model"><meta name="twitter:site" content="@mizer_model"></head><body>
+</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.1/jquery-3.6.1.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet"><script src="../extra.js"></script><meta property="og:title" content="Resolve a second_order_w value against the default scheme — resolve_second_order_w"><meta name="description" content="Internal helper that validates a second_order_w value against the default
+scheme of the defaults edition (see default_second_order_w()) and returns
+the resulting named list. A NULL value gives the default scheme, and a
+value that sets only one entry leaves the other at its default. Used by the
+model constructors to work out the target flux and bin_average entries
+before the rest of the model is built."><meta property="og:description" content="Internal helper that validates a second_order_w value against the default
+scheme of the defaults edition (see default_second_order_w()) and returns
+the resulting named list. A NULL value gives the default scheme, and a
+value that sets only one entry leaves the other at its default. Used by the
+model constructors to work out the target flux and bin_average entries
+before the rest of the model is built."><meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png"><meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R"><meta name="twitter:card" content="summary"><meta name="twitter:creator" content="@mizer_model"><meta name="twitter:site" content="@mizer_model"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -19,7 +23,7 @@ flux and bin_average entries before the rest of the model is built.'><meta prope
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0.9011</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -95,14 +99,16 @@ flux and bin_average entries before the rest of the model is built.'><meta prope
 
     <div class="ref-description section level2">
     <p>Internal helper that validates a <code>second_order_w</code> <code>value</code> against the default
-first-order slot (<code>flux = "upwind"</code>, <code>bin_average = FALSE</code>) and returns the
-resulting named list. Used by the model constructors to work out the target
-<code>flux</code> and <code>bin_average</code> entries before the rest of the model is built.</p>
+scheme of the defaults edition (see <code><a href="default_second_order_w.html">default_second_order_w()</a></code>) and returns
+the resulting named list. A <code>NULL</code> value gives the default scheme, and a
+value that sets only one entry leaves the other at its default. Used by the
+model constructors to work out the target <code>flux</code> and <code>bin_average</code> entries
+before the rest of the model is built.</p>
     </div>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">resolve_second_order_w</span><span class="op">(</span><span class="va">value</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">resolve_second_order_w</span><span class="op">(</span><span class="va">value</span>, <span class="va">edition</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -110,7 +116,12 @@ resulting named list. Used by the model constructors to work out the target
 
 
 <dl><dt id="arg-value">value<a class="anchor" aria-label="anchor" href="#arg-value"></a></dt>
-<dd><p>The value to resolve, as accepted by <code>second_order_w&lt;-</code>.</p></dd>
+<dd><p>The value to resolve, as accepted by <code>second_order_w&lt;-</code>, or
+<code>NULL</code>.</p></dd>
+
+
+<dt id="arg-edition">edition<a class="anchor" aria-label="anchor" href="#arg-edition"></a></dt>
+<dd><p>The defaults edition of the model that is being built.</p></dd>
 
 </dl></div>
     <div class="section level2">

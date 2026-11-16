@@ -29,22 +29,22 @@ getRDI(object, ...)
 
   `n`
 
-  :   A matrix of species abundances (species x size). Defaults to the
-      initial abundances stored in `object`.
+  : A matrix of species abundances (species x size). Defaults to the
+    initial abundances stored in `object`.
 
   `n_pp`
 
-  :   A vector of the resource abundance by size. Defaults to the
-      initial resource abundance stored in `object`.
+  : A vector of the resource abundance by size. Defaults to the initial
+    resource abundance stored in `object`.
 
   `n_other`
 
-  :   A named list of the abundances of other dynamical components.
-      Defaults to the initial values stored in `object`.
+  : A named list of the abundances of other dynamical components.
+    Defaults to the initial values stored in `object`.
 
   `t`
 
-  :   The time for which to do the calculation. Defaults to 0.
+  : The time for which to do the calculation. Defaults to 0.
 
   **For a
   [MizerSim](https://sizespectrum.org/mizer/reference/MizerSim-class.md)
@@ -52,9 +52,9 @@ getRDI(object, ...)
 
   `time_range`
 
-  :   The time range over which to return the rates. Either a vector of
-      values, a vector of min and max time, or a single value. Defaults
-      to the whole time range of the simulation.
+  : The time range over which to return the rates. Either a vector of
+    values, a vector of min and max time, or a single value. Defaults to
+    the whole time range of the simulation.
 
 ## Value
 
@@ -123,14 +123,8 @@ Other rate functions:
 params <- NS_params
 # Project with constant fishing effort for all gears for 20 time steps
 sim <- project(params, t_max = 20, effort = 0.5)
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 # Get the density-independent reproduction rate at a particular time step
 getRDI(params, n = N(sim)[15, , ], n_pp = NResource(sim)[15, ], t = 15)
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 #>        Sprat      Sandeel       N.pout      Herring          Dab      Whiting 
 #> 5.041129e+13 1.053968e+15 9.020326e+13 2.024648e+14 2.517323e+12 3.476507e+13 
 #>         Sole      Gurnard       Plaice      Haddock          Cod       Saithe 

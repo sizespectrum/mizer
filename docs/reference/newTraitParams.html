@@ -31,7 +31,7 @@ details and examples of the trait-based model."><meta property="og:image" conten
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0.9011</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -152,7 +152,7 @@ details and examples of the trait-based model.</p>
 <span>  egg_size_scaling <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  resource_scaling <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  perfect_scaling <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  second_order_w <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  second_order_w <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  min_w_inf <span class="op">=</span> <span class="fu">deprecated</span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  max_w_inf <span class="op">=</span> <span class="fu">deprecated</span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  info_level <span class="op">=</span> <span class="fu"><a href="default_info_level.html">default_info_level</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span></span>
@@ -328,7 +328,9 @@ particular all other scaling corrections are turned on.</p></dd>
 second-order numerical scheme for the new model, applied before the
 resource and abundance power laws are constructed so that they are built
 bin-averaged from the start. Accepts the same values as the
-<code><a href="second_order_w.html">second_order_w()</a></code> setter. Defaults to <code>FALSE</code>. See
+<code><a href="second_order_w.html">second_order_w()</a></code> setter. By default the model gets the scheme of the
+active <code><a href="defaults_edition.html">defaults_edition()</a></code>: second order from edition 3 on, first order
+before. See
 <code><a href="newMultispeciesParams.html">newMultispeciesParams()</a></code>.</p></dd>
 
 
@@ -372,6 +374,16 @@ the ratio between maximum size and egg size is the same for all species.
 Otherwise all species have the same egg size.</p>
 <p>In addition to setting up the parameters, this function also sets up an
 initial condition that is close to steady state.</p>
+<p>The external mortality rate is not calculated from the species parameters
+<code>z0</code>, <code>z_ext</code> and <code>d</code>. Instead it is set so that, together with the
+predation mortality in the initial state, it gives a total mortality rate
+that is a power law in body size, of which a proportion <code>ext_mort_prop</code> is
+external mortality. Where the predation mortality alone already exceeds
+that power law, the external mortality rate is set to zero, unless
+<code>perfect_scaling = TRUE</code>. Because the species parameters can not reproduce
+it, this external mortality rate is marked as set manually, so changing
+<code>z0</code>, <code>z_ext</code> or <code>d</code> later has no effect unless you call
+<code>setExtMort(params, reset = TRUE)</code>, see <code><a href="setExtMort.html">setExtMort()</a></code>.</p>
 <p>The search rate coefficient <code>gamma</code> is calculated using the expected
 feeding level, <code>f0</code>.</p>
 <p>The diffusion rate is set to <code>0</code>. Because growth is therefore deterministic,

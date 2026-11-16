@@ -84,9 +84,10 @@ summary(params)
 ```
 
     ## An object of class "MizerParams" 
-    ## mizer version: 3.4.0
-    ## Created: 2026-09-02 10:02:30
-    ## Modified: 2026-09-02 10:02:30
+    ## mizer version: 3.4.0.9011
+    ## Defaults edition: 1
+    ## Created: 2026-11-16 08:24:28
+    ## Modified: 2026-11-16 08:24:28
     ## Consumer size spectrum:
     ##  minimum size:   0.001
     ##  maximum size:   1e+06
@@ -96,7 +97,8 @@ summary(params)
     ##  maximum size:   0.000811131
     ##  no. size bins:  78  (178 size bins in total)
     ## Steady state:
-    ##  biomass drift:  4.2 /year   (not at steady state, largest in the resource - run tuneSteadyState())
+    ##  assessment: not at steady state (whole scope)
+    ##  largest tolerance ratio:    85.3 (resource/resource)
     ## Species details:
     ## An object of class "species_params" containing parameters for 1 species:
     ##    species w_inf  w_mat w_min  f0 beta sigma
@@ -446,12 +448,90 @@ the alternating bumps and dips it develops at smaller
 sizes.](community_model_files/figure-html/plot_spectra2_comm-1.png)
 
 The impact of fishing on individuals larger than 1000 g can be clearly
-seen. The fishing pressure lowers the abundance of large fish. This then
-relieves the predation pressure on their smaller prey (the preferred
-predator-prey size ratio is given by the \\\beta\\ parameter, which is
-set to 100 by default), leading to an increase in their abundance. This
-in turn increases the predation mortality on *their* smaller prey, which
-reduces their abundance and so on down the spectrum.
+seen. The fishing pressure lowers the abundance of large fish. Below
+1000 g the spectrum alternates between sizes that have become more
+abundant and sizes that have become less abundant, with the changes
+getting weaker towards smaller sizes. This alternation is the trophic
+cascade.
+
+It is tempting to explain it one predator-prey step at a time: fewer
+large fish means less predation on their prey, which are about \\\beta\\
+times smaller (the preferred predator-prey mass ratio \\\beta\\ is set
+to 100 by default). Those prey therefore become more abundant and eat
+more of *their* prey, another factor of \\\beta\\ further down, and so
+on. That story would put the peaks and troughs a factor of \\\beta =
+100\\ apart. In the plot they are only about a factor of 30 apart, and
+the fish of around \\1000/\beta = 10\\ g, which the story says should
+benefit, have in fact become *less* abundant. To see what is really
+going on we compare the predation mortality in the two simulations,
+using
+[`plotRelative()`](https://sizespectrum.org/mizer/reference/plotRelative.md),
+which does for any two mizer arrays what
+[`plotSpectraRelative()`](https://sizespectrum.org/mizer/reference/plotSpectraRelative.md)
+does for the spectra:
+
+``` r
+
+plotRelative(getPredMort(finalParams(sim0)), getPredMort(finalParams(sim1)))
+```
+
+![The relative difference between the predation mortality in the fished
+and the unfished community at each size. The mortality has fallen
+strongly for sizes above about 30 g, has risen between about 1 g and 30
+g, and has fallen slightly between about 0.03 g and 1
+g.](community_model_files/figure-html/plot_relative_comm_m2-1.png)
+
+The pattern in the predation mortality is the pattern in the abundance
+moved down by the factor \\\beta\\: the extra fish at around 700 g raise
+the mortality at around 7 g, and the missing fish at around 20 g lower
+the mortality at around 0.2 g. The step that the simple story gets wrong
+is the one from the mortality back to the abundance. As explained in the
+article on [the single-species
+model](https://sizespectrum.org/mizer/articles/single_species_size-spectrum_dynamics.html#sec:change_in_mortality),
+the abundance at a size depends on the mortality and growth rates at all
+smaller sizes, because every fish had to grow through those first. A
+band of raised mortality lowers the abundance at all larger sizes, so
+the abundance keeps falling across the whole band and reaches its
+minimum where the change in mortality switches from an increase to a
+decrease. A change in growth has an effect too, both through how long
+fish are exposed to mortality and through fish piling up where growth
+slows down. In this example, though, the growth rates in the two
+simulations hardly differ. Below 1000 g the ratio of the growth rates of
+the fished to the unfished community stays within a few percent of 1:
+
+``` r
+
+growth_ratio <- getEGrowth(finalParams(sim1)) / getEGrowth(finalParams(sim0))
+range(growth_ratio[, w(params_knife) < 1000])
+```
+
+    ## [1] 0.9850527 1.0032003
+
+So here the cascade is driven almost entirely by the changes in
+mortality. The mortality is raised between about 1 g and 30 g, and the
+trough in the abundance lies at about 20 g, near the upper end of that
+band, not at 7 g where the mortality has risen most.
+
+This also explains why the fish that benefit most from fishing are those
+just below the 1000 g knife edge rather than those \\\beta\\ times
+smaller. Their predators are nearly all large enough to be fished, so
+their mortality falls the most, and they have enjoyed the lowered
+mortality over the longest stretch of their growth.
+
+So each step down the cascade goes down by a factor of \\\beta\\ from
+the abundance to the mortality, but then partway back up again from the
+mortality to the abundance. That is why the spacing between peaks and
+troughs is not \\\beta\\. How far apart they are depends also on the
+width \\\sigma\\ of the feeding kernel, because that sets how wide the
+bands of changed mortality are. With the wide default kernel the spacing
+hardly responds to \\\beta\\ at all: if you rerun this example with
+`newCommunityParams(beta = 10)`, the peaks and troughs are still about a
+factor of 20 apart, which is now *more* than \\\beta\\.
+
+In [the trait-based
+model](https://sizespectrum.org/mizer/articles/trait_model.html#sec:trophic_cascade_trait_model)
+the growth rates do change with fishing, and they shape the cascade as
+much as the mortality does.
 
 ## The impact of changing \\\sigma\\
 

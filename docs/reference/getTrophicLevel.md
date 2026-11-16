@@ -17,6 +17,7 @@ getTrophicLevel(
   n_other = initialNOther(params),
   w_R = 1e-10,
   beta_R = 1000,
+  t = 0,
   ...
 )
 ```
@@ -55,6 +56,12 @@ getTrophicLevel(
   An average predator/prey mass ratio for the resource spectrum, used to
   set the size-dependent resource trophic level. Must be greater than
   `1`. Defaults to `1000`.
+
+- t:
+
+  The time at which to evaluate the rates. Defaults to 0. It matters
+  only in a model whose rates depend on time, for example through an
+  extension or through the encounter function of a component.
 
 - ...:
 
@@ -98,7 +105,37 @@ level for each factor of \\\beta_R\\ increase in resource size, with a
 floor at 1 so that the resource trophic level never drops below the
 primary-producer level. Both the numerator and the denominator (which
 equals the total biomass consumed over the predator's lifetime from egg
-size to current weight \\w\\) therefore include the resource.
+size to current weight \\w\\) therefore include the resource. The
+denominator also includes the food from the external encounter rate and
+from extra ecosystem components added with
+[`setComponent()`](https://sizespectrum.org/mizer/reference/setComponent.md),
+but these food sources contribute nothing to the numerator, so they
+count as having trophic level 0.
+
+The consumption rate in the denominator is the model's own, calculated
+from
+[`getEncounter()`](https://sizespectrum.org/mizer/reference/getEncounter.md)
+and
+[`getFeedingLevel()`](https://sizespectrum.org/mizer/reference/getFeedingLevel.md),
+and the growth rate is that of
+[`getEGrowth()`](https://sizespectrum.org/mizer/reference/getEGrowth.md).
+In the numerator, the consumption rate is split between the prey species
+and the resource as in
+[`getDiet()`](https://sizespectrum.org/mizer/reference/getDiet.md),
+which follows the model's encounter rate even if it has been changed, by
+a function registered with
+[`setRateFunction()`](https://sizespectrum.org/mizer/reference/setRateFunction.md)
+or by an extension package. See the "Changed encounter rates" section
+there. The consumption from each of these food sources is multiplied by
+the mean trophic level of the food it provides, averaged over prey sizes
+with the weights of the predation kernel stored in the model (see
+[`getPredKernel()`](https://sizespectrum.org/mizer/reference/superseded_accessors.md)).
+An extension that changes which prey sizes are eaten in some other way
+than by storing its kernel in the model with
+[`setPredKernel()`](https://sizespectrum.org/mizer/reference/setPredKernel.md)
+is therefore not followed here and needs a `getTrophicLevel()` method of
+its own. Food from a prey species or the resource to which the stored
+kernel gives no weight counts as having trophic level 0.
 
 This equation can be viewed as a linear system \\(I - D)\\\mathbf{T} =
 \mathbf{1}\\ in which the entries of \\\mathbf{T}\\ are indexed by \\(i,
@@ -115,7 +152,9 @@ of all relevant prey sizes are already known when computing \\T_i(w)\\.
 Other summary functions:
 [`getBiomass()`](https://sizespectrum.org/mizer/reference/getBiomass.md),
 [`getDiet()`](https://sizespectrum.org/mizer/reference/getDiet.md),
+[`getEncounterByPrey()`](https://sizespectrum.org/mizer/reference/getEncounterByPrey.md),
 [`getGrowthCurves()`](https://sizespectrum.org/mizer/reference/getGrowthCurves.md),
+[`getMortByCause()`](https://sizespectrum.org/mizer/reference/getMortByCause.md),
 [`getN()`](https://sizespectrum.org/mizer/reference/getN.md),
 [`getSSB()`](https://sizespectrum.org/mizer/reference/getSSB.md),
 [`getSteadyResidual()`](https://sizespectrum.org/mizer/reference/getSteadyResidual.md),
@@ -127,7 +166,5 @@ Other summary functions:
 
 ``` r
 tl <- getTrophicLevel(NS_params)
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 plot(tl)
 ```

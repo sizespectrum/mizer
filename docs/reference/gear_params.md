@@ -87,6 +87,7 @@ gear parameter.
 ## See also
 
 Other functions for setting parameters:
+[`balanceRDD()`](https://sizespectrum.org/mizer/reference/balanceRDD.md),
 [`setExtDiffusion()`](https://sizespectrum.org/mizer/reference/setExtDiffusion.md),
 [`setExtEncounter()`](https://sizespectrum.org/mizer/reference/setExtEncounter.md),
 [`setExtMort()`](https://sizespectrum.org/mizer/reference/setExtMort.md),

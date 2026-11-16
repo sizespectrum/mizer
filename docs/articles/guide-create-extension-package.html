@@ -39,7 +39,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0.9011</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -245,7 +245,7 @@
 <li>R finds <code>getBiomass.mizerShelf</code> and calls it.</li>
 <li>
 <code>getBiomass.mizerShelf</code> calls <code><a href="https://rdrr.io/r/base/UseMethod.html" class="external-link">NextMethod()</a></code>.</li>
-<li>R finds the standard mizer <code>getBiomass.MizerParams</code> and calls it.</li>
+<li>R finds the standard mizer <a href="../reference/getBiomass.html"><code>getBiomass.MizerParams</code></a> and calls it.</li>
 <li>The standard result is returned to step 4, shelf biomasses are added, the result is returned to step 2, and <code>mizerFoo</code>’s biomasses are added on top.</li>
 </ol>
 <p>Each extension in the chain sees and extends the result of all the extensions below it. The chain grows automatically as packages are loaded, so the user does not need to coordinate anything manually.</p>
@@ -410,19 +410,116 @@
 <strong>Keep the same argument signature</strong> as the generic, and include <code>...</code> so extra arguments pass through.</li>
 <li>
 <strong>Do not call <code><a href="../reference/setRateFunction.html">setRateFunction()</a></code></strong> in your constructor for any rate that your package handles via a <code>project*</code> method. The two mechanisms are separate and should not be mixed for the same rate within an extension package.</li>
-</ol></section><section class="level4"><h4 id="how-setratefunction-and-project-methods-interact">How <code>setRateFunction()</code> and <code>project*</code> methods interact<a class="anchor" aria-label="anchor" href="#how-setratefunction-and-project-methods-interact"></a>
+</ol></section><section class="level4"><h4 id="the-diet-follows-getencounterbyprey">The diet follows <code>getEncounterByPrey()</code>
+<a class="anchor" aria-label="anchor" href="#the-diet-follows-getencounterbyprey"></a>
+</h4>
+<p><a href="../reference/getDiet.html"><code>getDiet()</code></a> and <a href="../reference/getTrophicLevel.html"><code>getTrophicLevel()</code></a> need the encounter rate split by food source, and they get the split from the S3 generic <a href="../reference/getEncounterByPrey.html"><code>getEncounterByPrey()</code></a>, not from <code><a href="../reference/mizerEncounter.html">projectEncounter()</a></code>. They check it against the total from <a href="../reference/getEncounter.html"><code>getEncounter()</code></a>. A <code><a href="../reference/mizerEncounter.html">projectEncounter()</a></code> method of yours therefore needs a matching <code><a href="../reference/getEncounterByPrey.html">getEncounterByPrey()</a></code> method, which makes the same change and calls <code><a href="https://rdrr.io/r/base/UseMethod.html" class="external-link">NextMethod()</a></code>:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">#' @method getEncounterByPrey mizerMyExtension</span></span>
+<span><span class="co">#' @export</span></span>
+<span><span class="va">getEncounterByPrey.mizerMyExtension</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">params</span>, <span class="va">n</span>, <span class="va">n_pp</span>, <span class="va">n_other</span>,</span>
+<span>                                                <span class="va">t</span> <span class="op">=</span> <span class="fl">0</span>, <span class="va">...</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="va">by_prey</span> <span class="op">&lt;-</span> <span class="kw"><a href="https://rdrr.io/r/base/UseMethod.html" class="external-link">NextMethod</a></span><span class="op">(</span><span class="op">)</span></span>
+<span>    <span class="co"># Add your encounter as a food source of its own, named in the `prey`</span></span>
+<span>    <span class="co"># dimension</span></span>
+<span>    <span class="va">extra</span> <span class="op">&lt;-</span> <span class="fu">extraEncounter</span><span class="op">(</span><span class="va">params</span>, <span class="va">n</span>, <span class="va">n_pp</span>, <span class="va">n_other</span>, <span class="va">t</span>, <span class="va">...</span><span class="op">)</span></span>
+<span>    <span class="va">dn</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/dimnames.html" class="external-link">dimnames</a></span><span class="op">(</span><span class="va">by_prey</span><span class="op">)</span></span>
+<span>    <span class="va">dn</span><span class="op">$</span><span class="va">prey</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">dn</span><span class="op">$</span><span class="va">prey</span>, <span class="st">"My food"</span><span class="op">)</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/array.html" class="external-link">array</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">by_prey</span>, <span class="va">extra</span><span class="op">)</span>, dim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">by_prey</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>, dimnames <span class="op">=</span> <span class="va">dn</span><span class="op">)</span></span>
+<span><span class="op">}</span></span></code></pre></div>
+</div>
+<p>A method that changes a parameter, such as the search volume, changes it in <code>params</code> before <code><a href="https://rdrr.io/r/base/UseMethod.html" class="external-link">NextMethod()</a></code>, exactly as its <code><a href="../reference/mizerEncounter.html">projectEncounter()</a></code> method does. Without the method, <code><a href="../reference/getDiet.html">getDiet()</a></code> and <code><a href="../reference/getTrophicLevel.html">getTrophicLevel()</a></code> find that the split does not add up to the total, scale all food sources in proportion, and tell the user that the split is exact only if your change affects all of them equally. Do not check the result against <code><a href="../reference/getEncounter.html">getEncounter()</a></code> inside the method: the parameters it passes on have already been changed, so the encounter rate calculated from them would contain your change twice.</p>
+<p><code><a href="../reference/getTrophicLevel.html">getTrophicLevel()</a></code> takes from your method only how much food each prey species and the resource provide. Which prey sizes that food comes from it takes from the predation kernel stored in the model. If your extension changes the kernel during the projection rather than storing it with <a href="../reference/setPredKernel.html"><code>setPredKernel()</code></a>, also give <code><a href="../reference/getTrophicLevel.html">getTrophicLevel()</a></code> a method that stores the kernel in force at time <code>t</code> with <code><a href="../reference/setPredKernel.html">setPredKernel()</a></code> and calls <code><a href="https://rdrr.io/r/base/UseMethod.html" class="external-link">NextMethod()</a></code>.</p>
+</section><section class="level4"><h4 id="how-setratefunction-and-project-methods-interact">How <code>setRateFunction()</code> and <code>project*</code> methods interact<a class="anchor" aria-label="anchor" href="#how-setratefunction-and-project-methods-interact"></a>
 </h4>
 <p>A user who calls <code>setRateFunction(params, "Encounter", "myFn")</code> is asking for their function to completely replace the encounter calculation for that specific <code>params</code> object. Mizer honours this: when <code>myFn</code> is set, <code><a href="../reference/mizerEncounter.html">projectEncounter()</a></code> is not called at all for the Encounter rate, so no extension package’s <code>projectEncounter</code> method will run for that rate either.</p>
 <p>This means that if a user applies <code><a href="../reference/setRateFunction.html">setRateFunction()</a></code> to a rate that your extension package modifies via <code>projectEncounter.mizerMyExtension</code>, your method will be silently bypassed for that object. It is worth documenting this limitation for your users.</p>
 </section><section class="level4"><h4 id="mizers-default-parameters-do-not-go-through-your-method">Mizer’s default parameters do not go through your method<a class="anchor" aria-label="anchor" href="#mizers-default-parameters-do-not-go-through-your-method"></a>
 </h4>
 <p>Mizer calculates some species parameters by putting the model into a reference state and measuring a rate in it. <a href="../reference/get_gamma_default.html"><code>get_gamma_default()</code></a> is the one to know about: it gives each species a search volume coefficient of 1, puts a power-law prey spectrum in front of it, and measures the available energy to find the <code>gamma</code> that delivers the target feeding level <code>f0</code>. <a href="../reference/get_f0_default.html"><code>get_f0_default()</code></a> does the inverse.</p>
-<p>Those measurements use <code><a href="../reference/mizerEncounter.html">mizerEncounter()</a></code>, not <a href="../reference/getEncounter.html"><code>getEncounter()</code></a>, so they do not dispatch through your <code>projectEncounter</code> method and are unaffected by a <code><a href="../reference/setRateFunction.html">setRateFunction()</a></code> registration. They also exclude the <code>ext_encounter</code> array and functions registered with <code><a href="../reference/other_mort.html">other_encounter()</a></code>, including a component’s <code>encounter_fun</code>. The <code>gamma</code> mizer calculates therefore describes the species’ <em>baseline</em> search volume on the reference resource — which is exactly what a dynamic modulation such as a temperature scalar is meant to modulate. Do not declare <code>gamma</code> as a given species parameter merely to protect it from your own method or component; that is no longer necessary, and it costs the model the ability to let <code>gamma</code> follow <code>f0</code>.</p>
-</section></section><section class="level3"><h3 id="creating-objects-the-two-commands">Creating objects: the two commands<a class="anchor" aria-label="anchor" href="#creating-objects-the-two-commands"></a>
+<p>Those measurements use <code><a href="../reference/mizerEncounter.html">mizerEncounter()</a></code>, not <code><a href="../reference/getEncounter.html">getEncounter()</a></code>, so they do not dispatch through your <code>projectEncounter</code> method and are unaffected by a <code><a href="../reference/setRateFunction.html">setRateFunction()</a></code> registration. They also exclude the <code>ext_encounter</code> array and functions registered with <code><a href="../reference/other_mort.html">other_encounter()</a></code>, including a component’s <code>encounter_fun</code>. The <code>gamma</code> mizer calculates therefore describes the species’ <em>baseline</em> search volume on the reference resource — which is exactly what a dynamic modulation such as a temperature scalar is meant to modulate. Do not declare <code>gamma</code> as a given species parameter merely to protect it from your own method or component; that is no longer necessary, and it costs the model the ability to let <code>gamma</code> follow <code>f0</code>.</p>
+</section><section class="level4"><h4 id="but-they-do-go-through-your-get__default-method">But they do go through your <code>get_*_default()</code> method<a class="anchor" aria-label="anchor" href="#but-they-do-go-through-your-get__default-method"></a>
+</h4>
+<p>That non-dispatching measurement is right for an extension that <em>modulates</em> a rate mizer already has. It is wrong for an extension that changes the model’s structure — most of all one that replaces the single resource spectrum by a resource system of its own. The <code>gamma</code> values that <a href="../reference/newMultispeciesParams.html"><code>newMultispeciesParams()</code></a> auto-derived at construction time were calibrated against the resource that was there then. Swapping that resource out afterwards does not re-derive them, so every species that did not come with a <code>gamma</code> of its own is left calibrated against a resource the model no longer has.</p>
+<p>Nothing in core mizer can notice this for you, and re-calling <code><a href="../reference/get_gamma_default.html">get_gamma_default()</a></code> will not fix it, both because its measurement deliberately does not see your resource system and because <code>species_params(params)$gamma</code> is already populated (only <code>NA</code> entries are filled by <code><a href="../reference/get_gamma_default.html">get_gamma_default()</a></code>). The five functions involved are therefore S3 generics, so you can supply the part that mizer cannot know:</p>
+<table class="table caption-top">
+<thead><tr class="header">
+<th>Generic</th>
+<th>What a method should return</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><a href="../reference/measure_avail_energy.html"><code>measure_avail_energy()</code></a></td>
+<td>the coefficient <span class="math inline">\(A_i\)</span> in <span class="math inline">\(E_i(w) = A_i w^{2 + q_i - \lambda}\)</span>, the energy the reference state makes available</td>
+</tr>
+<tr class="even">
+<td><a href="../reference/get_gamma_default.html"><code>get_gamma_default()</code></a></td>
+<td>search volume coefficient <code>gamma</code> for each species</td>
+</tr>
+<tr class="odd">
+<td><a href="../reference/get_f0_default.html"><code>get_f0_default()</code></a></td>
+<td>target feeding level <code>f0</code> for each species</td>
+</tr>
+<tr class="even">
+<td><a href="../reference/get_h_default.html"><code>get_h_default()</code></a></td>
+<td>maximum intake rate coefficient <code>h</code>
+</td>
+</tr>
+<tr class="odd">
+<td><a href="../reference/get_ks_default.html"><code>get_ks_default()</code></a></td>
+<td>standard metabolic rate coefficient <code>ks</code>
+</td>
+</tr>
+</tbody>
+</table>
+<p><code><a href="../reference/measure_avail_energy.html">measure_avail_energy()</a></code> is usually the only one you need. It is the single point at which <code><a href="../reference/get_gamma_default.html">get_gamma_default()</a></code> and <code><a href="../reference/get_f0_default.html">get_f0_default()</a></code> look at the prey in the model, placing the reference resource on an untruncated power law across <a href="../reference/w.html"><code>w_full</code></a> so that evaluating at <code>w[length(w)]</code> recovers the scale-free coefficient <span class="math inline">\(A_i\)</span> without upper-cutoff distortion. A method for it redirects both defaults at your resource system without your having to reimplement either:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">#' @export</span></span>
+<span><span class="va">measure_avail_energy.mizerShelf</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">params</span>, <span class="va">...</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="co"># Put the extension's own resources into the untruncated power-law</span></span>
+<span>    <span class="co"># reference state and return the coefficient A_i for each species.</span></span>
+<span><span class="op">}</span></span></code></pre></div>
+</div>
+<p>If your extension instead calibrates <code>gamma</code> against size-truncated resource spectra at a species-specific reference size (such as <code>w_inf</code> or <code>w_min</code>), register methods for <code><a href="../reference/get_gamma_default.html">get_gamma_default()</a></code> and <code><a href="../reference/get_f0_default.html">get_f0_default()</a></code> directly.</p>
+<p>On every rebuild of the species parameters, <a href="../reference/setParams.html"><code>setParams()</code></a> runs the rate setters, and three of them fill in the values the user did not give by calling these generics: <a href="../reference/setSearchVolume.html"><code>setSearchVolume()</code></a> calls <code><a href="../reference/get_gamma_default.html">get_gamma_default()</a></code>, which measures through <code><a href="../reference/measure_avail_energy.html">measure_avail_energy()</a></code>; <a href="../reference/setMaxIntakeRate.html"><code>setMaxIntakeRate()</code></a> calls <code><a href="../reference/get_h_default.html">get_h_default()</a></code>; and <a href="../reference/setMetabolicRate.html"><code>setMetabolicRate()</code></a> calls <code><a href="../reference/get_ks_default.html">get_ks_default()</a></code>. An object of your class therefore picks up your methods for these four on every rebuild — including when a user edits a species parameter or hands an explicitly given <code>gamma</code> back to mizer by removing it from <code><a href="../reference/species_params.html">given_species_params()</a></code>. To re-derive these defaults at the moment your setup or resource-setting function swaps the resource out, trigger a rebuild from <code><a href="../reference/species_params.html">given_species_params()</a></code> once the object carries your extension class:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu">mizer</span><span class="fu">::</span><span class="fu"><a href="../reference/recordExtension.html">recordExtension</a></span><span class="op">(</span></span>
+<span>    <span class="va">params</span>, <span class="st">"mizerShelf"</span>,</span>
+<span>    version <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">as.character</a></span><span class="op">(</span><span class="fu">utils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/utils/packageDescription.html" class="external-link">packageVersion</a></span><span class="op">(</span><span class="st">"mizerShelf"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu">mizer</span><span class="fu">::</span><span class="fu"><a href="../reference/coerceToExtensionClass.html">coerceToExtensionClass</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/species_params.html">species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/species_params.html">species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span></code></pre></div>
+</div>
+<p>That no-op assignment rebuilds <code>species_params(params)</code> from <code>given_species_params(params)</code> — dropping the single-resource <code>gamma</code> that was not given by the user while keeping any explicitly supplied values — and re-runs <code>setParams(params)</code>, which calls your methods. Leaving this step out would leave the stale single-resource <code>gamma</code> in <code>species_params(params)</code>, where <a href="../reference/reconcileSpeciesParams.html"><code>reconcileSpeciesParams()</code></a> (and hence <code><a href="../reference/saveParams.html">readParams()</a></code>) would mistake it for a value set by hand and freeze it into <code>given_species_params(params)</code>.</p>
+</section><section class="level4"><h4 id="a-rebuild-does-not-calculate-f0">A rebuild does not calculate <code>f0</code>
+<a class="anchor" aria-label="anchor" href="#a-rebuild-does-not-calculate-f0"></a>
+</h4>
+<p><code><a href="../reference/get_f0_default.html">get_f0_default()</a></code> is the exception. No rate setter calls it, so a rebuild never applies your method for it: mizer calls it only in <a href="../reference/newTraitParams.html"><code>newTraitParams()</code></a> and <a href="../reference/newSingleSpeciesParams.html"><code>newSingleSpeciesParams()</code></a>, before the model has your class. Nor is there a single-resource <code>f0</code> for the rebuild to drop, because mizer never stores a calculated <code>f0</code>. <code>species_params(params)</code> holds <code>f0</code> only where the user gave it, and elsewhere the default calculations use 0.6.</p>
+<p>Your method therefore takes effect only where it is called. Call <code>get_f0_default(params)</code> yourself wherever your package needs the feeding level that a species’ given <code>gamma</code> leads to on your resources. If that value should become the species’ <code>f0</code>, assign it after the rebuild, but only for the species whose <code>gamma</code> was given and whose <code>f0</code> was not:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">given</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/species_params.html">given_species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span>
+<span><span class="va">gamma_given</span> <span class="op">&lt;-</span> <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/NULL.html" class="external-link">is.null</a></span><span class="op">(</span><span class="va">given</span><span class="op">$</span><span class="va">gamma</span><span class="op">)</span><span class="op">)</span> <span class="cn">FALSE</span> <span class="kw">else</span> <span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">given</span><span class="op">$</span><span class="va">gamma</span><span class="op">)</span></span>
+<span><span class="va">f0_given</span> <span class="op">&lt;-</span> <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/NULL.html" class="external-link">is.null</a></span><span class="op">(</span><span class="va">given</span><span class="op">$</span><span class="va">f0</span><span class="op">)</span><span class="op">)</span> <span class="cn">FALSE</span> <span class="kw">else</span> <span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">given</span><span class="op">$</span><span class="va">f0</span><span class="op">)</span></span>
+<span><span class="va">derive</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="va">gamma_given</span> <span class="op">&amp;</span> <span class="op">!</span><span class="va">f0_given</span><span class="op">)</span></span>
+<span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">derive</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="va">f0</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_f0_default.html">get_f0_default</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span>
+<span>    <span class="fu"><a href="../reference/species_params.html">species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">[</span><span class="va">derive</span>, <span class="st">"f0"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">f0</span><span class="op">[</span><span class="va">derive</span><span class="op">]</span></span>
+<span><span class="op">}</span></span></code></pre></div>
+</div>
+<p>Keep that restriction. On a built model every species has a <code>gamma</code>, so <code><a href="../reference/get_f0_default.html">get_f0_default()</a></code> returns a value for each of them. For a species whose <code>gamma</code> was calculated from <code>f0</code> it returns that <code>f0</code> again up to rounding, and storing it would freeze it as if the user had given it. The restriction also leaves alone an <code>f0</code> the user chose.</p>
+<p>The assigned <code>f0</code> is recorded as given, so later rebuilds keep it, and the rebuild it triggers uses it for the default <code>h</code> and, through <code>h</code>, <code>ks</code>. A species whose <code>h</code> was not given therefore gets a new <code>h</code>, with which its <code>gamma</code> leads to a different feeding level again: in one test, storing an <code>f0</code> of 0.75 gave an <code>h</code> for which <code><a href="../reference/get_f0_default.html">get_f0_default()</a></code> returned 0.80. Give <code>h</code> as well if the two must agree exactly. Core mizer does not take this step: for a species with a given <code>gamma</code> it calculates the default <code>h</code> from the given <code>f0</code>, or from 0.6.</p>
+<p>Two rules for a <code><a href="../reference/measure_avail_energy.html">measure_avail_energy()</a></code> or <code>get_*_default()</code> method:</p>
+<ul>
+<li>Return a property of the <em>species parameters</em>, not of the model’s dynamics. Leave out any dynamic modulation of the search volume, and any additive encounter contribution, that your extension applies. Folding such a factor in folds it into <code>gamma</code>, and since <code>gamma</code> then determines the search volume, the factor gets re-applied on every rebuild (issues #577 and #586).</li>
+<li>Call <code><a href="https://rdrr.io/r/base/UseMethod.html" class="external-link">NextMethod()</a></code> if what you are doing is adding to mizer’s reference state rather than replacing it, so that another extension in the chain still gets its turn.</li>
+</ul></section></section><section class="level3"><h3 id="creating-objects-the-two-commands">Creating objects: the two commands<a class="anchor" aria-label="anchor" href="#creating-objects-the-two-commands"></a>
 </h3>
 <p>A constructor function that returns a <code>mizerShelf</code> object must end with these two lines:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu">mizer</span><span class="fu">::</span><span class="fu"><a href="../reference/recordExtension.html">recordExtension</a></span><span class="op">(</span></span>
 <span>    <span class="va">params</span>, <span class="st">"mizerShelf"</span>,</span>
 <span>    version <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">as.character</a></span><span class="op">(</span><span class="fu">utils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/utils/packageDescription.html" class="external-link">packageVersion</a></span><span class="op">(</span><span class="st">"mizerShelf"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
@@ -430,7 +527,7 @@
 </div>
 <p>Here is how <code>newDetritusCarrionParams()</code> uses them in mizerShelf:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">newDetritusCarrionParams</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">species_params</span>, <span class="va">...</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/newMultispeciesParams.html">newMultispeciesParams</a></span><span class="op">(</span><span class="va">species_params</span>, <span class="va">...</span>,</span>
 <span>                                    resource_dynamics <span class="op">=</span> <span class="st">"detritus_dynamics"</span><span class="op">)</span></span>
@@ -457,7 +554,7 @@
 <p>You do not need to call <code><a href="../reference/coerceToExtensionClass.html">coerceToExtensionClass()</a></code> yourself for <code>MizerSim</code> objects. When <code><a href="../reference/project.html">project()</a></code> creates its output it calls <code><a href="../reference/MizerSim.html">MizerSim()</a></code>, which in turn calls <code><a href="../reference/coerceToExtensionClass.html">coerceToExtensionClass()</a></code> on the new sim object. Because the params object inside the sim already has the extension metadata, mizer knows to promote the sim to <code>mizerShelfSim</code> automatically.</p>
 <p>This means that after:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sim</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/project.html">project</a></span><span class="op">(</span><span class="va">NWMed_params</span>, t_max <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></code></pre></div>
 </div>
 <p><code>sim</code> is already of class <code>mizerShelfSim</code>, and any method you have defined for that class — such as <code>getBiomass.mizerShelfSim</code> — will be dispatched automatically.</p>
@@ -469,11 +566,11 @@
 </h4>
 <p>There are two situations where writing a method for your <code>...Sim</code> class is necessary:</p>
 <ol type="1">
-<li><p><strong>Overriding non-rate mizer generics.</strong> Functions like <code><a href="../reference/getBiomass.html">getBiomass()</a></code> or <a href="../reference/getN.html"><code>getN()</code></a> are summary accessors rather than step-by-step projection rates. When an extension adds external dynamical components (e.g. <code>Detritus</code> and <code>Carrion</code> in <code>mizerShelf</code>), you define both <code>getBiomass.mizerShelf</code> (for <code>MizerParams</code>) and <code>getBiomass.mizerShelfSim</code> (for <code>MizerSim</code>) so that <code>getBiomass(sim)</code> and <code>plotBiomass(sim)</code> include the component biomasses across time.</p></li>
+<li><p><strong>Overriding a summary with semantics outside the shared capabilities.</strong> A component’s biomass is normally registered with <code>biomass_fun</code>, so core <code><a href="../reference/getBiomass.html">getBiomass()</a></code> handles both parameters and simulations. Callers explicitly select it with <code>include = "component:name"</code>; <code><a href="../reference/plotBiomass.html">plotBiomass()</a></code> plots the getter’s result. A component can return several named series, or have no meaningful biomass at all. Do not infer biomass from scalar state or copy the plotting code. Only a summary that cannot be expressed by the shared contract needs separate params and simulation methods.</p></li>
 <li><p><strong>Providing new extension-specific <code>get*</code> rate accessors.</strong> If your package introduces its own rate diagnostic function (such as <code>getStarvMort()</code> in <code>mizerStarvation</code>), core mizer does not define that function. To let users evaluate the diagnostic on both parameters and simulations (e.g. <code>getStarvMort(params)</code> and <code>getStarvMort(sim)</code>), define your function as an S3 generic with methods for both <code>MizerParams</code> and <code>MizerSim</code>:</p></li>
 </ol>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#' Starvation mortality rate</span></span>
 <span><span class="co">#'</span></span>
 <span><span class="co">#' Calculates the starvation mortality rate (1/year) by species and size.</span></span>
@@ -535,7 +632,7 @@
 </table>
 <p>Give every entry point that reports an <code>info_level</code> argument, forward it, and wrap the body:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">newFooParams</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">species_params</span>, <span class="va">...</span>,</span>
 <span>                         <span class="va">info_level</span> <span class="op">=</span> <span class="fu"><a href="../reference/default_info_level.html">default_info_level</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="fu"><a href="../reference/with_info_level.html">with_info_level</a></span><span class="op">(</span>info_level <span class="op">=</span> <span class="va">info_level</span>, <span class="op">{</span></span>
@@ -569,13 +666,19 @@
 <li><label><input type="checkbox">Register every S3 method in <code>NAMESPACE</code> (via <code>@method</code> + <code>@export</code>).</label></li>
 <li><label><input type="checkbox">Call <code><a href="https://rdrr.io/r/base/UseMethod.html" class="external-link">NextMethod()</a></code> in every method override.</label></li>
 <li><label><input type="checkbox">For each rate the package modifies during projection, define a <code>project*</code> method (e.g. <code>projectEncounter.mizerMyExtension</code>) rather than calling <code><a href="../reference/setRateFunction.html">setRateFunction()</a></code>. See <a href="#replacing-setratefunction-with-method-dispatch">Replacing <code>setRateFunction()</code> with method dispatch</a>.</label></li>
+<li><label><input type="checkbox">If the package has a <code><a href="../reference/mizerEncounter.html">projectEncounter()</a></code> method, give <code><a href="../reference/getEncounterByPrey.html">getEncounterByPrey()</a></code> a method that makes the same change. See <a href="#the-diet-follows-getencounterbyprey">The diet follows <code>getEncounterByPrey()</code></a>.</label></li>
 <li><label><input type="checkbox">Store all extension-specific state in <code>other_params(params)</code> or in new components created with <code><a href="../reference/setComponent.html">setComponent()</a></code>, never as extra top-level list elements or new slots.</label></li>
+<li><label><input type="checkbox">Assemble and register the capabilities the extension actually supports: equations/custom steps, quantitative convergence, tuning strategies, species/ grid/scaling transformations, biomass and mortality diagnostics. Projection support alone does not supply the others. Use the <a href="guide-extend-mizer.html">guide to extending mizer</a> for their contracts and examples.</label></li>
+<li><label><input type="checkbox">Register declarations after the final effective providers and extension classes are in place. Update saved objects explicitly in the package’s upgrade method; changing a reusable definition does not change older models. Test each provider-bound family independently after replacing a provider.</label></li>
+<li><label><input type="checkbox">Keep structural prescribed inputs separate from conditional analysis and temporary tuning constraints. Declare time dependence independently of a stationary tuning strategy. Missing support must remain visible.</label></li>
+<li><label><input type="checkbox">Transform owned arrays before dependent rates and initial guesses use them. Test species addition with <code>steady = FALSE</code>, removal, reordering, renaming, grid changes and both scaling operations. No late repair should hide a failure earlier in the operation.</label></li>
 <li><label><input type="checkbox">Add and remove any species parameter column of your own through <code>species_params(params)$my_col &lt;- value</code> and <code>species_params(params)$my_col &lt;- NULL</code>, never by writing into the <code>@species_params</code> slot. See <a href="#taking-a-species-parameter-column-away-again">Taking a species parameter column away again</a>.</label></li>
 <li><label><input type="checkbox">Register an extra mortality or encounter term that carries no state of its own with <code><a href="../reference/other_mort.html">other_mort()</a></code> or <code><a href="../reference/other_mort.html">other_encounter()</a></code>, never by assigning into <code>params@other_mort</code> or <code>params@other_encounter</code> directly. See <a href="#metadata-only-extensions-mizerstarvation">Metadata-only extensions: mizerStarvation</a>.</label></li>
+<li><label><input type="checkbox">If your package changes the resource structure of the model, define a <code><a href="../reference/measure_avail_energy.html">measure_avail_energy()</a></code> (or <code><a href="../reference/get_gamma_default.html">get_gamma_default()</a></code> / <code><a href="../reference/get_f0_default.html">get_f0_default()</a></code>) method and rebuild the species parameters with <code>species_params(params) &lt;- species_params(params)</code> after <code>coerceToExtensionClass(params)</code> so that the <code>gamma</code> default is derived against your resources rather than against the one mizer replaced. The rebuild does not apply an <code>f0</code> calculation; if you need one, store its result yourself. See <a href="#but-they-do-go-through-your-get__default-method">But they do go through your <code>get_*_default()</code> method</a> and <a href="#a-rebuild-does-not-calculate-f0">A rebuild does not calculate <code>f0</code></a>.</label></li>
 <li><label><input type="checkbox">Report anything you tell the user with <code><a href="../reference/signal_info.html">signal_info()</a></code> inside a <code><a href="../reference/with_info_level.html">with_info_level()</a></code>, never a bare <code><a href="https://rdrr.io/r/base/message.html" class="external-link">message()</a></code> or <code><a href="https://rdrr.io/r/base/warning.html" class="external-link">warning()</a></code>, and give every entry point an <code>info_level = default_info_level()</code> argument that it forwards. See <a href="#telling-the-user-what-your-package-decided">Telling the user what your package decided</a>.</label></li>
 <li><label><input type="checkbox">Run mizer’s own test suite against an object of your subclass to check that your overrides do not break core behaviour. See <a href="#running-mizers-test-suite-against-your-subclass">Running mizer’s test suite against your subclass</a>.</label></li>
 </ul>
-<p>For metadata-only packages, only the storage item and the reporting item apply, and <code><a href="../reference/coerceToExtensionClass.html">coerceToExtensionClass()</a></code> is not needed. Their setup functions should still call <code><a href="../reference/recordExtension.html">recordExtension()</a></code>, stamping the package version and requirement when their component is first created.</p>
+<p>For metadata-only packages, S3 dispatch items do not apply and <code><a href="../reference/coerceToExtensionClass.html">coerceToExtensionClass()</a></code> is not needed. Capability declarations still apply to the components and rate contributions they provide. Their setup functions should still call <code><a href="../reference/recordExtension.html">recordExtension()</a></code>, stamping the package version and requirement when their component is first created.</p>
 <hr></section><section class="level2"><h2 id="running-mizers-test-suite-against-your-subclass">Running mizer’s test suite against your subclass<a class="anchor" aria-label="anchor" href="#running-mizers-test-suite-against-your-subclass"></a>
 </h2>
 <p>A dispatching extension overrides mizer generics, so it is easy to accidentally break some core mizer behaviour that you did not mean to change. A powerful way to catch this is to run <strong>mizer’s own test suite</strong> with the shared test fixture replaced by an object of your subclass. If your overrides are faithful extensions of the base behaviour, the great majority of mizer’s tests should still pass; the failures that remain pinpoint exactly where your class diverges from a plain <code>MizerParams</code> object (and are often legitimate — e.g. a test that hard-codes the single-resource object structure).</p>
@@ -584,19 +687,19 @@
 </h3>
 <p>The test files are not part of the installed package, so clone the mizer source and check out the tag or commit that matches your installed version:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/packageDescription.html" class="external-link">packageVersion</a></span><span class="op">(</span><span class="st">"mizer"</span><span class="op">)</span>   <span class="co"># note this, then `git checkout` the matching tag</span></span></code></pre></div>
 </div>
 </section><section class="level3"><h3 id="step-2-convert-the-shared-fixture-to-your-subclass">Step 2: Convert the shared fixture to your subclass<a class="anchor" aria-label="anchor" href="#step-2-convert-the-shared-fixture-to-your-subclass"></a>
 </h3>
-<p>Edit <code>tests/testthat/helper.R</code> and, immediately <strong>after</strong> <code>NS_params_small</code> has been fully built (just before <code>NS_sim_small</code> is created), insert code that replaces it with an object of your class. Because <code><a href="https://devtools.r-lib.org/reference/load_all.html" class="external-link">devtools::load_all()</a></code> sources the helper inside mizer’s own namespace, attached packages are not on the lookup path there, so:</p>
+<p>Edit <code>tests/testthat/helper.R</code> and, immediately <strong>after</strong> <code>NS_params_small</code> has been fully built (just before <code>NS_sim_small</code> is created), insert code that replaces it with an object of your class. Because <code><a href="https://rdrr.io/pkg/devtools/man/load_all.html" class="external-link">devtools::load_all()</a></code> sources the helper inside mizer’s own namespace, attached packages are not on the lookup path there, so:</p>
 <ul>
 <li>call <code><a href="https://rdrr.io/r/base/library.html" class="external-link">library(yourPackage)</a></code>, and</li>
 <li>qualify your own functions with <code>yourPackage::</code>.</li>
 </ul>
 <p>For example, <a href="https://github.com/sizespectrum/mizerMR" class="external-link">mizerMR</a> (which adds multiple resources) converts the single resource into two resources like this:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">suppressMessages</a></span><span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://sizespectrum.org/mizerMR">mizerMR</a></span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/eval.html" class="external-link">local</a></span><span class="op">(</span><span class="op">{</span></span>
 <span>    <span class="va">p1</span> <span class="op">&lt;-</span> <span class="va">NS_params_small</span></span>
@@ -618,16 +721,16 @@
 <p>For your own extension, replace this block with a call to your constructor or conversion function, so that <code>NS_params_small</code> becomes an object of your S3 extension class. <code>NS_sim_small</code> is built from it on the next line and will then be of your <code>...Sim</code> class automatically.</p>
 </section><section class="level3"><h3 id="step-3-run-the-suite">Step 3: Run the suite<a class="anchor" aria-label="anchor" href="#step-3-run-the-suite"></a>
 </h3>
-<p>Run the tests from the root of the mizer source tree. Use <code><a href="https://devtools.r-lib.org/reference/test.html" class="external-link">devtools::test()</a></code> rather than <code><a href="https://testthat.r-lib.org/reference/test_dir.html" class="external-link">testthat::test_dir()</a></code>: it calls <code>load_all()</code>, which is required because some mizer tests use mizer’s internal (unexported) functions.</p>
+<p>Run the tests from the root of the mizer source tree. Use <code><a href="https://rdrr.io/pkg/devtools/man/test.html" class="external-link">devtools::test()</a></code> rather than <code><a href="https://testthat.r-lib.org/reference/test_dir.html" class="external-link">testthat::test_dir()</a></code>: it calls <code>load_all()</code>, which is required because some mizer tests use mizer’s internal (unexported) functions.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb17"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/test.html" class="external-link">test</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode cell-code" id="cb21"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/devtools/man/test.html" class="external-link">test</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
 </section><section class="level3"><h3 id="step-4-restore-the-source">Step 4: Restore the source<a class="anchor" aria-label="anchor" href="#step-4-restore-the-source"></a>
 </h3>
 <p>The edits above are only for this experiment. Undo them with:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># from the mizer source root</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/system.html" class="external-link">system</a></span><span class="op">(</span><span class="st">"git checkout tests/testthat"</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -641,7 +744,7 @@
 </h3>
 <p><code>getMetadata(params)$extensions</code> reports, for each extension in the chain, both the installation requirement and the version of the extension package that the object conforms to. Write entries with <code><a href="../reference/recordExtension.html">recordExtension()</a></code>; do not modify the returned metadata directly. Stamp the installed version <strong>only</strong> when you create your component (or when you upgrade the object); for ordinary modifications call <code><a href="../reference/recordExtension.html">recordExtension()</a></code> without a <code>version</code>, so the existing stamp is preserved:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># in your setup function, when the component is first created:</span></span>
 <span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/recordExtension.html">recordExtension</a></span><span class="op">(</span><span class="va">params</span>, <span class="st">"myExtension"</span>,</span>
 <span>                          version <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">as.character</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/packageDescription.html" class="external-link">packageVersion</a></span><span class="op">(</span><span class="st">"myExtension"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
@@ -653,8 +756,9 @@
 </section><section class="level3"><h3 id="provide-an-upgrade-method">Provide an <code>upgrade</code> method<a class="anchor" aria-label="anchor" href="#provide-an-upgrade-method"></a>
 </h3>
 <p>mizer registers its core upgrades as methods of the S3 generic <code><a href="https://rdrr.io/r/utils/upgrade.html" class="external-link">utils::upgrade()</a></code>. Register your own method for your subclass and have it perform <strong>only</strong> your migration. It must be idempotent, must <strong>not</strong> call <code><a href="https://rdrr.io/r/base/UseMethod.html" class="external-link">NextMethod()</a></code>, and must <strong>not</strong> touch the version stamp — mizer’s orchestrator re-stamps the object after calling your method.</p>
+<p>Public setters such as <code><a href="../reference/setComponent.html">setComponent()</a></code> and <a href="../reference/setProcess.html"><code>setProcess()</code></a> can be used inside the upgrade. Their validation does not restart the same candidate’s upgrade chain. The old version remains visible during your method; mizer stamps the new version only after it returns successfully. A failed upgrade leaves the caller’s original object unchanged and can be retried after correcting the failure. Do not pre-stamp the object as a recursion workaround.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#' @exportS3Method utils::upgrade</span></span>
 <span><span class="va">upgrade.myExtension</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="co"># Detect the old layout structurally and migrate it. Safe to run twice.</span></span>

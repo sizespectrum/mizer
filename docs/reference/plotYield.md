@@ -131,8 +131,6 @@ Other plotting functions:
 # \donttest{
 params <- NS_params
 sim <- project(params, effort = 1, t_max = 20, t_save = 0.2, progress_bar = FALSE)
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 plotYield(sim)
 
 plotYield(sim, species = c("Cod", "Herring"), total = TRUE)
@@ -140,8 +138,6 @@ plotYield(sim, species = c("Cod", "Herring"), total = TRUE)
 
 # Comparing with yield from twice the effort
 sim2 <- project(params, effort=2, t_max=20, t_save = 0.2, progress_bar = FALSE)
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 plotYield(sim, sim2, species = c("Cod", "Herring"), log = FALSE)
 #> Warning: The `sim2` argument of `plotYield()` is deprecated as of mizer 2.6.0.
 #> ℹ Please use `plot2()` instead.

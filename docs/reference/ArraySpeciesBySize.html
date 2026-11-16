@@ -19,7 +19,7 @@ print(), summary(), plot(), and as.data.frame() methods."><meta property="og:ima
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0.9011</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -144,7 +144,7 @@ way mizer recognised one before this attribute existed.</p></dd>
 
 <dt id="arg-params">params<a class="anchor" aria-label="anchor" href="#arg-params"></a></dt>
 <dd><p>A <code>MizerParams</code> object. Used for species colours, linetypes,
-and size ranges in the <code><a href="plot.html">plot()</a></code> method.</p></dd>
+size ranges, and the original size-grid geometry.</p></dd>
 
 
 <dt id="arg-representation">representation<a class="anchor" aria-label="anchor" href="#arg-representation"></a></dt>
@@ -169,7 +169,11 @@ attributes:</p><ul><li><p><code>value_name</code> – a human-readable name for 
 (e.g. "Encounter rate").</p></li>
 <li><p><code>units</code> – the units of the rate (e.g. "g/year").</p></li>
 <li><p><code>type</code> – the kind of quantity the values are.</p></li>
-</ul></div>
+</ul><p>Subsetting size columns preserves their original model coordinates and bins,
+including non-contiguous, reordered and repeated columns. It does not
+redefine the bins using the spacing of the selected columns. Use
+<code>drop = FALSE</code> to keep the wrapper when selecting a single row or column.</p>
+    </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p><code><a href="print.html">print()</a></code>, <code><a href="summary.html">summary()</a></code>, <code><a href="as.data.frame.html">as.data.frame()</a></code>, <code><a href="plot.html">plot()</a></code></p></div>
@@ -179,14 +183,6 @@ attributes:</p><ul><li><p><code>value_name</code> – a human-readable name for 
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
 <span class="r-in"><span><span class="va">enc</span> <span class="op">&lt;-</span> <span class="fu"><a href="getEncounter.html">getEncounter</a></span><span class="op">(</span><span class="va">NS_params</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `b` column so using the isometric default b = 3 in w = a l^b.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `b` column so using the isometric default b = 3 in w = a l^b.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `b` column so using the isometric default b = 3 in w = a l^b.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `b` column so using the isometric default b = 3 in w = a l^b.</span>
 <span class="r-in"><span><span class="fu">is.ArraySpeciesBySize</span><span class="op">(</span><span class="va">enc</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
 <span class="r-in"><span><span class="fu"><a href="summary.html">summary</a></span><span class="op">(</span><span class="va">enc</span><span class="op">)</span></span></span>

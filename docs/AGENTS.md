@@ -60,11 +60,34 @@ a custom function name in `params@rates_funcs`. Dispatch via
 model is discretised on the size grid — `flux` picks the advective
 reconstruction, and `bin_average` decides whether size-dependent factors
 are integrated over their bin or point-sampled at the left bin boundary.
-Both default to the first-order scheme, so previous mizer versions
-reproduce byte-for-byte. This is invisible in the code you are likely to
-be reading: a function that ignores `bin_average` still looks correct
-and still passes its tests on the default path. Anything that integrates
-over the size grid must handle both schemes and be tested under both.
+The default follows the model’s defaults edition
+([`default_second_order_w()`](https://sizespectrum.org/mizer/reference/default_second_order_w.md)):
+editions 1 and 2 default to the first-order scheme, so previous mizer
+versions reproduce byte-for-byte, and edition 3 defaults to second
+order. The test fixtures are of edition 1, so this is invisible in the
+code you are likely to be reading: a function that ignores `bin_average`
+still looks correct and still passes its tests on the default path.
+Anything that integrates over the size grid must handle both schemes and
+be tested under both.
+
+**Defaults editions**: a model records in its `defaults_edition` slot
+the edition that was active when it was created. Code that chooses a
+default by edition must read the model’s edition,
+`defaults_edition(params)`. The bare
+[`defaults_edition()`](https://sizespectrum.org/mizer/reference/defaults_edition.md)
+is the active edition, and only the code that creates a new model
+([`emptyParams()`](https://sizespectrum.org/mizer/reference/emptyParams.md),
+and before a model exists
+[`validGearParams()`](https://sizespectrum.org/mizer/reference/validGearParams.md)
+and the wrapper constructors’
+[`resolve_second_order_w()`](https://sizespectrum.org/mizer/reference/resolve_second_order_w.md)
+call) may use it; elsewhere it makes an existing model change its
+defaults when the user switches edition. A function that builds a new
+model as a step in changing an existing one
+([`addSpecies()`](https://sizespectrum.org/mizer/reference/addSpecies.md),
+[`adjustSizeGrid()`](https://sizespectrum.org/mizer/reference/adjustSizeGrid.md))
+wraps that build in
+`with_defaults_edition(defaults_edition(params), ...)`.
 
 **Gated validation**:
 [`validParams()`](https://sizespectrum.org/mizer/reference/validParams.md)
@@ -181,7 +204,7 @@ documented in `inst/skills/`:
 ## Testing
 
 - Run
-  [`devtools::load_all()`](https://devtools.r-lib.org/reference/load_all.html)
+  [`devtools::load_all()`](https://rdrr.io/pkg/devtools/man/load_all.html)
   before running tests
 - Run only relevant tests with `devtools::test(filter = "pattern")`.
   Running all tests is too slow.
@@ -203,12 +226,12 @@ documented in `inst/skills/`:
   [`testthat::snapshot_accept()`](https://testthat.r-lib.org/reference/snapshot_accept.html)
   to promote the `.new.md` files into the canonical `.md` snapshots.
 - Run
-  [`devtools::document()`](https://devtools.r-lib.org/reference/document.html)
+  [`devtools::document()`](https://rdrr.io/pkg/devtools/man/document.html)
   after adding or changing exports
 - Lint a file with
-  [`lintr::lint()`](https://lintr.r-lib.org/reference/lint.html)
+  [`lintr::lint()`](https://rdrr.io/pkg/lintr/man/lint.html)
 - After editing C++ source:
-  [`devtools::clean_dll(); devtools::load_all()`](https://pkgbuild.r-lib.org/reference/clean_dll.html)
+  [`devtools::clean_dll(); devtools::load_all()`](https://rdrr.io/pkg/pkgbuild/man/clean_dll.html)
 - After modifying the `MizerParams` or `MizerSim` class (new/removed
   slots, changes to `@rates_funcs`, etc.), follow the steps in
   `.claude/skills/upgrade-mizer-data.md`.
@@ -235,10 +258,10 @@ documented in `inst/skills/`:
 - Update `NEWS.md` when adding features or fixing bugs.
 - If the change can alter the behaviour of code users have already
   written — a renamed or removed argument, a changed default, a
-  deprecation, a corrected bug that moves results — also record it in
-  the `upgrade-mizer-code` skill, which is split in two: the prose goes
-  in `inst/skills/upgrade-mizer-code/references/mizer-<version>.md` for
-  the release being prepared (create the file for a new release; the
+  deprecation — also record it in the `upgrade-mizer-code` skill, which
+  is split in two: the prose goes in
+  `inst/skills/upgrade-mizer-code/references/mizer-<version>.md` for the
+  release being prepared (create the file for a new release; the
   generator orders them by version), and a row goes in the agent-only
   symptom index in its `SKILL.md`, giving the symptom a user would
   actually see and naming the section heading **verbatim**. If the
@@ -247,7 +270,8 @@ documented in `inst/skills/`:
   `build_guides()` then checks that every row resolves to a heading,
   every heading has a row, and every quoted fragment is still a literal
   in `R/`, and updates `vignettes/upgrading.Rmd`. Do not edit that
-  article directly.
+  article directly. Bug fixes do not go in this skill, even when they
+  move results; they are listed only in `NEWS.md`.
 - The `upgrade-mizer-code` skill addresses users. If the change is one
   only an extension author can act on — a method that stops dispatching,
   a workaround that can now be dropped, a mechanism an extension package

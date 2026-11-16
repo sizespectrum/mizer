@@ -31,27 +31,27 @@ getFMort(object, ...)
 
   `effort`
 
-  :   The effort of each fishing gear. See notes below. Defaults to the
-      initial effort stored in `object`.
+  : The effort of each fishing gear. See notes below. Defaults to the
+    initial effort stored in `object`.
 
   `n`
 
-  :   A matrix of species abundances (species x size). Defaults to the
-      initial abundances stored in `object`.
+  : A matrix of species abundances (species x size). Defaults to the
+    initial abundances stored in `object`.
 
   `n_pp`
 
-  :   A vector of the resource abundance by size. Defaults to the
-      initial resource abundance stored in `object`.
+  : A vector of the resource abundance by size. Defaults to the initial
+    resource abundance stored in `object`.
 
   `n_other`
 
-  :   A named list of the abundances of other dynamical components.
-      Defaults to the initial values stored in `object`.
+  : A named list of the abundances of other dynamical components.
+    Defaults to the initial values stored in `object`.
 
   `t`
 
-  :   The time for which to do the calculation. Defaults to 0.
+  : The time for which to do the calculation. Defaults to 0.
 
   **For a
   [MizerSim](https://sizespectrum.org/mizer/reference/MizerSim-class.md)
@@ -59,15 +59,15 @@ getFMort(object, ...)
 
   `time_range`
 
-  :   Subset the returned fishing mortalities by time. The time range is
-      either a vector of values, a vector of min and max time, or a
-      single value. Defaults to the whole time range of the simulation.
+  : Subset the returned fishing mortalities by time. The time range is
+    either a vector of values, a vector of min and max time, or a single
+    value. Defaults to the whole time range of the simulation.
 
   `drop`
 
-  :   Should dimensions of length 1 be dropped, e.g. if your community
-      only has one species it might make presentation of results easier.
-      Defaults to `TRUE`.
+  : Should dimensions of length 1 be dropped, e.g. if your community
+    only has one species it might make presentation of results easier.
+    Defaults to `TRUE`.
 
 ## Value
 
@@ -136,8 +136,6 @@ Other rate functions:
 params <- NS_params
 # Get the total fishing mortality in the initial state
 F <- getFMort(params, effort = 1)
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 str(F)
 #>  'ArraySpeciesBySize' num [1:12, 1:100] 0 0 0 0 0 0 0 0 0 0 ...
 #>  - attr(*, "dimnames")=List of 2
@@ -147,12 +145,13 @@ str(F)
 #>  - attr(*, "units")= chr "1/year"
 #>  - attr(*, "type")= chr "value"
 #>  - attr(*, "representation")= chr "average"
-#>  - attr(*, "params")=Formal class 'MizerParams' [package "mizer"] with 48 slots
+#>  - attr(*, "size_grid")=List of 2
+#>   ..$ grid : chr "w"
+#>   ..$ index: int [1:100] 1 2 3 4 5 6 7 8 9 10 ...
+#>  - attr(*, "params")=Formal class 'MizerParams' [package "mizer"] with 50 slots
 # Get the initial total fishing mortality when effort is different
 # between the four gears:
 F <- getFMort(params, effort = c(0.5,1,1.5,0.75))
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 # Get the total fishing mortality when effort is different
 # between the four gears and changes with time:
 effort <- array(NA, dim = c(20,4))
@@ -161,8 +160,6 @@ effort[, 2] <- seq(from = 1, to = 0.5, length = 20)
 effort[, 3] <- seq(from = 1, to = 2, length = 20)
 effort[, 4] <- seq(from = 2, to = 1, length = 20)
 F <- getFMort(params, effort = effort)
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 str(F)
 #>  num [1:20, 1:12, 1:100] 0 0 0 0 0 0 0 0 0 0 ...
 #>  - attr(*, "dimnames")=List of 3
@@ -172,8 +169,6 @@ str(F)
 # Get the total fishing mortality using the effort already held in a
 # MizerSim object.
 sim <- project(params, t_max = 20, effort = 0.5)
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 F <- getFMort(sim)
 F <- getFMort(sim, time_range = c(10, 20))
 # }

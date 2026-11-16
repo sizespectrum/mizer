@@ -19,7 +19,7 @@ total consumption rate."><meta property="og:image" content="https://sizespectrum
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0.9011</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -133,6 +133,12 @@ initial resource abundance stored in <code>object</code>.</p></dd>
 <dd><p>A named list of the abundances of other dynamical
 components. Defaults to the initial values stored in <code>object</code>.</p></dd>
 
+<dt><code>t</code></dt>
+<dd><p>The time at which to evaluate the rates. Defaults to 0. It
+matters only in a model whose rates depend on time, for example
+through an extension or through the encounter function of a
+component.</p></dd>
+
 
 </dl><p><strong>For a <a href="MizerSim-class.html">MizerSim</a> object:</strong></p><dl><dt><code>time_range</code></dt>
 <dd><p>The time range over which to return the diet. Either
@@ -144,7 +150,8 @@ Defaults to the whole time range of the simulation.</p></dd>
 the returned array.</p></dd>
 
 
-</dl></dd>
+</dl><p>The diet at each saved time is calculated from the abundances saved at
+that time and with the rates evaluated at that time.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -174,7 +181,9 @@ The prey index \(j\) runs over all species and the resource.</p>
 ecosystem components in your model for which you have defined an encounter
 rate function. These encounter rates are multiplied by \(1-f_i(w)\) to give
 the rate of consumption of biomass from these extra components.</p>
-<p>This function performs the same integration as <code><a href="getEncounter.html">getEncounter()</a></code> but does not
+<p>The rates resolved by food source, before the multiplication by
+\(1-f_i(w)\), are those returned by <code><a href="getEncounterByPrey.html">getEncounterByPrey()</a></code>, so this
+function performs the same integration as <code><a href="getEncounter.html">getEncounter()</a></code> but does not
 aggregate over prey species, and multiplies by \(1-f_i(w)\) to get the
 consumed biomass rather than the available biomass. Outside the range of
 sizes for a predator species the returned rate is zero. Summing the result
@@ -183,11 +192,33 @@ of <code>getDiet(proportion = FALSE)</code> over prey therefore reproduces
 scheme the model uses (see <code><a href="second_order_w.html">second_order_w()</a></code>).</p>
     </div>
     <div class="section level2">
+    <h2 id="changed-encounter-rates">Changed encounter rates<a class="anchor" aria-label="anchor" href="#changed-encounter-rates"></a></h2>
+
+
+<p>The total consumption rate is always taken from the model's own encounter
+rate, as returned by <code><a href="getEncounter.html">getEncounter()</a></code>, and its own feeding level. If the
+encounter rate has been changed, by a function registered with
+<code><a href="setRateFunction.html">setRateFunction()</a></code> or by an extension package, then the split between food
+sources has to come from somewhere else. An extension that gives
+<code><a href="getEncounterByPrey.html">getEncounterByPrey()</a></code> a method matching its change to the encounter rate
+supplies that split exactly. Otherwise <code>getDiet()</code> scales the contributions
+of all food sources in proportion, so that they still add up to the
+consumption rate, and tells you that it has done so. That split is exact
+when the change affects all food sources equally, as does for example a
+factor multiplying the whole encounter rate. At a size at which the predator
+encounters food although none of the food sources contributes anything,
+there is nothing to scale, and <code>getDiet()</code> attributes all of that food to
+the "External" food source, which stands for food that the model does not
+resolve.</p>
+    </div>
+    <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p><code><a href="plotDiet.html">plotDiet()</a></code></p>
 <p>Other summary functions:
 <code><a href="getBiomass.html">getBiomass()</a></code>,
+<code><a href="getEncounterByPrey.html">getEncounterByPrey()</a></code>,
 <code><a href="getGrowthCurves.html">getGrowthCurves()</a></code>,
+<code><a href="getMortByCause.html">getMortByCause()</a></code>,
 <code><a href="getN.html">getN()</a></code>,
 <code><a href="getSSB.html">getSSB()</a></code>,
 <code><a href="getSteadyResidual.html">getSteadyResidual()</a></code>,
@@ -200,12 +231,6 @@ scheme the model uses (see <code><a href="second_order_w.html">second_order_w()<
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">diet</span> <span class="op">&lt;-</span> <span class="fu">getDiet</span><span class="op">(</span><span class="va">NS_params</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `b` column so using the isometric default b = 3 in w = a l^b.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `b` column so using the isometric default b = 3 in w = a l^b.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `b` column so using the isometric default b = 3 in w = a l^b.</span>
 <span class="r-in"><span><span class="fu"><a href="str.html">str</a></span><span class="op">(</span><span class="va">diet</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  num [1:12, 1:100, 1:14] 8.94e-18 6.86e-19 3.46e-18 1.75e-09 1.12e-17 ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  - attr(*, "dimnames")=List of 3</span>
@@ -215,8 +240,6 @@ scheme the model uses (see <code><a href="second_order_w.html">second_order_w()<
 <span class="r-in"><span><span class="co"># \donttest{</span></span></span>
 <span class="r-in"><span><span class="co"># For a MizerSim the diet is returned at each saved time step</span></span></span>
 <span class="r-in"><span><span class="va">sim</span> <span class="op">&lt;-</span> <span class="fu"><a href="project.html">project</a></span><span class="op">(</span><span class="va">NS_params</span>, t_max <span class="op">=</span> <span class="fl">20</span>, effort <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `b` column so using the isometric default b = 3 in w = a l^b.</span>
 <span class="r-in"><span><span class="co"># Diet at the saved time steps over years 15 - 20</span></span></span>
 <span class="r-in"><span><span class="va">diet</span> <span class="op">&lt;-</span> <span class="fu">getDiet</span><span class="op">(</span><span class="va">sim</span>, time_range <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">15</span>, <span class="fl">20</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="str.html">str</a></span><span class="op">(</span><span class="va">diet</span><span class="op">)</span></span></span>

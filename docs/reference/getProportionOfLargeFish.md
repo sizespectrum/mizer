@@ -64,23 +64,23 @@ getProportionOfLargeFish(
 
   `min_w`
 
-  :   Smallest weight in size range. Defaults to smallest weight in the
-      model.
+  : Smallest weight in size range. Defaults to smallest weight in the
+    model.
 
   `max_w`
 
-  :   Largest weight in size range. Defaults to largest weight in the
-      model.
+  : Largest weight in size range. Defaults to largest weight in the
+    model.
 
   `min_l`
 
-  :   Smallest length in size range. If supplied, this takes precedence
-      over `min_w`.
+  : Smallest length in size range. If supplied, this takes precedence
+    over `min_w`.
 
   `max_l`
 
-  :   Largest length in size range. If supplied, this takes precedence
-      over `max_w`.
+  : Largest length in size range. If supplied, this takes precedence
+    over `max_w`.
 
 ## Value
 

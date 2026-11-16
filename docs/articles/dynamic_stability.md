@@ -80,13 +80,23 @@ with a small enough time step converges to.
 
 *(Note on numerical implementation: while analysing the relative
 Jacobian \\K\\ is conceptually natural, computing it requires dividing
-by \\N_i^\*\\, which causes floating-point overflow for structurally
-zero size classes (e.g., extinct species or truncated tails). Therefore,
+by \\N_i^\*\\, which causes division by zero for dynamic coordinates
+with zero abundance (including an extinct species that could invade).
+Therefore,
 [`getStability()`](https://sizespectrum.org/mizer/reference/getStability.md)
-numerically computes the absolute Jacobian \\J\\ using finite-difference
-steps scaled multiplicatively to the local density. This is
-mathematically equivalent to the relative analysis but avoids dividing
-by zero.)*
+computes the absolute Jacobian \\J\\ using finite-difference steps
+scaled multiplicatively to the local density. Centred differences are
+used inside the nonnegative domain, and a second-order one-sided
+difference is used at its boundary. Similarity to the relative Jacobian
+holds where the reference abundances are positive; the absolute Jacobian
+also remains defined at zero.)*
+
+The report additionally checks that the model is an autonomous
+equilibrium for the requested scope. Whole-model scope is the default.
+Explicitly prescribed inputs are excluded, while other dynamic states
+remain part of the requested coverage even when their current abundance
+or rate is zero. Missing support, a failed equilibrium assessment or a
+marginal mode gives `stable = NA`.
 
 ### The stability of the model and the stability of the solver
 
@@ -170,7 +180,7 @@ stab$max_real_part
 stab$stable
 ```
 
-    #> [1] 0.07095636
+    #> [1] 0.07095632
     #> [1] FALSE
 
 The largest real part among the eigenvalues, \\\text{Re}(\lambda) =
@@ -196,7 +206,7 @@ growth_rate <- function(dt) {
 sapply(c(0.1, 0.5, 1), growth_rate)
 ```
 
-    #> [1] -0.005132024 -0.040072184  0.101244950
+    #> [1] -0.005132052 -0.040072201  0.101244928
 
 Against the model’s own 0.071 per year, mizer’s default `euler` step
 gets none of these right, and not in a tidy direction either. At
@@ -220,7 +230,7 @@ with the largest real part).
 ``` r
 
 stab$eigenvalues[1]
-#> [1] 0.07095636+1.273383i
+#> [1] 0.07095632+1.273383i
 ```
 
 It is **complex** with a positive real part (\\\lambda \approx 0.071 +
@@ -261,26 +271,11 @@ the approach to the cycle is the thing to look at.
 sim_cycle <- projectUntilSettled(params, effort = 1.5, t_max = 200,
                                  t_check = 0.2, t_save = 0.2,
                                  method = "tr_bdf2")
-attr(sim_cycle, "convergence")
+attr(sim_cycle, "convergence")[c("attractor", "period", "amplitude", "scope")]
 ```
 
-    #> $termination
-    #> [1] "cycle_detected"
-    #> 
-    #> $converged
-    #> [1] TRUE
-    #> 
     #> $attractor
     #> [1] "limit_cycle"
-    #> 
-    #> $distance
-    #> [1] 6.131103
-    #> 
-    #> $residual
-    #> [1] 0.3030617
-    #> 
-    #> $years
-    #> [1] 29.8
     #> 
     #> $period
     #> [1] 5.4
@@ -288,17 +283,17 @@ attr(sim_cycle, "convergence")
     #> $amplitude
     #> [1] 0.6581569
     #> 
-    #> $extinct
-    #> character(0)
+    #> $scope
+    #> [1] "whole"
 
 [`projectUntilSettled()`](https://sizespectrum.org/mizer/reference/projectUntilSettled.md)
 correctly identifies the attractor as a limit cycle with a period of
 about 5.4 years and a peak-to-trough biomass amplitude of about 66% of
 the mean. Applied to a model with a genuine stable steady state (such as
 the default `params` at effort 0), the same call reports
-`attractor = "fixed_point"`, which it does only when the biomasses have
-actually stopped drifting and not merely because the distance function
-went quiet:
+`attractor = "fixed_point"`, which requires the scoped state-change
+assessment to pass, rather than only a small distance between successive
+observations:
 
 ``` r
 
@@ -335,9 +330,9 @@ constructs a `MizerSim` object covering one period of the oscillation
 oscillatory mode. This isolates the pure **shape** of the cycle — which
 species and sizes participate and with what phase — without the growth
 or the nonlinear distortion of the full run. Fish and resource are
-driven by the same eigenvector and the same scale factor, so the
-resource carries the phase the mode gives it: on this model it leads the
-total fish biomass by about 0.3 years of the 5.12-year period.
+driven by the same eigenvector and the same scale factor, so their
+relative amplitude and phase come from that mode. Its period here is
+about 4.93 years.
 
 ``` r
 

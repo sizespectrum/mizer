@@ -104,6 +104,8 @@ for how to do this.
   : Remove species
 - [`renameSpecies()`](https://sizespectrum.org/mizer/reference/renameSpecies.md)
   : Rename species
+- [`reorderSpecies()`](https://sizespectrum.org/mizer/reference/reorderSpecies.md)
+  : Reorder species
 - [`renameGear()`](https://sizespectrum.org/mizer/reference/renameGear.md)
   : Rename gears
 - [`adjustSizeGrid()`](https://sizespectrum.org/mizer/reference/adjustSizeGrid.md)
@@ -158,6 +160,9 @@ reproduces the observations.
   **\[experimental\]** : Find the steady state of a model
 - [`isSteady()`](https://sizespectrum.org/mizer/reference/isSteady.md)
   **\[experimental\]** : Check whether a model is at steady state
+- [`getSteadyAssessment()`](https://sizespectrum.org/mizer/reference/getSteadyAssessment.md)
+  **\[experimental\]** : Assess the steady state of the whole model or a
+  conditional subsystem
 - [`getSteadyResidual()`](https://sizespectrum.org/mizer/reference/getSteadyResidual.md)
   **\[experimental\]** : How far a model is from its steady state
 - [`getStability()`](https://sizespectrum.org/mizer/reference/getStability.md)
@@ -244,6 +249,8 @@ object containing the full time series of size spectra.
   Project size spectrum forward in time
 - [`projectUntilSettled()`](https://sizespectrum.org/mizer/reference/projectUntilSettled.md)
   **\[experimental\]** : Project the dynamics until they settle
+- [`getCourant()`](https://sizespectrum.org/mizer/reference/getCourant.md)
+  : Growth Courant numbers on the consumer size grid
 
 ## Accessing results
 
@@ -282,8 +289,12 @@ introduces these functions.
   each time step.
 - [`getDiet()`](https://sizespectrum.org/mizer/reference/getDiet.md) :
   Get diet of predator at size, resolved by prey species
+- [`getEncounterByPrey()`](https://sizespectrum.org/mizer/reference/getEncounterByPrey.md)
+  : Get encounter rate of predator at size, resolved by food source
 - [`getGrowthCurves()`](https://sizespectrum.org/mizer/reference/getGrowthCurves.md)
   : Get growth curves giving weight as a function of age
+- [`getMortByCause()`](https://sizespectrum.org/mizer/reference/getMortByCause.md)
+  : Diagnose mortality by cause
 - [`getN()`](https://sizespectrum.org/mizer/reference/getN.md) :
   Calculate the number of individuals within a size range
 - [`getSSB()`](https://sizespectrum.org/mizer/reference/getSSB.md) :
@@ -348,6 +359,10 @@ the background resource* spectrum, not a component of fish mortality
 
 - [`getRates()`](https://sizespectrum.org/mizer/reference/getRates.md) :
   Get all rates
+- [`getMortByCause()`](https://sizespectrum.org/mizer/reference/getMortByCause.md)
+  : Diagnose mortality by cause
+- [`mizerMortalityBreakdown()`](https://sizespectrum.org/mizer/reference/mizerMortalityBreakdown.md)
+  : Build the standard mortality diagnostic from supplied rates
 - [`getDiffusion()`](https://sizespectrum.org/mizer/reference/getDiffusion.md)
   : Get diffusion rate from predation
 - [`getEGrowth()`](https://sizespectrum.org/mizer/reference/getEGrowth.md)
@@ -591,6 +606,17 @@ mizer](https://sizespectrum.org/mizer/articles/guide-extend-mizer.html).
   [`removeComponent()`](https://sizespectrum.org/mizer/reference/setComponent.md)
   [`getComponent()`](https://sizespectrum.org/mizer/reference/setComponent.md)
   : Add a dynamical ecosystem component
+- [`setProcess()`](https://sizespectrum.org/mizer/reference/setProcess.md)
+  [`getProcess()`](https://sizespectrum.org/mizer/reference/setProcess.md)
+  : Declare capabilities for a model process
+- [`mizerReproductionDefinition()`](https://sizespectrum.org/mizer/reference/mizerReproductionDefinition.md)
+  : Reuse the built-in reproduction capability definition
+- [`setTuningStrategy()`](https://sizespectrum.org/mizer/reference/setTuningStrategy.md)
+  : Register a joint tuning strategy
+- [`setTransformation()`](https://sizespectrum.org/mizer/reference/setTransformation.md)
+  : Register a joint model transformation
+- [`convolve_pred_kernel()`](https://sizespectrum.org/mizer/reference/convolve_pred_kernel.md)
+  **\[experimental\]** : Sum over the predation kernel
 - [`` `initialNOther<-`() ``](https://sizespectrum.org/mizer/reference/initialNOther-set.md)
   [`initialNOther()`](https://sizespectrum.org/mizer/reference/initialNOther-set.md)
   : Initial values for other ecosystem components
@@ -694,6 +720,8 @@ energy invested in reproduction and the actual egg production rate.
   [`reproduction_level()`](https://sizespectrum.org/mizer/reference/setBevertonHolt.md)
   [`` `reproduction_level<-`() ``](https://sizespectrum.org/mizer/reference/setBevertonHolt.md)
   : Set Beverton-Holt reproduction without changing the steady state
+- [`balanceRDD()`](https://sizespectrum.org/mizer/reference/balanceRDD.md)
+  : Balance the active reproduction law while preserving dynamical rates
 - [`getRequiredRDD()`](https://sizespectrum.org/mizer/reference/getRequiredRDD.md)
   : Determine reproduction rate needed for initial egg abundance
 
@@ -736,6 +764,8 @@ calculate instantaneous rates at each time step. You should use the
 - [`projectMort()`](https://sizespectrum.org/mizer/reference/mizerMort.md)
   [`mizerMort()`](https://sizespectrum.org/mizer/reference/mizerMort.md)
   : Get total mortality rate needed to project standard mizer model
+- [`mizerMortalityBreakdown()`](https://sizespectrum.org/mizer/reference/mizerMortalityBreakdown.md)
+  : Build the standard mortality diagnostic from supplied rates
 - [`projectPredMort()`](https://sizespectrum.org/mizer/reference/mizerPredMort.md)
   [`mizerPredMort()`](https://sizespectrum.org/mizer/reference/mizerPredMort.md)
   : Get total predation mortality rate needed to project standard mizer
@@ -747,6 +777,8 @@ calculate instantaneous rates at each time step. You should use the
   [`mizerRDI()`](https://sizespectrum.org/mizer/reference/mizerRDI.md) :
   Get density-independent rate of reproduction needed to project
   standard mizer model
+- [`mizerReproductionDefinition()`](https://sizespectrum.org/mizer/reference/mizerReproductionDefinition.md)
+  : Reuse the built-in reproduction capability definition
 - [`projectResourceMort()`](https://sizespectrum.org/mizer/reference/mizerResourceMort.md)
   [`mizerResourceMort()`](https://sizespectrum.org/mizer/reference/mizerResourceMort.md)
   : Get predation mortality rate for resource needed to project standard
@@ -862,6 +894,9 @@ users building extensions or working with model objects directly.
   [`w2l()`](https://sizespectrum.org/mizer/reference/l2w.md) :
   Length-weight conversion
 
+- [`measure_avail_energy()`](https://sizespectrum.org/mizer/reference/measure_avail_energy.md)
+  : Measure the available energy in a power-law prey spectrum
+
 - [`needs_upgrading()`](https://sizespectrum.org/mizer/reference/needs_upgrading.md)
   : Determine whether a MizerParams or MizerSim object needs to be
   upgraded
@@ -906,6 +941,7 @@ users building extensions or working with model objects directly.
   : Helper function to assure validity of species argument
 
 - [`defaults_edition()`](https://sizespectrum.org/mizer/reference/defaults_edition.md)
+  [`` `defaults_edition<-`() ``](https://sizespectrum.org/mizer/reference/defaults_edition.md)
   : Default editions
 
 ## Classes

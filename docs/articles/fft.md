@@ -54,17 +54,26 @@ w_p\\. The discretized encounter rate (ignoring coefficients) is roughly
 \\ E\[n\] = \sum_k \tilde{\phi}\[n-k\] A\[k\] \\ In `mizer`, we define
 `ft_pred_kernel_e` as the FFT of the predation kernel. The available
 energy is calculated, transformed via FFT, multiplied by
-`ft_pred_kernel_e`, and then inverse transformed.
+`ft_pred_kernel_e`, and then inverse transformed. In a model of defaults
+edition 3 or later, both the kernel and the available energy are first
+padded with zeros, for the reason explained in [Avoiding
+wrap-around](#avoiding-wrap-around-zero-padding) below.
 
-The code in
 [`mizerEncounter()`](https://sizespectrum.org/mizer/reference/mizerEncounter.md)
-implements this:
+hands this to
+[`convolve_pred_kernel()`](https://sizespectrum.org/mizer/reference/convolve_pred_kernel.md),
+which does the following, where `no_k` is the length of the padded grid
+(equal to `no_w_full` in a model of an earlier edition) and `idx_sp`
+picks out the fish sizes:
 
 ``` r
 
-avail_energy <- Re(base::t(mvfft(base::t(params@ft_pred_kernel_e) *
-                                     mvfft(base::t(prey)),
-                           inverse = TRUE))) / length(params@w_full)
+# prey is species x w_full; place it on the padded grid
+prey_padded <- matrix(0, nrow = no_k, ncol = no_sp)
+prey_padded[1:no_w_full, ] <- t(prey)
+avail_energy <- Re(mvfft(t(params@ft_pred_kernel_e) * mvfft(prey_padded),
+                         inverse = TRUE)) / no_k
+avail_energy <- t(avail_energy[idx_sp, ])
 ```
 
 ### Predation Rate
@@ -85,14 +94,14 @@ calculates `ft_pred_kernel_p` using a reversed version of the kernel.
 ``` r
 
 # R/setPredKernel.R
-ri <- min(max(which(phi > 0)), no_w_full - 1)  # index of largest ppmr
-phi_p <- rep(0, no_w_full)
-phi_p[(no_w_full - ri + 1):no_w_full] <- phi[(ri + 1):2]
+phi_p <- rep(0, no_k)
+phi_p[(no_k - no_w_full + 2):no_k] <- phi[no_w_full:2]
 ft_pred_kernel_p[i, ] <- fft(phi_p)
 ```
 
-The `phi_p` construction effectively reverses the kernel and wraps it
-around to suit the FFT definition of convolution.
+The `phi_p` construction reverses the kernel and places the negative
+offsets \\-m\\ at the end of the padded grid, at index `no_k - m + 1`,
+to suit the FFT definition of convolution.
 
 ## Higher-order quadrature: bin-integrated kernels
 
@@ -107,7 +116,7 @@ finite-volume cell average), and the predation kernel is
 \\(n,k)\\ uses the single value \\\tilde\phi_i(\beta^{n-k})\\ together
 with the left-edge measure \\w_k\\dw_k\\.
 
-Two things make this only first-order accurate:
+Three things make this only first-order accurate:
 
 1.  The kernel is replaced by its value at one point of the bin instead
     of its average over the bin.
@@ -115,10 +124,21 @@ Two things make this only first-order accurate:
     encounter integral is frozen at the left edge \\w_k\\ of the bin,
     even though \\w_p\\ varies by a factor \\\beta = 10^{\Delta x}\\
     across the bin.
+3.  The factor \\(1-f_i(w))\\\gamma_i(w)\\ that multiplies the kernel in
+    the predation integral is frozen at the left edge \\w_n\\ of the
+    predator bin, even though the search volume alone varies by a factor
+    \\\beta^{q_i}\\ across the bin.
 
-Both errors are \\O(\Delta x)\\ and both come entirely from how the
-*kernel* is sampled — not from the piecewise-constant representation of
-the densities, which is the genuinely finite-volume part of the scheme.
+All three errors are \\O(\Delta x)\\ and all three come from how the
+smooth factors of the integrand are sampled — not from the
+piecewise-constant representation of the densities, which is the
+genuinely finite-volume part of the scheme. The third is easy to
+overlook, because in the encounter integral the very same search volume
+\\\gamma_i(w)\\ is correctly a point value: there it depends only on the
+predator size \\w\\ at which the rate is evaluated and sits outside the
+integral. In the predation integral the roles are reversed, the integral
+runs over predator size, and \\(1-f_i(w))\\\gamma_i(w)\\ is a function
+of the integration variable.
 
 ### The fix: integrate the kernel over each log-bin
 
@@ -151,17 +171,34 @@ exact bin contribution. **The rate function
 is unchanged**; only the stored `ft_pred_kernel_e` is built from
 \\\Phi^E_i\\ rather than from the point-sampled kernel.
 
-The predation integral runs over predator size, so its integrand carries
-one power of \\w\\ (from \\dw\\) rather than two. Integrating over the
-predator bin \\w \in \[w_n, \beta w_n\]\\ in the same way gives the
-bin-integrated predation kernel \\ \Phi^{P}\_i\[m\] =
+The predation integral runs over predator size. Its integrand
+\\\tilde\phi_i(w/w_p)\\(1-f_i(w))\\\gamma_i(w)\\N_i(w)\\dw\\ carries one
+power of \\w\\ (from \\dw\\) rather than two, but it also carries the
+predator’s feeding level and search volume, which vary across the
+predator bin just as \\w_p\\ varies across the prey bin in the
+encounter. So two factors have to be integrated over the predator bin
+\\w \in \[w_n, \beta w_n\]\\.
+
+The kernel is integrated in the same way as for the encounter, giving
+the bin-integrated predation kernel \\ \Phi^{P}\_i\[m\] =
 \frac{\ln\beta}{\beta-1}\int_0^1
 \tilde\phi_i(\beta^{\\m+s})\\\beta^{s}\\ds , \\ which replaces
 \\\tilde\phi_i(\beta^{m})\\ in the reversed-kernel construction of
-`ft_pred_kernel_p`. Again
+`ft_pred_kernel_p`. The predator vector already carries \\dw =
+(\beta-1)\\w_n\\, which the prefactor cancels.
+
+The factor \\(1-f_i(w))\\\gamma_i(w)\\ cannot be folded into the kernel:
+the feeding level changes at every time step, and a custom search volume
+need not be a power law. So
 [`mizerPredRate()`](https://sizespectrum.org/mizer/reference/mizerPredRate.md)
-is unchanged because the predator vector already carries \\dw =
-(\beta-1)\\w_n\\.
+replaces its value at the node by its trapezoidal average over the
+predator bin, \\\tfrac12\bigl((1-f_i)\gamma_i\big\|\_{w_n} +
+(1-f_i)\gamma_i\big\|\_{\beta w_n}\bigr)\\, when it builds the predator
+vector. The averaging is done only where a predator-bin integral uses
+the factor: here, and in the predation-diffusion coefficient below. The
+encounter and the growth rate use the feeding level and the search
+volume as point values at the node, so the stored rates are not
+averaged.
 
 There is a second integral hidden in the predation rate. Its convolution
 output sits at the **prey** node \\w_p\\, but predation mortality enters
@@ -182,8 +219,8 @@ come out already prey-bin-averaged, so both
 [`mizerPredMort()`](https://sizespectrum.org/mizer/reference/mizerPredMort.md)
 and
 [`mizerResourceMort()`](https://sizespectrum.org/mizer/reference/mizerResourceMort.md)
-(the only consumers, both sinks) get the second-order mortality at no
-runtime cost and with no change to the rate functions. With this the two
+(the only consumers, both sinks) get the prey-bin average at no runtime
+cost and with no change to those two functions. With this the two
 convolutions are fully bin-consistent: encounter integrates the prey
 bins, and predation integrates **both** the predator bins and the prey
 bins. (Encounter is *not* prey-bin-averaged on its output, because it
@@ -201,8 +238,11 @@ the bin average of \\w_p/w_k\\ over \\\[w_k,\beta w_k\]\\ — the correct
 finite-volume value — whereas the rectangle rule used \\1\\, the value
 at the left edge. The predation weight, in contrast, evaluates to
 \\\Phi^{P}\[m\]=1\\: the predation measure \\dw\\ is integrated exactly
-by the original scheme already, so only the variation of the kernel
-*shape* across the bin (not a frozen \\w_p\\ factor) is corrected there.
+by the original scheme already, so the kernel correction there only
+accounts for the variation of the kernel *shape* across the bin. That
+does not mean the predation integral has no frozen factor. It has one,
+\\(1-f_i(w))\\\gamma_i(w)\\, but that factor lives in the predator
+vector rather than in the kernel, and is corrected there (item 3 above).
 As \\\Delta x \to 0\\ both \\\ln\beta/(\beta-1)\to 1\\ and the
 integrands tend to their node values, so the bin-integrated kernels
 reduce to the original point-sampled kernels and the schemes agree in
@@ -221,24 +261,40 @@ so the bin average is exact for the zeroth moment, \\
 encounter rate is an integral \\\int N(w_p)\\K(w_p)\\dw_p\\ against the
 *smooth* weight \\K(w_p) = \tilde\phi_i(w_n/w_p)\\w_p\\ (and likewise
 the predation rate is an integral over predator size against
-\\K(w)=\tilde\phi_i(w/w_p)\\). The bin-integrated scheme replaces \\N\\
-by its bin average and integrates \\K\\ over the bin *exactly*, so the
-error contributed by bin \\j\\ is \\ \int\_{w_j}^{w\_{j+1}}
-\bigl(N(w_p) - N_j\bigr)\\K(w_p)\\dw_p = \int\_{w_j}^{w\_{j+1}}
-\bigl(N(w_p) - N_j\bigr)\\\bigl(K(w_p) - \bar K_j\bigr)\\dw_p , \\ where
-the second form uses the zero-mean property to subtract any constant
-\\\bar K_j\\. Both factors vary by \\O(\Delta x)\\ across the bin, so
-the per-bin error is \\O(\Delta x^3)\\ and, summed over the \\O(1/\Delta
-x)\\ bins, the total error is \\O(\Delta x^2)\\ — second order.
+\\K(w)=\tilde\phi_i(w/w_p)\\(1-f_i(w))\\\gamma_i(w)\\). The
+bin-integrated scheme replaces \\N\\ by its bin average and integrates
+\\K\\ over the bin, so the error contributed by bin \\j\\ is \\
+\int\_{w_j}^{w\_{j+1}} \bigl(N(w_p) - N_j\bigr)\\K(w_p)\\dw_p =
+\int\_{w_j}^{w\_{j+1}} \bigl(N(w_p) - N_j\bigr)\\\bigl(K(w_p) - \bar
+K_j\bigr)\\dw_p , \\ where the second form uses the zero-mean property
+to subtract any constant \\\bar K_j\\. Both factors vary by \\O(\Delta
+x)\\ across the bin, so the per-bin error is \\O(\Delta x^3)\\ and,
+summed over the \\O(1/\Delta x)\\ bins, the total error is \\O(\Delta
+x^2)\\ — second order.
+
+For predation the weight is integrated in two pieces: the kernel exactly
+at setup, and \\(1-f_i)\gamma_i\\ by the trapezoid rule at run time. The
+product of the two bin averages differs from the bin average of the
+product only by the covariance of the two factors across the bin,
+\\\tfrac{1}{\Delta w_n}\int (\tilde\phi_i -
+\bar{\tilde\phi}\_i)\bigl((1-f_i)\gamma_i -
+\overline{(1-f_i)\gamma_i}\bigr)\\dw\\. Both factors in that integrand
+are \\O(\Delta x)\\, so the covariance is \\O(\Delta x^2)\\ and does not
+lower the order. The trapezoidal average is itself accurate to
+\\O(\Delta x^2)\\, so the predation rate is second order as well.
 
 The rectangle rule forfeits exactly this cancellation: by point-sampling
-the kernel at the node it does **not** integrate the smooth weight \\K\\
-over the bin, which reintroduces an \\O(\Delta x)\\ error — the
-systematic \\(\beta+1)/2\\ bias seen above. So, given the finite-volume
-(bin-average) densities, it is the treatment of the kernel that
-determines whether the encounter and predation rate quadratures are
-first or second order, and the bin-integrated kernels make them second
-order.
+the smooth factors at the node it does **not** integrate the smooth
+weight \\K\\ over the bin, which reintroduces an \\O(\Delta x)\\ error —
+the systematic \\(\beta+1)/2\\ bias seen above. So, given the
+finite-volume (bin-average) densities, it is the treatment of the whole
+smooth weight, not only of the kernel, that determines whether the
+encounter and predation rate quadratures are first or second order.
+Integrating only the kernel over the bin leaves the predation rate first
+order. That is the error mizer made until issue \#619. A test of the
+kernel weights cannot detect it, because the kernel had exactly the
+bin-integrated values derived above all along; only a grid-refinement
+test of the rate itself can.
 
 For a general kernel the integrals \\\Phi^E_i\[m\]\\ and
 \\\Phi^P_i\[m\]\\ have no closed form, so mizer evaluates them once,
@@ -248,9 +304,11 @@ using a composite quadrature over each bin. For the default lognormal
 kernel the integrand is smooth and the quadrature is effectively exact;
 for kernels with internal discontinuities (such as the box kernel) the
 bin integral correctly returns the fraction of the bin that overlaps the
-support. Because all of this happens at setup time, the higher-order
-scheme has **zero runtime cost**: a projection performs exactly the same
-two FFTs per time step as before.
+support. Because all of this happens at setup time, the kernel integrals
+have **zero runtime cost**: a projection performs exactly the same two
+FFTs per time step as before. The only run-time addition is the
+trapezoidal average of \\(1-f_i)\gamma_i\\, an elementwise operation on
+a species-by-size matrix.
 
 ### Enabling the higher-order scheme
 
@@ -290,93 +348,128 @@ diffusion analogue of the encounter’s \\(\beta+1)/2\\.
 convolves with `ft_pred_kernel_d`, which in the default first-order
 scheme equals `ft_pred_kernel_e`, so the default behaviour is unchanged.
 
-## The Wrap-around Hack (`ft_mask`)
+The diffusion convolution outputs at the predator node, but the
+transport solver needs the diffusion coefficient averaged over the
+predator bin (see
+[`vignette("numerical_details")`](https://sizespectrum.org/mizer/articles/numerical_details.md)).
+Under `second_order_w`,
+[`setPredKernel()`](https://sizespectrum.org/mizer/reference/setPredKernel.md)
+therefore also folds the diffusion kernel over adjacent offsets,
+\\\tfrac12\bigl(\Phi^D_i\[m\] + \Phi^D_i\[m+1\]\bigr)\\. This is the
+predator-side counterpart of the prey-bin fold of the predation kernel,
+and it averages the prey integral over the predator bin. The factor
+\\(1-f_i(w))\\\gamma_i(w)\\ in front of that integral varies across the
+same bin, so
+[`projectDiffusion()`](https://sizespectrum.org/mizer/reference/mizerDiffusion.md)
+averages it trapezoidally as well (issue \#619). As for predation, the
+product of the two averages differs from the average of the product only
+by an \\O(\Delta x^2)\\ covariance.
 
-FFT-based convolution is actually circular convolution. This means that
-effects from the largest sizes can “wrap around” and affect the smallest
-sizes, which is unphysical in our context (large predators don’t eat
-orders of magnitude smaller than their prey preference, and certainly
-not “negative” sizes wrapping to positive).
+## Avoiding wrap-around: zero padding
 
-To avoid artifacts from this circularity, we pad the grid or careful
-masking. In `mizer`, we use `ft_mask` to zero out the predation rate at
-sizes that should not receive any predation from the largest predators
-(because they are larger than the maximum predator size or due to the
-kernel support).
+FFT-based convolution is circular convolution: the grid is treated as a
+ring, on which the point below the smallest size \\w_1\\ is the largest
+size \\w_K\\. A sum over the part of a kernel that falls off one end of
+the grid therefore picks up whatever lies at the other end.
 
-In
-[`mizerPredRate()`](https://sizespectrum.org/mizer/reference/mizerPredRate.md):
+In the encounter rate this happens whenever the feeding kernel of the
+smallest predators reaches below the smallest resource size `min_w_pp`.
+With the default lognormal kernel, which is not truncated, that is
+always the case to some degree. The part of the kernel below `min_w_pp`
+should see no prey, but on the ring it sees the largest fish, as though
+they were prey just below `min_w_pp`. Larvae are then fed by the largest
+fish in the model. The predation rate contains the transpose of the same
+error: the larvae are recorded as eating the largest fish. The predation
+diffusion integrand carries a factor \\w_p^2\\, which amplifies exactly
+these large-prey contributions. The size of the error depends on the
+model. It is negligible when the resource extends far below the kernels
+of the smallest fish, but in a model with `min_w_pp` three orders of
+magnitude below the egg size and abundant large fish it made the
+encounter rate of the larvae 9% too high and their predation diffusion
+several orders of magnitude too large (issue \#618).
+
+In a model of defaults edition 3 or later (see
+[`defaults_edition()`](https://sizespectrum.org/mizer/reference/defaults_edition.md)),
+mizer avoids this by zero-padding. Let the full grid have \\K\\ points,
+of which the fish sizes are the last \\K_w\\, and let \\m\_{\max} \le
+K - 1\\ be the largest grid offset at which the kernel weights are
+non-zero. In the encounter rate the circular convolution wraps the term
+for a prey \\k\\ larger than the predator \\n\\ onto the kernel offset
+\\L - (k - n)\\, where \\L\\ is the length of the grid on which the FFT
+is taken. Because the predators are fish, \\n \ge K - K_w + 1\\, and so
+\\k - n \le K_w - 1\\. If \\L \ge \max(K, K_w + m\_{\max})\\, every such
+offset is at least \\m\_{\max} + 1\\, where the padded kernel is zero,
+and the wrapped terms vanish. The same bound works for the predation
+rate, where the predators \\n\\ are again the fish and the wrapped terms
+are those with the prey \\k\\ larger than the predator. When \\m\_{\max}
+\le K - K_w\\ (the kernel of even the smallest fish does not reach below
+`min_w_pp`), no padding beyond \\K\\ is needed; for an untruncated
+kernel with \\m\_{\max} = K - 1\\, \\L \ge K + K_w - 1\\ suffices
+regardless of the preferred predator/prey mass ratio, because the
+discrete kernel is only evaluated at the grid offsets \\0 \le m \le K -
+1\\.
+[`setPredKernel()`](https://sizespectrum.org/mizer/reference/setPredKernel.md)
+therefore stores the kernels on a grid of length \$L = \$
+`nextn(max(K, K_w + m_max))`, rounded up to a length whose only prime
+factors are 2, 3 and 5, for which the FFT is fast.
+[`convolve_pred_kernel()`](https://sizespectrum.org/mizer/reference/convolve_pred_kernel.md)
+pads the prey or predator densities with zeros to the same length before
+transforming them. The convolutions are then linear and agree with the
+direct sums over the kernel to round-off.
+
+The padded transforms are up to about twice as long as the grid. How
+long an FFT takes depends as much on the prime factors of its length as
+on the length itself, so the cost is smaller than that suggests: a
+projection of `NS_params` with the padded transforms takes about 15%
+longer than with the unpadded ones.
+
+A model of defaults edition 1 or 2 keeps the unpadded transforms of
+length \\K\\ that earlier versions of mizer used, so that its results do
+not change, wrapped terms included. This covers every model created with
+the default edition and every model saved with an earlier version of
+mizer, `NS_params` among them.
+[`convolve_pred_kernel()`](https://sizespectrum.org/mizer/reference/convolve_pred_kernel.md)
+takes the length of the grid from the stored kernels, so the same code
+evaluates both kinds of model. To give an existing model the padded
+transforms, record edition 3 in it and recalculate its kernels:
+
+``` r
+
+defaults_edition(params) <- 3
+params <- setPredKernel(params)
+```
+
+### The `ft_mask`
+
+Without zero-padding, the predation rate is protected from the
+wrap-around only by `ft_mask`, a logical array that is 1 for prey sizes
+smaller than the maximum size of the predator species and 0 above it:
 
 ``` r
 
 return(pred_rate * params@ft_mask)
 ```
 
-The `ft_mask` ensures that we don’t get spurious predation mortality at
-sizes where it shouldn’t exist due to the periodic nature of the DFT.
-`ft_mask` is a logical array (0 or 1) that is 1 strictly for sizes
-smaller than the maximum size of the species, preventing the “tail” of
-the convolution from wrapping around to the small sizes.
+Predation on prey larger than the largest predator of a species is
+impossible, so this removes the wrapped contribution there. It cannot
+help with the wrapped contribution on prey smaller than that maximum
+size, and it cannot be applied to the encounter or diffusion rates at
+all: there the wrapped contribution lands on the smallest predator
+sizes, whose true rates are not zero. With the zero-padding of edition
+3, `ft_mask` is no longer needed to suppress wrap-around. It is still
+applied, so that the predation rate stays zero above the maximum size of
+each species even if a model holds abundances there.
 
-### Wrap-around in the encounter and diffusion convolutions
+### Kernels that are not a function of the size ratio alone
 
-It is worth being clear about what `ft_mask` does *not* cover. It is
-applied in exactly one place,
-[`mizerPredRate()`](https://sizespectrum.org/mizer/reference/mizerPredRate.md).
-The encounter convolution in
-[`mizerEncounter()`](https://sizespectrum.org/mizer/reference/mizerEncounter.md)
-and the predation-diffusion convolution in
-[`projectDiffusion()`](https://sizespectrum.org/mizer/reference/mizerDiffusion.md)
-carry no mask at all, so the same circular wrap-around is present there
-too. The difference is in the geometry and in how visible the artifact
-is.
-
+A predation kernel that depends on predator and prey size separately,
+rather than only on their ratio, cannot be written as a convolution.
+When such a kernel is supplied with \[setPredKernel()\],
+[`mizerEncounter()`](https://sizespectrum.org/mizer/reference/mizerEncounter.md),
 [`mizerPredRate()`](https://sizespectrum.org/mizer/reference/mizerPredRate.md)
-outputs a rate indexed by **prey** size, and predation on prey larger
-than a species’ maximum size \\w\_{\max}\\ is genuinely impossible, so a
-single per-species threshold \\w_p \< w\_{\max}\\ (exactly what
-`ft_mask` encodes) removes the spurious tail. The encounter and
-diffusion convolutions instead output a rate indexed by **predator**
-size, and there the wrap-around feeds *small* predators a spurious
-contribution from *large* prey. That is a per-predator-size truncation
-of the kernel (“for a predator at \\w\\, prey above \\w\\ is
-unphysical”), which a single threshold on the output axis cannot express
-and which the FFT — using one shared kernel \\\tilde\phi\[m\]\\ for all
-predator sizes — cannot represent. So `ft_mask` is the wrong shape of
-cut for these two rates and is not applied to them.
-
-In practice this is harmless for the encounter rate and almost always
-harmless for the diffusion rate. The aliased weight is small, and the
-prey it misattributes to small predators is either resource (whose
-spectrum is cut off at large sizes, so the contribution is multiplied by
-zero) or large fish. Weighted by the encounter integrand’s
-\\w_p\\dw_p\\, the residual fish contribution is negligible, so
-[`mizerEncounter()`](https://sizespectrum.org/mizer/reference/mizerEncounter.md)
-agrees with the exact direct summation (used for custom kernels, see
-below) to roughly one part in \\10^{7}\\.
-
-The diffusion integrand carries an extra power of prey size,
-\\w_p^2\\dw_p\\, which amplifies precisely the large-prey contribution
-that the wrap-around misplaces. The artifact therefore becomes
-*relatively* large in the small-predator tail — but only where the
-diffusion itself is vanishingly small. On a standard grid the
-**absolute** error is about \\10^{-5}\\\\ of the peak diffusion, and
-over the bins that carry any appreciable diffusion the relative error is
-\\\sim10^{-5}\\, far below mizer’s other discretization errors and with
-no effect on the dynamics. (The error does *not* shrink with grid
-resolution: it is set by the kernel’s lower tail not having decayed
-before the periodic boundary folds, not by \\\Delta x\\.) For this
-reason mizer leaves the FFT path unmasked for diffusion rather than
-paying for a full zero-padded convolution.
-
-If an exact diffusion (or encounter) integral is needed, the way to get
-it is to supply a custom predation kernel with \[setPredKernel()\]. When
-a custom kernel is present,
-[`mizerEncounter()`](https://sizespectrum.org/mizer/reference/mizerEncounter.md)
 and
 [`projectDiffusion()`](https://sizespectrum.org/mizer/reference/mizerDiffusion.md)
 fall back to direct summation over the full predation kernel returned by
-\[pred_kernel()\], which explicitly zeroes prey larger than the predator
-and so has no wrap-around at all. This direct path is what makes
-\[getDiffusion()\] correct for a general predation kernel that depends
-on predator and prey size separately rather than only on their ratio.
+\[pred_kernel()\]. That costs \\\mathcal{O}(K^2)\\ operations per
+species rather than \\\mathcal{O}(K \log K)\\, but involves no Fourier
+transform and so no wrap-around.

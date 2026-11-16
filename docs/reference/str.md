@@ -62,13 +62,13 @@ str(object, max.level = NA, ...)
 ``` r
 # \donttest{
 str(NS_params)
-#> Formal class 'MizerParams' [package "mizer"] with 48 slots
+#> Formal class 'MizerParams' [package "mizer"] with 50 slots
 #>  @ metadata            :  list()
 #>  @ mizer_version       : Classes 'package_version', 'numeric_version'  hidden list of 1
-#>     $ : int [1:4] 3 0 0 9003 
+#>     $ : int [1:4] 3 4 0 9010 
 #>  @ extensions          :  chr(0) 
-#>  @ time_created        :  POSIXct[1:1], format: "2021-09-03 21:29:38"
-#>  @ time_modified       :  POSIXct[1:1], format: "2026-06-24 14:50:03"
+#>  @ time_created        :  POSIXct[1:1], format: "2021-09-03 20:29:38"
+#>  @ time_modified       :  POSIXct[1:1], format: "2026-11-16 02:30:12"
 #>  @ w                   :  num [1:100] 0.001 0.00119 0.00142 0.0017 0.00203 ...
 #>  @ dw                  :  num [1:100] 0.000193 0.000231 0.000275 0.000329 0.000392 ...
 #>  @ w_full              :  num [1:226] 2.12e-13 2.53e-13 3.02e-13 3.61e-13 4.30e-13 ...
@@ -150,7 +150,7 @@ str(NS_params)
 #>  @ initial_n_pp        :  Named num [1:226] 1.09e+38 7.46e+37 5.11e+37 3.51e+37 2.41e+37 ...
 #>     - attr(*, "names")= chr [1:226] "2.12e-13" "2.53e-13" "3.02e-13" "3.61e-13" ... 
 #>  @ initial_n_other     :  list()
-#>  @ species_params      : Classes ‘species_params’ and 'data.frame':  12 obs. of  34 variables:
+#>  @ species_params      : Classes ‘species_params’ and 'data.frame':  12 obs. of  36 variables:
 #>     $ species             : chr  "Sprat" "Sandeel" "N.pout" "Herring" ...
 #>     $ w_max               : num  33 36 100 334 324 ...
 #>     $ w_mat               : int  13 4 23 99 21 75 78 39 105 165 ...
@@ -184,7 +184,9 @@ str(NS_params)
 #>     $ z_ext               : num  0 0 0 0 0 0 0 0 0 0 ...
 #>     $ d                   : num  -0.333 -0.333 -0.333 -0.333 -0.333 ...
 #>     $ E_ext               : num  0 0 0 0 0 0 0 0 0 0 ...
-#>     $ D_ext               : num  0 0 0 0 0 0 0 0 0 0 ... 
+#>     $ D_ext               : num  0 0 0 0 0 0 0 0 0 0 ...
+#>     $ a                   : num  0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 ...
+#>     $ b                   : num  3 3 3 3 3 3 3 3 3 3 ... 
 #>  @ given_species_params: Classes ‘given_species_params’, ‘species_params’ and 'data.frame':  12 obs. of  27 variables:
 #>     $ species             : chr  "Sprat" "Sandeel" "N.pout" "Herring" ...
 #>     $ w_max               : num  33 36 100 334 324 ...
@@ -252,15 +254,634 @@ str(NS_params)
 #>     - attr(*, "dimnames")=List of 2
 #>      ..$ sp: chr [1:12] "Sprat" "Sandeel" "N.pout" "Herring" ...
 #>      ..$ k : chr [1:226] "1" "2" "3" "4" ... 
+#>  @ defaults_edition    :  num 1
+#>  @ capabilities        : List of 5
+#>     $ schema_version : int 7
+#>     $ components     : list()
+#>     $ processes      :List of 3
+#>      ..$ consumers   :List of 19
+#>      .. ..$ convergence_fun       : chr "builtin_consumer_assessment"
+#>      .. ..$ role                  : chr "dynamic"
+#>      .. ..$ binding               :List of 3
+#>      .. .. ..$ classes : chr "MizerParams"
+#>      .. .. ..$ methods : chr [1:2] "project.MizerParams@mizer" "project_simple.MizerParams@mizer"
+#>      .. .. ..$ provider: chr "mizer_consumer_equations"
+#>      .. ..$ stationary            : logi TRUE
+#>      .. ..$ equation_rates_fun    : chr "builtin_consumer_equation_rates"
+#>      .. ..$ tuning                :List of 2
+#>      .. .. ..$ default   : chr "unchanged"
+#>      .. .. ..$ strategies:List of 1
+#>      .. .. .. ..$ unchanged:List of 10
+#>      .. .. .. .. ..$ action         : chr "none"
+#>      .. .. .. .. ..$ hold           :List of 2
+#>      .. .. .. .. .. ..$ states: chr(0) 
+#>      .. .. .. .. .. ..$ rates : chr(0) 
+#>      .. .. .. .. ..$ evolve         : chr "consumers"
+#>      .. .. .. .. ..$ adjust         : list()
+#>      .. .. .. .. ..$ preserve       : list()
+#>      .. .. .. .. ..$ balance_fun    : NULL
+#>      .. .. .. .. ..$ target_fun     : NULL
+#>      .. .. .. .. ..$ solvers        : chr [1:3] "project" "newton" "balance"
+#>      .. .. .. .. ..$ partial_species: logi TRUE
+#>      .. .. .. .. ..$ settings       : list()
+#>      .. ..$ tuning_binding        :List of 9
+#>      .. .. ..$ dispatch           :List of 2
+#>      .. .. .. ..$ classes: chr "MizerParams"
+#>      .. .. .. ..$ methods: chr [1:2] "project.MizerParams@mizer" "project_simple.MizerParams@mizer"
+#>      .. .. ..$ rate_functions     :List of 14
+#>      .. .. .. ..$ Rates          : chr "mizerRates"
+#>      .. .. .. ..$ Encounter      : chr "mizerEncounter"
+#>      .. .. .. ..$ FeedingLevel   : chr "mizerFeedingLevel"
+#>      .. .. .. ..$ EReproAndGrowth: chr "mizerEReproAndGrowth"
+#>      .. .. .. ..$ PredRate       : chr "mizerPredRate"
+#>      .. .. .. ..$ PredMort       : chr "mizerPredMort"
+#>      .. .. .. ..$ FMort          : chr "mizerFMort"
+#>      .. .. .. ..$ Mort           : chr "mizerMort"
+#>      .. .. .. ..$ ERepro         : chr "mizerERepro"
+#>      .. .. .. ..$ EGrowth        : chr "mizerEGrowth"
+#>      .. .. .. ..$ ResourceMort   : chr "mizerResourceMort"
+#>      .. .. .. ..$ RDI            : chr "mizerRDI"
+#>      .. .. .. ..$ RDD            : chr "BevertonHoltRDD"
+#>      .. .. .. ..$ Diffusion      : chr "mizerDiffusion"
+#>      .. .. ..$ balance_methods    : chr(0) 
+#>      .. .. ..$ rate_methods       : chr [1:14] "projectRates.MizerParams@mizer" "projectEncounter.MizerParams@mizer" "projectFeedingLevel.MizerParams@mizer" "projectEReproAndGrowth.MizerParams@mizer" ...
+#>      .. .. ..$ resource_dynamics  : chr "resource_semichemostat"
+#>      .. .. ..$ other_dynamics     : list()
+#>      .. .. ..$ component_equations: list()
+#>      .. .. ..$ other_encounter    : list()
+#>      .. .. ..$ other_mort         : list()
+#>      .. ..$ level_fun             : NULL
+#>      .. ..$ level_binding         :List of 9
+#>      .. .. ..$ dispatch           :List of 2
+#>      .. .. .. ..$ classes: chr "MizerParams"
+#>      .. .. .. ..$ methods: chr [1:2] "project.MizerParams@mizer" "project_simple.MizerParams@mizer"
+#>      .. .. ..$ rate_functions     :List of 14
+#>      .. .. .. ..$ Rates          : chr "mizerRates"
+#>      .. .. .. ..$ Encounter      : chr "mizerEncounter"
+#>      .. .. .. ..$ FeedingLevel   : chr "mizerFeedingLevel"
+#>      .. .. .. ..$ EReproAndGrowth: chr "mizerEReproAndGrowth"
+#>      .. .. .. ..$ PredRate       : chr "mizerPredRate"
+#>      .. .. .. ..$ PredMort       : chr "mizerPredMort"
+#>      .. .. .. ..$ FMort          : chr "mizerFMort"
+#>      .. .. .. ..$ Mort           : chr "mizerMort"
+#>      .. .. .. ..$ ERepro         : chr "mizerERepro"
+#>      .. .. .. ..$ EGrowth        : chr "mizerEGrowth"
+#>      .. .. .. ..$ ResourceMort   : chr "mizerResourceMort"
+#>      .. .. .. ..$ RDI            : chr "mizerRDI"
+#>      .. .. .. ..$ RDD            : chr "BevertonHoltRDD"
+#>      .. .. .. ..$ Diffusion      : chr "mizerDiffusion"
+#>      .. .. ..$ balance_methods    : chr(0) 
+#>      .. .. ..$ rate_methods       : chr [1:14] "projectRates.MizerParams@mizer" "projectEncounter.MizerParams@mizer" "projectFeedingLevel.MizerParams@mizer" "projectEReproAndGrowth.MizerParams@mizer" ...
+#>      .. .. ..$ resource_dynamics  : chr "resource_semichemostat"
+#>      .. .. ..$ other_dynamics     : list()
+#>      .. .. ..$ component_equations: list()
+#>      .. .. ..$ other_encounter    : list()
+#>      .. .. ..$ other_mort         : list()
+#>      .. ..$ transformations       :List of 7
+#>      .. .. ..$ add_species    :List of 4
+#>      .. .. .. ..$ action       : chr "none"
+#>      .. .. .. ..$ transform_fun: NULL
+#>      .. .. .. ..$ paths        : list()
+#>      .. .. .. ..$ settings     : list()
+#>      .. .. ..$ remove_species :List of 4
+#>      .. .. .. ..$ action       : chr "none"
+#>      .. .. .. ..$ transform_fun: NULL
+#>      .. .. .. ..$ paths        : list()
+#>      .. .. .. ..$ settings     : list()
+#>      .. .. ..$ reorder_species:List of 4
+#>      .. .. .. ..$ action       : chr "none"
+#>      .. .. .. ..$ transform_fun: NULL
+#>      .. .. .. ..$ paths        : list()
+#>      .. .. .. ..$ settings     : list()
+#>      .. .. ..$ rename_species :List of 4
+#>      .. .. .. ..$ action       : chr "none"
+#>      .. .. .. ..$ transform_fun: NULL
+#>      .. .. .. ..$ paths        : list()
+#>      .. .. .. ..$ settings     : list()
+#>      .. .. ..$ size_grid      :List of 4
+#>      .. .. .. ..$ action       : chr "none"
+#>      .. .. .. ..$ transform_fun: NULL
+#>      .. .. .. ..$ paths        : list()
+#>      .. .. .. ..$ settings     : list()
+#>      .. .. ..$ scale_abundance:List of 4
+#>      .. .. .. ..$ action       : chr "none"
+#>      .. .. .. ..$ transform_fun: NULL
+#>      .. .. .. ..$ paths        : list()
+#>      .. .. .. ..$ settings     : list()
+#>      .. .. ..$ scale_rates    :List of 4
+#>      .. .. .. ..$ action       : chr "none"
+#>      .. .. .. ..$ transform_fun: NULL
+#>      .. .. .. ..$ paths        : list()
+#>      .. .. .. ..$ settings     : list()
+#>      .. ..$ transformation_binding:List of 10
+#>      .. .. ..$ dispatch            :List of 2
+#>      .. .. .. ..$ classes: chr "MizerParams"
+#>      .. .. .. ..$ methods: chr [1:2] "project.MizerParams@mizer" "project_simple.MizerParams@mizer"
+#>      .. .. ..$ rate_functions      :List of 14
+#>      .. .. .. ..$ Rates          : chr "mizerRates"
+#>      .. .. .. ..$ Encounter      : chr "mizerEncounter"
+#>      .. .. .. ..$ FeedingLevel   : chr "mizerFeedingLevel"
+#>      .. .. .. ..$ EReproAndGrowth: chr "mizerEReproAndGrowth"
+#>      .. .. .. ..$ PredRate       : chr "mizerPredRate"
+#>      .. .. .. ..$ PredMort       : chr "mizerPredMort"
+#>      .. .. .. ..$ FMort          : chr "mizerFMort"
+#>      .. .. .. ..$ Mort           : chr "mizerMort"
+#>      .. .. .. ..$ ERepro         : chr "mizerERepro"
+#>      .. .. .. ..$ EGrowth        : chr "mizerEGrowth"
+#>      .. .. .. ..$ ResourceMort   : chr "mizerResourceMort"
+#>      .. .. .. ..$ RDI            : chr "mizerRDI"
+#>      .. .. .. ..$ RDD            : chr "BevertonHoltRDD"
+#>      .. .. .. ..$ Diffusion      : chr "mizerDiffusion"
+#>      .. .. ..$ rate_methods        : chr [1:14] "projectRates.MizerParams@mizer" "projectEncounter.MizerParams@mizer" "projectFeedingLevel.MizerParams@mizer" "projectEReproAndGrowth.MizerParams@mizer" ...
+#>      .. .. ..$ resource_dynamics   : chr "resource_semichemostat"
+#>      .. .. ..$ other_dynamics      : list()
+#>      .. .. ..$ component_equations : list()
+#>      .. .. ..$ other_encounter     : list()
+#>      .. .. ..$ other_mort          : list()
+#>      .. .. ..$ construction_methods:List of 3
+#>      .. .. .. ..$ consumers   : chr [1:12] "setParams.MizerParams@mizer" "setInteraction.MizerParams@mizer" "setPredKernel.MizerParams@mizer" "setMaxIntakeRate.MizerParams@mizer" ...
+#>      .. .. .. ..$ resource    : chr "setResource.MizerParams@mizer"
+#>      .. .. .. ..$ reproduction: chr "setReproduction.MizerParams@mizer"
+#>      .. .. ..$ automatic           : logi TRUE
+#>      .. ..$ mortality_fun         : chr "builtin_mortality_breakdown"
+#>      .. ..$ mortality_binding     :List of 4
+#>      .. .. ..$ rate_functions:List of 2
+#>      .. .. .. ..$ Rates: chr "mizerRates"
+#>      .. .. .. ..$ Mort : chr "mizerMort"
+#>      .. .. ..$ rate_methods  : chr [1:2] "projectRates.MizerParams@mizer" "projectMort.MizerParams@mizer"
+#>      .. .. ..$ contributions : list()
+#>      .. .. ..$ automatic     : logi TRUE
+#>      .. ..$ prescribed_binding    :List of 4
+#>      .. .. ..$ classes  : chr "MizerParams"
+#>      .. .. ..$ methods  : chr [1:2] "project.MizerParams@mizer" "project_simple.MizerParams@mizer"
+#>      .. .. ..$ provider : chr "mizer_consumer_equations"
+#>      .. .. ..$ automatic: logi TRUE
+#>      .. ..$ prescribed_mask_fun   : NULL
+#>      .. ..$ autonomous            : logi TRUE
+#>      .. ..$ temporal_binding      :List of 8
+#>      .. .. ..$ dispatch           :List of 2
+#>      .. .. .. ..$ classes: chr "MizerParams"
+#>      .. .. .. ..$ methods: chr [1:2] "project.MizerParams@mizer" "project_simple.MizerParams@mizer"
+#>      .. .. ..$ rate_functions     :List of 14
+#>      .. .. .. ..$ Rates          : chr "mizerRates"
+#>      .. .. .. ..$ Encounter      : chr "mizerEncounter"
+#>      .. .. .. ..$ FeedingLevel   : chr "mizerFeedingLevel"
+#>      .. .. .. ..$ EReproAndGrowth: chr "mizerEReproAndGrowth"
+#>      .. .. .. ..$ PredRate       : chr "mizerPredRate"
+#>      .. .. .. ..$ PredMort       : chr "mizerPredMort"
+#>      .. .. .. ..$ FMort          : chr "mizerFMort"
+#>      .. .. .. ..$ Mort           : chr "mizerMort"
+#>      .. .. .. ..$ ERepro         : chr "mizerERepro"
+#>      .. .. .. ..$ EGrowth        : chr "mizerEGrowth"
+#>      .. .. .. ..$ ResourceMort   : chr "mizerResourceMort"
+#>      .. .. .. ..$ RDI            : chr "mizerRDI"
+#>      .. .. .. ..$ RDD            : chr "BevertonHoltRDD"
+#>      .. .. .. ..$ Diffusion      : chr "mizerDiffusion"
+#>      .. .. ..$ rate_methods       : chr [1:14] "projectRates.MizerParams@mizer" "projectEncounter.MizerParams@mizer" "projectFeedingLevel.MizerParams@mizer" "projectEReproAndGrowth.MizerParams@mizer" ...
+#>      .. .. ..$ other_dynamics     : list()
+#>      .. .. ..$ component_equations: list()
+#>      .. .. ..$ other_encounter    : list()
+#>      .. .. ..$ other_mort         : list()
+#>      .. .. ..$ automatic          : logi TRUE
+#>      .. ..$ rate_fun              : NULL
+#>      .. ..$ equation_binding      : NULL
+#>      ..$ resource    :List of 19
+#>      .. ..$ convergence_fun       : chr "builtin_resource_assessment"
+#>      .. ..$ role                  : chr "dynamic"
+#>      .. ..$ binding               :List of 3
+#>      .. .. ..$ classes : chr "MizerParams"
+#>      .. .. ..$ methods : chr [1:2] "project.MizerParams@mizer" "project_simple.MizerParams@mizer"
+#>      .. .. ..$ provider: chr "resource_semichemostat"
+#>      .. ..$ stationary            : logi TRUE
+#>      .. ..$ equation_rates_fun    : chr "builtin_resource_equation_rates"
+#>      .. ..$ tuning                :List of 2
+#>      .. .. ..$ default   : chr "capacity"
+#>      .. .. ..$ strategies:List of 1
+#>      .. .. .. ..$ capacity:List of 10
+#>      .. .. .. .. ..$ action         : chr "balance"
+#>      .. .. .. .. ..$ hold           :List of 2
+#>      .. .. .. .. .. ..$ states: chr "resource"
+#>      .. .. .. .. .. ..$ rates : chr(0) 
+#>      .. .. .. .. ..$ evolve         : chr(0) 
+#>      .. .. .. .. ..$ adjust         :List of 1
+#>      .. .. .. .. .. ..$ capacity:List of 4
+#>      .. .. .. .. .. .. ..$ path   : chr "cc_pp"
+#>      .. .. .. .. .. .. ..$ lower  : num 0
+#>      .. .. .. .. .. .. ..$ upper  : num Inf
+#>      .. .. .. .. .. .. ..$ species: logi FALSE
+#>      .. .. .. .. ..$ preserve       : list()
+#>      .. .. .. .. ..$ balance_fun    : chr "balance_resource_strategy"
+#>      .. .. .. .. ..$ target_fun     : chr "target_resource_strategy"
+#>      .. .. .. .. ..$ solvers        : chr [1:3] "project" "newton" "balance"
+#>      .. .. .. .. ..$ partial_species: logi TRUE
+#>      .. .. .. .. ..$ settings       : list()
+#>      .. ..$ tuning_binding        :List of 9
+#>      .. .. ..$ dispatch           :List of 2
+#>      .. .. .. ..$ classes: chr "MizerParams"
+#>      .. .. .. ..$ methods: chr [1:2] "project.MizerParams@mizer" "project_simple.MizerParams@mizer"
+#>      .. .. ..$ rate_functions     :List of 14
+#>      .. .. .. ..$ Rates          : chr "mizerRates"
+#>      .. .. .. ..$ Encounter      : chr "mizerEncounter"
+#>      .. .. .. ..$ FeedingLevel   : chr "mizerFeedingLevel"
+#>      .. .. .. ..$ EReproAndGrowth: chr "mizerEReproAndGrowth"
+#>      .. .. .. ..$ PredRate       : chr "mizerPredRate"
+#>      .. .. .. ..$ PredMort       : chr "mizerPredMort"
+#>      .. .. .. ..$ FMort          : chr "mizerFMort"
+#>      .. .. .. ..$ Mort           : chr "mizerMort"
+#>      .. .. .. ..$ ERepro         : chr "mizerERepro"
+#>      .. .. .. ..$ EGrowth        : chr "mizerEGrowth"
+#>      .. .. .. ..$ ResourceMort   : chr "mizerResourceMort"
+#>      .. .. .. ..$ RDI            : chr "mizerRDI"
+#>      .. .. .. ..$ RDD            : chr "BevertonHoltRDD"
+#>      .. .. .. ..$ Diffusion      : chr "mizerDiffusion"
+#>      .. .. ..$ balance_methods    : chr(0) 
+#>      .. .. ..$ rate_methods       : chr [1:14] "projectRates.MizerParams@mizer" "projectEncounter.MizerParams@mizer" "projectFeedingLevel.MizerParams@mizer" "projectEReproAndGrowth.MizerParams@mizer" ...
+#>      .. .. ..$ resource_dynamics  : chr "resource_semichemostat"
+#>      .. .. ..$ other_dynamics     : list()
+#>      .. .. ..$ component_equations: list()
+#>      .. .. ..$ other_encounter    : list()
+#>      .. .. ..$ other_mort         : list()
+#>      .. ..$ level_fun             : NULL
+#>      .. ..$ level_binding         :List of 9
+#>      .. .. ..$ dispatch           :List of 2
+#>      .. .. .. ..$ classes: chr "MizerParams"
+#>      .. .. .. ..$ methods: chr [1:2] "project.MizerParams@mizer" "project_simple.MizerParams@mizer"
+#>      .. .. ..$ rate_functions     :List of 14
+#>      .. .. .. ..$ Rates          : chr "mizerRates"
+#>      .. .. .. ..$ Encounter      : chr "mizerEncounter"
+#>      .. .. .. ..$ FeedingLevel   : chr "mizerFeedingLevel"
+#>      .. .. .. ..$ EReproAndGrowth: chr "mizerEReproAndGrowth"
+#>      .. .. .. ..$ PredRate       : chr "mizerPredRate"
+#>      .. .. .. ..$ PredMort       : chr "mizerPredMort"
+#>      .. .. .. ..$ FMort          : chr "mizerFMort"
+#>      .. .. .. ..$ Mort           : chr "mizerMort"
+#>      .. .. .. ..$ ERepro         : chr "mizerERepro"
+#>      .. .. .. ..$ EGrowth        : chr "mizerEGrowth"
+#>      .. .. .. ..$ ResourceMort   : chr "mizerResourceMort"
+#>      .. .. .. ..$ RDI            : chr "mizerRDI"
+#>      .. .. .. ..$ RDD            : chr "BevertonHoltRDD"
+#>      .. .. .. ..$ Diffusion      : chr "mizerDiffusion"
+#>      .. .. ..$ balance_methods    : chr(0) 
+#>      .. .. ..$ rate_methods       : chr [1:14] "projectRates.MizerParams@mizer" "projectEncounter.MizerParams@mizer" "projectFeedingLevel.MizerParams@mizer" "projectEReproAndGrowth.MizerParams@mizer" ...
+#>      .. .. ..$ resource_dynamics  : chr "resource_semichemostat"
+#>      .. .. ..$ other_dynamics     : list()
+#>      .. .. ..$ component_equations: list()
+#>      .. .. ..$ other_encounter    : list()
+#>      .. .. ..$ other_mort         : list()
+#>      .. ..$ transformations       :List of 7
+#>      .. .. ..$ add_species    :List of 4
+#>      .. .. .. ..$ action       : chr "none"
+#>      .. .. .. ..$ transform_fun: NULL
+#>      .. .. .. ..$ paths        : list()
+#>      .. .. .. ..$ settings     : list()
+#>      .. .. ..$ remove_species :List of 4
+#>      .. .. .. ..$ action       : chr "none"
+#>      .. .. .. ..$ transform_fun: NULL
+#>      .. .. .. ..$ paths        : list()
+#>      .. .. .. ..$ settings     : list()
+#>      .. .. ..$ reorder_species:List of 4
+#>      .. .. .. ..$ action       : chr "none"
+#>      .. .. .. ..$ transform_fun: NULL
+#>      .. .. .. ..$ paths        : list()
+#>      .. .. .. ..$ settings     : list()
+#>      .. .. ..$ rename_species :List of 4
+#>      .. .. .. ..$ action       : chr "none"
+#>      .. .. .. ..$ transform_fun: NULL
+#>      .. .. .. ..$ paths        : list()
+#>      .. .. .. ..$ settings     : list()
+#>      .. .. ..$ size_grid      :List of 4
+#>      .. .. .. ..$ action       : chr "none"
+#>      .. .. .. ..$ transform_fun: NULL
+#>      .. .. .. ..$ paths        : list()
+#>      .. .. .. ..$ settings     : list()
+#>      .. .. ..$ scale_abundance:List of 4
+#>      .. .. .. ..$ action       : chr "none"
+#>      .. .. .. ..$ transform_fun: NULL
+#>      .. .. .. ..$ paths        : list()
+#>      .. .. .. ..$ settings     : list()
+#>      .. .. ..$ scale_rates    :List of 4
+#>      .. .. .. ..$ action       : chr "none"
+#>      .. .. .. ..$ transform_fun: NULL
+#>      .. .. .. ..$ paths        : list()
+#>      .. .. .. ..$ settings     : list()
+#>      .. ..$ transformation_binding:List of 10
+#>      .. .. ..$ dispatch            :List of 2
+#>      .. .. .. ..$ classes: chr "MizerParams"
+#>      .. .. .. ..$ methods: chr [1:2] "project.MizerParams@mizer" "project_simple.MizerParams@mizer"
+#>      .. .. ..$ rate_functions      :List of 14
+#>      .. .. .. ..$ Rates          : chr "mizerRates"
+#>      .. .. .. ..$ Encounter      : chr "mizerEncounter"
+#>      .. .. .. ..$ FeedingLevel   : chr "mizerFeedingLevel"
+#>      .. .. .. ..$ EReproAndGrowth: chr "mizerEReproAndGrowth"
+#>      .. .. .. ..$ PredRate       : chr "mizerPredRate"
+#>      .. .. .. ..$ PredMort       : chr "mizerPredMort"
+#>      .. .. .. ..$ FMort          : chr "mizerFMort"
+#>      .. .. .. ..$ Mort           : chr "mizerMort"
+#>      .. .. .. ..$ ERepro         : chr "mizerERepro"
+#>      .. .. .. ..$ EGrowth        : chr "mizerEGrowth"
+#>      .. .. .. ..$ ResourceMort   : chr "mizerResourceMort"
+#>      .. .. .. ..$ RDI            : chr "mizerRDI"
+#>      .. .. .. ..$ RDD            : chr "BevertonHoltRDD"
+#>      .. .. .. ..$ Diffusion      : chr "mizerDiffusion"
+#>      .. .. ..$ rate_methods        : chr [1:14] "projectRates.MizerParams@mizer" "projectEncounter.MizerParams@mizer" "projectFeedingLevel.MizerParams@mizer" "projectEReproAndGrowth.MizerParams@mizer" ...
+#>      .. .. ..$ resource_dynamics   : chr "resource_semichemostat"
+#>      .. .. ..$ other_dynamics      : list()
+#>      .. .. ..$ component_equations : list()
+#>      .. .. ..$ other_encounter     : list()
+#>      .. .. ..$ other_mort          : list()
+#>      .. .. ..$ construction_methods:List of 3
+#>      .. .. .. ..$ consumers   : chr [1:12] "setParams.MizerParams@mizer" "setInteraction.MizerParams@mizer" "setPredKernel.MizerParams@mizer" "setMaxIntakeRate.MizerParams@mizer" ...
+#>      .. .. .. ..$ resource    : chr "setResource.MizerParams@mizer"
+#>      .. .. .. ..$ reproduction: chr "setReproduction.MizerParams@mizer"
+#>      .. .. ..$ automatic           : logi TRUE
+#>      .. ..$ mortality_fun         : NULL
+#>      .. ..$ mortality_binding     : NULL
+#>      .. ..$ prescribed_binding    :List of 4
+#>      .. .. ..$ classes  : chr "MizerParams"
+#>      .. .. ..$ methods  : chr [1:2] "project.MizerParams@mizer" "project_simple.MizerParams@mizer"
+#>      .. .. ..$ provider : chr "resource_semichemostat"
+#>      .. .. ..$ automatic: logi TRUE
+#>      .. ..$ prescribed_mask_fun   : NULL
+#>      .. ..$ autonomous            : logi TRUE
+#>      .. ..$ temporal_binding      :List of 9
+#>      .. .. ..$ dispatch           :List of 2
+#>      .. .. .. ..$ classes: chr "MizerParams"
+#>      .. .. .. ..$ methods: chr [1:2] "project.MizerParams@mizer" "project_simple.MizerParams@mizer"
+#>      .. .. ..$ rate_functions     :List of 14
+#>      .. .. .. ..$ Rates          : chr "mizerRates"
+#>      .. .. .. ..$ Encounter      : chr "mizerEncounter"
+#>      .. .. .. ..$ FeedingLevel   : chr "mizerFeedingLevel"
+#>      .. .. .. ..$ EReproAndGrowth: chr "mizerEReproAndGrowth"
+#>      .. .. .. ..$ PredRate       : chr "mizerPredRate"
+#>      .. .. .. ..$ PredMort       : chr "mizerPredMort"
+#>      .. .. .. ..$ FMort          : chr "mizerFMort"
+#>      .. .. .. ..$ Mort           : chr "mizerMort"
+#>      .. .. .. ..$ ERepro         : chr "mizerERepro"
+#>      .. .. .. ..$ EGrowth        : chr "mizerEGrowth"
+#>      .. .. .. ..$ ResourceMort   : chr "mizerResourceMort"
+#>      .. .. .. ..$ RDI            : chr "mizerRDI"
+#>      .. .. .. ..$ RDD            : chr "BevertonHoltRDD"
+#>      .. .. .. ..$ Diffusion      : chr "mizerDiffusion"
+#>      .. .. ..$ rate_methods       : chr [1:14] "projectRates.MizerParams@mizer" "projectEncounter.MizerParams@mizer" "projectFeedingLevel.MizerParams@mizer" "projectEReproAndGrowth.MizerParams@mizer" ...
+#>      .. .. ..$ resource_dynamics  : chr "resource_semichemostat"
+#>      .. .. ..$ other_dynamics     : list()
+#>      .. .. ..$ component_equations: list()
+#>      .. .. ..$ other_encounter    : list()
+#>      .. .. ..$ other_mort         : list()
+#>      .. .. ..$ automatic          : logi TRUE
+#>      .. ..$ rate_fun              : chr "equation_resource_semichemostat"
+#>      .. ..$ equation_binding      :List of 4
+#>      .. .. ..$ classes  : chr "MizerParams"
+#>      .. .. ..$ methods  : chr [1:2] "project.MizerParams@mizer" "project_simple.MizerParams@mizer"
+#>      .. .. ..$ provider : chr "resource_semichemostat"
+#>      .. .. ..$ automatic: logi TRUE
+#>      ..$ reproduction:List of 19
+#>      .. ..$ convergence_fun       : NULL
+#>      .. ..$ role                  : NULL
+#>      .. ..$ binding               :List of 3
+#>      .. .. ..$ classes : chr "MizerParams"
+#>      .. .. ..$ methods : chr [1:2] "project.MizerParams@mizer" "project_simple.MizerParams@mizer"
+#>      .. .. ..$ provider: chr "mizer_consumer_equations"
+#>      .. ..$ stationary            : logi TRUE
+#>      .. ..$ equation_rates_fun    : chr "builtin_reproduction_equation_rates"
+#>      .. ..$ tuning                :List of 2
+#>      .. .. ..$ default   : chr "preserve_reproduction_level"
+#>      .. .. ..$ strategies:List of 4
+#>      .. .. .. ..$ set_parameters             :List of 10
+#>      .. .. .. .. ..$ action         : chr "balance"
+#>      .. .. .. .. ..$ hold           :List of 2
+#>      .. .. .. .. .. ..$ states: chr(0) 
+#>      .. .. .. .. .. ..$ rates : chr "consumers/recruitment"
+#>      .. .. .. .. ..$ evolve         : chr(0) 
+#>      .. .. .. .. ..$ adjust         :List of 2
+#>      .. .. .. .. .. ..$ erepro:List of 4
+#>      .. .. .. .. .. .. ..$ path   : chr [1:2] "species_params" "erepro"
+#>      .. .. .. .. .. .. ..$ lower  : num 0
+#>      .. .. .. .. .. .. ..$ upper  : num Inf
+#>      .. .. .. .. .. .. ..$ species: logi TRUE
+#>      .. .. .. .. .. ..$ R_max :List of 4
+#>      .. .. .. .. .. .. ..$ path   : chr [1:2] "species_params" "R_max"
+#>      .. .. .. .. .. .. ..$ lower  : num 0
+#>      .. .. .. .. .. .. ..$ upper  : num Inf
+#>      .. .. .. .. .. .. ..$ species: logi TRUE
+#>      .. .. .. .. ..$ preserve       : list()
+#>      .. .. .. .. ..$ balance_fun    : chr "balance_BevertonHoltRDD"
+#>      .. .. .. .. ..$ target_fun     : NULL
+#>      .. .. .. .. ..$ solvers        : chr [1:3] "project" "newton" "balance"
+#>      .. .. .. .. ..$ partial_species: logi TRUE
+#>      .. .. .. .. ..$ settings       :List of 2
+#>      .. .. .. .. .. ..$ preserve: chr "none"
+#>      .. .. .. .. .. ..$ limb    : chr "ascending"
+#>      .. .. .. ..$ preserve_erepro            :List of 10
+#>      .. .. .. .. ..$ action         : chr "balance"
+#>      .. .. .. .. ..$ hold           :List of 2
+#>      .. .. .. .. .. ..$ states: chr(0) 
+#>      .. .. .. .. .. ..$ rates : chr "consumers/recruitment"
+#>      .. .. .. .. ..$ evolve         : chr(0) 
+#>      .. .. .. .. ..$ adjust         :List of 1
+#>      .. .. .. .. .. ..$ R_max:List of 4
+#>      .. .. .. .. .. .. ..$ path   : chr [1:2] "species_params" "R_max"
+#>      .. .. .. .. .. .. ..$ lower  : num 0
+#>      .. .. .. .. .. .. ..$ upper  : num Inf
+#>      .. .. .. .. .. .. ..$ species: logi TRUE
+#>      .. .. .. .. ..$ preserve       :List of 1
+#>      .. .. .. .. .. ..$ erepro:List of 1
+#>      .. .. .. .. .. .. ..$ path: chr [1:2] "species_params" "erepro"
+#>      .. .. .. .. ..$ balance_fun    : chr "balance_BevertonHoltRDD"
+#>      .. .. .. .. ..$ target_fun     : NULL
+#>      .. .. .. .. ..$ solvers        : chr [1:3] "project" "newton" "balance"
+#>      .. .. .. .. ..$ partial_species: logi TRUE
+#>      .. .. .. .. ..$ settings       :List of 2
+#>      .. .. .. .. .. ..$ preserve: chr "erepro"
+#>      .. .. .. .. .. ..$ limb    : chr "ascending"
+#>      .. .. .. ..$ preserve_reproduction_level:List of 10
+#>      .. .. .. .. ..$ action         : chr "balance"
+#>      .. .. .. .. ..$ hold           :List of 2
+#>      .. .. .. .. .. ..$ states: chr(0) 
+#>      .. .. .. .. .. ..$ rates : chr "consumers/recruitment"
+#>      .. .. .. .. ..$ evolve         : chr(0) 
+#>      .. .. .. .. ..$ adjust         :List of 2
+#>      .. .. .. .. .. ..$ erepro:List of 4
+#>      .. .. .. .. .. .. ..$ path   : chr [1:2] "species_params" "erepro"
+#>      .. .. .. .. .. .. ..$ lower  : num 0
+#>      .. .. .. .. .. .. ..$ upper  : num Inf
+#>      .. .. .. .. .. .. ..$ species: logi TRUE
+#>      .. .. .. .. .. ..$ R_max :List of 4
+#>      .. .. .. .. .. .. ..$ path   : chr [1:2] "species_params" "R_max"
+#>      .. .. .. .. .. .. ..$ lower  : num 0
+#>      .. .. .. .. .. .. ..$ upper  : num Inf
+#>      .. .. .. .. .. .. ..$ species: logi TRUE
+#>      .. .. .. .. ..$ preserve       :List of 1
+#>      .. .. .. .. .. ..$ reproduction_level:List of 1
+#>      .. .. .. .. .. .. ..$ fun: chr "reproduction_level_BevertonHoltRDD"
+#>      .. .. .. .. ..$ balance_fun    : chr "balance_BevertonHoltRDD"
+#>      .. .. .. .. ..$ target_fun     : NULL
+#>      .. .. .. .. ..$ solvers        : chr [1:3] "project" "newton" "balance"
+#>      .. .. .. .. ..$ partial_species: logi TRUE
+#>      .. .. .. .. ..$ settings       :List of 2
+#>      .. .. .. .. .. ..$ preserve: chr "reproduction_level"
+#>      .. .. .. .. .. ..$ limb    : chr "ascending"
+#>      .. .. .. ..$ preserve_R_max             :List of 10
+#>      .. .. .. .. ..$ action         : chr "balance"
+#>      .. .. .. .. ..$ hold           :List of 2
+#>      .. .. .. .. .. ..$ states: chr(0) 
+#>      .. .. .. .. .. ..$ rates : chr "consumers/recruitment"
+#>      .. .. .. .. ..$ evolve         : chr(0) 
+#>      .. .. .. .. ..$ adjust         :List of 1
+#>      .. .. .. .. .. ..$ erepro:List of 4
+#>      .. .. .. .. .. .. ..$ path   : chr [1:2] "species_params" "erepro"
+#>      .. .. .. .. .. .. ..$ lower  : num 0
+#>      .. .. .. .. .. .. ..$ upper  : num Inf
+#>      .. .. .. .. .. .. ..$ species: logi TRUE
+#>      .. .. .. .. ..$ preserve       :List of 1
+#>      .. .. .. .. .. ..$ R_max:List of 1
+#>      .. .. .. .. .. .. ..$ path: chr [1:2] "species_params" "R_max"
+#>      .. .. .. .. ..$ balance_fun    : chr "balance_BevertonHoltRDD"
+#>      .. .. .. .. ..$ target_fun     : NULL
+#>      .. .. .. .. ..$ solvers        : chr [1:3] "project" "newton" "balance"
+#>      .. .. .. .. ..$ partial_species: logi TRUE
+#>      .. .. .. .. ..$ settings       :List of 2
+#>      .. .. .. .. .. ..$ preserve: chr "R_max"
+#>      .. .. .. .. .. ..$ limb    : chr "ascending"
+#>      .. ..$ tuning_binding        :List of 9
+#>      .. .. ..$ dispatch           :List of 2
+#>      .. .. .. ..$ classes: chr "MizerParams"
+#>      .. .. .. ..$ methods: chr [1:2] "project.MizerParams@mizer" "project_simple.MizerParams@mizer"
+#>      .. .. ..$ rate_functions     :List of 14
+#>      .. .. .. ..$ Rates          : chr "mizerRates"
+#>      .. .. .. ..$ Encounter      : chr "mizerEncounter"
+#>      .. .. .. ..$ FeedingLevel   : chr "mizerFeedingLevel"
+#>      .. .. .. ..$ EReproAndGrowth: chr "mizerEReproAndGrowth"
+#>      .. .. .. ..$ PredRate       : chr "mizerPredRate"
+#>      .. .. .. ..$ PredMort       : chr "mizerPredMort"
+#>      .. .. .. ..$ FMort          : chr "mizerFMort"
+#>      .. .. .. ..$ Mort           : chr "mizerMort"
+#>      .. .. .. ..$ ERepro         : chr "mizerERepro"
+#>      .. .. .. ..$ EGrowth        : chr "mizerEGrowth"
+#>      .. .. .. ..$ ResourceMort   : chr "mizerResourceMort"
+#>      .. .. .. ..$ RDI            : chr "mizerRDI"
+#>      .. .. .. ..$ RDD            : chr "BevertonHoltRDD"
+#>      .. .. .. ..$ Diffusion      : chr "mizerDiffusion"
+#>      .. .. ..$ balance_methods    : chr(0) 
+#>      .. .. ..$ rate_methods       : chr [1:14] "projectRates.MizerParams@mizer" "projectEncounter.MizerParams@mizer" "projectFeedingLevel.MizerParams@mizer" "projectEReproAndGrowth.MizerParams@mizer" ...
+#>      .. .. ..$ resource_dynamics  : chr "resource_semichemostat"
+#>      .. .. ..$ other_dynamics     : list()
+#>      .. .. ..$ component_equations: list()
+#>      .. .. ..$ other_encounter    : list()
+#>      .. .. ..$ other_mort         : list()
+#>      .. ..$ level_fun             : chr "reproduction_level_BevertonHoltRDD"
+#>      .. ..$ level_binding         :List of 10
+#>      .. .. ..$ dispatch           :List of 2
+#>      .. .. .. ..$ classes: chr "MizerParams"
+#>      .. .. .. ..$ methods: chr [1:2] "project.MizerParams@mizer" "project_simple.MizerParams@mizer"
+#>      .. .. ..$ rate_functions     :List of 14
+#>      .. .. .. ..$ Rates          : chr "mizerRates"
+#>      .. .. .. ..$ Encounter      : chr "mizerEncounter"
+#>      .. .. .. ..$ FeedingLevel   : chr "mizerFeedingLevel"
+#>      .. .. .. ..$ EReproAndGrowth: chr "mizerEReproAndGrowth"
+#>      .. .. .. ..$ PredRate       : chr "mizerPredRate"
+#>      .. .. .. ..$ PredMort       : chr "mizerPredMort"
+#>      .. .. .. ..$ FMort          : chr "mizerFMort"
+#>      .. .. .. ..$ Mort           : chr "mizerMort"
+#>      .. .. .. ..$ ERepro         : chr "mizerERepro"
+#>      .. .. .. ..$ EGrowth        : chr "mizerEGrowth"
+#>      .. .. .. ..$ ResourceMort   : chr "mizerResourceMort"
+#>      .. .. .. ..$ RDI            : chr "mizerRDI"
+#>      .. .. .. ..$ RDD            : chr "BevertonHoltRDD"
+#>      .. .. .. ..$ Diffusion      : chr "mizerDiffusion"
+#>      .. .. ..$ balance_methods    : chr(0) 
+#>      .. .. ..$ rate_methods       : chr [1:14] "projectRates.MizerParams@mizer" "projectEncounter.MizerParams@mizer" "projectFeedingLevel.MizerParams@mizer" "projectEReproAndGrowth.MizerParams@mizer" ...
+#>      .. .. ..$ resource_dynamics  : chr "resource_semichemostat"
+#>      .. .. ..$ other_dynamics     : list()
+#>      .. .. ..$ component_equations: list()
+#>      .. .. ..$ other_encounter    : list()
+#>      .. .. ..$ other_mort         : list()
+#>      .. .. ..$ automatic          : logi TRUE
+#>      .. ..$ transformations       :List of 7
+#>      .. .. ..$ add_species    :List of 4
+#>      .. .. .. ..$ action       : chr "none"
+#>      .. .. .. ..$ transform_fun: NULL
+#>      .. .. .. ..$ paths        : list()
+#>      .. .. .. ..$ settings     : list()
+#>      .. .. ..$ remove_species :List of 4
+#>      .. .. .. ..$ action       : chr "none"
+#>      .. .. .. ..$ transform_fun: NULL
+#>      .. .. .. ..$ paths        : list()
+#>      .. .. .. ..$ settings     : list()
+#>      .. .. ..$ reorder_species:List of 4
+#>      .. .. .. ..$ action       : chr "none"
+#>      .. .. .. ..$ transform_fun: NULL
+#>      .. .. .. ..$ paths        : list()
+#>      .. .. .. ..$ settings     : list()
+#>      .. .. ..$ rename_species :List of 4
+#>      .. .. .. ..$ action       : chr "none"
+#>      .. .. .. ..$ transform_fun: NULL
+#>      .. .. .. ..$ paths        : list()
+#>      .. .. .. ..$ settings     : list()
+#>      .. .. ..$ size_grid      :List of 4
+#>      .. .. .. ..$ action       : chr "none"
+#>      .. .. .. ..$ transform_fun: NULL
+#>      .. .. .. ..$ paths        : list()
+#>      .. .. .. ..$ settings     : list()
+#>      .. .. ..$ scale_abundance:List of 4
+#>      .. .. .. ..$ action       : chr "none"
+#>      .. .. .. ..$ transform_fun: NULL
+#>      .. .. .. ..$ paths        : list()
+#>      .. .. .. ..$ settings     : list()
+#>      .. .. ..$ scale_rates    :List of 4
+#>      .. .. .. ..$ action       : chr "none"
+#>      .. .. .. ..$ transform_fun: NULL
+#>      .. .. .. ..$ paths        : list()
+#>      .. .. .. ..$ settings     : list()
+#>      .. ..$ transformation_binding:List of 10
+#>      .. .. ..$ dispatch            :List of 2
+#>      .. .. .. ..$ classes: chr "MizerParams"
+#>      .. .. .. ..$ methods: chr [1:2] "project.MizerParams@mizer" "project_simple.MizerParams@mizer"
+#>      .. .. ..$ rate_functions      :List of 14
+#>      .. .. .. ..$ Rates          : chr "mizerRates"
+#>      .. .. .. ..$ Encounter      : chr "mizerEncounter"
+#>      .. .. .. ..$ FeedingLevel   : chr "mizerFeedingLevel"
+#>      .. .. .. ..$ EReproAndGrowth: chr "mizerEReproAndGrowth"
+#>      .. .. .. ..$ PredRate       : chr "mizerPredRate"
+#>      .. .. .. ..$ PredMort       : chr "mizerPredMort"
+#>      .. .. .. ..$ FMort          : chr "mizerFMort"
+#>      .. .. .. ..$ Mort           : chr "mizerMort"
+#>      .. .. .. ..$ ERepro         : chr "mizerERepro"
+#>      .. .. .. ..$ EGrowth        : chr "mizerEGrowth"
+#>      .. .. .. ..$ ResourceMort   : chr "mizerResourceMort"
+#>      .. .. .. ..$ RDI            : chr "mizerRDI"
+#>      .. .. .. ..$ RDD            : chr "BevertonHoltRDD"
+#>      .. .. .. ..$ Diffusion      : chr "mizerDiffusion"
+#>      .. .. ..$ rate_methods        : chr [1:14] "projectRates.MizerParams@mizer" "projectEncounter.MizerParams@mizer" "projectFeedingLevel.MizerParams@mizer" "projectEReproAndGrowth.MizerParams@mizer" ...
+#>      .. .. ..$ resource_dynamics   : chr "resource_semichemostat"
+#>      .. .. ..$ other_dynamics      : list()
+#>      .. .. ..$ component_equations : list()
+#>      .. .. ..$ other_encounter     : list()
+#>      .. .. ..$ other_mort          : list()
+#>      .. .. ..$ construction_methods:List of 3
+#>      .. .. .. ..$ consumers   : chr [1:12] "setParams.MizerParams@mizer" "setInteraction.MizerParams@mizer" "setPredKernel.MizerParams@mizer" "setMaxIntakeRate.MizerParams@mizer" ...
+#>      .. .. .. ..$ resource    : chr "setResource.MizerParams@mizer"
+#>      .. .. .. ..$ reproduction: chr "setReproduction.MizerParams@mizer"
+#>      .. .. ..$ automatic           : logi TRUE
+#>      .. ..$ mortality_fun         : NULL
+#>      .. ..$ mortality_binding     : NULL
+#>      .. ..$ prescribed_mask_fun   : NULL
+#>      .. ..$ prescribed_binding    : NULL
+#>      .. ..$ autonomous            : NULL
+#>      .. ..$ temporal_binding      : NULL
+#>      .. ..$ rate_fun              : NULL
+#>      .. ..$ equation_binding      : NULL
+#>     $ tuning         : list()
+#>     $ transformations: list() 
 str(NS_sim)
 #> Formal class 'MizerSim' [package "mizer"] with 6 slots
-#>  @ params              : Formal class 'MizerParams' [package "mizer"] with 48 slots
+#>  @ params              : Formal class 'MizerParams' [package "mizer"] with 50 slots
 #>     @ metadata            :  list()
 #>     @ mizer_version       : Classes 'package_version', 'numeric_version'  hidden list of 1
-#>        $ : int [1:4] 3 0 0 9003 
+#>        $ : int [1:4] 3 4 0 9010 
 #>     @ extensions          :  chr(0) 
-#>     @ time_created        :  POSIXct[1:1], format: "2021-09-03 21:30:02"
-#>     @ time_modified       :  POSIXct[1:1], format: "2026-06-24 14:50:03"
+#>     @ time_created        :  POSIXct[1:1], format: "2021-09-03 20:30:02"
+#>     @ time_modified       :  POSIXct[1:1], format: "2026-11-16 02:30:14"
 #>     @ w                   :  num [1:100] 0.001 0.00119 0.00142 0.0017 0.00203 ...
 #>     @ dw                  :  num [1:100] 0.000193 0.000231 0.000275 0.000329 0.000392 ...
 #>     @ w_full              :  num [1:218] 8.73e-13 1.04e-12 1.24e-12 1.48e-12 1.77e-12 ...
@@ -439,16 +1060,631 @@ str(NS_sim)
 #>     @ ft_pred_kernel_d    :  cplx [1:12, 1:218] 11.3+0i 26.9+0i 20.8+0i ...
 #>        - attr(*, "dimnames")=List of 2
 #>         ..$ sp: chr [1:12] "Sprat" "Sandeel" "N.pout" "Herring" ...
-#>         ..$ k : chr [1:218] "1" "2" "3" "4" ...  
+#>         ..$ k : chr [1:218] "1" "2" "3" "4" ... 
+#>     @ defaults_edition    :  num 1
+#>     @ capabilities        : List of 5
+#>        $ schema_version : int 7
+#>        $ components     : list()
+#>        $ processes      :List of 3
+#>         ..$ consumers   :List of 19
+#>         .. ..$ convergence_fun       : chr "builtin_consumer_assessment"
+#>         .. ..$ role                  : chr "dynamic"
+#>         .. ..$ binding               :List of 3
+#>         .. .. ..$ classes : chr "MizerParams"
+#>         .. .. ..$ methods : chr [1:2] "project.MizerParams@mizer" "project_simple.MizerParams@mizer"
+#>         .. .. ..$ provider: chr "mizer_consumer_equations"
+#>         .. ..$ stationary            : logi TRUE
+#>         .. ..$ equation_rates_fun    : chr "builtin_consumer_equation_rates"
+#>         .. ..$ tuning                :List of 2
+#>         .. .. ..$ default   : chr "unchanged"
+#>         .. .. ..$ strategies:List of 1
+#>         .. .. .. ..$ unchanged:List of 10
+#>         .. .. .. .. ..$ action         : chr "none"
+#>         .. .. .. .. ..$ hold           :List of 2
+#>         .. .. .. .. .. ..$ states: chr(0) 
+#>         .. .. .. .. .. ..$ rates : chr(0) 
+#>         .. .. .. .. ..$ evolve         : chr "consumers"
+#>         .. .. .. .. ..$ adjust         : list()
+#>         .. .. .. .. ..$ preserve       : list()
+#>         .. .. .. .. ..$ balance_fun    : NULL
+#>         .. .. .. .. ..$ target_fun     : NULL
+#>         .. .. .. .. ..$ solvers        : chr [1:3] "project" "newton" "balance"
+#>         .. .. .. .. ..$ partial_species: logi TRUE
+#>         .. .. .. .. ..$ settings       : list()
+#>         .. ..$ tuning_binding        :List of 9
+#>         .. .. ..$ dispatch           :List of 2
+#>         .. .. .. ..$ classes: chr "MizerParams"
+#>         .. .. .. ..$ methods: chr [1:2] "project.MizerParams@mizer" "project_simple.MizerParams@mizer"
+#>         .. .. ..$ rate_functions     :List of 14
+#>         .. .. .. ..$ Rates          : chr "mizerRates"
+#>         .. .. .. ..$ Encounter      : chr "mizerEncounter"
+#>         .. .. .. ..$ FeedingLevel   : chr "mizerFeedingLevel"
+#>         .. .. .. ..$ EReproAndGrowth: chr "mizerEReproAndGrowth"
+#>         .. .. .. ..$ PredRate       : chr "mizerPredRate"
+#>         .. .. .. ..$ PredMort       : chr "mizerPredMort"
+#>         .. .. .. ..$ FMort          : chr "mizerFMort"
+#>         .. .. .. ..$ Mort           : chr "mizerMort"
+#>         .. .. .. ..$ ERepro         : chr "mizerERepro"
+#>         .. .. .. ..$ EGrowth        : chr "mizerEGrowth"
+#>         .. .. .. ..$ ResourceMort   : chr "mizerResourceMort"
+#>         .. .. .. ..$ RDI            : chr "mizerRDI"
+#>         .. .. .. ..$ RDD            : chr "BevertonHoltRDD"
+#>         .. .. .. ..$ Diffusion      : chr "mizerDiffusion"
+#>         .. .. ..$ balance_methods    : chr(0) 
+#>         .. .. ..$ rate_methods       : chr [1:14] "projectRates.MizerParams@mizer" "projectEncounter.MizerParams@mizer" "projectFeedingLevel.MizerParams@mizer" "projectEReproAndGrowth.MizerParams@mizer" ...
+#>         .. .. ..$ resource_dynamics  : chr "resource_semichemostat"
+#>         .. .. ..$ other_dynamics     : list()
+#>         .. .. ..$ component_equations: list()
+#>         .. .. ..$ other_encounter    : list()
+#>         .. .. ..$ other_mort         : list()
+#>         .. ..$ level_fun             : NULL
+#>         .. ..$ level_binding         :List of 9
+#>         .. .. ..$ dispatch           :List of 2
+#>         .. .. .. ..$ classes: chr "MizerParams"
+#>         .. .. .. ..$ methods: chr [1:2] "project.MizerParams@mizer" "project_simple.MizerParams@mizer"
+#>         .. .. ..$ rate_functions     :List of 14
+#>         .. .. .. ..$ Rates          : chr "mizerRates"
+#>         .. .. .. ..$ Encounter      : chr "mizerEncounter"
+#>         .. .. .. ..$ FeedingLevel   : chr "mizerFeedingLevel"
+#>         .. .. .. ..$ EReproAndGrowth: chr "mizerEReproAndGrowth"
+#>         .. .. .. ..$ PredRate       : chr "mizerPredRate"
+#>         .. .. .. ..$ PredMort       : chr "mizerPredMort"
+#>         .. .. .. ..$ FMort          : chr "mizerFMort"
+#>         .. .. .. ..$ Mort           : chr "mizerMort"
+#>         .. .. .. ..$ ERepro         : chr "mizerERepro"
+#>         .. .. .. ..$ EGrowth        : chr "mizerEGrowth"
+#>         .. .. .. ..$ ResourceMort   : chr "mizerResourceMort"
+#>         .. .. .. ..$ RDI            : chr "mizerRDI"
+#>         .. .. .. ..$ RDD            : chr "BevertonHoltRDD"
+#>         .. .. .. ..$ Diffusion      : chr "mizerDiffusion"
+#>         .. .. ..$ balance_methods    : chr(0) 
+#>         .. .. ..$ rate_methods       : chr [1:14] "projectRates.MizerParams@mizer" "projectEncounter.MizerParams@mizer" "projectFeedingLevel.MizerParams@mizer" "projectEReproAndGrowth.MizerParams@mizer" ...
+#>         .. .. ..$ resource_dynamics  : chr "resource_semichemostat"
+#>         .. .. ..$ other_dynamics     : list()
+#>         .. .. ..$ component_equations: list()
+#>         .. .. ..$ other_encounter    : list()
+#>         .. .. ..$ other_mort         : list()
+#>         .. ..$ transformations       :List of 7
+#>         .. .. ..$ add_species    :List of 4
+#>         .. .. .. ..$ action       : chr "none"
+#>         .. .. .. ..$ transform_fun: NULL
+#>         .. .. .. ..$ paths        : list()
+#>         .. .. .. ..$ settings     : list()
+#>         .. .. ..$ remove_species :List of 4
+#>         .. .. .. ..$ action       : chr "none"
+#>         .. .. .. ..$ transform_fun: NULL
+#>         .. .. .. ..$ paths        : list()
+#>         .. .. .. ..$ settings     : list()
+#>         .. .. ..$ reorder_species:List of 4
+#>         .. .. .. ..$ action       : chr "none"
+#>         .. .. .. ..$ transform_fun: NULL
+#>         .. .. .. ..$ paths        : list()
+#>         .. .. .. ..$ settings     : list()
+#>         .. .. ..$ rename_species :List of 4
+#>         .. .. .. ..$ action       : chr "none"
+#>         .. .. .. ..$ transform_fun: NULL
+#>         .. .. .. ..$ paths        : list()
+#>         .. .. .. ..$ settings     : list()
+#>         .. .. ..$ size_grid      :List of 4
+#>         .. .. .. ..$ action       : chr "none"
+#>         .. .. .. ..$ transform_fun: NULL
+#>         .. .. .. ..$ paths        : list()
+#>         .. .. .. ..$ settings     : list()
+#>         .. .. ..$ scale_abundance:List of 4
+#>         .. .. .. ..$ action       : chr "none"
+#>         .. .. .. ..$ transform_fun: NULL
+#>         .. .. .. ..$ paths        : list()
+#>         .. .. .. ..$ settings     : list()
+#>         .. .. ..$ scale_rates    :List of 4
+#>         .. .. .. ..$ action       : chr "none"
+#>         .. .. .. ..$ transform_fun: NULL
+#>         .. .. .. ..$ paths        : list()
+#>         .. .. .. ..$ settings     : list()
+#>         .. ..$ transformation_binding:List of 10
+#>         .. .. ..$ dispatch            :List of 2
+#>         .. .. .. ..$ classes: chr "MizerParams"
+#>         .. .. .. ..$ methods: chr [1:2] "project.MizerParams@mizer" "project_simple.MizerParams@mizer"
+#>         .. .. ..$ rate_functions      :List of 14
+#>         .. .. .. ..$ Rates          : chr "mizerRates"
+#>         .. .. .. ..$ Encounter      : chr "mizerEncounter"
+#>         .. .. .. ..$ FeedingLevel   : chr "mizerFeedingLevel"
+#>         .. .. .. ..$ EReproAndGrowth: chr "mizerEReproAndGrowth"
+#>         .. .. .. ..$ PredRate       : chr "mizerPredRate"
+#>         .. .. .. ..$ PredMort       : chr "mizerPredMort"
+#>         .. .. .. ..$ FMort          : chr "mizerFMort"
+#>         .. .. .. ..$ Mort           : chr "mizerMort"
+#>         .. .. .. ..$ ERepro         : chr "mizerERepro"
+#>         .. .. .. ..$ EGrowth        : chr "mizerEGrowth"
+#>         .. .. .. ..$ ResourceMort   : chr "mizerResourceMort"
+#>         .. .. .. ..$ RDI            : chr "mizerRDI"
+#>         .. .. .. ..$ RDD            : chr "BevertonHoltRDD"
+#>         .. .. .. ..$ Diffusion      : chr "mizerDiffusion"
+#>         .. .. ..$ rate_methods        : chr [1:14] "projectRates.MizerParams@mizer" "projectEncounter.MizerParams@mizer" "projectFeedingLevel.MizerParams@mizer" "projectEReproAndGrowth.MizerParams@mizer" ...
+#>         .. .. ..$ resource_dynamics   : chr "resource_semichemostat"
+#>         .. .. ..$ other_dynamics      : list()
+#>         .. .. ..$ component_equations : list()
+#>         .. .. ..$ other_encounter     : list()
+#>         .. .. ..$ other_mort          : list()
+#>         .. .. ..$ construction_methods:List of 3
+#>         .. .. .. ..$ consumers   : chr [1:12] "setParams.MizerParams@mizer" "setInteraction.MizerParams@mizer" "setPredKernel.MizerParams@mizer" "setMaxIntakeRate.MizerParams@mizer" ...
+#>         .. .. .. ..$ resource    : chr "setResource.MizerParams@mizer"
+#>         .. .. .. ..$ reproduction: chr "setReproduction.MizerParams@mizer"
+#>         .. .. ..$ automatic           : logi TRUE
+#>         .. ..$ mortality_fun         : chr "builtin_mortality_breakdown"
+#>         .. ..$ mortality_binding     :List of 4
+#>         .. .. ..$ rate_functions:List of 2
+#>         .. .. .. ..$ Rates: chr "mizerRates"
+#>         .. .. .. ..$ Mort : chr "mizerMort"
+#>         .. .. ..$ rate_methods  : chr [1:2] "projectRates.MizerParams@mizer" "projectMort.MizerParams@mizer"
+#>         .. .. ..$ contributions : list()
+#>         .. .. ..$ automatic     : logi TRUE
+#>         .. ..$ prescribed_binding    :List of 4
+#>         .. .. ..$ classes  : chr "MizerParams"
+#>         .. .. ..$ methods  : chr [1:2] "project.MizerParams@mizer" "project_simple.MizerParams@mizer"
+#>         .. .. ..$ provider : chr "mizer_consumer_equations"
+#>         .. .. ..$ automatic: logi TRUE
+#>         .. ..$ prescribed_mask_fun   : NULL
+#>         .. ..$ autonomous            : logi TRUE
+#>         .. ..$ temporal_binding      :List of 8
+#>         .. .. ..$ dispatch           :List of 2
+#>         .. .. .. ..$ classes: chr "MizerParams"
+#>         .. .. .. ..$ methods: chr [1:2] "project.MizerParams@mizer" "project_simple.MizerParams@mizer"
+#>         .. .. ..$ rate_functions     :List of 14
+#>         .. .. .. ..$ Rates          : chr "mizerRates"
+#>         .. .. .. ..$ Encounter      : chr "mizerEncounter"
+#>         .. .. .. ..$ FeedingLevel   : chr "mizerFeedingLevel"
+#>         .. .. .. ..$ EReproAndGrowth: chr "mizerEReproAndGrowth"
+#>         .. .. .. ..$ PredRate       : chr "mizerPredRate"
+#>         .. .. .. ..$ PredMort       : chr "mizerPredMort"
+#>         .. .. .. ..$ FMort          : chr "mizerFMort"
+#>         .. .. .. ..$ Mort           : chr "mizerMort"
+#>         .. .. .. ..$ ERepro         : chr "mizerERepro"
+#>         .. .. .. ..$ EGrowth        : chr "mizerEGrowth"
+#>         .. .. .. ..$ ResourceMort   : chr "mizerResourceMort"
+#>         .. .. .. ..$ RDI            : chr "mizerRDI"
+#>         .. .. .. ..$ RDD            : chr "BevertonHoltRDD"
+#>         .. .. .. ..$ Diffusion      : chr "mizerDiffusion"
+#>         .. .. ..$ rate_methods       : chr [1:14] "projectRates.MizerParams@mizer" "projectEncounter.MizerParams@mizer" "projectFeedingLevel.MizerParams@mizer" "projectEReproAndGrowth.MizerParams@mizer" ...
+#>         .. .. ..$ other_dynamics     : list()
+#>         .. .. ..$ component_equations: list()
+#>         .. .. ..$ other_encounter    : list()
+#>         .. .. ..$ other_mort         : list()
+#>         .. .. ..$ automatic          : logi TRUE
+#>         .. ..$ rate_fun              : NULL
+#>         .. ..$ equation_binding      : NULL
+#>         ..$ resource    :List of 19
+#>         .. ..$ convergence_fun       : chr "builtin_resource_assessment"
+#>         .. ..$ role                  : chr "dynamic"
+#>         .. ..$ binding               :List of 3
+#>         .. .. ..$ classes : chr "MizerParams"
+#>         .. .. ..$ methods : chr [1:2] "project.MizerParams@mizer" "project_simple.MizerParams@mizer"
+#>         .. .. ..$ provider: chr "resource_semichemostat"
+#>         .. ..$ stationary            : logi TRUE
+#>         .. ..$ equation_rates_fun    : chr "builtin_resource_equation_rates"
+#>         .. ..$ tuning                :List of 2
+#>         .. .. ..$ default   : chr "capacity"
+#>         .. .. ..$ strategies:List of 1
+#>         .. .. .. ..$ capacity:List of 10
+#>         .. .. .. .. ..$ action         : chr "balance"
+#>         .. .. .. .. ..$ hold           :List of 2
+#>         .. .. .. .. .. ..$ states: chr "resource"
+#>         .. .. .. .. .. ..$ rates : chr(0) 
+#>         .. .. .. .. ..$ evolve         : chr(0) 
+#>         .. .. .. .. ..$ adjust         :List of 1
+#>         .. .. .. .. .. ..$ capacity:List of 4
+#>         .. .. .. .. .. .. ..$ path   : chr "cc_pp"
+#>         .. .. .. .. .. .. ..$ lower  : num 0
+#>         .. .. .. .. .. .. ..$ upper  : num Inf
+#>         .. .. .. .. .. .. ..$ species: logi FALSE
+#>         .. .. .. .. ..$ preserve       : list()
+#>         .. .. .. .. ..$ balance_fun    : chr "balance_resource_strategy"
+#>         .. .. .. .. ..$ target_fun     : chr "target_resource_strategy"
+#>         .. .. .. .. ..$ solvers        : chr [1:3] "project" "newton" "balance"
+#>         .. .. .. .. ..$ partial_species: logi TRUE
+#>         .. .. .. .. ..$ settings       : list()
+#>         .. ..$ tuning_binding        :List of 9
+#>         .. .. ..$ dispatch           :List of 2
+#>         .. .. .. ..$ classes: chr "MizerParams"
+#>         .. .. .. ..$ methods: chr [1:2] "project.MizerParams@mizer" "project_simple.MizerParams@mizer"
+#>         .. .. ..$ rate_functions     :List of 14
+#>         .. .. .. ..$ Rates          : chr "mizerRates"
+#>         .. .. .. ..$ Encounter      : chr "mizerEncounter"
+#>         .. .. .. ..$ FeedingLevel   : chr "mizerFeedingLevel"
+#>         .. .. .. ..$ EReproAndGrowth: chr "mizerEReproAndGrowth"
+#>         .. .. .. ..$ PredRate       : chr "mizerPredRate"
+#>         .. .. .. ..$ PredMort       : chr "mizerPredMort"
+#>         .. .. .. ..$ FMort          : chr "mizerFMort"
+#>         .. .. .. ..$ Mort           : chr "mizerMort"
+#>         .. .. .. ..$ ERepro         : chr "mizerERepro"
+#>         .. .. .. ..$ EGrowth        : chr "mizerEGrowth"
+#>         .. .. .. ..$ ResourceMort   : chr "mizerResourceMort"
+#>         .. .. .. ..$ RDI            : chr "mizerRDI"
+#>         .. .. .. ..$ RDD            : chr "BevertonHoltRDD"
+#>         .. .. .. ..$ Diffusion      : chr "mizerDiffusion"
+#>         .. .. ..$ balance_methods    : chr(0) 
+#>         .. .. ..$ rate_methods       : chr [1:14] "projectRates.MizerParams@mizer" "projectEncounter.MizerParams@mizer" "projectFeedingLevel.MizerParams@mizer" "projectEReproAndGrowth.MizerParams@mizer" ...
+#>         .. .. ..$ resource_dynamics  : chr "resource_semichemostat"
+#>         .. .. ..$ other_dynamics     : list()
+#>         .. .. ..$ component_equations: list()
+#>         .. .. ..$ other_encounter    : list()
+#>         .. .. ..$ other_mort         : list()
+#>         .. ..$ level_fun             : NULL
+#>         .. ..$ level_binding         :List of 9
+#>         .. .. ..$ dispatch           :List of 2
+#>         .. .. .. ..$ classes: chr "MizerParams"
+#>         .. .. .. ..$ methods: chr [1:2] "project.MizerParams@mizer" "project_simple.MizerParams@mizer"
+#>         .. .. ..$ rate_functions     :List of 14
+#>         .. .. .. ..$ Rates          : chr "mizerRates"
+#>         .. .. .. ..$ Encounter      : chr "mizerEncounter"
+#>         .. .. .. ..$ FeedingLevel   : chr "mizerFeedingLevel"
+#>         .. .. .. ..$ EReproAndGrowth: chr "mizerEReproAndGrowth"
+#>         .. .. .. ..$ PredRate       : chr "mizerPredRate"
+#>         .. .. .. ..$ PredMort       : chr "mizerPredMort"
+#>         .. .. .. ..$ FMort          : chr "mizerFMort"
+#>         .. .. .. ..$ Mort           : chr "mizerMort"
+#>         .. .. .. ..$ ERepro         : chr "mizerERepro"
+#>         .. .. .. ..$ EGrowth        : chr "mizerEGrowth"
+#>         .. .. .. ..$ ResourceMort   : chr "mizerResourceMort"
+#>         .. .. .. ..$ RDI            : chr "mizerRDI"
+#>         .. .. .. ..$ RDD            : chr "BevertonHoltRDD"
+#>         .. .. .. ..$ Diffusion      : chr "mizerDiffusion"
+#>         .. .. ..$ balance_methods    : chr(0) 
+#>         .. .. ..$ rate_methods       : chr [1:14] "projectRates.MizerParams@mizer" "projectEncounter.MizerParams@mizer" "projectFeedingLevel.MizerParams@mizer" "projectEReproAndGrowth.MizerParams@mizer" ...
+#>         .. .. ..$ resource_dynamics  : chr "resource_semichemostat"
+#>         .. .. ..$ other_dynamics     : list()
+#>         .. .. ..$ component_equations: list()
+#>         .. .. ..$ other_encounter    : list()
+#>         .. .. ..$ other_mort         : list()
+#>         .. ..$ transformations       :List of 7
+#>         .. .. ..$ add_species    :List of 4
+#>         .. .. .. ..$ action       : chr "none"
+#>         .. .. .. ..$ transform_fun: NULL
+#>         .. .. .. ..$ paths        : list()
+#>         .. .. .. ..$ settings     : list()
+#>         .. .. ..$ remove_species :List of 4
+#>         .. .. .. ..$ action       : chr "none"
+#>         .. .. .. ..$ transform_fun: NULL
+#>         .. .. .. ..$ paths        : list()
+#>         .. .. .. ..$ settings     : list()
+#>         .. .. ..$ reorder_species:List of 4
+#>         .. .. .. ..$ action       : chr "none"
+#>         .. .. .. ..$ transform_fun: NULL
+#>         .. .. .. ..$ paths        : list()
+#>         .. .. .. ..$ settings     : list()
+#>         .. .. ..$ rename_species :List of 4
+#>         .. .. .. ..$ action       : chr "none"
+#>         .. .. .. ..$ transform_fun: NULL
+#>         .. .. .. ..$ paths        : list()
+#>         .. .. .. ..$ settings     : list()
+#>         .. .. ..$ size_grid      :List of 4
+#>         .. .. .. ..$ action       : chr "none"
+#>         .. .. .. ..$ transform_fun: NULL
+#>         .. .. .. ..$ paths        : list()
+#>         .. .. .. ..$ settings     : list()
+#>         .. .. ..$ scale_abundance:List of 4
+#>         .. .. .. ..$ action       : chr "none"
+#>         .. .. .. ..$ transform_fun: NULL
+#>         .. .. .. ..$ paths        : list()
+#>         .. .. .. ..$ settings     : list()
+#>         .. .. ..$ scale_rates    :List of 4
+#>         .. .. .. ..$ action       : chr "none"
+#>         .. .. .. ..$ transform_fun: NULL
+#>         .. .. .. ..$ paths        : list()
+#>         .. .. .. ..$ settings     : list()
+#>         .. ..$ transformation_binding:List of 10
+#>         .. .. ..$ dispatch            :List of 2
+#>         .. .. .. ..$ classes: chr "MizerParams"
+#>         .. .. .. ..$ methods: chr [1:2] "project.MizerParams@mizer" "project_simple.MizerParams@mizer"
+#>         .. .. ..$ rate_functions      :List of 14
+#>         .. .. .. ..$ Rates          : chr "mizerRates"
+#>         .. .. .. ..$ Encounter      : chr "mizerEncounter"
+#>         .. .. .. ..$ FeedingLevel   : chr "mizerFeedingLevel"
+#>         .. .. .. ..$ EReproAndGrowth: chr "mizerEReproAndGrowth"
+#>         .. .. .. ..$ PredRate       : chr "mizerPredRate"
+#>         .. .. .. ..$ PredMort       : chr "mizerPredMort"
+#>         .. .. .. ..$ FMort          : chr "mizerFMort"
+#>         .. .. .. ..$ Mort           : chr "mizerMort"
+#>         .. .. .. ..$ ERepro         : chr "mizerERepro"
+#>         .. .. .. ..$ EGrowth        : chr "mizerEGrowth"
+#>         .. .. .. ..$ ResourceMort   : chr "mizerResourceMort"
+#>         .. .. .. ..$ RDI            : chr "mizerRDI"
+#>         .. .. .. ..$ RDD            : chr "BevertonHoltRDD"
+#>         .. .. .. ..$ Diffusion      : chr "mizerDiffusion"
+#>         .. .. ..$ rate_methods        : chr [1:14] "projectRates.MizerParams@mizer" "projectEncounter.MizerParams@mizer" "projectFeedingLevel.MizerParams@mizer" "projectEReproAndGrowth.MizerParams@mizer" ...
+#>         .. .. ..$ resource_dynamics   : chr "resource_semichemostat"
+#>         .. .. ..$ other_dynamics      : list()
+#>         .. .. ..$ component_equations : list()
+#>         .. .. ..$ other_encounter     : list()
+#>         .. .. ..$ other_mort          : list()
+#>         .. .. ..$ construction_methods:List of 3
+#>         .. .. .. ..$ consumers   : chr [1:12] "setParams.MizerParams@mizer" "setInteraction.MizerParams@mizer" "setPredKernel.MizerParams@mizer" "setMaxIntakeRate.MizerParams@mizer" ...
+#>         .. .. .. ..$ resource    : chr "setResource.MizerParams@mizer"
+#>         .. .. .. ..$ reproduction: chr "setReproduction.MizerParams@mizer"
+#>         .. .. ..$ automatic           : logi TRUE
+#>         .. ..$ mortality_fun         : NULL
+#>         .. ..$ mortality_binding     : NULL
+#>         .. ..$ prescribed_binding    :List of 4
+#>         .. .. ..$ classes  : chr "MizerParams"
+#>         .. .. ..$ methods  : chr [1:2] "project.MizerParams@mizer" "project_simple.MizerParams@mizer"
+#>         .. .. ..$ provider : chr "resource_semichemostat"
+#>         .. .. ..$ automatic: logi TRUE
+#>         .. ..$ prescribed_mask_fun   : NULL
+#>         .. ..$ autonomous            : logi TRUE
+#>         .. ..$ temporal_binding      :List of 9
+#>         .. .. ..$ dispatch           :List of 2
+#>         .. .. .. ..$ classes: chr "MizerParams"
+#>         .. .. .. ..$ methods: chr [1:2] "project.MizerParams@mizer" "project_simple.MizerParams@mizer"
+#>         .. .. ..$ rate_functions     :List of 14
+#>         .. .. .. ..$ Rates          : chr "mizerRates"
+#>         .. .. .. ..$ Encounter      : chr "mizerEncounter"
+#>         .. .. .. ..$ FeedingLevel   : chr "mizerFeedingLevel"
+#>         .. .. .. ..$ EReproAndGrowth: chr "mizerEReproAndGrowth"
+#>         .. .. .. ..$ PredRate       : chr "mizerPredRate"
+#>         .. .. .. ..$ PredMort       : chr "mizerPredMort"
+#>         .. .. .. ..$ FMort          : chr "mizerFMort"
+#>         .. .. .. ..$ Mort           : chr "mizerMort"
+#>         .. .. .. ..$ ERepro         : chr "mizerERepro"
+#>         .. .. .. ..$ EGrowth        : chr "mizerEGrowth"
+#>         .. .. .. ..$ ResourceMort   : chr "mizerResourceMort"
+#>         .. .. .. ..$ RDI            : chr "mizerRDI"
+#>         .. .. .. ..$ RDD            : chr "BevertonHoltRDD"
+#>         .. .. .. ..$ Diffusion      : chr "mizerDiffusion"
+#>         .. .. ..$ rate_methods       : chr [1:14] "projectRates.MizerParams@mizer" "projectEncounter.MizerParams@mizer" "projectFeedingLevel.MizerParams@mizer" "projectEReproAndGrowth.MizerParams@mizer" ...
+#>         .. .. ..$ resource_dynamics  : chr "resource_semichemostat"
+#>         .. .. ..$ other_dynamics     : list()
+#>         .. .. ..$ component_equations: list()
+#>         .. .. ..$ other_encounter    : list()
+#>         .. .. ..$ other_mort         : list()
+#>         .. .. ..$ automatic          : logi TRUE
+#>         .. ..$ rate_fun              : chr "equation_resource_semichemostat"
+#>         .. ..$ equation_binding      :List of 4
+#>         .. .. ..$ classes  : chr "MizerParams"
+#>         .. .. ..$ methods  : chr [1:2] "project.MizerParams@mizer" "project_simple.MizerParams@mizer"
+#>         .. .. ..$ provider : chr "resource_semichemostat"
+#>         .. .. ..$ automatic: logi TRUE
+#>         ..$ reproduction:List of 19
+#>         .. ..$ convergence_fun       : NULL
+#>         .. ..$ role                  : NULL
+#>         .. ..$ binding               :List of 3
+#>         .. .. ..$ classes : chr "MizerParams"
+#>         .. .. ..$ methods : chr [1:2] "project.MizerParams@mizer" "project_simple.MizerParams@mizer"
+#>         .. .. ..$ provider: chr "mizer_consumer_equations"
+#>         .. ..$ stationary            : logi TRUE
+#>         .. ..$ equation_rates_fun    : chr "builtin_reproduction_equation_rates"
+#>         .. ..$ tuning                :List of 2
+#>         .. .. ..$ default   : chr "preserve_reproduction_level"
+#>         .. .. ..$ strategies:List of 4
+#>         .. .. .. ..$ set_parameters             :List of 10
+#>         .. .. .. .. ..$ action         : chr "balance"
+#>         .. .. .. .. ..$ hold           :List of 2
+#>         .. .. .. .. .. ..$ states: chr(0) 
+#>         .. .. .. .. .. ..$ rates : chr "consumers/recruitment"
+#>         .. .. .. .. ..$ evolve         : chr(0) 
+#>         .. .. .. .. ..$ adjust         :List of 2
+#>         .. .. .. .. .. ..$ erepro:List of 4
+#>         .. .. .. .. .. .. ..$ path   : chr [1:2] "species_params" "erepro"
+#>         .. .. .. .. .. .. ..$ lower  : num 0
+#>         .. .. .. .. .. .. ..$ upper  : num Inf
+#>         .. .. .. .. .. .. ..$ species: logi TRUE
+#>         .. .. .. .. .. ..$ R_max :List of 4
+#>         .. .. .. .. .. .. ..$ path   : chr [1:2] "species_params" "R_max"
+#>         .. .. .. .. .. .. ..$ lower  : num 0
+#>         .. .. .. .. .. .. ..$ upper  : num Inf
+#>         .. .. .. .. .. .. ..$ species: logi TRUE
+#>         .. .. .. .. ..$ preserve       : list()
+#>         .. .. .. .. ..$ balance_fun    : chr "balance_BevertonHoltRDD"
+#>         .. .. .. .. ..$ target_fun     : NULL
+#>         .. .. .. .. ..$ solvers        : chr [1:3] "project" "newton" "balance"
+#>         .. .. .. .. ..$ partial_species: logi TRUE
+#>         .. .. .. .. ..$ settings       :List of 2
+#>         .. .. .. .. .. ..$ preserve: chr "none"
+#>         .. .. .. .. .. ..$ limb    : chr "ascending"
+#>         .. .. .. ..$ preserve_erepro            :List of 10
+#>         .. .. .. .. ..$ action         : chr "balance"
+#>         .. .. .. .. ..$ hold           :List of 2
+#>         .. .. .. .. .. ..$ states: chr(0) 
+#>         .. .. .. .. .. ..$ rates : chr "consumers/recruitment"
+#>         .. .. .. .. ..$ evolve         : chr(0) 
+#>         .. .. .. .. ..$ adjust         :List of 1
+#>         .. .. .. .. .. ..$ R_max:List of 4
+#>         .. .. .. .. .. .. ..$ path   : chr [1:2] "species_params" "R_max"
+#>         .. .. .. .. .. .. ..$ lower  : num 0
+#>         .. .. .. .. .. .. ..$ upper  : num Inf
+#>         .. .. .. .. .. .. ..$ species: logi TRUE
+#>         .. .. .. .. ..$ preserve       :List of 1
+#>         .. .. .. .. .. ..$ erepro:List of 1
+#>         .. .. .. .. .. .. ..$ path: chr [1:2] "species_params" "erepro"
+#>         .. .. .. .. ..$ balance_fun    : chr "balance_BevertonHoltRDD"
+#>         .. .. .. .. ..$ target_fun     : NULL
+#>         .. .. .. .. ..$ solvers        : chr [1:3] "project" "newton" "balance"
+#>         .. .. .. .. ..$ partial_species: logi TRUE
+#>         .. .. .. .. ..$ settings       :List of 2
+#>         .. .. .. .. .. ..$ preserve: chr "erepro"
+#>         .. .. .. .. .. ..$ limb    : chr "ascending"
+#>         .. .. .. ..$ preserve_reproduction_level:List of 10
+#>         .. .. .. .. ..$ action         : chr "balance"
+#>         .. .. .. .. ..$ hold           :List of 2
+#>         .. .. .. .. .. ..$ states: chr(0) 
+#>         .. .. .. .. .. ..$ rates : chr "consumers/recruitment"
+#>         .. .. .. .. ..$ evolve         : chr(0) 
+#>         .. .. .. .. ..$ adjust         :List of 2
+#>         .. .. .. .. .. ..$ erepro:List of 4
+#>         .. .. .. .. .. .. ..$ path   : chr [1:2] "species_params" "erepro"
+#>         .. .. .. .. .. .. ..$ lower  : num 0
+#>         .. .. .. .. .. .. ..$ upper  : num Inf
+#>         .. .. .. .. .. .. ..$ species: logi TRUE
+#>         .. .. .. .. .. ..$ R_max :List of 4
+#>         .. .. .. .. .. .. ..$ path   : chr [1:2] "species_params" "R_max"
+#>         .. .. .. .. .. .. ..$ lower  : num 0
+#>         .. .. .. .. .. .. ..$ upper  : num Inf
+#>         .. .. .. .. .. .. ..$ species: logi TRUE
+#>         .. .. .. .. ..$ preserve       :List of 1
+#>         .. .. .. .. .. ..$ reproduction_level:List of 1
+#>         .. .. .. .. .. .. ..$ fun: chr "reproduction_level_BevertonHoltRDD"
+#>         .. .. .. .. ..$ balance_fun    : chr "balance_BevertonHoltRDD"
+#>         .. .. .. .. ..$ target_fun     : NULL
+#>         .. .. .. .. ..$ solvers        : chr [1:3] "project" "newton" "balance"
+#>         .. .. .. .. ..$ partial_species: logi TRUE
+#>         .. .. .. .. ..$ settings       :List of 2
+#>         .. .. .. .. .. ..$ preserve: chr "reproduction_level"
+#>         .. .. .. .. .. ..$ limb    : chr "ascending"
+#>         .. .. .. ..$ preserve_R_max             :List of 10
+#>         .. .. .. .. ..$ action         : chr "balance"
+#>         .. .. .. .. ..$ hold           :List of 2
+#>         .. .. .. .. .. ..$ states: chr(0) 
+#>         .. .. .. .. .. ..$ rates : chr "consumers/recruitment"
+#>         .. .. .. .. ..$ evolve         : chr(0) 
+#>         .. .. .. .. ..$ adjust         :List of 1
+#>         .. .. .. .. .. ..$ erepro:List of 4
+#>         .. .. .. .. .. .. ..$ path   : chr [1:2] "species_params" "erepro"
+#>         .. .. .. .. .. .. ..$ lower  : num 0
+#>         .. .. .. .. .. .. ..$ upper  : num Inf
+#>         .. .. .. .. .. .. ..$ species: logi TRUE
+#>         .. .. .. .. ..$ preserve       :List of 1
+#>         .. .. .. .. .. ..$ R_max:List of 1
+#>         .. .. .. .. .. .. ..$ path: chr [1:2] "species_params" "R_max"
+#>         .. .. .. .. ..$ balance_fun    : chr "balance_BevertonHoltRDD"
+#>         .. .. .. .. ..$ target_fun     : NULL
+#>         .. .. .. .. ..$ solvers        : chr [1:3] "project" "newton" "balance"
+#>         .. .. .. .. ..$ partial_species: logi TRUE
+#>         .. .. .. .. ..$ settings       :List of 2
+#>         .. .. .. .. .. ..$ preserve: chr "R_max"
+#>         .. .. .. .. .. ..$ limb    : chr "ascending"
+#>         .. ..$ tuning_binding        :List of 9
+#>         .. .. ..$ dispatch           :List of 2
+#>         .. .. .. ..$ classes: chr "MizerParams"
+#>         .. .. .. ..$ methods: chr [1:2] "project.MizerParams@mizer" "project_simple.MizerParams@mizer"
+#>         .. .. ..$ rate_functions     :List of 14
+#>         .. .. .. ..$ Rates          : chr "mizerRates"
+#>         .. .. .. ..$ Encounter      : chr "mizerEncounter"
+#>         .. .. .. ..$ FeedingLevel   : chr "mizerFeedingLevel"
+#>         .. .. .. ..$ EReproAndGrowth: chr "mizerEReproAndGrowth"
+#>         .. .. .. ..$ PredRate       : chr "mizerPredRate"
+#>         .. .. .. ..$ PredMort       : chr "mizerPredMort"
+#>         .. .. .. ..$ FMort          : chr "mizerFMort"
+#>         .. .. .. ..$ Mort           : chr "mizerMort"
+#>         .. .. .. ..$ ERepro         : chr "mizerERepro"
+#>         .. .. .. ..$ EGrowth        : chr "mizerEGrowth"
+#>         .. .. .. ..$ ResourceMort   : chr "mizerResourceMort"
+#>         .. .. .. ..$ RDI            : chr "mizerRDI"
+#>         .. .. .. ..$ RDD            : chr "BevertonHoltRDD"
+#>         .. .. .. ..$ Diffusion      : chr "mizerDiffusion"
+#>         .. .. ..$ balance_methods    : chr(0) 
+#>         .. .. ..$ rate_methods       : chr [1:14] "projectRates.MizerParams@mizer" "projectEncounter.MizerParams@mizer" "projectFeedingLevel.MizerParams@mizer" "projectEReproAndGrowth.MizerParams@mizer" ...
+#>         .. .. ..$ resource_dynamics  : chr "resource_semichemostat"
+#>         .. .. ..$ other_dynamics     : list()
+#>         .. .. ..$ component_equations: list()
+#>         .. .. ..$ other_encounter    : list()
+#>         .. .. ..$ other_mort         : list()
+#>         .. ..$ level_fun             : chr "reproduction_level_BevertonHoltRDD"
+#>         .. ..$ level_binding         :List of 10
+#>         .. .. ..$ dispatch           :List of 2
+#>         .. .. .. ..$ classes: chr "MizerParams"
+#>         .. .. .. ..$ methods: chr [1:2] "project.MizerParams@mizer" "project_simple.MizerParams@mizer"
+#>         .. .. ..$ rate_functions     :List of 14
+#>         .. .. .. ..$ Rates          : chr "mizerRates"
+#>         .. .. .. ..$ Encounter      : chr "mizerEncounter"
+#>         .. .. .. ..$ FeedingLevel   : chr "mizerFeedingLevel"
+#>         .. .. .. ..$ EReproAndGrowth: chr "mizerEReproAndGrowth"
+#>         .. .. .. ..$ PredRate       : chr "mizerPredRate"
+#>         .. .. .. ..$ PredMort       : chr "mizerPredMort"
+#>         .. .. .. ..$ FMort          : chr "mizerFMort"
+#>         .. .. .. ..$ Mort           : chr "mizerMort"
+#>         .. .. .. ..$ ERepro         : chr "mizerERepro"
+#>         .. .. .. ..$ EGrowth        : chr "mizerEGrowth"
+#>         .. .. .. ..$ ResourceMort   : chr "mizerResourceMort"
+#>         .. .. .. ..$ RDI            : chr "mizerRDI"
+#>         .. .. .. ..$ RDD            : chr "BevertonHoltRDD"
+#>         .. .. .. ..$ Diffusion      : chr "mizerDiffusion"
+#>         .. .. ..$ balance_methods    : chr(0) 
+#>         .. .. ..$ rate_methods       : chr [1:14] "projectRates.MizerParams@mizer" "projectEncounter.MizerParams@mizer" "projectFeedingLevel.MizerParams@mizer" "projectEReproAndGrowth.MizerParams@mizer" ...
+#>         .. .. ..$ resource_dynamics  : chr "resource_semichemostat"
+#>         .. .. ..$ other_dynamics     : list()
+#>         .. .. ..$ component_equations: list()
+#>         .. .. ..$ other_encounter    : list()
+#>         .. .. ..$ other_mort         : list()
+#>         .. .. ..$ automatic          : logi TRUE
+#>         .. ..$ transformations       :List of 7
+#>         .. .. ..$ add_species    :List of 4
+#>         .. .. .. ..$ action       : chr "none"
+#>         .. .. .. ..$ transform_fun: NULL
+#>         .. .. .. ..$ paths        : list()
+#>         .. .. .. ..$ settings     : list()
+#>         .. .. ..$ remove_species :List of 4
+#>         .. .. .. ..$ action       : chr "none"
+#>         .. .. .. ..$ transform_fun: NULL
+#>         .. .. .. ..$ paths        : list()
+#>         .. .. .. ..$ settings     : list()
+#>         .. .. ..$ reorder_species:List of 4
+#>         .. .. .. ..$ action       : chr "none"
+#>         .. .. .. ..$ transform_fun: NULL
+#>         .. .. .. ..$ paths        : list()
+#>         .. .. .. ..$ settings     : list()
+#>         .. .. ..$ rename_species :List of 4
+#>         .. .. .. ..$ action       : chr "none"
+#>         .. .. .. ..$ transform_fun: NULL
+#>         .. .. .. ..$ paths        : list()
+#>         .. .. .. ..$ settings     : list()
+#>         .. .. ..$ size_grid      :List of 4
+#>         .. .. .. ..$ action       : chr "none"
+#>         .. .. .. ..$ transform_fun: NULL
+#>         .. .. .. ..$ paths        : list()
+#>         .. .. .. ..$ settings     : list()
+#>         .. .. ..$ scale_abundance:List of 4
+#>         .. .. .. ..$ action       : chr "none"
+#>         .. .. .. ..$ transform_fun: NULL
+#>         .. .. .. ..$ paths        : list()
+#>         .. .. .. ..$ settings     : list()
+#>         .. .. ..$ scale_rates    :List of 4
+#>         .. .. .. ..$ action       : chr "none"
+#>         .. .. .. ..$ transform_fun: NULL
+#>         .. .. .. ..$ paths        : list()
+#>         .. .. .. ..$ settings     : list()
+#>         .. ..$ transformation_binding:List of 10
+#>         .. .. ..$ dispatch            :List of 2
+#>         .. .. .. ..$ classes: chr "MizerParams"
+#>         .. .. .. ..$ methods: chr [1:2] "project.MizerParams@mizer" "project_simple.MizerParams@mizer"
+#>         .. .. ..$ rate_functions      :List of 14
+#>         .. .. .. ..$ Rates          : chr "mizerRates"
+#>         .. .. .. ..$ Encounter      : chr "mizerEncounter"
+#>         .. .. .. ..$ FeedingLevel   : chr "mizerFeedingLevel"
+#>         .. .. .. ..$ EReproAndGrowth: chr "mizerEReproAndGrowth"
+#>         .. .. .. ..$ PredRate       : chr "mizerPredRate"
+#>         .. .. .. ..$ PredMort       : chr "mizerPredMort"
+#>         .. .. .. ..$ FMort          : chr "mizerFMort"
+#>         .. .. .. ..$ Mort           : chr "mizerMort"
+#>         .. .. .. ..$ ERepro         : chr "mizerERepro"
+#>         .. .. .. ..$ EGrowth        : chr "mizerEGrowth"
+#>         .. .. .. ..$ ResourceMort   : chr "mizerResourceMort"
+#>         .. .. .. ..$ RDI            : chr "mizerRDI"
+#>         .. .. .. ..$ RDD            : chr "BevertonHoltRDD"
+#>         .. .. .. ..$ Diffusion      : chr "mizerDiffusion"
+#>         .. .. ..$ rate_methods        : chr [1:14] "projectRates.MizerParams@mizer" "projectEncounter.MizerParams@mizer" "projectFeedingLevel.MizerParams@mizer" "projectEReproAndGrowth.MizerParams@mizer" ...
+#>         .. .. ..$ resource_dynamics   : chr "resource_semichemostat"
+#>         .. .. ..$ other_dynamics      : list()
+#>         .. .. ..$ component_equations : list()
+#>         .. .. ..$ other_encounter     : list()
+#>         .. .. ..$ other_mort          : list()
+#>         .. .. ..$ construction_methods:List of 3
+#>         .. .. .. ..$ consumers   : chr [1:12] "setParams.MizerParams@mizer" "setInteraction.MizerParams@mizer" "setPredKernel.MizerParams@mizer" "setMaxIntakeRate.MizerParams@mizer" ...
+#>         .. .. .. ..$ resource    : chr "setResource.MizerParams@mizer"
+#>         .. .. .. ..$ reproduction: chr "setReproduction.MizerParams@mizer"
+#>         .. .. ..$ automatic           : logi TRUE
+#>         .. ..$ mortality_fun         : NULL
+#>         .. ..$ mortality_binding     : NULL
+#>         .. ..$ prescribed_mask_fun   : NULL
+#>         .. ..$ prescribed_binding    : NULL
+#>         .. ..$ autonomous            : NULL
+#>         .. ..$ temporal_binding      : NULL
+#>         .. ..$ rate_fun              : NULL
+#>         .. ..$ equation_binding      : NULL
+#>        $ tuning         : list()
+#>        $ transformations: list()  
 #>  @ n                   :  num [1:44, 1:12, 1:100] 1.67e+13 1.67e+13 1.69e+13 1.66e+13 1.65e+13 ...
 #>     - attr(*, "dimnames")=List of 3
 #>      ..$ time: chr [1:44] "1967" "1968" "1969" "1970" ...
 #>      ..$ sp  : chr [1:12] "Sprat" "Sandeel" "N.pout" "Herring" ...
 #>      ..$ w   : chr [1:100] "0.001" "0.00119" "0.00142" "0.0017" ... 
-#>  @ effort              :  num [1:44, 1:12] 0 0 0 0 0 0 0 0 0 0 ...
-#>     - attr(*, "dimnames")=List of 2
-#>      ..$ time: chr [1:44] "1967" "1968" "1969" "1970" ...
-#>      ..$ gear: chr [1:12] "Sprat" "Sandeel" "N.pout" "Herring" ... 
 #>  @ n_pp                :  num [1:44, 1:218] 4.88e+35 4.88e+35 4.88e+35 4.88e+35 4.88e+35 ...
 #>     - attr(*, "dimnames")=List of 2
 #>      ..$ time: chr [1:44] "1967" "1968" "1969" "1970" ...
@@ -458,16 +1694,12 @@ str(NS_sim)
 #>     - attr(*, "dimnames")=List of 2
 #>      ..$ time     : chr [1:44] "1967" "1968" "1969" "1970" ...
 #>      ..$ component: NULL 
+#>  @ effort              :  num [1:44, 1:12] 0 0 0 0 0 0 0 0 0 0 ...
+#>     - attr(*, "dimnames")=List of 2
+#>      ..$ time: chr [1:44] "1967" "1968" "1969" "1970" ...
+#>      ..$ gear: chr [1:12] "Sprat" "Sandeel" "N.pout" "Herring" ... 
 #>  @ sim_params          :  list()
 str(getEncounter(NS_params))
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 #>  'ArraySpeciesBySize' num [1:12, 1:100] 0.299 0.453 0.502 0.575 0.492 ...
 #>  - attr(*, "dimnames")=List of 2
 #>   ..$ sp: chr [1:12] "Sprat" "Sandeel" "N.pout" "Herring" ...
@@ -476,6 +1708,9 @@ str(getEncounter(NS_params))
 #>  - attr(*, "units")= chr "g/year"
 #>  - attr(*, "type")= chr "value"
 #>  - attr(*, "representation")= chr "point"
-#>  - attr(*, "params")=Formal class 'MizerParams' [package "mizer"] with 48 slots
+#>  - attr(*, "size_grid")=List of 2
+#>   ..$ grid : chr "w"
+#>   ..$ index: int [1:100] 1 2 3 4 5 6 7 8 9 10 ...
+#>  - attr(*, "params")=Formal class 'MizerParams' [package "mizer"] with 50 slots
 # }
 ```

@@ -32,7 +32,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0.9011</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -175,9 +175,10 @@ object can therefore be interrogated in the same way as described in <a href="co
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/summary.html">summary</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## An object of class "MizerParams" </span></span>
-<span><span class="co">## mizer version: 3.4.0</span></span>
-<span><span class="co">## Created: 2026-09-02 10:05:39</span></span>
-<span><span class="co">## Modified: 2026-09-02 10:05:39</span></span>
+<span><span class="co">## mizer version: 3.4.0.9011</span></span>
+<span><span class="co">## Defaults edition: 1</span></span>
+<span><span class="co">## Created: 2026-11-16 08:27:12</span></span>
+<span><span class="co">## Modified: 2026-11-16 08:27:12</span></span>
 <span><span class="co">## Consumer size spectrum:</span></span>
 <span><span class="co">##  minimum size:   0.001</span></span>
 <span><span class="co">##  maximum size:   1e+05</span></span>
@@ -187,7 +188,8 @@ object can therefore be interrogated in the same way as described in <a href="co
 <span><span class="co">##  maximum size:   2.23872</span></span>
 <span><span class="co">##  no. size bins:  208 (301 size bins in total)</span></span>
 <span><span class="co">## Steady state:</span></span>
-<span><span class="co">##  biomass drift:  0.25 /year  (not at steady state, largest in 1 - run tuneSteadyState())</span></span>
+<span><span class="co">##  assessment: not at steady state (whole scope)</span></span>
+<span><span class="co">##  largest tolerance ratio:    6.43 (consumers/1)</span></span>
 <span><span class="co">## Species details:</span></span>
 <span><span class="co">## An object of class "species_params" containing parameters for 10 species:</span></span>
 <span><span class="co">##  species        w_inf        w_mat w_min  f0   fc beta</span></span>
@@ -349,20 +351,25 @@ that it stands out from the individual species:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plotSpectraRelative.html">plotSpectraRelative</a></span><span class="op">(</span><span class="va">sim0</span>, <span class="va">sim1</span>, total <span class="op">=</span> <span class="cn">TRUE</span>, resource <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>                    highlight <span class="op">=</span> <span class="st">"Total"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="trait_model_files/figure-html/plot_relative_comm_abund2-1.png" class="r-plt" alt="The relative difference between the fished and the unfished trait-based model at each size. The thick black total line rises above zero around 0.1 g, dips below it between 1 and 100 g and collapses above 1000 g. Several species lie flat at -2 because fishing has driven them extinct." width="700"></p>
+<p><img src="trait_model_files/figure-html/plot_relative_comm_abund2-1.png" class="r-plt" alt="The relative difference between the fished and the unfished trait-based model at each size. The thick black total line lies above zero up to about 0.5 g, peaking at about 0.1 g, dips below it between about 0.5 g and 100 g, rises well above it again between about 150 g and 600 g and collapses above 1000 g. The lines of the surviving species peak at about 0.5 g and have their troughs at about 40 g. Several species lie flat at -2 because fishing has driven them extinct." width="700"></p>
 <p>The impact of fishing on individuals larger than 1000 g can be
 clearly seen: the total drops to <span class="math inline">\(-2\)</span>
-there, meaning that those sizes have essentially been emptied. This
-relieves the predation pressure on their smaller prey (the preferred
-predator-prey size ratio is given by the <span class="math inline">\(\beta\)</span> parameter, which is set to 100 by
-default), leading to an increase in their abundance. This in turn
-increases the predation mortality on <em>their</em> smaller prey, which
-reduces their abundance and so on, giving the total line its alternating
-rises and dips as we move down the spectrum. The lines lying flat at
-<span class="math inline">\(-2\)</span> belong to species that have been
-driven to extinction. Not all six of them appear: two have declined so
-far that their densities have underflowed to zero, and a zero cannot be
-shown on the logarithmic scale the spectra are prepared on.</p>
+there, meaning that those sizes have essentially been emptied. Below
+1000 g the total line alternates between rises and dips as we move down
+the spectrum. As in the community model, these do not follow the simple
+story of a cascade that moves down by one predator-prey mass ratio <span class="math inline">\(\beta\)</span> (100 by default) at a time: the
+biggest rise is just below the fished sizes, and at around <span class="math inline">\(1000/\beta = 10\)</span> g, where that story would
+put the fish released from predation, there is a dip instead. The
+reason, explained in the article on <a href="single_species_size-spectrum_dynamics.html#sec:change_in_mortality">the
+single-species model</a> and applied in <a href="community_model.html#sec:trophic_cascade_comm_model">the section
+on trophic cascades in the community model</a>, is that the abundance at
+a size reflects what happened to the fish while they grew to that size:
+the mortality they suffered and how fast they grew. We look at both
+below. The lines lying flat at <span class="math inline">\(-2\)</span>
+belong to species that have been driven to extinction. Not all six of
+them appear: two have declined so far that their densities have
+underflowed to zero, and a zero cannot be shown on the logarithmic scale
+the spectra are prepared on.</p>
 <p>This impact can also be seen by looking at the predation mortality by
 size. The predation mortalities are retrieved using the
 <code><a href="../reference/getPredMort.html">getPredMort()</a></code> function, applied to the state of each
@@ -385,8 +392,44 @@ plot:</p>
 <p><img src="trait_model_files/figure-html/plot_relative_trait_m2-1.png" class="r-plt" alt="Predation mortality against size in the unfished (solid) and fished (dashed) trait-based model. Fishing lowers the mortality on the smallest individuals and raises it by more than a factor of two around 5 g." width="700"></p>
 <p>The peak of the predation mortality has moved: the small individuals
 that used to be eaten most heavily are now much safer, while individuals
-around 5 g face more than twice the mortality they did before. That
-shift is the mechanism behind the cascade in the abundances above.</p>
+around 5 g face more than twice the mortality they did before. The two
+mortality curves cross at about 0.5 g and again at about 60 g.</p>
+<p>That shift is half of the mechanism behind the cascade in the
+abundances above. The other half is growth. The changed abundances also
+change how much food fish find, and in the trait-based model every
+species has the same feeding level at a given size, so again we can look
+at the first species alone:</p>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot2.html">plot2</a></span><span class="op">(</span><span class="fu"><a href="../reference/getFeedingLevel.html">getFeedingLevel</a></span><span class="op">(</span><span class="fu"><a href="../reference/getParams.html">finalParams</a></span><span class="op">(</span><span class="va">sim0</span><span class="op">)</span><span class="op">)</span>, <span class="fu"><a href="../reference/getFeedingLevel.html">getFeedingLevel</a></span><span class="op">(</span><span class="fu"><a href="../reference/getParams.html">finalParams</a></span><span class="op">(</span><span class="va">sim1</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>      name1 <span class="op">=</span> <span class="st">"Unfished"</span>, name2 <span class="op">=</span> <span class="st">"Fished"</span>, species <span class="op">=</span> <span class="fl">1</span>, all.sizes <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<p><img src="trait_model_files/figure-html/plot_trait_feeding_level-1.png" class="r-plt" alt="Feeding level against size in the unfished (solid) and fished (dashed) trait-based model. Fishing raises the feeding level of individuals up to about 100 g, most strongly around 10 g, and lowers it between about 100 g and 3 kg, most strongly around 1 kg." width="700"></p>
+<p>Individuals up to about 100 g now feed better, because their prey,
+about <span class="math inline">\(\beta\)</span> times smaller, have
+become more abundant. Individuals between about 100 g and 3 kg feed
+worse, because their prey, around 1 to 30 g, have become scarcer. As in
+<a href="single_species_size-spectrum_dynamics.html#sec:steady_state_formula">the
+single-species model</a>, a change in growth acts on the abundance in
+two ways. Fish that grow faster spend less time at each size and so are
+exposed to its mortality for less time. This offsets a large part of the
+extra mortality between 1 g and 60 g. Fish that grow faster also thin
+out, while fish that grow more slowly pile up, which adds to the rise in
+abundance just below 1000 g.</p>
+<p>Look back at the lines of the surviving species in the plot of the
+relative abundances. Each rises across the sizes below 0.5 g, where
+mortality has fallen, and peaks at about 0.5 g. It then falls across the
+sizes where mortality has risen and reaches its trough at around 40 g,
+close to where the mortality curves cross again. The species lines also
+start at different heights at the smallest size, because fishing has
+also changed how many offspring each species produces. So the abundance
+of a species at a size combines three things: how many offspring the
+species produces, how many of them survive the mortality on the way to
+that size, and how much they pile up there. Growth enters both of the
+last two: through how long the fish are exposed to the mortality on the
+way, and through how fast they move on from the size itself.</p>
+<p>The total line does not peak at 0.5 g because the total also includes
+the resource, which extends up to about 2 g in this model. The dip in
+the total is made deeper by species 2 and 3, which are too small to be
+caught but have nevertheless disappeared.</p>
 </div>
 <div class="section level2">
 <h2 id="sec:trait_additional_gear">Setting up an industrial fishing gear<a class="anchor" aria-label="anchor" href="#sec:trait_additional_gear"></a>
@@ -398,7 +441,7 @@ typically used for fishmeal production.</p>
 targeted all the species in the community. This gear had a knife-edge
 selectivity that only selected species larger than 1 kg. We can see that
 when we look at the gear parameters</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/gear_params.html">gear_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## An object of class "gear_params" containing 10 gear-species pairs for 1 gear:</span></span>
 <span><span class="co">##             gear species   sel_func catchability</span></span>
@@ -430,7 +473,7 @@ maximum size.</p>
 <p>For this we will need to change the <code>gear_params</code> data
 frame. If we want to keep the original model, we should first make a
 copy before making modifications.</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">params_multi_gear</span> <span class="op">&lt;-</span> <span class="va">params</span></span></code></pre></div>
 <p>To start with we need to know what the maximum sizes of the species
 in the model are so we can determine the knife-edge positions for each
@@ -438,12 +481,12 @@ species. These are stored in the <code>w_max</code> column of the
 <code>species_params</code> data frame inside the <code>params</code>
 object. We can then use these maximum sizes to set a vector of knife
 edge sizes that are 0.05 times the maximum size:</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/gear_params.html">gear_params</a></span><span class="op">(</span><span class="va">params_multi_gear</span><span class="op">)</span><span class="op">$</span><span class="va">knife_edge_size</span> <span class="op">&lt;-</span> </span>
 <span>  <span class="fu"><a href="../reference/species_params.html">species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">w_max</span> <span class="op">*</span> <span class="fl">0.05</span></span></code></pre></div>
 <p>Now we want to assign each species to either the <em>industrial</em>
 or <em>other</em> gear.</p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">gear</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"Industrial"</span>, <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="fu"><a href="../reference/species_params.html">species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">gear</span><span class="op">[</span><span class="fu"><a href="../reference/species_params.html">species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">w_max</span> <span class="op">&gt;</span> <span class="fl">500</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">"Other"</span></span>
 <span><span class="fu"><a href="../reference/gear_params.html">gear_params</a></span><span class="op">(</span><span class="va">params_multi_gear</span><span class="op">)</span><span class="op">$</span><span class="va">gear</span> <span class="op">&lt;-</span> <span class="va">gear</span></span></code></pre></div>
@@ -451,7 +494,7 @@ or <em>other</em> gear.</p>
 data frame. Its print method shows the four columns that every gear
 needs and only names the selectivity parameters at the bottom, so we
 print the knife-edge sizes separately:</p>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/gear_params.html">gear_params</a></span><span class="op">(</span><span class="va">params_multi_gear</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## An object of class "gear_params" containing 10 gear-species pairs for 2 gears:</span></span>
 <span><span class="co">##        gear species   sel_func catchability</span></span>
@@ -466,7 +509,7 @@ print the knife-edge sizes separately:</p>
 <span><span class="co">##       Other       9 knife_edge            1</span></span>
 <span><span class="co">##       Other      10 knife_edge            1</span></span>
 <span><span class="co">## With 1 other parameters: knife_edge_size</span></span></code></pre>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/gear_params.html">gear_params</a></span><span class="op">(</span><span class="va">params_multi_gear</span><span class="op">)</span><span class="op">$</span><span class="va">knife_edge_size</span></span></code></pre></div>
 <pre><code><span><span class="co">## 1, Industrial 2, Industrial 3, Industrial 4, Industrial      5, Other </span></span>
 <span><span class="co">##     0.4456255     1.2559432     3.5397289     9.9763116    28.1170663 </span></span>
@@ -479,13 +522,13 @@ multiple gears. In our previous examples of calling
 <code>effort</code> argument using a single value. This fixes the
 fishing effort for all gears in the model, for all time steps. We can do
 this with our multi-gear parameter object:</p>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sim_multi_gear</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/project.html">project</a></span><span class="op">(</span><span class="va">params_multi_gear</span>, t_max <span class="op">=</span> <span class="fl">75</span>, effort <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span></code></pre></div>
 <p>By plotting this you can see that the fishing mortality for each
 species now has a different selectivity pattern, and that the position
 of the selectivity knife-edge is given by the maximum size of the
 species.</p>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot.html">plot</a></span><span class="op">(</span><span class="va">sim_multi_gear</span><span class="op">)</span></span></code></pre></div>
 <p><img src="trait_model_files/figure-html/plot_multi_gear_trait_single_effort-1.png" class="r-plt" alt="Summary plot of the trait-based model with multiple gears and a single effort." width="700"></p>
 <p>For the industrial fishery we said that we only wanted species with a
@@ -497,12 +540,12 @@ gear that will be used for all time steps. To do this we pass in effort
 as a named vector. Here we set the effort for the <em>Industrial</em>
 gear to 0.75, and the effort of the <em>Other</em> gear to 0
 (effectively turning it off).</p>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sim_multi_gear</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/project.html">project</a></span><span class="op">(</span><span class="va">params_multi_gear</span>, t_max <span class="op">=</span> <span class="fl">75</span>,</span>
 <span>    effort <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>Industrial <span class="op">=</span> <span class="fl">0.75</span>, Other <span class="op">=</span> <span class="fl">0</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>Now you can see that the <em>Industrial</em> gear has been operating
 and that fishing mortality for species larger than 500 g is 0.</p>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot.html">plot</a></span><span class="op">(</span><span class="va">sim_multi_gear</span><span class="op">)</span></span></code></pre></div>
 <p><img src="trait_model_files/figure-html/plot_multi_gear_trait-1.png" class="r-plt" alt="Summary plot of the trait-based model with only the Industrial gear active." width="700"></p>
 </div>
@@ -515,12 +558,12 @@ can now answer the question: what is the impact of such a fishery? We
 can again compare abundances of the fished
 (<code>sim_industrial1</code>) and unfished
 (<code>sim_industrial0</code>) cases:</p>
-<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sim_industrial0</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/project.html">project</a></span><span class="op">(</span><span class="va">params_multi_gear</span>, t_max <span class="op">=</span> <span class="fl">75</span>, effort <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
 <span><span class="va">sim_industrial1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/project.html">project</a></span><span class="op">(</span><span class="va">params_multi_gear</span>, t_max <span class="op">=</span> <span class="fl">75</span>,</span>
 <span>    effort <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>Industrial <span class="op">=</span> <span class="fl">0.75</span>, Other <span class="op">=</span> <span class="fl">0</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>And compare them in the same way as before:</p>
-<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plotSpectraRelative.html">plotSpectraRelative</a></span><span class="op">(</span><span class="va">sim_industrial0</span>, <span class="va">sim_industrial1</span>, total <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>                    resource <span class="op">=</span> <span class="cn">FALSE</span>, highlight <span class="op">=</span> <span class="st">"Total"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="trait_model_files/figure-html/plot_relative_comm_abund_industrial-1.png" class="r-plt" alt="The relative difference between the industrially fished and the unfished trait-based model at each size, showing a cascade that spreads both upwards and downwards from the small species that are being caught. Three of the four targeted species lie flat at -2, having gone extinct." width="700"></p>

@@ -188,8 +188,8 @@ and
 
 **The predation loop (top-down, and the source of cascades).** More
 predators → predation mortality \\\mu_p\\ on their prey sizes rises →
-prey abundance falls → which relieves predation on whatever the prey
-were eating. Diagnose with
+prey abundance falls, at those sizes and at all larger ones → which
+relieves predation on whatever the prey were eating. Diagnose with
 [`plotPredMort()`](https://sizespectrum.org/mizer/reference/plotPredMort.md)
 and
 [`plotDiet()`](https://sizespectrum.org/mizer/reference/plotDiet.md).
@@ -299,8 +299,10 @@ year — comparable to fish rates, and precisely at the sizes fish eat
 most. So the resource is a fast, quasi-static variable at the bottom and
 a genuinely dynamical one at the top — which is why
 [`getStability()`](https://sizespectrum.org/mizer/reference/getStability.md)
-always perturbs it alongside the fish rather than slaving it to them;
-see the [guide to analysing dynamic
+includes its dynamic coordinates alongside the fish. Explicitly
+prescribed inputs are excluded, and a conditional analysis records any
+dynamic states deliberately held fixed; see the [guide to analysing
+dynamic
 stability](https://sizespectrum.org/mizer/articles/guide-analyse-stability.md).
 Raising `r_pp` makes the resource stiffer and the model less sensitive
 to competition for food; lowering it makes the resource a slow variable
@@ -520,6 +522,35 @@ from classical food-web models:
   overconsumes the resource, feeding levels collapse, and the growth of
   the predator’s *own* larvae is stunted. The cascade comes back around
   and bites the species that started it.
+- **Cascade peaks are not \\\beta\\ apart**: predators at \\w\\ change
+  the mortality of prey at about \\w/\beta\\, and prey change the growth
+  of predators at about \\\beta w\\, but abundance follows neither size
+  by size. Integrating the species-slope equation above gives, at steady
+  state, \\N(w) =
+  \frac{R}{g(w)}\exp\left(-\int\_{w_0}^{w}\mu/g\\dw'\right)\\, so a
+  change in abundance has three parts. A change in recruitment \\R\\
+  shifts the whole species spectrum. A change in \\\mu/g\\ (more
+  mortality, or slower growth and so longer exposure) changes the
+  abundance at *every larger size*, as a running total. A change in
+  \\g\\ at \\w\\ itself piles fish up or thins them out there (the
+  traffic-jam effect). Where growth hardly changes, each rise or dip
+  therefore sits where the change in mortality switches sign, at the
+  upper end of a band, not where the change is largest. Fishing above 1
+  kg in the default community model changes growth by under 2% and gives
+  peaks and troughs about a factor of 30 apart (\\\beta = 100\\,
+  \\\sigma = 2\\), or 20 with \\\beta = 10\\, and the sizes that gain
+  most are just below the fished sizes. In the trait-based model fishing
+  also changes feeding levels, and faster growth through a band of
+  doubled predation offsets much of it. Compare
+  [`plotRelative()`](https://sizespectrum.org/mizer/reference/plotRelative.md)
+  of
+  [`getPredMort()`](https://sizespectrum.org/mizer/reference/getPredMort.md)
+  and of
+  [`getEGrowth()`](https://sizespectrum.org/mizer/reference/getEGrowth.md)
+  with
+  [`plotSpectraRelative()`](https://sizespectrum.org/mizer/reference/plotSpectraRelative.md),
+  and check the species lines at the egg size for recruitment changes,
+  rather than counting factors of \\\beta\\.
 - **Cultivation–depensation**: large predators eat forage fish, but
   forage fish compete with — or prey on — the larvae of those same
   predators. Deplete the adults and the forage fish can suppress
@@ -550,6 +581,7 @@ Check emergent properties before changing structural parameters.
 | **Species spectrum curves instead of running straight** | `lambda`, `q` and `n` no longer mutually consistent, so feeding level is size-dependent | [`plotFeedingLevel()`](https://sizespectrum.org/mizer/reference/plotFeedingLevel.md) — is it flat in size? |
 | **Community slope isn’t `lambda`** | Expected only in the idealised scaling model; with few species the domes don’t sum to a clean power law | [`getCommunitySlope()`](https://sizespectrum.org/mizer/reference/getCommunitySlope.md), [`plotSpectra()`](https://sizespectrum.org/mizer/reference/plotSpectra.md) — compare against species domes, not against `lambda` |
 | **Species won’t stay at steady state** | Fixed point is dynamically unstable, not a numerical failure | [`getSteadyResidual()`](https://sizespectrum.org/mizer/reference/getSteadyResidual.md), [`findSteadyState(solver = "newton")`](https://sizespectrum.org/mizer/reference/findSteadyState.md) |
+| **[`tuneSteadyState()`](https://sizespectrum.org/mizer/reference/tuneSteadyState.md) warns that `erepro` must exceed 1** | The state asked for does not exist with births held at their current values — typical when it depends on a reproduction response, such as predation raising prey recruitment, an emergent Allee effect, or any alternative stable state | [`species_params(params)$erepro`](https://sizespectrum.org/mizer/reference/species_params.md); then [`findSteadyState()`](https://sizespectrum.org/mizer/reference/findSteadyState.md) or [`projectUntilSettled()`](https://sizespectrum.org/mizer/reference/projectUntilSettled.md) with the parameters fixed (see the [guide to reaching steady state and calibrating](https://sizespectrum.org/mizer/articles/guide-calibrate-model.md)) |
 
 ------------------------------------------------------------------------
 

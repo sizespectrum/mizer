@@ -156,15 +156,37 @@ integrated against \\N\\ (see the [FFT
 vignette](https://sizespectrum.org/mizer/articles/fft.md)). Each
 size-dependent factor is replaced by its bin average.
 
-**The energy income \\e(w)\\ feeds both roles.** It is the one quantity
-that sits on both sides of the distinction. Through the somatic growth
-rate \\g = e - e_r\\ it supplies the growth **velocity**, wanted as a
-point value at the boundary \\w_j\\. Through the reproduction integral
-\\\int \psi\\e\\N\\dw\\ it is an **integrand**, wanted as a bin average
-(of the product \\\psi e\\). The same pointwise \\e(w)\\ is therefore
-used as a point value for growth and bin-averaged only at its
-reproduction use-site; it must **not** be pre-averaged, or the growth
-velocity would be evaluated in the wrong place.
+**The energy income \\e(w)\\ feeds both roles.** It sits on both sides
+of the distinction. Through the somatic growth rate \\g = e - e_r\\ it
+supplies the growth **velocity**, wanted as a point value at the
+boundary \\w_j\\. Through the reproduction integral \\\int
+\psi\\e\\N\\dw\\ it is an **integrand**, wanted as a bin average (of the
+product \\\psi e\\). The same pointwise \\e(w)\\ is therefore used as a
+point value for growth and bin-averaged only at its reproduction
+use-site; it must **not** be pre-averaged, or the growth velocity would
+be evaluated in the wrong place.
+
+**So do the feeding level \\f(w)\\ and the search volume
+\\\gamma(w)\\.** In the encounter rate
+\\E_i(w)=\gamma_i(w)\int\tilde\phi_i(w/w_p)\\N^{\text{eff}}\_i(w_p)\\w_p\\dw_p\\
+the search volume sits outside the integral, at the predator size where
+the rate is evaluated, and the feeding level computed from \\E_i\\ feeds
+the growth velocity. Both are therefore point values at \\w_j\\. But
+predation turns the roles around. The predation rate on prey of size
+\\w_p\\, \\ P_i(w_p) = \int
+\tilde\phi_i(w/w_p)\\(1-f_i(w))\\\gamma_i(w)\\N_i(w)\\dw, \\ integrates
+over **predator** size, so \\(1-f_i)\gamma_i\\ is an integrand there and
+is wanted as a predator-bin average. The predation-diffusion coefficient
+\\d_i(w)=(1-f_i(w))\\\gamma_i(w)\\\alpha_i^2\int\tilde\phi_i(w/w_p)\\N^{\text{eff}}\_i(w_p)\\w_p^2\\dw_p\\
+needs the same factor averaged for a different reason. There
+\\(1-f_i)\gamma_i\\ sits outside the integral, but \\d\\ is itself a bin
+average (see above), so the whole coefficient, factor included, is
+averaged over the predator bin. As with \\e\\, the stored feeding level
+and search volume stay point values, and the product \\(1-f_i)\gamma_i\\
+is bin-averaged only where the predation integral and the diffusion
+coefficient use it. Missing this left predation mortality and predation
+diffusion first order (issue \#619). The mistake was easy to make: the
+same \\\gamma_i(w)\\ is correctly a point value one integral earlier.
 
 In summary:
 
@@ -173,6 +195,7 @@ In summary:
 | \\g\\ | growth velocity at the bin boundary | point value at \\w_j\\ |
 | \\d\\, \\\mu\\; fishing/reproductive investments; predation and encounter integrands | bin properties (a coefficient inside \\\partial(dN)/\partial w\\, or a rate integrated against \\N\\ over a bin) | bin average over \\\[w_j, w\_{j+1}\]\\ |
 | \\e\\ (energy income) | both: growth velocity *and* reproduction integrand | point value for growth; bin-averaged product \\\psi e\\ for reproduction |
+| \\f\\, \\\gamma\\ (feeding level, search volume) | both: encounter and growth at the predator node *and* predation integrand over predator size and factor of the bin-averaged diffusion coefficient | point values for encounter and growth; predator-bin-averaged product \\(1-f)\gamma\\ for predation and predation diffusion |
 
 ### Applying each bin integral exactly once
 
@@ -222,6 +245,7 @@ and where:
 | Integral | Factor that is bin-integrated | Performed in |
 |----|----|----|
 | encounter, predation and predation-diffusion convolutions | the kernel weight, \\\tilde\phi\\w_p\\, \\\tilde\phi\\ and \\\tilde\phi\\w_p^2\\ respectively | [`setPredKernel()`](https://sizespectrum.org/mizer/reference/setPredKernel.md), into `ft_pred_kernel_e`/`_p`/`_d` |
+| predation convolution, and predation-diffusion coefficient, over the predator bin | the predator’s \\(1-f)\gamma\\ | [`mizerPredRate()`](https://sizespectrum.org/mizer/reference/mizerPredRate.md) and [`mizerDiffusion()`](https://sizespectrum.org/mizer/reference/mizerDiffusion.md), at run time, since it contains the feeding level |
 | fishing sink \\\int Q\\S(w)\\\text{effort}\\N\\dw\\ | the selectivity \\S\\ | [`setFishing()`](https://sizespectrum.org/mizer/reference/setFishing.md), into `selectivity` |
 | external mortality and external diffusion sinks | the power laws \\z\_{ext}w^{d}\\ and \\D\_{ext}w^{n+1}\\ | [`setExtMort()`](https://sizespectrum.org/mizer/reference/setExtMort.md), [`setExtDiffusion()`](https://sizespectrum.org/mizer/reference/setExtDiffusion.md) |
 | resource semichemostat terms | the power laws \\r\_{pp}w^{n-1}\\ and \\\kappa w^{-\lambda}\\ | [`setResource()`](https://sizespectrum.org/mizer/reference/setResource.md), into `rr_pp` and `cc_pp` |
@@ -233,7 +257,12 @@ Two corollaries are worth stating explicitly.
 **Never bin-average the density or the bin width.** \\N_j\\ is already a
 bin average ([Equation 3](#eq-bin-average)) and \\\Delta w_j\\ is
 already exact. It is only the smooth weight multiplying them that is
-being approximated, so it is the only thing that gets averaged.
+being approximated, so it is the only thing that gets averaged. Be
+careful about what counts as the density, though. The predation
+convolution takes the predator vector \\(1-f_i)\gamma_i N_i\\\Delta w\\
+as its input, but only \\N_i\\ in it is a bin average. The factor
+\\(1-f_i)\gamma_i\\ belongs to the smooth weight and has to be averaged
+(issue \#619).
 
 **A diagnostic that decomposes a rate must borrow that rate’s quadrature
 rather than rebuild it.**
@@ -299,27 +328,33 @@ leave the CDF only first-order accurate in its placement.
 ## The `second_order_w` switch
 
 Everything in [Section 4](#sec-point-values) describes the second-order
-scheme, but mizer does not use it by default: the historical first-order
-behaviour is preserved so that existing models reproduce their published
-results exactly. The choice lives in the `second_order_w` slot, which
-has two independent entries.
+scheme. Which scheme a model uses depends on the defaults edition it was
+created with (see
+[`?defaults_edition`](https://sizespectrum.org/mizer/reference/defaults_edition.md)).
+A model of edition 3 or later uses the second-order scheme unless it is
+created with `second_order_w = FALSE`. Models of editions 1 and 2, which
+include every model created with the default edition, keep the
+historical first-order behaviour, so that existing models reproduce
+their published results exactly. The choice lives in the
+`second_order_w` slot, which has two independent entries.
 
 - **`flux`** selects the reconstruction of the density at the bin
-  boundary in the advective flux: `"upwind"` (first order, the default),
-  `"van_leer"` (second order, limited, keeps abundances non-negative) or
-  `"centred"` (second order, unlimited). This affects only the transport
-  step; see [Section 14](#sec-reducing-spatial-error).
+  boundary in the advective flux: `"upwind"` (first order, the default
+  before edition 3), `"van_leer"` (second order, limited, keeps
+  abundances non-negative, the default from edition 3) or `"centred"`
+  (second order, unlimited). This affects only the transport step; see
+  [Section 14](#sec-reducing-spatial-error).
 - **`bin_average`** is a logical flag selecting whether the
   size-dependent factors listed in [Section 4.1](#sec-one-quadrature)
   are integrated over their bin (`TRUE`) or point-sampled at the left
-  bin boundary \\w_j\\ (`FALSE`, the default).
+  bin boundary \\w_j\\ (`FALSE`, the default before edition 3).
 
 ``` r
 
 second_order_w(params) <- TRUE                   # both: van_leer + bin averaging
 second_order_w(params) <- "centred"              # flux scheme only
 second_order_w(params) <- c(bin_average = TRUE)  # bin averaging only
-second_order_w(params) <- FALSE                  # back to the mizer defaults
+second_order_w(params) <- FALSE                  # both: upwind, left-edge sums
 ```
 
 The two are independent because they correct different errors: `flux`
@@ -357,6 +392,7 @@ quadrature at setup, [Equation 16](#eq-encounter-kernel-weight).
 | external mortality \\z\_{ext}w^{d}\\, external diffusion \\D\_{ext}w^{n+1}\\ | point value at \\w_j\\ | exact bin average, [Equation 19](#eq-power-law-bin-average) |
 | resource rate \\r\_{pp}w^{n-1}\\, capacity and initial spectrum \\\kappa w^{-\lambda}\\ | point value at \\w_j\\ | exact bin average, [Equation 19](#eq-power-law-bin-average) |
 | reproduction integrand \\\psi\\e\\ | point value at \\w_j\\ | trapezoidal bin average |
+| predator factor \\(1-f)\gamma\\ in the predation integral and the predation-diffusion coefficient | point value at \\w_j\\ | trapezoidal bin average over the predator bin |
 | summary weights in [`sizeIntegral()`](https://sizespectrum.org/mizer/reference/sizeIntegral.md), and so in [`getBiomass()`](https://sizespectrum.org/mizer/reference/getBiomass.md), [`getN()`](https://sizespectrum.org/mizer/reference/getN.md), [`getSSB()`](https://sizespectrum.org/mizer/reference/getSSB.md), [`getYield()`](https://sizespectrum.org/mizer/reference/getYield.md), [`getYieldGear()`](https://sizespectrum.org/mizer/reference/getYieldGear.md) | \\K(w_j)\\ | trapezoidal bin average of \\K\\ |
 | plotting position of a bin-averaged quantity | node \\w_j\\ | bin centre \\w_j\sqrt\beta\\ |
 | growth rate \\g\\, encounter rate \\E\\, feeding level \\f\\ | point value at \\w_j\\ | **unchanged** — point value at \\w_j\\ |
@@ -371,13 +407,18 @@ rates stay point values under both settings: they are boundary
 velocities ([Section 4](#sec-point-values)), so bin-averaging them would
 be an error, not an improvement — what improves them under `bin_average`
 is that the encounter integral feeding them is now second order, not any
-averaging of \\g\\ itself.
+averaging of \\g\\ itself. The feeding level is in that last row and
+also, as part of \\(1-f)\gamma\\, in the predator-factor row. This is
+not a contradiction: the stored rate stays a point value, and only the
+predation integral and the diffusion coefficient average the product,
+exactly as reproduction averages \\\psi e\\ without changing the stored
+\\e\\.
 
 Because one setting is first order and the other second, the difference
 between them is itself \\O(\Delta x)\\ and is a usable estimate of the
-discretisation error of the default scheme: if flipping the flag moves a
-result by more than you are willing to tolerate, the grid is too coarse
-for that result.
+discretisation error of the first-order scheme: if flipping the flag
+moves a result by more than you are willing to tolerate, the grid is too
+coarse for that result.
 
 ### Making your own quantity second-order accurate
 
@@ -520,17 +561,18 @@ the general discretised equation translates to modifying the first row
 j\_{min}\\, we set all coefficients in the matrices \\A\\, \\B\\, \\C\\
 and vector \\S\\ to \\0\\ to avoid any dynamics in that range).
 
-**At the largest size (\\j=j\_{max}\\):** The size grid is truncated at
-\\w\_{max}\\, and the density above it is held at zero: \\ N\_{j}^{t+1}
-= 0 \quad\text{for } j \> j\_{max}. \tag{28}\\ Any flux that reaches the
-upper boundary \\w\_{j\_{max}+1}\\ is simply lost — the boundary absorbs
-it rather than reflecting it back. One could interpret this as an
-infinite senescent mortality that removes every fish reaching
-\\w\_{max}\\, but a better approach is to choose \\w\_{max}\\ **large
-enough that the flux reaching the boundary is already negligible**: fish
-should grow to their asymptotic size and die of natural mortality well
-before \\w\_{max}\\, so the truncation has no material effect on the
-dynamics.
+**At the largest size (\\j=j\_{max}\\):** The transport solvers impose
+an absorbing boundary at the top retained size class, with the legacy
+Euler exception described below. The density above this support is held
+at zero: \\ N\_{j}^{t+1} = 0 \quad\text{for } j \> j\_{max}. \tag{28}\\
+Any flux that reaches the upper boundary \\w\_{j\_{max}+1}\\ is simply
+lost — the boundary absorbs it rather than reflecting it back. One could
+interpret this as an infinite senescent mortality that removes every
+fish reaching \\w\_{max}\\, but a better approach is to choose
+\\w\_{max}\\ **large enough that the flux reaching the boundary is
+already negligible**: fish should grow to their asymptotic size and die
+of natural mortality well before \\w\_{max}\\, so the truncation has no
+material effect on the dynamics.
 
 Note that \\w\_{max}\\ is distinct from \\w\_{repro\\max}\\, the size at
 which a typical mature individual diverts all available energy into
@@ -545,9 +587,9 @@ The top retained class \\j\_{max}\\ depends on the scheme, because the
 two schemes place the advective inflow differently. With \\w\_{max\\idx}
 = \max\\j : w_j \le w\_{max}\\\\:
 
-- the default first-order upwind scheme feeds class \\j\\ from the
-  growth of the class below, \\g(w\_{j-1})\\, so the class just above
-  the one containing \\w\_{max}\\ can still carry advected density; here
+- the first-order upwind scheme feeds class \\j\\ from the growth of the
+  class below, \\g(w\_{j-1})\\, so the class just above the one
+  containing \\w\_{max}\\ can still carry advected density; here
   \\j\_{max} = w\_{max\\idx} + 1\\. This reproduces the long-standing
   mizer behaviour exactly;
 - the second-order scheme reconstructs the flux at a class’s own lower
@@ -566,16 +608,72 @@ term, which carries whatever (possibly non-zero) growth flux leaves the
 grid at the truncation boundary.
 
 Without diffusion the truncation reproduces the untruncated mizer
-behaviour: the classes above \\j\_{max}\\ receive no advective inflow
-once \\w\_{max}\\ is past the size where growth has died away, so they
-are already zero and imposing [Equation 28](#eq-upper-bc-zero) changes
-nothing. With diffusion, density would otherwise leak to sizes above
-\\w\_{max}\\; the boundary condition holds it at zero there instead.
-Because the location of \\j\_{max}\\ is fixed by \\w\_{max}\\ and the
-scheme — not by the densities — it is the same at every time step and at
-the steady state, so the steady-state solver (`solver = "newton"`)
-solves on exactly this support and its solution is a fixed point of the
-dynamics.
+behaviour when the classes above \\j\_{max}\\ receive no advective
+inflow once \\w\_{max}\\ is past the size where growth has died away, so
+they are already zero and imposing [Equation 28](#eq-upper-bc-zero)
+changes nothing. With diffusion, density would otherwise leak to sizes
+above \\w\_{max}\\; the boundary condition holds it at zero there
+instead. Because the location of \\j\_{max}\\ is fixed by \\w\_{max}\\
+and the scheme — not by the densities — it is the same at every time
+step and at the steady state. The steady-state solver
+(`solver = "newton"`) solves on this support.
+
+The legacy upwind Euler step without diffusion is an exception: it does
+not explicitly clear the classes above \\j\_{max}\\. They stay empty if
+they have no inflow, as in the usual case where growth has died away
+before the boundary. Custom growth rates can instead fill them, and an
+initially populated tail can decay there. Euler uses this legacy path
+only when the flux scheme is upwind and the evaluated diffusion is
+nowhere positive across all species. The other transport paths clear the
+excluded classes after each step. Thus a truncated steady state need not
+be a fixed point of the legacy path when custom growth carries fish
+beyond its support.
+
+Euler solver selection and the drift diagnostic share the same boundary
+rule. It uses the evaluated diffusion at the current state, including
+custom diffusion functions, across all species and sizes. Positive
+diffusion in one species therefore selects the boundary that holds
+excluded bins at zero for every species. Projection checks the rule at
+each Euler step, including each internal step when subcycling, so a
+changing diffusion rate can change the selected path. The quadrature
+setting does not directly enter this decision. Predictor-corrector and
+TR-BDF2 always clear the excluded tail. The drift diagnostic retains
+Euler’s boundary convention even when projecting with those methods.
+
+### Drift diagnostics at the upper boundary
+
+[`getSteadyResidual()`](https://sizespectrum.org/mizer/reference/getSteadyResidual.md)
+and the drift checks used by
+[`isSteady()`](https://sizespectrum.org/mizer/reference/isSteady.md),
+[`summary()`](https://sizespectrum.org/mizer/reference/summary.md) and
+settling routines use the consumer equations on the retained support.
+With a higher-order flux, or when the evaluated diffusion is positive
+anywhere in the model, an empty excluded class contributes zero:
+projection holds its density at zero, so transport into it must not be
+counted as an increase in abundance. Only classes with exactly zero
+density above \\j\_{max}\\ are excluded from the diagnostic. Empty
+retained classes can still fill and contribute to the drift.
+
+This correction preserves the outgoing loss from the last retained
+class: \\ \frac{dN\_{j\_{max}}}{dt} = \frac{J\_{j\_{max}} -
+J\_{j\_{max}+1}}{\Delta w\_{j\_{max}}} - \mu\_{j\_{max}} N\_{j\_{max}}.
+\tag{29}\\ In particular, removing the contribution from an excluded
+receiving class does not remove the term \\-J\_{j\_{max}+1}/\Delta
+w\_{j\_{max}}\\ from this equation. Species biomass drift uses the same
+size-integration weights as biomass, under either quadrature scheme. A
+small biomass drift indicates little net biomass change in the truncated
+model; it does not establish that loss at the truncation boundary is
+negligible, or rule out changes within its size spectrum.
+
+Two limitations are retained for compatibility. First, with upwind flux
+and no positive diffusion, inflow into empty excluded classes remains in
+the diagnostic because the legacy Euler path can fill them. Second,
+populated excluded classes retain their algebraic rates, including
+mortality decay. A transport step that clears such a populated tail
+removes a finite abundance immediately, so that change has no finite
+instantaneous derivative and is not represented by this diagnostic. The
+correction changes neither projection nor the algebraic equations used
+by the Newton solver.
 
 ## Numerical Diffusion
 
@@ -586,22 +684,22 @@ discretised term using a Taylor series.
 
 The discretised equation for the transport (advection only, with
 constant rates for simplicity) is: \\ \frac{N_j^{t+1} - N_j^t}{\Delta
-t} + g \frac{N_j^{t+1} - N\_{j-1}^{t+1}}{\Delta w} = 0 \tag{29}\\
+t} + g \frac{N_j^{t+1} - N\_{j-1}^{t+1}}{\Delta w} = 0 \tag{30}\\
 Expanding \\N(w, t)\\ around \\(w_j, t+\Delta t)\\ leads to the
 following leading order error terms: \\ \frac{\partial N}{\partial t} +
 g \frac{\partial N}{\partial w} = \frac{g \Delta w}{2} \left( 1 +
 \frac{g \Delta t}{\Delta w} \right) \frac{\partial^2 N}{\partial w^2}
-\tag{30}\\ The coefficient of the second derivative represents the
+\tag{31}\\ The coefficient of the second derivative represents the
 numerical diffusivity: \\ D\_{num} = \frac{g \Delta w}{2} (1 + C)
-\tag{31}\\ where \\C = \frac{g \Delta t}{\Delta w}\\ is the
+\tag{32}\\ where \\C = \frac{g \Delta t}{\Delta w}\\ is the
 Courant-Friedrichs-Lewy (CFL) number. Comparing this to the Mizer
 diffusion equation form (where the diffusion term is
 \\\frac{\partial}{\partial w} ( \frac{1}{2} \frac{\partial (D
 N)}{\partial w} )\\), the effective diffusion parameter is: \\
-d\_{num}(w) \approx g(w) \Delta w (1 + C(w)) \tag{32}\\ Since \\\Delta w
+d\_{num}(w) \approx g(w) \Delta w (1 + C(w)) \tag{33}\\ Since \\\Delta w
 \approx w \ln(\beta)\\, this is: \\ d\_{num}(w) \approx g(w) w
 \ln(\beta) \left( 1 + \frac{g(w) \Delta t}{w \ln(\beta)} \right) = g(w)
-w \ln(\beta) + g(w)^2 \Delta t \tag{33}\\ This means the numerical
+w \ln(\beta) + g(w)^2 \Delta t \tag{34}\\ This means the numerical
 scheme behaves as if there is a diffusion \\d\_{num}\\. This numerical
 diffusion has two components: one from spatial discretisation (scaling
 with \\\Delta w\\) and one from time stepping (scaling with \\\Delta
@@ -613,7 +711,7 @@ The scheme is first order in time. To see this, expand the backward
 difference around the new time level: \\ \frac{N_j^{t+1} - N_j^t}{\Delta
 t} = \frac{\partial N_j}{\partial t}(t+\Delta t) - \frac{\Delta
 t}{2}\frac{\partial^2 N_j}{\partial t^2}(t+\Delta t) + O(\Delta t^2).
-\tag{34}\\ Thus the time discretisation has a truncation error of order
+\tag{35}\\ Thus the time discretisation has a truncation error of order
 \\O(\Delta t)\\. Evaluating the rates \\g\\, \\d\\ and \\\mu\\ at time
 \\t\\ instead of \\t+1\\ also introduces only an \\O(\Delta t)\\ error,
 provided the rates vary smoothly in time. The semi-implicit scheme is
@@ -623,11 +721,11 @@ For the spatial discretisation, the upwind advective flux is the
 limiting term. For smooth \\gN\\, \\ \frac{(gN)\_j - (gN)\_{j-1}}{\Delta
 w\_{j-1}} = \frac{\partial(gN)}{\partial w}(w_j) - \frac{\Delta
 w\_{j-1}}{2}\frac{\partial^2(gN)}{\partial w^2}(w_j) + O(\Delta
-w\_{j-1}^2), \tag{35}\\ so the upwind advective reconstruction has an
+w\_{j-1}^2), \tag{36}\\ so the upwind advective reconstruction has an
 \\O(\Delta w_j)\\ spatial truncation error. The diffusive flux, being a
 central difference of the bin-averaged products between bin centres
 ([Equation 10](#eq-diffusive-flux)), is second order, and the
-bin-averaged sinks are second order too; so on the default scheme the
+bin-averaged sinks are second order too; so on the upwind scheme the
 spatial order is set entirely by the upwind advective reconstruction.
 Replacing it by a higher-order reconstruction
 ([Section 14](#sec-reducing-spatial-error)) removes this last \\O(\Delta
@@ -635,10 +733,10 @@ w_j)\\ error.
 
 On the logarithmic grid, writing \\\beta = w\_{j+1}/w_j\\, we have \\
 \Delta w_j = w_j(\beta - 1) = w_j\left(\log\beta +
-O((\log\beta)^2)\right). \tag{36}\\ Thus, at fixed body size \\w_j\\,
+O((\log\beta)^2)\right). \tag{37}\\ Thus, at fixed body size \\w_j\\,
 first order in \\\Delta w_j\\ is equivalently first order in
 \\\log\beta\\. Combining the time and space errors, the scheme is \\
-O(\Delta t) + O(\Delta w_j) \tag{37}\\ locally, or \\O(\Delta t +
+O(\Delta t) + O(\Delta w_j) \tag{38}\\ locally, or \\O(\Delta t +
 \log\beta)\\ on the logarithmic grid.
 
 ## Predictor-Corrector Time Stepping
@@ -649,11 +747,11 @@ for the densities. The aim is to keep the useful property that, once the
 rates are fixed, the density update is still a tridiagonal linear solve.
 
 Let \\L(r)\\ denote the spatial operator for the consumer spectrum when
-the rates \\ r = (g, d, \mu) \tag{38}\\ are fixed, and let
+the rates \\ r = (g, d, \mu) \tag{39}\\ are fixed, and let
 \\q(R\_{dd})\\ denote the recruitment source at the lower boundary. The
 semi-implicit Euler method used above can be written schematically as \\
 \frac{N^{t+1} - N^t}{\Delta t} = L(r^t) N^{t+1} + q(R\_{dd}^t).
-\tag{39}\\ This is first order because the rates and recruitment are
+\tag{40}\\ This is first order because the rates and recruitment are
 only evaluated at the start of the time step.
 
 The predictor-corrector method proceeds as follows:
@@ -664,29 +762,29 @@ The predictor-corrector method proceeds as follows:
     \\\hat{r}^{t+1}\\ and recruitment \\\hat{R}\_{dd}^{t+1}\\ from
     \\\hat{N}^{t+1}\\.
 3.  **Approximate midpoint rates:** Use \\ r^{t+1/2} =
-    \frac{1}{2}\left(r^t + \hat{r}^{t+1}\right), \tag{40}\\ so in
+    \frac{1}{2}\left(r^t + \hat{r}^{t+1}\right), \tag{41}\\ so in
     particular \\ g_j^{t+1/2} = \frac{1}{2}\left(g_j^t +
     \hat{g}\_j^{t+1}\right), \quad d_j^{t+1/2} =
     \frac{1}{2}\left(d_j^t + \hat{d}\_j^{t+1}\right), \quad
     \mu_j^{t+1/2} = \frac{1}{2}\left(\mu_j^t +
-    \hat{\mu}\_j^{t+1}\right). \tag{41}\\ The recruitment flux is
+    \hat{\mu}\_j^{t+1}\right). \tag{42}\\ The recruitment flux is
     averaged in the same way: \\ R\_{dd}^{t+1/2} =
-    \frac{1}{2}\left(R\_{dd}^t + \hat{R}\_{dd}^{t+1}\right). \tag{42}\\
+    \frac{1}{2}\left(R\_{dd}^t + \hat{R}\_{dd}^{t+1}\right). \tag{43}\\
 4.  **Correct:** Do a Crank-Nicolson update using the midpoint rates: \\
     \frac{N^{t+1} - N^t}{\Delta t} = \frac{1}{2}\left(L(r^{t+1/2})N^t +
-    L(r^{t+1/2})N^{t+1}\right) + q(R\_{dd}^{t+1/2}). \tag{43}\\
+    L(r^{t+1/2})N^{t+1}\right) + q(R\_{dd}^{t+1/2}). \tag{44}\\
 
 In flux form, the corrector equation for an interior bin is \\
 \begin{aligned} \frac{N_j^{t+1} - N_j^t}{\Delta t} &+ \frac{1}{2\Delta
 w_j} \left\[ \left(J\_{j+1}^{t+1} - J_j^{t+1}\right) +
 \left(J\_{j+1}^t - J_j^t\right) \right\] \\ &=
 -\frac{1}{2}\mu_j^{t+1/2}\left(N_j^{t+1} + N_j^t\right), \end{aligned}
-\tag{44}\\ where all fluxes use the midpoint rates. For example, \\
+\tag{45}\\ where all fluxes use the midpoint rates. For example, \\
 J_j^{t+1} = g_j^{t+1/2} N\_{j-1}^{t+1} - \frac{1}{2}\frac{ d_j^{t+1/2}
 N_j^{t+1} - d\_{j-1}^{t+1/2} N\_{j-1}^{t+1} }{\Delta w\_{j-1}^c},
-\tag{45}\\ and \\J_j^t\\ is the same expression with \\N^t\\ instead of
+\tag{46}\\ and \\J_j^t\\ is the same expression with \\N^t\\ instead of
 \\N^{t+1}\\. The lower boundary uses \\ J\_{j\_{min}}^{t+1} =
-J\_{j\_{min}}^t = R\_{dd}^{t+1/2}. \tag{46}\\
+J\_{j\_{min}}^t = R\_{dd}^{t+1/2}. \tag{47}\\
 
 Because the midpoint rates are fixed during the corrector step, the
 unknowns still enter only through \\N\_{j-1}^{t+1}\\, \\N_j^{t+1}\\ and
@@ -698,10 +796,10 @@ new-time terms supply the tridiagonal matrix.
 If the provisional predictor has the usual one-step accuracy, the
 averaged rates approximate the true midpoint rates to second order. The
 Crank-Nicolson corrector is then second order in \\\Delta t\\ for smooth
-solutions: \\ \text{time error} = O(\Delta t^2). \tag{47}\\ This does
+solutions: \\ \text{time error} = O(\Delta t^2). \tag{48}\\ This does
 not change the spatial order of the scheme, which remains first order
 because of the upwind advective flux. The combined order would therefore
-be \\ O(\Delta t^2) + O(\Delta w_j), \tag{48}\\ or \\O(\Delta t^2 +
+be \\ O(\Delta t^2) + O(\Delta w_j), \tag{49}\\ or \\O(\Delta t^2 +
 \log\beta)\\ on the logarithmic grid.
 
 There are two practical cautions. First, this doubles the number of rate
@@ -716,7 +814,7 @@ this as the default time stepper.
 The oscillations of the Crank-Nicolson corrector are a consequence of
 its stability function. For the scalar test problem \\N' = \lambda N\\
 the corrector multiplies the solution by \\ R\_{CN}(z) = \frac{1 +
-z/2}{1 - z/2}, \qquad z = \lambda\\\Delta t, \tag{49}\\ and for a
+z/2}{1 - z/2}, \qquad z = \lambda\\\Delta t, \tag{50}\\ and for a
 strongly damped mode (\\\lambda\\ real and very negative) \\R\_{CN}(z)
 \to -1\\ as \\z \to -\infty\\. Such modes are therefore barely damped
 and flip sign every step. This is the ringing seen at large \\\Delta
@@ -733,21 +831,21 @@ to \\N^{t+1}\\ is
 
 1.  **Trapezoidal (TR) stage** over \\\[t, t+\gamma\Delta t\]\\: \\
     \frac{N^{t+\gamma} - N^t}{\gamma\Delta t} = \tfrac{1}{2}\left(L
-    N^t + L N^{t+\gamma}\right) + q. \tag{50}\\
+    N^t + L N^{t+\gamma}\right) + q. \tag{51}\\
 2.  **Backward-differentiation (BDF2) stage** over the whole step, using
     \\N^t\\, \\N^{t+\gamma}\\ and \\N^{t+1}\\: \\ N^{t+1} =
     \frac{1}{\gamma(2-\gamma)}N^{t+\gamma} -
     \frac{(1-\gamma)^2}{\gamma(2-\gamma)}N^t +
     \frac{1-\gamma}{2-\gamma}\\\Delta t\left(L N^{t+1} + q\right).
-    \tag{51}\\
+    \tag{52}\\
 
-The standard choice is \\ \gamma = 2 - \sqrt{2}, \tag{52}\\ which makes
+The standard choice is \\ \gamma = 2 - \sqrt{2}, \tag{53}\\ which makes
 the method L-stable and, crucially for the implementation, makes the two
 stages share the **same** implicit coefficient. The TR stage implicitly
 multiplies \\L\\ by \\\gamma\Delta t/2\\ and the BDF2 stage by
 \\(1-\gamma)/(2-\gamma)\\\Delta t\\, and for \\\gamma = 2-\sqrt 2\\ both
 equal \\ \alpha\\\Delta t, \qquad \alpha = \frac{\gamma}{2} = 1 -
-\frac{1}{\sqrt 2}. \tag{53}\\ Each stage is therefore a solve against
+\frac{1}{\sqrt 2}. \tag{54}\\ Each stage is therefore a solve against
 the same matrix \\I - \alpha\Delta t\\L\\, which is exactly the
 tridiagonal operator \\\tt{get\\transport\\coefs()}\\ builds at time
 step \\\alpha\Delta t\\. The matrix is assembled once and the BDF2 stage
@@ -755,7 +853,7 @@ reuses it; only the right-hand sides differ. Writing \\c_1 = (\sqrt 2 +
 1)/2\\ and \\c_0 = (\sqrt 2 - 1)/2\\ (with \\c_1 - c_0 = 1\\), the
 right-hand sides are \\ \begin{aligned} S^{TR} &= 2N^t - (I -
 \alpha\Delta t\\L)\\N^t + \gamma\Delta t\\ q, \\ S^{BDF2} &= c_1
-N^{t+\gamma} - c_0 N^t + \alpha\Delta t\\ q. \end{aligned} \tag{54}\\
+N^{t+\gamma} - c_0 N^t + \alpha\Delta t\\ q. \end{aligned} \tag{55}\\
 The first of these is the Crank-Nicolson right-hand side over the
 sub-step \\\gamma\Delta t\\, so the TR stage reuses the existing
 corrector assembly.
@@ -832,14 +930,6 @@ reference <- project(
     t_max = t_max,
     method = "tr_bdf2"
 )
-```
-
-    ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-    ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-
-Code
-
-``` r
 
 accuracy <- do.call(rbind, lapply(dt_values, function(dt) {
     euler <- project(params, dt = dt, t_max = t_max, t_save = t_max,
@@ -856,54 +946,6 @@ accuracy <- do.call(rbind, lapply(dt_values, function(dt) {
         tr_bdf2_error = relative_l2_error(trbdf2, reference)
     )
 }))
-```
-
-    ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-    ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-    ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-    ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-    ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-    ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-    ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-    ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-    ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-    ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-    ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-    ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-    ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-    ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-    ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-    ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-    ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-    ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-    ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-    ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-    ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-    ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-    ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-    ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-    ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-    ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-    ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-    ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-    ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-    ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-    ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-    ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-    ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-    ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-    ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-    ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-    ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-    ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-    ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-    ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-    ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-    ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-
-Code
-
-``` r
 
 accuracy
 ```
@@ -977,7 +1019,7 @@ resource update first order and cap the overall accuracy. Instead, the
 predictor step is used to form the same midpoint rates \\r^{t+1/2}\\
 that drive the consumer corrector, and the resource is then advanced
 with the midpoint resource mortality \\ \mu_R^{t+1/2} =
-\tfrac{1}{2}\left(\mu_R^t + \hat\mu_R^{t+1}\right). \tag{55}\\ At a
+\tfrac{1}{2}\left(\mu_R^t + \hat\mu_R^{t+1}\right). \tag{56}\\ At a
 steady state \\r^t = \hat r^{t+1} = r^{t+1/2}\\, so the resource
 corrector reproduces the predictor and the steady state is unchanged.
 With the default semi-chemostat resource dynamics, which already use the
@@ -1008,31 +1050,31 @@ contribution to that diffusion.
 To see this, again consider the advection-only problem with constant
 growth rate \\g\\ on a locally uniform grid with spacing \\\Delta w\\:
 \\ \frac{\partial N}{\partial t} + g\frac{\partial N}{\partial w} = 0.
-\tag{56}\\ With fixed rates, the corrector step reduces to the
+\tag{57}\\ With fixed rates, the corrector step reduces to the
 Crank-Nicolson upwind scheme \\ \frac{N_j^{t+1} - N_j^t}{\Delta t} +
 \frac{g}{2} \left\[ \frac{N_j^{t+1} - N\_{j-1}^{t+1}}{\Delta w} +
-\frac{N_j^t - N\_{j-1}^t}{\Delta w} \right\] = 0. \tag{57}\\
+\frac{N_j^t - N\_{j-1}^t}{\Delta w} \right\] = 0. \tag{58}\\
 
 Expand this equation about the midpoint \\(w_j, t + \Delta t / 2)\\. The
 centred time difference gives \\ \frac{N_j^{t+1} - N_j^t}{\Delta t} =
-\frac{\partial N}{\partial t} + O(\Delta t^2). \tag{58}\\ The average of
+\frac{\partial N}{\partial t} + O(\Delta t^2). \tag{59}\\ The average of
 the two upwind spatial differences gives \\ \frac{1}{2} \left\[
 \frac{N_j^{t+1} - N\_{j-1}^{t+1}}{\Delta w} + \frac{N_j^t -
 N\_{j-1}^t}{\Delta w} \right\] = \frac{\partial N}{\partial w} -
 \frac{\Delta w}{2}\frac{\partial^2 N}{\partial w^2} + O(\Delta w^2) +
-O(\Delta t^2). \tag{59}\\ Substituting these expansions into the scheme
+O(\Delta t^2). \tag{60}\\ Substituting these expansions into the scheme
 gives the modified equation \\ \frac{\partial N}{\partial t} +
 g\frac{\partial N}{\partial w} = \frac{g\Delta w}{2}\frac{\partial^2
-N}{\partial w^2} + O(\Delta w^2) + O(\Delta t^2). \tag{60}\\ Thus the
+N}{\partial w^2} + O(\Delta w^2) + O(\Delta t^2). \tag{61}\\ Thus the
 numerical diffusivity in the usual advection-diffusion form is \\
-D\_{num}^{PC} = \frac{g\Delta w}{2}. \tag{61}\\ In the mizer notation,
+D\_{num}^{PC} = \frac{g\Delta w}{2}. \tag{62}\\ In the mizer notation,
 where the diffusion term is written with a factor \\1/2\\ inside the
 flux, this corresponds to the effective diffusion parameter \\
-d\_{num}^{PC}(w) \approx g(w)\Delta w. \tag{62}\\ On the logarithmic
-grid this becomes \\ d\_{num}^{PC}(w) \approx g(w)w\log\beta. \tag{63}\\
+d\_{num}^{PC}(w) \approx g(w)\Delta w. \tag{63}\\ On the logarithmic
+grid this becomes \\ d\_{num}^{PC}(w) \approx g(w)w\log\beta. \tag{64}\\
 
 Compared with the first-order semi-implicit scheme, \\
-d\_{num}^{Euler}(w) \approx g(w)\Delta w + g(w)^2\Delta t, \tag{64}\\
+d\_{num}^{Euler}(w) \approx g(w)\Delta w + g(w)^2\Delta t, \tag{65}\\
 the predictor-corrector method removes the leading artificial diffusion
 proportional to \\\Delta t\\. The remaining numerical diffusion is the
 spatial upwind diffusion, proportional to \\\Delta w\\ or equivalently
@@ -1063,11 +1105,11 @@ The boundary \\w_j\\ is the midpoint, on the logarithmic axis, of the
 two bin centres \\w\_{j-1}^c\\ and \\w_j^c\\, so a second-order estimate
 of the density there is the average of the two bin averages. We write
 the general reconstruction with a weight \\\chi_j\\, \\ N(w_j) \approx
-N\_{j-1} + \tfrac12\\\chi_j\\(N_j - N\_{j-1}), \tag{65}\\ which is pure
+N\_{j-1} + \tfrac12\\\chi_j\\(N_j - N\_{j-1}), \tag{66}\\ which is pure
 upwind (\\N\_{j-1}\\) when \\\chi_j = 0\\ and the centred value
 \\\tfrac12(N\_{j-1}+N_j)\\ when \\\chi_j = 1\\. The advective flux
 becomes \\ J_j^{adv} = g_j\bigl\[N\_{j-1} + \tfrac12\\\chi_j(N_j -
-N\_{j-1})\bigr\]. \tag{66}\\ With \\\chi_j = 1\\ the upwind numerical
+N\_{j-1})\bigr\]. \tag{67}\\ With \\\chi_j = 1\\ the upwind numerical
 diffusion is gone and the advective flux is second order. The remaining
 requirement for a fully second-order model is that the bin-average rates
 — the diffusion coefficient \\d_j\\ in the diffusive flux
@@ -1085,12 +1127,14 @@ but is not monotonicity-preserving: it can produce small
 over/undershoots, and at a steady state with no physical diffusion it
 admits an undamped odd-even mode. With the **van Leer** weight \\
 \chi_j=\chi(r_j),\qquad \chi(r)=\frac{r+\|r\|}{1+\|r\|},\qquad
-r_j=\frac{N\_{j-1}-N\_{j-2}}{N_j-N\_{j-1}}, \tag{67}\\ the scheme is
-*total-variation diminishing* (TVD): \\\chi\to1\\ where the solution is
-smooth, and \\\chi\to0\\ (pure upwind) at extrema and at the non-smooth
-recruitment boundary. This keeps abundances non-negative and
-manufactures no new oscillations, at the price — a corollary of
-Godunov’s theorem — of dropping to first order at smooth extrema.
+r_j=\frac{N\_{j-1}-N\_{j-2}}{N_j-N\_{j-1}}, \tag{68}\\ the
+reconstruction approaches the centred value in a smooth region and
+upwind at an extremum or the non-smooth recruitment boundary. This is
+the van Leer limiter used in total-variation-diminishing (TVD) schemes,
+with the associated loss of order near extrema. The properties of the
+complete update also depend on how the limiter and time integration are
+combined; its presence alone does not guarantee positivity or freedom
+from oscillations.
 
 At the left boundary of the grid where \\N\_{j-2}\\ does not exist, the
 weight is handled as follows:
@@ -1107,101 +1151,137 @@ The two types are selected with
 
 ``` r
 
-second_order_w(params)$flux <- "van_leer" # TVD, the default for TRUE
+second_order_w(params)$flux <- "van_leer" # limited, the default for TRUE
 second_order_w(params)$flux <- "centred"   # unlimited, true 2nd order
 ```
 
-The default (`TRUE`) is van Leer, the safe choice for production runs;
-the centred reconstruction is most useful for smooth problems that carry
-some physical diffusion.
+The default (`TRUE`) is van Leer, the recommended reconstruction for
+production runs with timestep refinement; the centred reconstruction is
+most useful for smooth problems that carry some physical diffusion.
 
 ### Implicit treatment with a frozen weight
 
-The weight \\\chi_j\\ is evaluated from the densities at the start of
-the step (for the second-order methods, from the midpoint field), so it
-is a fixed number during the solve. With \\\chi\\ *frozen*, the flux
-[Equation 66](#eq-so-face-flux) is linear in the unknown densities
-\\N^{t+1}\\ and still couples only \\N\_{j-1},N_j,N\_{j+1}\\, so it
-folds directly into the same tridiagonal operator
-\\\tt{get\\transport\\coefs()}\\ builds — only the advective
-coefficients gain the \\\chi\\ terms. Keeping the high-order term
-*implicit* in this way is important: treating the extra (anti-diffusive)
-part explicitly on the right-hand side is only conditionally stable and
-breaks down for the lightly damped second-order time steppers, whereas
-the implicit form is stable for backward Euler and TR-BDF2 even with no
-physical diffusion.
+The weight \\\chi_j\\ is evaluated from the start-of-step density, or
+from the predicted midpoint density for a second-order time method. With
+that weight frozen, the flux [Equation 67](#eq-so-face-flux) is linear
+in the unknown density and still couples only three neighbouring cells.
+The high-order terms therefore fit into the same tridiagonal transport
+solve. TR-BDF2 uses that frozen operator in both of its stages.
 
-Furthermore, because the van Leer weight \\\chi_j\\ depends nonlinearly
-on the solution, naive time-stepping can fall into a limit cycle where
-\\\chi_j\\ flip-flops between neighboring cells, preventing the solution
-from settling into a steady state. To break such limit cycles, `mizer`
-evaluates \\\chi_j\\ with an *exponential moving average*
-(under-relaxation) across time steps: \\\chi_j^{(t)} = 0.5 \chi_j(N) +
-0.5 \chi_j^{(t-1)}\\. This relaxation only affects the transient
-approach and ensures the time-stepping iteration can smoothly reach the
-true fixed point.
+The van Leer weight depends nonlinearly on the density. Where a previous
+weight is carried by the density array, mizer under-relaxes the new
+weight: \\\chi_j^{(t)} = 0.5\chi_j(N) + 0.5\chi_j^{(t-1)}\\. This moving
+average can reduce switching between neighbouring cells, but it does not
+guarantee convergence. At large timesteps, a spectrum near a stationary
+state can still develop alternating cell-scale residuals. They can be
+large even when the biomass-weighted drift is small.
 
-The price is that the high-order term can make the off-diagonal
-coefficient \\C_j\\ positive, so the operator is no longer an M-matrix
-and non-negativity is no longer guaranteed by construction. The van Leer
-reconstruction keeps any undershoot at the level of rounding, and the
-consumer update floors it to zero to preserve \\N\ge 0\\; the unlimited
-centred reconstruction gives up this guarantee in exchange for the extra
-order.
+The high-order term can make the upper off-diagonal coefficient
+positive, so the transport matrix need not be an M-matrix. Negative
+undershoots are floored to zero by the high-order consumer update;
+clipping alone does not establish accuracy or conservation. The
+unlimited centred reconstruction also lacks the van Leer limiter’s local
+suppression of oscillations.
 
-Because the reconstruction weight is frozen at the beginning (or
-midpoint) of the step, the flux limiter is only conditionally
-*total-variation diminishing* (TVD). In simulations with highly dynamic,
-sharp features (such as pulsed reproduction starting from a zero initial
-abundance), the time step \\\Delta t\\ must satisfy the
-Courant-Friedrichs-Lewy (CFL) condition, which requires that the
-log-size Courant number \\ C = \frac{g(w) \Delta t}{w \log\beta} \\ be
-at most \\1\\ across the grid. If the Courant number exceeds 1, the
-lagged limiter can no longer guarantee the TVD property, resulting in
-spurious oscillations (wiggles) and negative densities (which the update
-floors to zero, leading to a ragged/zero-interleaved distribution). To
-avoid wiggles in such cases, users should either reduce `dt` so that \\C
-\le 1\\, or use the first-order upwind scheme (by setting
-`second_order_w(params) <- FALSE` and using the L-stable
-`method = "tr_bdf2"`) which remains positive and monotonic for any `dt`.
+L-stability concerns damping of the frozen linear problem. It does not
+guarantee positivity, total-variation diminution, or control of
+nonlinear limiter switching. Even with pure upwind flux and zero growth,
+TR-BDF2 applied to \\dN/dt=-\mu N\\ gives \\N^{t+1}/N^t\approx-0.1351\\
+when \\\mu\Delta t=25\\. Backward Euler gives the positive ratio
+\\1/26\\ in that example. Thus changing to upwind flux does not make
+every time integrator positive for an arbitrary step.
+
+### Growth Courant diagnostics and optional subcycling
+
+A growth Courant number measures how far advection travels relative to a
+size bin in one step. `getCourant(params, dt)` uses the actual
+finite-volume width \\\Delta w_j\\ and the positive growth velocities at
+the two faces used by the selected transport scheme: \\ C\_{i,j} =
+\frac{\Delta t}{\Delta w_j} \max\left(0, g^{in}\_{i,j},
+g^{out}\_{i,j}\right). \tag{69}\\ The egg boundary has prescribed
+recruitment rather than growth inflow, so only its outgoing growth
+velocity enters this diagnostic. For the second-order scheme the face
+velocities are \\g_j\\ and \\g\_{j+1}\\; the legacy upwind scheme uses
+\\g\_{j-1}\\ and \\g_j\\. The terminal grid face follows the same
+convention as the transport operator. Values are zero outside each
+species’ structural support, from its egg bin to its scheme-specific
+support top. Empty bins inside that support remain included: absence of
+fish now does not remove a bin from the evolution equations.
+
+These widths differ from the log-coordinate approximation
+\\w_j\log\beta\\. Interior bins use the larger of two face velocities
+instead of a single pointwise value; the egg bin uses only its outgoing
+face. The difference from \\g_j\Delta t/\Delta w_j\\ depends on the
+growth field and boundary convention. The diagnostic, warning and
+subcycling calculation share the same definition.
+
+A target such as \\\max C\_{i,j}\le1\\ is practical guidance for the
+advective checkerboard problem. It is not a general TVD, positivity,
+stability or accuracy theorem. Mortality, diffusion, resource dynamics
+and custom components can impose other timestep requirements. The
+centred spatial scheme remains unlimited at small timesteps too. Always
+check timestep and grid refinement before interpreting an apparent
+oscillation as biological.
+
+By default, projection keeps the requested `dt` and reports a large
+growth Courant number when high-order flux is active. To reduce internal
+timesteps automatically, use
+
+``` r
+
+sim <- project(params, t_max = 20, dt = 1 / 52, method = "tr_bdf2",
+               subcycle = TRUE, max_courant = 1)
+```
+
+Within each requested step, the solver recomputes the rates from the
+current coupled state and selects a smaller internal step if the Courant
+target requires it. It advances consumers, resources, other components
+and time together. Each accepted substep uses the selected time method
+and the unchanged spatial operator. This avoids making the discrete
+steady state depend on `dt` through a switch of flux scheme.
+
+The target is checked against the rates at the start of each internal
+step; it does not bound unforeseen growth changes inside that step.
+Subcycling does not change a custom component’s integration formula or
+its order. It also increases calls to custom rates and component
+dynamics; functions with side effects or random draws per call need an
+explicit timestep interpretation and will not preserve the same sequence
+of per-call draws. Output times, callbacks and the fishing-effort
+schedule retain their outer schedule. The controls are recorded for
+continuation and also apply to projection-based settling. `max_substeps`
+bounds the number of internal steps per requested `dt`; exceeding it
+raises an error rather than silently relaxing the target.
+
+The cost scales with the number of internal steps and rate evaluations.
+For example, a Courant number around 13 requires roughly 13 steps if
+rates stay similar. Use
+[`getCourant()`](https://sizespectrum.org/mizer/reference/getCourant.md)
+to inspect the current state, and compare results under a smaller `dt`
+or `max_courant` to assess temporal accuracy.
 
 ### Steady state and reproduction
 
-Because the reconstruction lives entirely in the coefficients \\A,B,C\\,
-the steady-state machinery stays consistent automatically:
 [`getRequiredRDD()`](https://sizespectrum.org/mizer/reference/getRequiredRDD.md)
-reads the same boundary coefficients and
-[`get_steady_state_n()`](https://sizespectrum.org/mizer/reference/get_steady_state_n.md)
-solves the same system. The exponential moving average under-relaxation
-in the van Leer weight \\\chi\\ allows both the single-species steady
-state solver and the full multispecies `solver = "project"`
-time-stepping iteration to converge to the true discrete fixed point
-without falling into a limit cycle. Both
-[`getRequiredRDD()`](https://sizespectrum.org/mizer/reference/getRequiredRDD.md)
-and
+reads the same egg-boundary coefficients as
+[`project()`](https://sizespectrum.org/mizer/reference/project.md), and
 [`steadySingleSpecies()`](https://sizespectrum.org/mizer/reference/steadySingleSpecies.md)
-read the same `second_order_w` slot, so a model is automatically set up
-at the steady state of exactly the scheme that
-[`project()`](https://sizespectrum.org/mizer/reference/project.md) will
-use, and that state is preserved to machine precision by all three
-time-stepping methods.
+solves the corresponding transport equation with its rates held fixed.
+Both read the model’s `second_order_w` slot. With a van Leer limiter,
+the fixed-rate solve uses upwind-preconditioned defect correction,
+explained below; freezing the limiter and repeatedly solving its
+high-order matrix can be unstable even with under-relaxation. The moving
+average of the limiter used during time stepping is a separate mechanism
+and is not used by this fixed-rate solver.
 
-The direct solver reads its set of unknowns from where the supplied
-abundances are non-zero, rather than from \\w\_{max}\\. This keeps it
-robust when \\w\_{max}\\ is set far above the largest fish (a common
-choice, so that the grid need not change when a parameter update
-produces larger fish): the structurally-zero classes below such a
-\\w\_{max}\\ are simply excluded. The growth rate alone could not be
-used to find the support, because the main reason fish grow past
-\\w\_{repro\\max}\\ is diffusion, whose rate only grows with \\w\\ and
-never vanishes; the abundance is the only reliable indicator of where
-the (possibly diffusion-fed) tail has died away. With the van Leer
-limiter the residual is only Lipschitz, so the Newton iteration
-converges to a fixed point of the dynamics but not to machine precision;
-the unlimited centred reconstruction — which admits an undamped odd-even
-mode at a steady state with no physical diffusion — gives an
-ill-conditioned steady-state Jacobian for which the direct solver is not
-expected to converge.
+The direct solver keeps every size class from the egg size to the
+computational support top set by `w_max` and the spatial scheme, even if
+a class starts with zero density. It must retain this potential support:
+diffusion can populate a tail with negligible growth, and custom growth
+rates can change as the state changes. A smooth log-abundance floor
+handles numerically empty cells, which are set to zero after the solve.
+Bounded steps and a frozen-rate starting spectrum help when an
+overpopulated, nearly growth-free tail otherwise makes the Newton
+Jacobian ill-conditioned; see the direct-solver section below.
 
 ## Steady-State Solution
 
@@ -1210,13 +1290,13 @@ are looking for a state where the population densities do not change
 over time, meaning \\N_j^{t+1} = N_j^t = N_j^\*\\.
 
 Substituting this into our discretised linear system: \\ A_j
-N\_{j-1}^\* + B_j N_j^\* + C_j N\_{j+1}^\* = S_j \tag{68}\\ Recall that
+N\_{j-1}^\* + B_j N_j^\* + C_j N\_{j+1}^\* = S_j \tag{70}\\ Recall that
 for \\j \> j\_{min}\\, \\S_j = N_j^t\\. The equation simplifies to: \\
-A_j N\_{j-1}^\* + (B_j - 1) N_j^\* + C_j N\_{j+1}^\* = 0 \tag{69}\\
+A_j N\_{j-1}^\* + (B_j - 1) N_j^\* + C_j N\_{j+1}^\* = 0 \tag{71}\\
 
 To find the steady-state population densities \\N^\*\\, we formulate a
 new time-independent tridiagonal system: \\ \tilde{A}\_j N\_{j-1}^\* +
-\tilde{B}\_j N_j^\* + \tilde{C}\_j N\_{j+1}^\* = \tilde{S}\_j \tag{70}\\
+\tilde{B}\_j N_j^\* + \tilde{C}\_j N\_{j+1}^\* = \tilde{S}\_j \tag{72}\\
 To eliminate the explicit dependence on the time step \\\Delta t\\, we
 can divide the equation by \\\Delta t\\. The modified coefficients
 \\\tilde{A}, \tilde{B}, \tilde{C}\\ defining the new tri-diagonal system
@@ -1227,7 +1307,7 @@ w\_{j-1}^c} \right) \\ \tilde{C}\_j &= \frac{C_j}{\Delta t} =
 \right) \\ \tilde{B}\_j &= \frac{B_j - 1}{\Delta t} = \mu_j +
 \frac{1}{\Delta w_j} \left( g\_{j+1} + \frac{1}{2} \frac{d_j}{\Delta
 w_j^c} + \frac{1}{2} \frac{d_j}{\Delta w\_{j-1}^c} \right) \end{aligned}
-\tag{71}\\ Notice that \\\tilde{A}\_j\\ and \\\tilde{C}\_j\\ are exactly
+\tag{73}\\ Notice that \\\tilde{A}\_j\\ and \\\tilde{C}\_j\\ are exactly
 the expressions for \\A_j\\ and \\C_j\\ evaluated at \\\Delta t = 1\\.
 Similarly, \\\tilde{B}\_j\\ is exactly the expression for \\B_j - 1\\
 evaluated at \\\Delta t = 1\\.
@@ -1236,21 +1316,21 @@ evaluated at \\\Delta t = 1\\.
 
 For the smallest size (\\j=j\_{min}\\), the original equation had a
 source term due to recruitment: \\ S\_{j\_{min}} = N\_{j\_{min}}^t +
-\frac{\Delta t}{\Delta w\_{j\_{min}}} R\_{dd} \tag{72}\\ Following the
+\frac{\Delta t}{\Delta w\_{j\_{min}}} R\_{dd} \tag{74}\\ Following the
 same logic of setting \\N^{t+1} = N^t = N^\*\\ and dividing by \\\Delta
 t\\, the right-hand side vector \\\tilde{S}\_j\\ for the steady-state
 system becomes purely the recruitment flux term. If we again observe the
 original term \\\frac{\Delta t}{\Delta w\_{j\_{min}}} R\_{dd}\\ when
 evaluated at \\\Delta t = 1\\, we get our new source vector: \\
-\tilde{S}\_{j\_{min}} = \frac{R\_{dd}}{\Delta w\_{j\_{min}}} \tag{73}\\
+\tilde{S}\_{j\_{min}} = \frac{R\_{dd}}{\Delta w\_{j\_{min}}} \tag{75}\\
 For all other \\j \> j\_{min}\\, \\\tilde{S}\_j = 0\\.
 
 The boundary condition modifications at the edges of the grid remain the
-same conceptually: \\\tilde{A}\_{j\_{min}} = 0\\, the upward diffusion
-term is omitted from \\\tilde{B}\_{j\_{min}}\\, and
-\\\tilde{C}\_{j\_{max}} = 0\\, where \\j\_{max}\\ is the support top of
-the previous section (the first class above \\w\_{max}\\). The density
-is held at zero for any \\j \< j\_{min}\\ or \\j \> j\_{max}\\.
+same conceptually: \\\tilde{A}\_{j\_{min}} = 0\\, the lower-face
+diffusion term is omitted from \\\tilde{B}\_{j\_{min}}\\, and
+\\\tilde{C}\_{j\_{max}} = 0\\, where \\j\_{max}\\ is the
+scheme-dependent support top defined above. The density is held at zero
+for any \\j \< j\_{min}\\ or \\j \> j\_{max}\\.
 
 In code, this means that the steady-state coefficients for the matrix
 multiplication (\\\tilde{A}, \tilde{B}, \tilde{C}\\) and the constant
@@ -1259,9 +1339,53 @@ coefficient function but simply setting \\\Delta t = 1\\, and dropping
 the \\+1\\ and \\+N_j^t\\ from the resulting \\B\\ and \\S\\ variables
 respectively.
 
-With these modified matrices, the steady-state densities can be
-calculated directly by solving the linear system avoiding the need to
-iterate step by step over time.
+For a fixed upwind or centred reconstruction, these matrices are
+independent of the unknown spectrum, so one tridiagonal solve gives the
+steady state with the rates held fixed. The van Leer reconstruction
+depends on the spectrum and requires a nonlinear solve.
+
+### Fixed-rate solve with a van Leer limiter
+
+[`get_steady_state_n()`](https://sizespectrum.org/mizer/reference/get_steady_state_n.md),
+used by
+[`steadySingleSpecies()`](https://sizespectrum.org/mizer/reference/steadySingleSpecies.md),
+prescribes the egg abundance rather than the recruitment flux. It
+replaces the egg row by \\N\_{j\_{min}} = N_0\\ and solves the interior
+steady-state equations. Write this system as \\ F(N) = M(\chi(N))N - S =
+0, \tag{76}\\ where \\M\\ contains the steady transport coefficients and
+the prescribed egg boundary. A frozen-limiter Picard iteration would
+solve \\M(\chi(N^{(k)}))N^{(k+1)} = S\\. Its high-order matrix need not
+be an M-matrix, and this iteration can amplify alternating-bin
+perturbations instead of converging.
+
+Mizer instead uses *defect correction*: \\ N^{(k+1)} = N^{(k)} - \omega
+M_0^{-1}F(N^{(k)}), \qquad \omega = 0.5, \tag{77}\\ with negative
+intermediate abundances floored to zero. Here \\M_0\\ is the upwind
+operator obtained by setting \\\chi = 0\\ in the **same log-size
+finite-volume discretisation**. It retains the chosen diffusion, egg
+boundary and upper support boundary. It is not the legacy first-order
+operator, which places its fluxes differently. Only the preconditioner
+is upwind: the residual \\F\\ always uses the requested van Leer
+reconstruction, so the fixed point is that of the original second-order
+scheme.
+
+Each present species is solved with unit egg abundance and the result is
+multiplied by its supplied \\N_0\\. This is valid because the limiter is
+invariant under positive rescaling of a species’ spectrum. Absent
+species remain zero. Convergence is checked separately for each species,
+requiring both a small relative correction and a small residual of the
+original equation. Each cell’s residual is scaled by the absolute terms
+in its balance, with a machine-precision floor relative to the largest
+balance in that species so numerically empty tails do not require
+relative accuracy. Clipping negative iterates therefore cannot make a
+stalled calculation appear converged. If the iteration limit is reached,
+the function stops with an error naming the unconverged species.
+
+The centred reconstruction is solved directly because its coefficients
+are fixed. Its result must also be non-negative and satisfy the
+transport equation; if clipping a negative centred solution breaks that
+equation, the solver stops with the same diagnostic. The legacy upwind
+solve is unchanged.
 
 ## Steady-State Solution for the Predictor-Corrector Method
 
@@ -1269,18 +1393,18 @@ The predictor-corrector method changes the time stepping, but it does
 not change the steady state that is obtained when the rates are
 evaluated at that steady state. To see this, write the Crank-Nicolson
 corrector with fixed midpoint rates as \\ \frac{N^{t+1} - N^t}{\Delta t}
-= \frac{1}{2}\left(L N^t + L N^{t+1}\right) + q, \tag{74}\\ where \\L\\
+= \frac{1}{2}\left(L N^t + L N^{t+1}\right) + q, \tag{78}\\ where \\L\\
 is the spatial transport-and-mortality operator built from the midpoint
 rates and \\q\\ is the recruitment source at the lower boundary. At a
 steady state, \\N^{t+1} = N^t = N^\*\\, so this becomes simply \\ 0 = L
-N^\* + q. \tag{75}\\
+N^\* + q. \tag{79}\\
 
 Thus the predictor-corrector method has the same fixed-point equation as
 the first-order method. The predictor step also becomes irrelevant at
 the fixed point: if \\N^t = N^\*\\, then the predicted \\\hat{N}^{t+1}\\
 is also \\N^\*\\ up to the residual of the steady-state equation, so \\
 r^t = \hat{r}^{t+1} = r^{t+1/2}, \qquad R\_{dd}^t = \hat{R}\_{dd}^{t+1}
-= R\_{dd}^{t+1/2}. \tag{76}\\ The rates used in the steady-state
+= R\_{dd}^{t+1/2}. \tag{80}\\ The rates used in the steady-state
 calculation are therefore just the rates evaluated at \\N^\*\\. The
 predictor-corrector method affects the transient path to the steady
 state, not the steady state itself.
@@ -1299,42 +1423,59 @@ state even when the state is dynamically unstable.
 To make the nonlinear algebraic system well-behaved for the root finder,
 the solver employs several numerical strategies:
 
-1.  **Log-space solve:** The consumer densities are solved for in
-    logarithmic space (\\x = \log N\\). This enforces strict positivity
-    of the densities during the iteration and natively conditions the
-    Jacobian by turning absolute density perturbations—which span dozens
-    of orders of magnitude—into well-scaled \\O(1)\\ relative
-    (multiplicative) perturbations. The residual of the equation is
-    correspondingly scaled by \\1/N\\, turning it into a per-capita rate
-    of change that is also \\O(1)\\ across all size classes.
+1.  **Log-space solve:** The unknown densities are represented by \\x =
+    \log N\\, which keeps them positive and turns absolute density
+    changes across many orders of magnitude into relative changes.
+    [`tuneSteadyState()`](https://sizespectrum.org/mizer/reference/tuneSteadyState.md)
+    scales the consumer residual by \\1/N\\;
+    [`findSteadyState()`](https://sizespectrum.org/mizer/reference/findSteadyState.md)
+    uses the fixed starting density as its scale. The resource unknowns,
+    when present, are also in log space.
 
-2.  **Active support and structural zeros:** The solver defines the
-    “active” size classes for each species as running from the egg size
-    up to the overall grid truncation limit, regardless of whether they
-    initially carry non-zero density. Because the logarithm of zero is
-    \\-\infty\\, the solver applies a smooth, continuous penalty floor
-    to the log-abundances. This automatically bounds the unknowns,
-    gracefully handling structurally zero-density classes and preventing
-    singular Jacobians. After convergence, densities that remain trapped
-    at or near this penalty floor are explicitly set to exactly zero.
-    This allows the solver to automatically discover the true support
-    (the highest non-zero size class) of the steady state.
+2.  **Active support and structural zeros:** All consumer classes from
+    the egg size to the computational support top remain active,
+    including initially empty cells. A smooth penalty acts below a
+    log-abundance floor, and cells left near that floor are set to zero
+    after the solve. The floor is \\10^{-15}\\ times each species’
+    maximum initial density;
+    [`findSteadyState()`](https://sizespectrum.org/mizer/reference/findSteadyState.md)
+    can impose the larger extinction floor as well. A species that is
+    absent throughout its initial spectrum is held at zero and has no
+    unknowns.
 
-3.  **Interaction with high-order spatial schemes:** The solver strictly
-    respects the spatial transport scheme configured in the parameters
-    (e.g., via
-    [`second_order_w()`](https://sizespectrum.org/mizer/reference/second_order_w.md)).
-    The nonlinear flux limiter weight is recalculated at every residual
-    evaluation, ensuring the returned steady state is an exact fixed
-    point of the chosen dynamics. However, because the TVD “van Leer”
-    flux limiter is only Lipschitz-continuous (its derivative is
-    discontinuous where the smoothness indicator equals 1), the Newton
-    iteration converges to the fixed point but typically not to machine
-    precision. Conversely, the unlimited “centred” reconstruction is
-    perfectly smooth, but at a steady state with no physical diffusion
-    it admits an undamped odd-even mode, leading to a structurally
-    ill-conditioned Jacobian for which the Newton solver is unlikely to
-    converge.
+3.  **Bounded steps and invalid trials:** A cell with negligible inflow
+    can have an almost constant per-capita mortality residual while its
+    density remains above the floor. Its Jacobian column is then nearly
+    singular, and an unrestricted Newton step can span millions of
+    log-density units. The solver bounds the log-density step length
+    at 10. It also rejects trials whose densities overflow or underflow
+    to zero before evaluating rate functions, allowing the root finder
+    to backtrack. Errors raised by custom rate functions still
+    propagate.
+
+4.  **Retry from a frozen-rate spectrum:** If the largest absolute
+    residual exceeds `solver_tol` and iterations remain, the solver
+    obtains a starting spectrum from
+    [`get_steady_state_n()`](https://sizespectrum.org/mizer/reference/get_steady_state_n.md)
+    using the original state’s growth, mortality, diffusion and egg
+    densities. Numerically empty active cells start just below the
+    existing structural floor, where the penalty has a useful
+    derivative. The retry uses the same nonlinear residual and active
+    support; it does not replace the model by the frozen-rate system. It
+    shares the `maxit` budget with the first attempt, and only replaces
+    that attempt’s result if its residual is smaller. A small-step
+    stopping code alone is not sufficient to skip the retry. If the
+    frozen-rate calculation itself does not converge, the original
+    Newton result is retained.
+
+5.  **Interaction with high-order spatial schemes:** Every residual
+    evaluation recomputes the model’s chosen flux-limiter weights. Van
+    Leer reconstruction is only piecewise smooth, so Newton convergence
+    need not reach machine precision. The unlimited centred
+    reconstruction can instead admit an undamped odd-even mode without
+    diffusion, making its steady-state Jacobian ill-conditioned. The
+    reported biomass drift remains the check on how close the returned
+    state is to a fixed point.
 
 ## Linear Stability Analysis
 
@@ -1343,7 +1484,7 @@ dynamic stability by linearising the discrete-time map around \\N^\*\\.
 The time step acts as a map \\N^{t+1} = G(N^t)\\, and the stability of
 the steady state is governed by the eigenvalues of the absolute Jacobian
 matrix \\L\\: \\ L\_{ij} = \frac{\partial G_i}{\partial N_j}(N^\*)
-\tag{77}\\
+\tag{81}\\
 
 ### Multiplicative Finite Differences
 
@@ -1358,29 +1499,35 @@ Instead, the
 function approximates the derivative using a **multiplicative
 (relative)** finite-difference step. It perturbs the abundance
 \\N_j^\*\\ by an amount \\\Delta N_j\\ proportional to the steady-state
-abundance: \\ \Delta N_j = h \cdot \max(N_j^\*, \text{machine eps})
-\tag{78}\\ where \\h\\ is the relative step size (default \\10^{-4}\\).
+abundance: \\ \Delta N_j = h \cdot \max(\|N_j^\*\|, s_j) \tag{82}\\
+where \\h\\ is the relative step size (default \\10^{-4}\\) and \\s_j\\
+is a local density scale interpolated from neighbouring positive values,
+with machine epsilon as the fallback for an entirely absent spectrum.
 The function then evaluates the system’s response: \\ L\_{ij} \approx
 \frac{G_i(N^\* + \Delta N_j) - G_i(N^\* - \Delta N_j)}{2 \Delta N_j}
-\tag{79}\\ This ensures the numerical precision is maintained across all
-size classes. A tiny additive floor (the machine epsilon) is kept to
-allow the solver to gently “poke” classes where the steady-state
-abundance is exactly zero (like extinct species or the truncated tail
-above \\w\_{max}\\), capturing their stability against small invasions.
+\tag{83}\\ This scales perturbations to the local spectrum. When the
+negative perturbation would leave the nonnegative state domain, the
+derivative uses the second-order one-sided formula \\\[-3G(N^\*) +
+4G(N^\* + \Delta N_j) - G(N^\* + 2\Delta N_j)\] / (2\Delta N_j)\\. An
+absent species remains in the structural dynamic support and can have
+invasion modes; only explicitly prescribed inputs and coordinates
+outside structural support are omitted.
 
 ### Equivalence to Log-Space Analysis
 
 It might seem conceptually more natural to analyse stability entirely in
 log-space, by perturbing the relative abundances \\x_j(t) = (N_j(t) -
 N_j^\*) / N_j^\*\\ and computing the relative Jacobian \\K\\: \\ K\_{ij}
-= \frac{\partial \log G_i}{\partial \log N_j} \tag{80}\\
+= \frac{\partial \log G_i}{\partial \log N_j} \tag{84}\\
 
 Applying the chain rule, this log-space Jacobian relates to the absolute
 Jacobian via: \\ K\_{ij} = \frac{\partial \log G_i}{\partial G_i}
 \frac{\partial G_i}{\partial N_j} \frac{\partial N_j}{\partial \log N_j}
-= \frac{1}{N_i^\*} L\_{ij} N_j^\* \tag{81}\\ In matrix notation, this is
-a **similarity transform**: \\K = D^{-1} L D\\, where \\D\\ is a
-diagonal matrix containing the steady-state abundances \\N^\*\\.
+= \frac{1}{N_i^\*} L\_{ij} N_j^\* \tag{85}\\ For positive reference
+abundances, this is a **similarity transform**: \\K = D^{-1} L D\\,
+where \\D\\ is a diagonal matrix containing the steady-state abundances
+\\N^\*\\. At zero abundance, the relative formulation is undefined and
+the absolute Jacobian is used directly.
 
 A fundamental theorem of linear algebra states that similar matrices
 have **exactly the same eigenvalues**. Because stability is determined
@@ -1394,5 +1541,6 @@ causes floating-point overflow (`Inf` or `NaN`), breaking standard
 eigenvalue solvers. Therefore,
 [`getStability()`](https://sizespectrum.org/mizer/reference/getStability.md)
 numerically computes the well-conditioned absolute Jacobian \\L\\ (using
-the multiplicative-scale finite difference) and relies on the similarity
-equivalence to guarantee the correct result.
+the multiplicative-scale finite difference) without dividing by
+abundances. Similarity explains the equivalence to relative coordinates
+only on the positive domain.

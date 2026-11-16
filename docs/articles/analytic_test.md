@@ -748,6 +748,11 @@ no_ws <- c(50, 100, 200, 400, 800)
 dx <- log(1000 / 1e-3) / no_ws            # log-size grid spacing
 err_first  <- sapply(no_ws, pulse_err, second_order = FALSE)
 err_second <- sapply(no_ws, pulse_err, second_order = TRUE)
+#> Warning: Growth Courant number 1.15 exceeds the advisory target 1 for Test at
+#> size bin 1 (w = 0.001 g), t = 0 years. The high-order flux can develop
+#> cell-scale oscillations. The current-state suggestion is `dt <= 0.002169`, or
+#> use `subcycle = TRUE`. This growth-based target does not guarantee stability or
+#> positivity.
 
 sp_order <- function(e) unname(coef(lm(log(e) ~ log(dx)))[2])
 round(c(first_order = sp_order(err_first),

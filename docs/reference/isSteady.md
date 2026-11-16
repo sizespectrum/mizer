@@ -1,73 +1,95 @@
 # Check whether a model is at steady state
 
-**\[experimental\]** Returns `TRUE` if the model is at its steady state
-(within a specified tolerance), `FALSE` otherwise.
+**\[experimental\]** Returns the verdict from
+[`getSteadyAssessment()`](https://sizespectrum.org/mizer/reference/getSteadyAssessment.md):
+`TRUE` if all required owners pass, `FALSE` if any measure fails, or
+`NA` if no measure fails but required convergence support is missing.
+The default assesses the whole model, including extension components.
+Callback errors propagate.
 
 ## Usage
 
 ``` r
-isSteady(params, tol = 0.05, effort = params@initial_effort, ...)
+isSteady(
+  params,
+  tol = 0.05,
+  effort = params@initial_effort,
+  scope = c("whole", "conditional"),
+  fixed = character(),
+  criterion = c("state", "biomass"),
+  tolerances = NULL,
+  atol = 1e-12,
+  t = 0,
+  dt = 1e-04,
+  ...
+)
 ```
 
 ## Arguments
 
 - params:
 
-  A
-  [MizerParams](https://sizespectrum.org/mizer/reference/MizerParams-class.md)
-  object or an extension thereof.
+  A MizerParams object or an extension thereof.
 
 - tol:
 
-  Tolerance for the relative rate of biomass change in 1/year. Defaults
-  to `0.05` (5% change per year).
+  Relative tolerance for built-in checks, in 1/year.
 
 - effort:
 
-  The fishing effort at which to evaluate steadiness. By default the
-  initial effort stored in `params`.
+  Fishing effort at which to evaluate steadiness.
+
+- scope:
+
+  `"whole"` or `"conditional"`.
+
+- fixed:
+
+  Canonical owner IDs held fixed under conditional analysis:
+  `"consumers"`, `"resource"`, or `"component:name"`.
+
+- criterion:
+
+  `"state"` for absolute state residuals, or `"biomass"` for net biomass
+  drift in built-in checks.
+
+- tolerances:
+
+  Optional named vector of owner/measure tolerance overrides.
+
+- atol:
+
+  Absolute tolerance for built-in checks, in grams per year.
+
+- t:
+
+  Time at which to evaluate the model, in years.
+
+- dt:
+
+  Step length for resource dynamics supplied as a step map.
 
 - ...:
 
-  Additional arguments passed to methods.
+  Additional arguments made available to convergence callbacks.
 
 ## Value
 
-`TRUE` if the model's biomass drift is within `tol`, `FALSE` otherwise.
+A single logical value, possibly `NA`. Conditional verdicts carry
+`scope` and `fixed` attributes.
 
 ## Details
 
-Steadiness is judged by computing the relative rate of change of biomass
-across all consumer species and the resource (see
-[`getSteadyResidual()`](https://sizespectrum.org/mizer/reference/getSteadyResidual.md)).
-If the largest biomass drift is less than or equal to `tol`, the model
-is considered to be at steady state.
-
-## Components are not included
-
-Components registered with
-[`setComponent()`](https://sizespectrum.org/mizer/reference/setComponent.md)
-are deliberately left out of this judgement. Their state can be any
-object at all, so mizer does not know what currency its entries are in
-and cannot form a biomass for them; and
-[`tuneSteadyState()`](https://sizespectrum.org/mizer/reference/tuneSteadyState.md),
-[`findSteadyState()`](https://sizespectrum.org/mizer/reference/findSteadyState.md)
-and
-[`getStability()`](https://sizespectrum.org/mizer/reference/getStability.md)
-all hold them fixed, so a criterion that included them could be one that
-no mizer function is able to satisfy.
-
-A model can therefore be `isSteady()` while a component of it is still
-changing. If your model has components with dynamics of their own, check
-them as well: `attr(getSteadyResidual(params), "other")` holds their
-rates of change, and mizer names any that are moving whenever it reports
-on the model's steady state. To settle them along with everything else,
-project the model with
-[`projectUntilSettled()`](https://sizespectrum.org/mizer/reference/projectUntilSettled.md),
-which advances the components like every other state variable.
+The default state-residual criterion prevents changes at different sizes
+from cancelling. Net biomass drift remains available explicitly with
+`criterion = "biomass"`. A conditional assessment requires an explicit
+list of owners held fixed; its scalar verdict retains `scope` and
+`fixed` attributes so that it cannot be mistaken for a whole-model
+judgement.
 
 ## See also
 
+[`getSteadyAssessment()`](https://sizespectrum.org/mizer/reference/getSteadyAssessment.md),
 [`getSteadyResidual()`](https://sizespectrum.org/mizer/reference/getSteadyResidual.md),
 [`tuneSteadyState()`](https://sizespectrum.org/mizer/reference/tuneSteadyState.md),
 [`findSteadyState()`](https://sizespectrum.org/mizer/reference/findSteadyState.md)
@@ -76,21 +98,5 @@ which advances the components like every other state variable.
 
 ``` r
 isSteady(NS_params)
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 #> [1] TRUE
-
-# \donttest{
-# Moving a species abundance off its steady state makes isSteady() FALSE
-params <- NS_params
-initialN(params)[1, ] <- initialN(params)[1, ] * 2
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-isSteady(params)
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-#> [1] FALSE
-# }
 ```

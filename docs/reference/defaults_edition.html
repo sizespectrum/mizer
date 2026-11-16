@@ -13,7 +13,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0.9011</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -93,7 +93,9 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">defaults_edition</span><span class="op">(</span>edition <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">defaults_edition</span><span class="op">(</span>edition <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">defaults_edition</span><span class="op">(</span><span class="va">params</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">value</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -101,15 +103,26 @@
 
 
 <dl><dt id="arg-edition">edition<a class="anchor" aria-label="anchor" href="#arg-edition"></a></dt>
-<dd><p>NULL or a numerical value.</p></dd>
+<dd><p>NULL, a number, or a MizerParams or MizerSim object.</p></dd>
+
+
+<dt id="arg-params">params<a class="anchor" aria-label="anchor" href="#arg-params"></a></dt>
+<dd><p>A MizerParams object.</p></dd>
+
+
+<dt id="arg-value">value<a class="anchor" aria-label="anchor" href="#arg-value"></a></dt>
+<dd><p>The edition to record in the model.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>If <code>edition</code> is <code>NULL</code>, the currently active edition number. If
-<code>edition</code> is supplied, the function sets the global
+<code>edition</code> is a MizerParams or MizerSim object, the edition recorded in
+that model. If <code>edition</code> is a number, the function sets the global
 <code>mizer_defaults_edition</code> option, emits a message, and returns the supplied
 value invisibly.</p>
+<p><code>defaults_edition&lt;-</code>: The MizerParams object with the new edition
+recorded. Nothing is recalculated.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -118,14 +131,41 @@ values for parameters that are not provided by the user. Sometimes we find
 better ways to choose the defaults and update mizer accordingly. When we do
 this, we will increase the edition number.</p>
 <p>If you call <code>defaults_edition()</code> without an argument it returns the
-currently active edition. Otherwise it sets the active edition to the
-given value.</p>
+currently active edition. If you call it with a number it sets the active
+edition to that value.</p>
 <p>Users who want their existing code for creating models not to change
 behaviour when run with future versions of mizer should explicitly set the
 desired defaults edition at the top of their code.</p>
-<p>The most recent edition is edition 2. It will become the default in the
-next release. The current default is edition 1. The following defaults
-are changed in edition 2:</p><ul><li><p><code>catchability</code> = 0.3 instead of 1</p></li>
+    </div>
+    <div class="section level2">
+    <h2 id="each-model-keeps-its-own-edition">Each model keeps its own edition<a class="anchor" aria-label="anchor" href="#each-model-keeps-its-own-edition"></a></h2>
+
+
+<p>The active edition is used when a new model is created, and the model
+records it. Whenever mizer later fills in a default for that model, for
+example when it recalculates the model after you have changed a species
+parameter, it uses the edition recorded in the model, not the one that is
+active at the time. So changing the active edition affects only models
+created afterwards, and an existing model keeps behaving as it did when it
+was created. Call <code>defaults_edition(params)</code> to see the edition of a
+model. Models created with a version of mizer that did not yet record the
+edition are of edition 1.</p>
+<p>To give an existing model the defaults of a different edition, create it
+afresh with that edition active.</p>
+<p><code>defaults_edition(params) &lt;- value</code> changes the edition recorded in a
+model. It does not recalculate anything: the model keeps the values it has,
+and the new edition is used only for defaults that mizer fills in from then
+on. It is meant for a model that was created with a different edition
+active, before mizer recorded the edition in the model, and has therefore
+been marked as edition 1.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="the-editions">The editions<a class="anchor" aria-label="anchor" href="#the-editions"></a></h2>
+
+
+<p>The most recent edition is edition 3. The current default is edition 1.
+Edition 2 will become the default in the next release. The following
+defaults are changed in edition 2:</p><ul><li><p><code>catchability</code> = 0.3 instead of 1</p></li>
 <li><p><code>initial effort</code> = 1 instead of 0</p></li>
 <li><p><code>gamma</code> is set to ensure a feeding level of <code>f0</code> for larvae with the
 current value of <code>interaction_resource</code> instead of
@@ -135,8 +175,34 @@ arbitrary old choice.</p></li>
 <li><p>In <code><a href="setReproduction.html">setReproduction()</a></code>, <code>psi</code> is no longer forced to 1 above
 <code>w_repro_max</code>; its value is determined entirely by the maturity ogive
 and the reproductive proportion.</p></li>
+</ul><p>Edition 3 keeps all the changes of edition 2 and makes two more:</p><ul><li><p>The sums over the predation kernel in the encounter rate, the predation
+rate, the predation diffusion and the diet are evaluated by fast Fourier
+transforms on a zero-padded grid (see <code><a href="convolve_pred_kernel.html">convolve_pred_kernel()</a></code>). In
+earlier editions the convolutions are circular: the part of the feeding
+kernel of a small fish that reaches below the smallest resource size wraps
+around to the largest sizes, so that larvae are fed by the largest fish and
+are counted as eating them.</p></li>
+<li><p>A new model uses the second-order numerical scheme in size, as with
+<code>second_order_w = TRUE</code>, instead of the first-order scheme of previous
+mizer versions (see <code><a href="second_order_w.html">second_order_w()</a></code>). The van Leer flux limiter
+replaces the upwind flux, whose numerical diffusion smears out cohorts
+and can damp real oscillations away. Integrals over the size grid are
+bin averages instead of left-edge sums, which moves unnormalised
+quantities such as biomass and yield by around 10% on a typical grid.
+You can still choose the first-order scheme with the <code>second_order_w</code>
+argument of the function that creates the model.</p></li>
 </ul></div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># The edition used for new models</span></span></span>
+<span class="r-in"><span><span class="fu">defaults_edition</span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1</span>
+<span class="r-in"><span><span class="co"># The edition of an existing model</span></span></span>
+<span class="r-in"><span><span class="fu">defaults_edition</span><span class="op">(</span><span class="va">NS_params</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1</span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

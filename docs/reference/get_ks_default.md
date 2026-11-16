@@ -8,7 +8,7 @@ critical feeding level \\f_c = 0.2\\ is used.
 ## Usage
 
 ``` r
-get_ks_default(params)
+get_ks_default(params, ...)
 ```
 
 ## Arguments
@@ -16,6 +16,10 @@ get_ks_default(params)
 - params:
 
   A MizerParams object
+
+- ...:
+
+  Unused.
 
 ## Value
 
@@ -33,4 +37,5 @@ the mathematical derivation.
 Other functions calculating defaults:
 [`get_f0_default()`](https://sizespectrum.org/mizer/reference/get_f0_default.md),
 [`get_gamma_default()`](https://sizespectrum.org/mizer/reference/get_gamma_default.md),
-[`get_h_default()`](https://sizespectrum.org/mizer/reference/get_h_default.md)
+[`get_h_default()`](https://sizespectrum.org/mizer/reference/get_h_default.md),
+[`measure_avail_energy()`](https://sizespectrum.org/mizer/reference/measure_avail_energy.md)

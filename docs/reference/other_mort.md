@@ -102,8 +102,10 @@ Other extension tools:
 [`NOther()`](https://sizespectrum.org/mizer/reference/NOther.md),
 [`coerceToExtensionClass()`](https://sizespectrum.org/mizer/reference/coerceToExtensionClass.md),
 [`initialNOther<-()`](https://sizespectrum.org/mizer/reference/initialNOther-set.md),
+[`mizerReproductionDefinition()`](https://sizespectrum.org/mizer/reference/mizerReproductionDefinition.md),
 [`recordExtension()`](https://sizespectrum.org/mizer/reference/recordExtension.md),
 [`setComponent()`](https://sizespectrum.org/mizer/reference/setComponent.md),
+[`setProcess()`](https://sizespectrum.org/mizer/reference/setProcess.md),
 [`setRateFunction()`](https://sizespectrum.org/mizer/reference/setRateFunction.md)
 
 ## Examples
@@ -125,18 +127,6 @@ other_mort(params)
 
 # The contribution is included in the mortality rate
 range(getMort(params) - getMort(NS_params))
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 #> [1] 0 0
 
 # and can be removed again

@@ -39,7 +39,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0.9011</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -184,11 +184,23 @@
 <span><span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">class</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span>
 <span><span class="co"># [1] "mizerShelf" "mizerMR" "MizerParams"</span></span></code></pre></div>
 </div>
+<hr></section><section class="level2"><h2 id="which-operations-does-an-extension-support">Which operations does an extension support?<a class="anchor" aria-label="anchor" href="#which-operations-does-an-extension-support"></a>
+</h2>
+<p>A model can project successfully while lacking support for tuning, changing species, rescaling or whole-model stability. The model stores separate capability declarations for those operations. A model-changing operation stops when required extension support is missing; updating the extension package and upgrading the saved model is the appropriate next step.</p>
+<p>Read-only assessments can return incomplete information. <a href="../reference/isSteady.html"><code>isSteady()</code></a> and the <code>stable</code> field of a stability result can be <code>NA</code>; use <code><a href="https://rdrr.io/r/base/Logic.html" class="external-link">isTRUE()</a></code> when proceeding requires a positive verdict. Inspect <a href="../reference/getSteadyAssessment.html"><code>getSteadyAssessment(params)</code></a> or a stability result’s <code>coverage</code> to see the missing support. To deliberately analyse a subsystem, request <code>scope = "conditional"</code> and name the dynamic owners held fixed, for example <code>fixed = "component:pool"</code>. That result remains conditional.</p>
+<p>Biomass inclusion is explicit:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">biomass</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getBiomass.html">getBiomass</a></span><span class="op">(</span><span class="va">sim</span>, include <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"species"</span>, <span class="st">"resource"</span>, <span class="st">"components"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/plot.html">plot</a></span><span class="op">(</span><span class="va">biomass</span><span class="op">)</span></span></code></pre></div>
+</div>
+<p>The default remains species-only. A component can provide several named biomass series, and a component without a biomass measurement is shown as unavailable when requested. Convergence does not depend on having a biomass measurement.</p>
+<p>Reusable definitions are stored as assembled snapshots in each model. Installing a newer extension does not silently adopt every changed definition: the extension’s upgrade method or an explicit update applies the appropriate changes. Save the upgraded model to retain those declarations.</p>
 <hr></section><section class="level2"><h2 id="params-objects-and-the-extension-chain">Params objects and the extension chain<a class="anchor" aria-label="anchor" href="#params-objects-and-the-extension-chain"></a>
 </h2>
 <p>When an extension package creates a <a href="../reference/MizerParams.html"><code>MizerParams</code></a> object (for example <code>mizerShelf::newDetritusCarrionParams()</code>), it records the extension packages actually applied to that object in its metadata:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/setMetadata.html">getMetadata</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">extensions</span></span></code></pre></div>
 </div>
 <p>That record serves two purposes:</p>
@@ -201,7 +213,7 @@
 <section class="level3"><h3 id="saving-and-loading">Saving and loading<a class="anchor" aria-label="anchor" href="#saving-and-loading"></a>
 </h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/saveParams.html">saveParams</a></span><span class="op">(</span><span class="va">params</span>, <span class="st">"my_model.rds"</span><span class="op">)</span></span>
 <span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/saveParams.html">readParams</a></span><span class="op">(</span><span class="st">"my_model.rds"</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -209,7 +221,7 @@
 <p><code><a href="../reference/saveParams.html">saveParams()</a></code> stores the object’s complete S3 class vector. <code><a href="../reference/saveParams.html">readParams()</a></code> upgrades the object if it was written by an older mizer, loads the required extension packages, and validates that class vector against the recorded extension chain. As long as the required packages are installed, this is seamless; if one is missing, <code><a href="../reference/saveParams.html">readParams()</a></code> stops with an error naming it.</p>
 <p><a href="../reference/MizerSim.html"><code>MizerSim</code></a> objects carry their params object inside them, so the extensions are embedded there too. Use <code><a href="../reference/saveParams.html">saveSim()</a></code> and <code><a href="../reference/saveParams.html">readSim()</a></code>, which do the same loading and coercion:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sim</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/project.html">project</a></span><span class="op">(</span><span class="va">params</span>, t_max <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/saveParams.html">saveSim</a></span><span class="op">(</span><span class="va">sim</span>, <span class="st">"my_simulation.rds"</span><span class="op">)</span></span>
 <span><span class="va">sim</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/saveParams.html">readSim</a></span><span class="op">(</span><span class="st">"my_simulation.rds"</span><span class="op">)</span></span></code></pre></div>
@@ -219,7 +231,7 @@
 </h2>
 <p>A collaborator needs the same extension packages installed. <code><a href="../reference/saveParams.html">readParams()</a></code> and <code><a href="../reference/saveParams.html">readSim()</a></code> tell them which are missing. To install them automatically from the specifications stored in the model’s extension metadata:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/saveParams.html">readParams</a></span><span class="op">(</span><span class="st">"my_model.rds"</span>, install_extensions <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 </div>
 <p>This installs each package from the recorded requirement specification, such as a CRAN version requirement or a GitHub repository. The separate recorded version stamp describes the object layout for upgrade purposes; it does not necessarily pin installation to that exact package release.</p>
@@ -227,7 +239,7 @@
 </h2>
 <p>Extension packages often ship ready-made <code>MizerParams</code> or <code>MizerSim</code> objects as example models. As long as the package follows mizer’s conventions, these work as soon as the package is loaded:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">mizerShelf</span><span class="op">)</span></span>
 <span><span class="va">NWMed_params</span>   <span class="co"># already has the correct extension class -- no extra steps needed</span></span></code></pre></div>
 </div>
@@ -242,7 +254,7 @@
 </section><section class="level3"><h3 id="checking-what-a-params-object-requires">Checking what a params object requires<a class="anchor" aria-label="anchor" href="#checking-what-a-params-object-requires"></a>
 </h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/setMetadata.html">getMetadata</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">extensions</span></span></code></pre></div>
 </div>
 <p>The names are the extension identifiers. Current entries each contain a <code>requirement</code> (where or at what minimum version to install the package) and a <code>version</code> stamp (the package version whose object layout the component conforms to). Legacy objects may still show the older named-character-vector form; mizer accepts both.</p>

@@ -35,7 +35,7 @@ newSingleSpeciesParams(
   gamma = NA,
   ext_mort_prop = 0,
   reproduction_level = 0,
-  second_order_w = FALSE,
+  second_order_w = NULL,
   info_level = default_info_level(),
   R_factor = deprecated(),
   w_inf = deprecated(),
@@ -147,7 +147,9 @@ newSingleSpeciesParams(
   constructed so that they are built bin-averaged from the start.
   Accepts the same values as the
   [`second_order_w()`](https://sizespectrum.org/mizer/reference/second_order_w.md)
-  setter. Defaults to `FALSE`. See
+  setter. By default the model gets the scheme of the active
+  [`defaults_edition()`](https://sizespectrum.org/mizer/reference/defaults_edition.md):
+  second order from edition 3 on, first order before. See
   [`newMultispeciesParams()`](https://sizespectrum.org/mizer/reference/newMultispeciesParams.md).
 
 - info_level:

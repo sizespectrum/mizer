@@ -145,7 +145,11 @@ objects.
 
   An array (species x log of predator/prey size ratio) that holds the
   Fourier transform of the feeding kernel in a form appropriate for
-  evaluating the encounter rate integral. If this is NA then the
+  evaluating the encounter rate integral. In a model of defaults edition
+  3 or later the kernel is zero-padded, so the second dimension can be
+  longer than `w_full`; use
+  [`convolve_pred_kernel()`](https://sizespectrum.org/mizer/reference/convolve_pred_kernel.md)
+  rather than this slot to evaluate the integral. If this is NA then the
   `pred_kernel` will be used to calculate the available energy integral.
   Changed with
   [`setPredKernel()`](https://sizespectrum.org/mizer/reference/setPredKernel.md).
@@ -154,20 +158,21 @@ objects.
 
   An array (species x log of predator/prey size ratio) that holds the
   Fourier transform of the feeding kernel in a form appropriate for
-  evaluating the predation mortality integral. If this is NA then the
-  `pred_kernel` will be used to calculate the integral. Changed with
+  evaluating the predation mortality integral. Zero-padded in the same
+  way as `ft_pred_kernel_e`. If this is NA then the `pred_kernel` will
+  be used to calculate the integral. Changed with
   [`setPredKernel()`](https://sizespectrum.org/mizer/reference/setPredKernel.md).
 
 - `ft_pred_kernel_d`:
 
   An array (species x log of predator/prey size ratio) that holds the
-  Fourier transform of the feeding kernel in a form appropriate for
-  evaluating the predation-diffusion integral (used when
-  `use_predation_diffusion` is `TRUE`). It differs from
-  `ft_pred_kernel_e` only when `second_order_w[["bin_average"]]` is
-  `TRUE`, where it carries the extra power of prey size that the
-  diffusion integrand needs; otherwise it equals `ft_pred_kernel_e`.
-  Changed with
+  Fourier transform of the feeding kernel, zero-padded in the same way
+  as `ft_pred_kernel_e`, in a form appropriate for evaluating the
+  predation-diffusion integral (used when `use_predation_diffusion` is
+  `TRUE`). It differs from `ft_pred_kernel_e` only when
+  `second_order_w[["bin_average"]]` is `TRUE`, where it carries the
+  extra power of prey size that the diffusion integrand needs; otherwise
+  it equals `ft_pred_kernel_e`. Changed with
   [`setPredKernel()`](https://sizespectrum.org/mizer/reference/setPredKernel.md).
 
 - `rr_pp`:
@@ -207,6 +212,13 @@ objects.
   A list containing the parameters needed by any mizer extensions you
   may have installed to model other dynamical components of the
   ecosystem.
+
+- `capabilities`:
+
+  A versioned registry of assembled component and process capability
+  specifications. Component definitions are stored by
+  [`setComponent()`](https://sizespectrum.org/mizer/reference/setComponent.md)
+  independently of their initial state and parameters.
 
 - `rates_funcs`:
 
@@ -298,8 +310,10 @@ objects.
 - `ft_mask`:
 
   An array (species x w_full) with zeros for weights larger than the
-  maximum weight of each species. Used to efficiently minimize
-  wrap-around errors in Fourier transform calculations.
+  maximum weight of each species. Used to set the predation rate by each
+  species to zero on prey larger than its maximum weight. In a model of
+  defaults edition 1 or 2, whose convolutions are circular, this also
+  removes some of the wrap-around errors from the predation rate.
 
 - `use_predation_diffusion`:
 
@@ -314,9 +328,20 @@ objects.
 
   A named list with entry `flux` (the advective flux scheme: `"upwind"`,
   `"van_leer"`, or `"centred"`) and logical entry `bin_average`
-  (controls whether bin-averaging is used for rates). Both default to
-  the first-order setting to preserve the behaviour of previous mizer
-  versions.
+  (controls whether bin-averaging is used for rates). In a model of
+  defaults edition 3 or later both default to the second-order setting.
+  In earlier editions they default to the first-order setting, which
+  preserves the behaviour of previous mizer versions. See
+  [`second_order_w()`](https://sizespectrum.org/mizer/reference/second_order_w.md).
+
+- `defaults_edition`:
+
+  The edition of default choices that was active when the model was
+  created, see
+  [`defaults_edition()`](https://sizespectrum.org/mizer/reference/defaults_edition.md).
+  Whenever mizer fills in a default for the model it uses this edition,
+  so that the model keeps its defaults when a different edition becomes
+  active.
 
 ## See also
 

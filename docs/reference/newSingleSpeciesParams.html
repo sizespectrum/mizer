@@ -29,7 +29,7 @@ many arguments, all of which have default values."><meta property="og:image" con
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0.9011</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -138,7 +138,7 @@ many arguments, all of which have default values.</p>
 <span>  gamma <span class="op">=</span> <span class="cn">NA</span>,</span>
 <span>  ext_mort_prop <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  reproduction_level <span class="op">=</span> <span class="fl">0</span>,</span>
-<span>  second_order_w <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  second_order_w <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  info_level <span class="op">=</span> <span class="fu"><a href="default_info_level.html">default_info_level</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  R_factor <span class="op">=</span> <span class="fu">deprecated</span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  w_inf <span class="op">=</span> <span class="fu">deprecated</span><span class="op">(</span><span class="op">)</span>,</span>
@@ -250,7 +250,9 @@ level of density dependence in reproduction, see <code><a href="setBevertonHolt.
 second-order numerical scheme for the new model, applied before the
 resource and abundance power laws are constructed so that they are built
 bin-averaged from the start. Accepts the same values as the
-<code><a href="second_order_w.html">second_order_w()</a></code> setter. Defaults to <code>FALSE</code>. See
+<code><a href="second_order_w.html">second_order_w()</a></code> setter. By default the model gets the scheme of the
+active <code><a href="defaults_edition.html">defaults_edition()</a></code>: second order from edition 3 on, first order
+before. See
 <code><a href="newMultispeciesParams.html">newMultispeciesParams()</a></code>.</p></dd>
 
 

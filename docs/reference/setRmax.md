@@ -93,10 +93,9 @@ coupled with a lower `erepro` (black curves) can give the same value as
 a lower `R_max` coupled with a higher `erepro` (blue curves).
 
 For the given initial state in the MizerParams object `params` one can
-calculate the energy \\E_R\\ that is invested into reproduction by the
-mature individuals and the reproduction rate \\R\_{dd}\\ that is
-required to keep the egg abundance constant. These two values determine
-the location of the black dot in the above graph. You then only need one
+calculate the energy \\E_R\\ invested into reproduction and the current
+effective recruitment \\R\_{dd}\\. These two values determine the
+location of the black dot in the above graph. You then only need one
 parameter to select one curve from the family of Beverton-Holt curves
 going through that point. This parameter can be `erepro` or `R_max`.
 Instead of `R_max` you can alternatively specify the
@@ -113,16 +112,20 @@ or a single unnamed value that is then used for all species. Any species
 for which the given value is `NA` will remain unaffected.
 
 The values for `R_max` must be larger than \\R\_{dd}\\ and can range up
-to `Inf`. If a smaller value is requested a warning is issued and the
-value is increased to the value required for a reproduction level of
-0.99.
+to `Inf`. An infeasible requested value is an error.
 
 The values for the `reproduction_level` must be non-negative and less
 than 1. The values for `erepro` must be large enough to allow the
-required reproduction rate. If a smaller value is requested a warning is
-issued and the value is increased to the smallest possible value. The
+preserved recruitment rate. A smaller requested value is an error. The
 values for `erepro` should also be smaller than 1 to be physiologically
 sensible, but this is not enforced by the function.
+
+A species that is absent from the initial state, with zero abundance at
+all sizes, has no reproduction whatever its parameters, so every
+Beverton-Holt curve keeps it at its steady state. For such a species a
+given `erepro` or `R_max` is used as it is and the other parameter is
+left unchanged. Its reproduction level is zero whatever its `R_max`, so
+a non-zero `reproduction_level` cannot be set for it and is rejected.
 
 As can be seen in the graph above, choosing a lower value for `R_max` or
 a higher value for `erepro` means that near the steady state the
@@ -140,79 +143,76 @@ species_params(params)$erepro
 #>       1       1       1       1       1       1       1       1       1       1 
 #>     Cod  Saithe 
 #>       1       1 
-# Attempting to set the same erepro for all species
-params <- setBevertonHolt(params, erepro = 0.1)
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-#> Warning: For the following species `erepro` has been increased to the smallest possible value: erepro[Gurnard] = 0.558; erepro[Plaice] = 0.921
+# Increase efficiency while preserving recruitment
+params <- setBevertonHolt(params,
+    erepro = 2 * species_params(params)$erepro
+)
+#> Warning: ! The following species require an unrealistic value greater than 1 for `erepro`: Sprat
+#> ! The following species require an unrealistic value greater than 1 for `erepro`: Sandeel
+#> ! The following species require an unrealistic value greater than 1 for `erepro`: N.pout
+#> ! The following species require an unrealistic value greater than 1 for `erepro`: Herring
+#> ! The following species require an unrealistic value greater than 1 for `erepro`: Dab
+#> ! The following species require an unrealistic value greater than 1 for `erepro`: Whiting
+#> ! The following species require an unrealistic value greater than 1 for `erepro`: Sole
+#> ! The following species require an unrealistic value greater than 1 for `erepro`: Gurnard
+#> ! The following species require an unrealistic value greater than 1 for `erepro`: Plaice
+#> ! The following species require an unrealistic value greater than 1 for `erepro`: Haddock
+#> ! The following species require an unrealistic value greater than 1 for `erepro`: Cod
+#> ! The following species require an unrealistic value greater than 1 for `erepro`: Saithe
 t(species_params(params)[, c("erepro", "R_max")])
-#>               Sprat      Sandeel       N.pout      Herring          Dab
-#> erepro 1.000000e-01 1.000000e-01 1.000000e-01 1.000000e-01 1.000000e-01
-#> R_max  8.071481e+11 4.112049e+11 3.472063e+13 1.197577e+12 1.167176e+10
-#>            Whiting         Sole   Gurnard    Plaice      Haddock          Cod
-#> erepro 1.00000e-01 1.000000e-01 0.5582259 0.9212325 1.000000e-01          0.1
-#> R_max  6.22081e+11 4.007876e+10       Inf       Inf 3.929056e+12 8280106764.0
-#>              Saithe
-#> erepro 1.000000e-01
-#> R_max  1.145835e+11
+#>               Sprat      Sandeel       N.pout      Herring         Dab
+#> erepro            2            2 2.000000e+00 2.000000e+00           2
+#> R_max  734568053068 409973456848 1.010954e+13 1.105535e+12 11176346947
+#>             Whiting        Sole     Gurnard       Plaice      Haddock
+#> erepro            2           2 2.00000e+00 2.000000e+00 2.000000e+00
+#> R_max  544466527832 38630947185 1.01135e+12 6.059906e+13 1.787419e+12
+#>               Cod       Saithe
+#> erepro          2            2
+#> R_max  8259738057 111869833966
 # Setting erepro for some species
-params <- setBevertonHolt(params, erepro = c("Gurnard" = 0.6, "Plaice" = 0.95))
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+params <- setBevertonHolt(params, reproduction_level = c(Gurnard = 0.6))
+#> Warning: The following species require an unrealistic value greater than 1 for `erepro`: Gurnard
 t(species_params(params)[, c("erepro", "R_max")])
-#>               Sprat      Sandeel       N.pout      Herring          Dab
-#> erepro 1.000000e-01 1.000000e-01 1.000000e-01 1.000000e-01 1.000000e-01
-#> R_max  8.071481e+11 4.112049e+11 3.472063e+13 1.197577e+12 1.167176e+10
-#>            Whiting         Sole      Gurnard       Plaice      Haddock
-#> erepro 1.00000e-01 1.000000e-01 6.000000e-01 9.500000e-01 1.000000e-01
-#> R_max  6.22081e+11 4.007876e+10 1.047481e+13 1.082568e+15 3.929056e+12
-#>                 Cod       Saithe
-#> erepro          0.1 1.000000e-01
-#> R_max  8280106764.0 1.145835e+11
+#>               Sprat      Sandeel       N.pout      Herring         Dab
+#> erepro            2            2 2.000000e+00 2.000000e+00           2
+#> R_max  734568053068 409973456848 1.010954e+13 1.105535e+12 11176346947
+#>             Whiting        Sole      Gurnard       Plaice      Haddock
+#> erepro            2           2 1.395255e+00 2.000000e+00 2.000000e+00
+#> R_max  544466527832 38630947185 1.215220e+12 6.059906e+13 1.787419e+12
+#>               Cod       Saithe
+#> erepro          2            2
+#> R_max  8259738057 111869833966
 # Setting R_max
-R_max <- 1e17 * species_params(params)$w_max^-1
+R_max <- 2 * getRDD(params)
 params <- setBevertonHolt(NS_params, R_max = R_max)
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-#> Warning: The following species require an unrealistic value greater than 1 for `erepro`: Plaice
+#> Warning: ! The following species require an unrealistic value greater than 1 for `erepro`: Gurnard
+#> ! The following species require an unrealistic value greater than 1 for `erepro`: Plaice
 t(species_params(params)[, c("erepro", "R_max")])
 #>               Sprat      Sandeel       N.pout      Herring          Dab
-#> erepro 9.274305e-03 1.297184e-04 7.257409e-02 8.045063e-03 4.224791e-03
-#> R_max  3.030303e+15 2.777778e+15 1.000000e+15 2.994012e+14 3.086420e+14
+#> erepro 1.851524e-02 2.589408e-04 1.434136e-01 1.602395e-02 8.429716e-03
+#> R_max  1.462336e+12 8.198938e+11 1.949416e+13 2.202213e+12 2.230559e+10
 #>             Whiting         Sole      Gurnard       Plaice      Haddock
-#> erepro 1.292557e-02 3.571380e-03 5.609587e-01 3.773957e+01 6.020565e-02
-#> R_max  8.389262e+13 1.154734e+14 1.497006e+14 3.360215e+13 2.316692e+13
+#> erepro 2.562653e-02 7.124529e-03 1.116204e+00 1.839558e+00 1.111311e-01
+#> R_max  1.081957e+12 7.712428e+10 1.458264e+12 6.546038e+13 3.475519e+12
 #>                 Cod       Saithe
-#> erepro 6.375069e-05 2.433424e-03
-#> R_max  2.509328e+12 2.521521e+12
+#> erepro 1.268449e-04 4.643390e-03
+#> R_max  1.651895e+10 2.234799e+11
 # Setting reproduction_level
 params <- setBevertonHolt(params, reproduction_level = 0.3)
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 #> Warning: The following species require an unrealistic value greater than 1 for `erepro`: Plaice
 t(species_params(params)[, c("erepro", "R_max")])
 #>               Sprat      Sandeel       N.pout      Herring          Dab
-#> erepro 1.324581e-02 1.852847e-04 1.026645e-01 1.145066e-02 6.035197e-03
-#> R_max  2.441029e+12 1.368905e+12 3.256200e+13 3.671952e+12 3.726224e+10
+#> erepro 1.322517e-02 1.849577e-04 1.024383e-01 1.144568e-02 6.021226e-03
+#> R_max  2.437226e+12 1.366490e+12 3.249026e+13 3.670356e+12 3.717598e+10
 #>             Whiting         Sole      Gurnard       Plaice      Haddock
-#> erepro 1.834577e-02 5.100263e-03 7.974655e-01 1.316046e+00 7.954325e-02
-#> R_max  1.807310e+12 1.288262e+11 2.430980e+12 1.092730e+14 5.804489e+12
+#> erepro 1.830466e-02 5.088950e-03 7.972884e-01 1.313970e+00 7.937939e-02
+#> R_max  1.803261e+12 1.285405e+11 2.430440e+12 1.091006e+14 5.792531e+12
 #>                 Cod       Saithe
-#> erepro 9.077210e-05 3.322021e-03
-#> R_max  2.758282e+10 3.730633e+11
+#> erepro 9.060350e-05 3.316707e-03
+#> R_max  2.753159e+10 3.724666e+11
 
 # Inspecting reproduction level
 reproduction_level(NS_params)
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 #>      Sprat    Sandeel     N.pout    Herring        Dab    Whiting       Sole 
 #> 0.99074238 0.99987053 0.92829319 0.99198802 0.99578514 0.98718674 0.99643774 
 #>    Gurnard     Plaice    Haddock        Cod     Saithe 
@@ -220,20 +220,9 @@ reproduction_level(NS_params)
 
 # The reproduction level can be changed without changing the steady state:
 reproduction_level(params) <- 0.9
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-#> Warning: The following species require an unrealistic value greater than 1 for `erepro`: Gurnard, Plaice
+#> Warning: ! The following species require an unrealistic value greater than 1 for `erepro`: Gurnard
+#> ! The following species require an unrealistic value greater than 1 for `erepro`: Plaice
 reproduction_level(params)
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 #>   Sprat Sandeel  N.pout Herring     Dab Whiting    Sole Gurnard  Plaice Haddock 
 #>     0.9     0.9     0.9     0.9     0.9     0.9     0.9     0.9     0.9     0.9 
 #>     Cod  Saithe 

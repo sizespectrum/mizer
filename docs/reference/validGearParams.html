@@ -15,7 +15,7 @@ by setFishing() or it gives an error message."><meta property="og:image" content
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0.9011</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -96,7 +96,7 @@ by <code><a href="setFishing.html">setFishing()</a></code> or it gives an error 
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">validGearParams</span><span class="op">(</span><span class="va">gear_params</span>, <span class="va">species_params</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">validGearParams</span><span class="op">(</span><span class="va">gear_params</span>, <span class="va">species_params</span>, edition <span class="op">=</span> <span class="fu"><a href="defaults_edition.html">defaults_edition</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -109,6 +109,13 @@ by <code><a href="setFishing.html">setFishing()</a></code> or it gives an error 
 
 <dt id="arg-species-params">species_params<a class="anchor" aria-label="anchor" href="#arg-species-params"></a></dt>
 <dd><p>Species parameter data frame</p></dd>
+
+
+<dt id="arg-edition">edition<a class="anchor" aria-label="anchor" href="#arg-edition"></a></dt>
+<dd><p>The defaults edition that determines the default
+<code>catchability</code>, see <code><a href="defaults_edition.html">defaults_edition()</a></code>. When the gear parameters are
+for an existing model, this should be the edition of that model,
+<code>defaults_edition(params)</code>. Defaults to the currently active edition.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -124,7 +131,7 @@ in the <code>species_params</code> data frame.</p></li>
 <li><p>There must be a <code>sel_func</code> column. If a selectivity function is not
 supplied, it will be set to "knife_edge".</p></li>
 <li><p>There must be a <code>catchability</code> column. If a catchability is not supplied,
-it will be set to 1.</p></li>
+it will be set to 1, or to 0.3 under defaults edition 2 or later.</p></li>
 <li><p>All the parameters required by the selectivity functions must be provided.</p></li>
 </ul><p>If gear_params is empty, then this function tries to find the necessary
 information in the species_params data frame. This restricts each species
@@ -132,7 +139,8 @@ to be fished by only one gear. Defaults are used for information that can
 not be found in the species_params dataframe, as follows:</p><ul><li><p>If there is no <code>gear</code> column or it is NA then a new gear named after the
 species is introduced.</p></li>
 <li><p>If there is no <code>sel_func</code> column or it is NA then <code>knife_edge</code> is used.</p></li>
-<li><p>If there is no <code>catchability</code> column or it is NA then this is set to 1.</p></li>
+<li><p>If there is no <code>catchability</code> column or it is NA then this is set to 1,
+or to 0.3 under defaults edition 2 or later.</p></li>
 <li><p>If the selectivity function is <code>knife_edge</code> and no <code>knife_edge_size</code> is
 provided, it is set to <code>w_mat</code>.</p></li>
 </ul><p>The row names of the returned data frame are of the form
@@ -140,7 +148,8 @@ provided, it is set to <code>w_mat</code>.</p></li>
 <p>When <code>gear_params</code> is <code>NULL</code> and there is no gear information in
 <code>species_params</code>, then a gear called <code>knife_edge_gear</code> is set up with a
 <code>knife_edge</code> selectivity for each species and a <code>knive_edge_size</code> equal to
-<code>w_mat</code>. Catchability is set to 0.3 for all species.</p>
+<code>w_mat</code>. Catchability is set to the default described above for all
+species.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

@@ -22,6 +22,7 @@ getTrophicLevelBySpecies(
   n_other = initialNOther(params),
   w_R = 1e-10,
   beta_R = 1000,
+  t = 0,
   ...
 )
 ```
@@ -61,6 +62,12 @@ getTrophicLevelBySpecies(
   set the size-dependent resource trophic level. Must be greater than
   `1`. Defaults to `1000`.
 
+- t:
+
+  The time at which to evaluate the rates. Defaults to 0. It matters
+  only in a model whose rates depend on time, for example through an
+  extension or through the encounter function of a component.
+
 - ...:
 
   Unused
@@ -76,7 +83,9 @@ A named vector with the mean trophic level for each species.
 Other summary functions:
 [`getBiomass()`](https://sizespectrum.org/mizer/reference/getBiomass.md),
 [`getDiet()`](https://sizespectrum.org/mizer/reference/getDiet.md),
+[`getEncounterByPrey()`](https://sizespectrum.org/mizer/reference/getEncounterByPrey.md),
 [`getGrowthCurves()`](https://sizespectrum.org/mizer/reference/getGrowthCurves.md),
+[`getMortByCause()`](https://sizespectrum.org/mizer/reference/getMortByCause.md),
 [`getN()`](https://sizespectrum.org/mizer/reference/getN.md),
 [`getSSB()`](https://sizespectrum.org/mizer/reference/getSSB.md),
 [`getSteadyResidual()`](https://sizespectrum.org/mizer/reference/getSteadyResidual.md),
@@ -88,8 +97,6 @@ Other summary functions:
 
 ``` r
 getTrophicLevelBySpecies(NS_params)
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 #>    Sprat  Sandeel   N.pout  Herring      Dab  Whiting     Sole  Gurnard 
 #> 3.845388 3.702670 4.723848 3.596897 4.760884 4.958668 4.751892 4.302460 
 #>   Plaice  Haddock      Cod   Saithe 

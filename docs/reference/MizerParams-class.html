@@ -21,7 +21,7 @@ directly."><meta property="og:image" content="https://sizespectrum.org/mizer/ref
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0.9011</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -230,23 +230,28 @@ this is NA then the following two slots will be used. Changed with
 <dt><code>ft_pred_kernel_e</code></dt>
 <dd><p>An array (species x log of predator/prey size ratio)
 that holds the Fourier transform of the feeding kernel in a form
-appropriate for evaluating the encounter rate integral. If this is NA
-then the <code>pred_kernel</code> will be used to calculate the available
-energy integral. Changed with <code><a href="setPredKernel.html">setPredKernel()</a></code>.</p></dd>
+appropriate for evaluating the encounter rate integral. In a model of
+defaults edition 3 or later the kernel is zero-padded, so the second
+dimension can be longer than <code>w_full</code>; use <code><a href="convolve_pred_kernel.html">convolve_pred_kernel()</a></code> rather
+than this slot to evaluate the integral.
+If this is NA then the <code>pred_kernel</code> will be used to calculate the
+available energy integral. Changed with <code><a href="setPredKernel.html">setPredKernel()</a></code>.</p></dd>
 
 
 <dt><code>ft_pred_kernel_p</code></dt>
 <dd><p>An array (species x log of predator/prey size ratio)
 that holds the Fourier transform of the feeding kernel in a form
-appropriate for evaluating the predation mortality integral. If this is NA
+appropriate for evaluating the predation mortality integral. Zero-padded
+in the same way as <code>ft_pred_kernel_e</code>. If this is NA
 then the <code>pred_kernel</code> will be used to calculate the integral.
 Changed with <code><a href="setPredKernel.html">setPredKernel()</a></code>.</p></dd>
 
 
 <dt><code>ft_pred_kernel_d</code></dt>
 <dd><p>An array (species x log of predator/prey size ratio)
-that holds the Fourier transform of the feeding kernel in a form
-appropriate for evaluating the predation-diffusion integral (used when
+that holds the Fourier transform of the feeding kernel, zero-padded in the
+same way as <code>ft_pred_kernel_e</code>, in a form appropriate for evaluating the
+predation-diffusion integral (used when
 <code>use_predation_diffusion</code> is <code>TRUE</code>). It differs from <code>ft_pred_kernel_e</code>
 only when <code>second_order_w[["bin_average"]]</code> is <code>TRUE</code>, where it carries the
 extra power of prey size that the diffusion integrand needs; otherwise it
@@ -289,6 +294,12 @@ contribution to the mortality rate from each other dynamical components.</p></dd
 <dd><p>A list containing the parameters needed by any mizer
 extensions you may have installed to model other dynamical components of
 the ecosystem.</p></dd>
+
+
+<dt><code>capabilities</code></dt>
+<dd><p>A versioned registry of assembled component and process
+capability specifications. Component definitions are stored by
+<code><a href="setComponent.html">setComponent()</a></code> independently of their initial state and parameters.</p></dd>
 
 
 <dt><code>rates_funcs</code></dt>
@@ -377,8 +388,10 @@ Used to give consistent line types in plots.</p></dd>
 
 <dt><code>ft_mask</code></dt>
 <dd><p>An array (species x w_full) with zeros for weights larger than
-the maximum weight of each species. Used to efficiently minimize
-wrap-around errors in Fourier transform calculations.</p></dd>
+the maximum weight of each species. Used to set the predation rate by
+each species to zero on prey larger than its maximum weight. In a model
+of defaults edition 1 or 2, whose convolutions are circular, this also
+removes some of the wrap-around errors from the predation rate.</p></dd>
 
 
 <dt><code>use_predation_diffusion</code></dt>
@@ -392,8 +405,17 @@ Set to <code>TRUE</code> to enable the diffusion term from the jump-growth equat
 <dd><p>A named list with entry <code>flux</code>
 (the advective flux scheme: <code>"upwind"</code>, <code>"van_leer"</code>, or <code>"centred"</code>) and
 logical entry <code>bin_average</code> (controls whether bin-averaging is used for
-rates). Both default to the first-order setting to preserve the behaviour
-of previous mizer versions.</p></dd>
+rates). In a model of defaults edition 3 or later both default to the
+second-order setting. In earlier editions they default to the first-order
+setting, which preserves the behaviour of previous mizer versions. See
+<code><a href="second_order_w.html">second_order_w()</a></code>.</p></dd>
+
+
+<dt><code>defaults_edition</code></dt>
+<dd><p>The edition of default choices that was active when
+the model was created, see <code><a href="defaults_edition.html">defaults_edition()</a></code>. Whenever mizer fills in a
+default for the model it uses this edition, so that the model keeps
+its defaults when a different edition becomes active.</p></dd>
 
 
 </dl></div>
