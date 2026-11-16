@@ -43,7 +43,7 @@ tolerances. Names are \code{owner/measure}, as shown in the \code{measures} tabl
 
 \item{t}{Time at which to evaluate the model, in years.}
 
-\item{dt}{Step length for built-in resource dynamics supplied as a step map.}
+\item{dt}{Step length made available to extension convergence callbacks.}
 
 \item{...}{Additional arguments made available to convergence callbacks.}
 }
@@ -52,7 +52,8 @@ A \code{MizerSteadyAssessment} list. \code{verdict} is \code{TRUE} when every
 required owner is covered and passes, \code{FALSE} when any measured check
 fails, and \code{NA} when no check fails but required support is missing.
 The list records \code{scope}, \code{fixed}, \code{prescribed}, \code{required}, \code{covered},
-\code{missing}, \code{time} and \code{criterion}. \code{unavailable} gives each missing
+\code{missing}, \code{time} and \code{criterion}. \code{prescribed_masks} records the exact
+prescribed coordinates for each owner. \code{unavailable} gives each missing
 owner, capability and reason. \code{measures} has columns \code{owner}, \code{measure},
 \code{value}, \code{tolerance}, \code{units} and \code{passed}. A scope with no required
 dynamic owners is steady by construction and has no measures.
@@ -64,7 +65,9 @@ scope. The default includes the consumers, resource and all components.
 Missing convergence support is reported explicitly; it never counts as a
 successful check. A conditional assessment requires an explicit \code{fixed}
 list and describes the subsystem with those owners held at their current
-values. Owners declared prescribed are recorded separately.
+values. Owners declared prescribed are recorded separately. Structural
+prescribed-coordinate masks exclude only those cells from the assessment;
+the remaining cells of a partially prescribed owner still require coverage.
 }
 \details{
 The default \code{criterion = "state"} measures the integral of the absolute

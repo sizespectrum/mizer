@@ -1080,13 +1080,13 @@ Because abundances in a mizer model span dozens of orders of magnitude, evaluati
 
 Instead, the `getStability()` function approximates the derivative using a **multiplicative (relative)** finite-difference step. It perturbs the abundance $N_j^*$ by an amount $\Delta N_j$ proportional to the steady-state abundance:
 $$
-\Delta N_j = h \cdot \max(N_j^*, \text{machine eps})
+\Delta N_j = h \cdot \max(|N_j^*|, s_j)
 $$ {#eq-multiplicative-step}
-where $h$ is the relative step size (default $10^{-4}$). The function then evaluates the system's response:
+where $h$ is the relative step size (default $10^{-4}$) and $s_j$ is a local density scale interpolated from neighbouring positive values, with machine epsilon as the fallback for an entirely absent spectrum. The function then evaluates the system's response:
 $$
 L_{ij} \approx \frac{G_i(N^* + \Delta N_j) - G_i(N^* - \Delta N_j)}{2 \Delta N_j}
 $$ {#eq-jacobian-fd}
-This ensures the numerical precision is maintained across all size classes. A tiny additive floor (the machine epsilon) is kept to allow the solver to gently "poke" classes where the steady-state abundance is exactly zero (like extinct species or the truncated tail above $w_{max}$), capturing their stability against small invasions.
+This scales perturbations to the local spectrum. When the negative perturbation would leave the nonnegative state domain, the derivative uses the second-order one-sided formula $[-3G(N^*) + 4G(N^* + \Delta N_j) - G(N^* + 2\Delta N_j)] / (2\Delta N_j)$. An absent species remains in the structural dynamic support and can have invasion modes; only explicitly prescribed inputs and coordinates outside structural support are omitted.
 
 ### Equivalence to Log-Space Analysis
 It might seem conceptually more natural to analyse stability entirely in log-space, by perturbing the relative abundances $x_j(t) = (N_j(t) - N_j^*) / N_j^*$ and computing the relative Jacobian $K$:
@@ -1098,8 +1098,8 @@ Applying the chain rule, this log-space Jacobian relates to the absolute Jacobia
 $$
 K_{ij} = \frac{\partial \log G_i}{\partial G_i} \frac{\partial G_i}{\partial N_j} \frac{\partial N_j}{\partial \log N_j} = \frac{1}{N_i^*} L_{ij} N_j^*
 $$ {#eq-jacobian-similarity}
-In matrix notation, this is a **similarity transform**: $K = D^{-1} L D$, where $D$ is a diagonal matrix containing the steady-state abundances $N^*$.
+For positive reference abundances, this is a **similarity transform**: $K = D^{-1} L D$, where $D$ is a diagonal matrix containing the steady-state abundances $N^*$. At zero abundance, the relative formulation is undefined and the absolute Jacobian is used directly.
 
 A fundamental theorem of linear algebra states that similar matrices have **exactly the same eigenvalues**. Because stability is determined entirely by whether any eigenvalue's modulus exceeds 1, $L$ and $K$ yield mathematically identical stability conclusions.
 
-Numerically, however, explicitly computing the relative Jacobian $K$ requires dividing the elements of $L$ by the steady-state abundances $N_i^*$. For structurally zero size classes, this division by zero causes floating-point overflow (`Inf` or `NaN`), breaking standard eigenvalue solvers. Therefore, `getStability()` numerically computes the well-conditioned absolute Jacobian $L$ (using the multiplicative-scale finite difference) and relies on the similarity equivalence to guarantee the correct result.
+Numerically, however, explicitly computing the relative Jacobian $K$ requires dividing the elements of $L$ by the steady-state abundances $N_i^*$. For structurally zero size classes, this division by zero causes floating-point overflow (`Inf` or `NaN`), breaking standard eigenvalue solvers. Therefore, `getStability()` numerically computes the well-conditioned absolute Jacobian $L$ (using the multiplicative-scale finite difference) without dividing by abundances. Similarity explains the equivalence to relative coordinates only on the positive domain.

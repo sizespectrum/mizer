@@ -16,7 +16,10 @@ setProcess(
   tuning,
   level_fun,
   transformations,
-  mortality_fun
+  mortality_fun,
+  prescribed_mask_fun,
+  autonomous,
+  rate_fun
 )
 
 getProcess(params, process)
@@ -50,6 +53,20 @@ an assessment-only update retains the previous transformation binding.}
 
 \item{mortality_fun}{Named consumer mortality-breakdown callback, or NULL
 to remove diagnostic support. It is bound independently of other families.}
+
+\item{prescribed_mask_fun}{Named structural mask callback. It receives
+params and optional owner/process and returns logical values with the exact
+state dimensions and names; TRUE marks prescribed inputs. It is not called
+with time or state values. Use role = 'dynamic' for a partial mask.}
+
+\item{autonomous}{TRUE for equations without explicit time dependence, FALSE
+for forced equations, or NULL for undeclared support. This is independent
+of stationary tuning. Declare reproduction autonomy on consumers, whose
+temporal binding includes the complete effective rate pipeline.}
+
+\item{rate_fun}{Named exact resource equation callback returning dn_pp/dt,
+with the state dimensions and names. Its context includes params, n, n_pp,
+n_other, rates and t. Only the resource process accepts this capability.}
 }
 \value{
 \code{setProcess()} returns the updated model. \code{getProcess()} returns
@@ -67,7 +84,8 @@ Calling \code{setProcess(params, process)} with no capability arguments explicit
 adopts the current provider for all retained capability families. A partial
 patch adopts only the families explicitly supplied: convergence/role,
 stationary/equation rates/tuning, reproduction level, transformations, or
-mortality diagnostics.
+mortality diagnostics, prescribed inputs, temporal dependence or resource
+equations.
 Omitted families keep their previous provider bindings, including staleness.
 A replacement definition adopts all its supplied capabilities.
 }
@@ -81,8 +99,9 @@ time and process name; accept \code{...} for arguments not needed by the callbac
 A new \code{definition} replaces the previous callback and role before explicit
 arguments are applied. Without \code{definition}, omitted arguments are retained.
 The default role is \code{"dynamic"}. A \code{"prescribed"} role declares the whole
-state block as an input rather than a dynamic variable. Partial masks are not
-supported by this interface. Supplying \code{convergence_fun = NULL} removes its
+state block as an input rather than a dynamic variable. A dynamic owner may
+declare a partial \code{prescribed_mask_fun}. Supplying \code{convergence_fun = NULL}
+removes its
 callback. State and equations are not changed by this registration.
 }
 \seealso{

@@ -36,6 +36,11 @@ rampHCR <- function(params, n, n_pp, n_other, t, effort, ...) {
 
 params_hard <- setRateFunction(params, "FMort", "hardHCR")
 params_ramp <- setRateFunction(params, "FMort", "rampHCR")
+# These feedback rules depend on abundance, with no explicit time forcing.
+params_hard <- setProcess(params_hard, "consumers", autonomous = TRUE)
+params_hard <- setProcess(params_hard, "resource", autonomous = TRUE)
+params_ramp <- setProcess(params_ramp, "consumers", autonomous = TRUE)
+params_ramp <- setProcess(params_ramp, "resource", autonomous = TRUE)
 
 ssb_series <- function(p, dt, t_max = 30, method = "tr_bdf2") {
     sim <- project(p, dt = dt, t_max = t_max, t_save = dt, method = method,
@@ -111,7 +116,9 @@ stab_ramp <- suppressWarnings(sapply(c(1e-3, 1e-4, 1e-5), function(h) {
 }))
 
 st <- suppressWarnings(getStability(hard_settled))
-stab_hard_settled <- c(max_real_part = st$max_real_part, stable = st$stable)
+stab_hard_settled <- list(
+    max_real_part = st$max_real_part, stable = st$stable, status = st$status
+)
 
 res <- list(
     hard_coarse = hard_coarse,

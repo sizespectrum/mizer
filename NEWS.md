@@ -67,6 +67,16 @@
 
 ## New features
 
+- Stability reports now state their scope, coverage and autonomy, and use
+  `stable = NA` when a conclusion is unsupported or a mode is marginal.
+  Whole-model analysis is the default; holding extension states fixed requires
+  an explicit conditional request. Structural prescribed-input masks are
+  independent of these exclusions, and extinct species retain their invasion
+  modes. Continuous resource equations are explicit capabilities (#670, #606).
+- `getOscillationModeSim()` checks the current model's scoped equilibrium and
+  support before reconstructing a mode. `scanModel()` retains the assessment
+  behind each result and holds conditional inputs fixed while sampling an
+  attractor.
 - `getBiomass()` can explicitly include the resource and extension components,
   including several named biomass series from one component (#670, #589).
   Default species-only results retain their existing values and shapes.

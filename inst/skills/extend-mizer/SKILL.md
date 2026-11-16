@@ -285,7 +285,7 @@ getComponent(params, "detritus")$definition
 The supported definition fields are `dynamics_fun`, `rate_fun`, `encounter_fun`,
 `mort_fun`, `colour`, `linetype`, `integration_order`, `convergence_fun`,
 `role`, `stationary`, `equation_rates_fun`, `tuning`, `transformations`,
-`biomass_fun` and `biomass_filters`.
+`biomass_fun`, `biomass_filters`, `prescribed_mask_fun` and `autonomous`.
 Supply a step, an
 equation, or both; a supplied custom step takes precedence during projection.
 Callback identifiers may be ordinary function names or `package::exported_name`.
@@ -494,8 +494,38 @@ can evolve components when they have stepping support, while the current
 Newton solver requires unsupported dynamic components to be held fixed through
 an explicit conditional request. Every returned convergence report retains its
 scope; tuning reassesses restored dynamics before claiming a fixed point.
-Complete stability coverage remains a later stage of
-[the extension design](https://github.com/sizespectrum/mizer/issues/670).
+### Declaring prescribed coordinates and time dependence
+
+Use `prescribed_mask_fun` on a component or state-owning process to exclude only
+part of a numeric state from equilibrium and stability analysis. The callback
+receives `params` and optional `owner`, `component` or `process` identifiers;
+it returns a logical array or vector matching the state's dimensions and names
+exactly, without `NA`. `TRUE` denotes a structural input. The mask describes
+the model, not the current size of its derivative. `role = "prescribed"`
+denotes a wholly prescribed block. A caller holding an otherwise dynamic block
+fixed for one calculation instead requests conditional scope.
+
+Convergence callbacks receive `prescribed_mask` and `dynamic_mask` for their
+owner. Apply the dynamic mask before forming quantitative measures; mizer
+cannot remove excluded coordinates from an already aggregated custom measure.
+The built-in consumer and resource assessments do this before integration.
+
+The independent `autonomous` declaration states whether the effective providers
+have explicit time dependence. Use `TRUE` only for time-independent providers,
+`FALSE` for forcing, and `NULL` for unknown support. Reproduction has no state
+of its own: its temporal dependence belongs to the consumers' declaration.
+For continuous resource analysis, `setProcess(params, "resource", rate_fun =
+"myResourceEquation")` supplies the derivative in the shape of the resource
+state, with the complete current rate context. This is independent of the
+resource's custom projection step.
+
+These declarations have separate stored provider bindings. Updating a
+convergence callback does not renew a stale mask, equation or temporal
+declaration. Explicitly adopt each family that still applies after changing a
+provider. Arbitrary dynamic component coordinates are not yet supported by the
+stability Jacobians, even when equations are registered; whole-model reports
+then remain incomplete unless the caller explicitly requests a conditional
+subsystem.
 
 ### Declaring tuning strategies
 
@@ -577,7 +607,7 @@ The richer form can also provide `label`, `colour`, `linetype`, `source`,
 `available` and `reason`; unavailable values must be `NA` with a reason.
 
 ```r
-poolBiomass <- function(n_other, component, ...) {
+poolBiomass <- function(params, n_other, component, ...) {
     stocks <- n_other[[component]]
     c(detritus = stocks$detritus, microbes = stocks$microbes)
 }

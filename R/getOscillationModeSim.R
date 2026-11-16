@@ -15,6 +15,11 @@
 #' linear approximation.  The result can be inspected with all standard mizer
 #' plotting functions (e.g. [plotBiomass()], [plotSpectra()]).
 #'
+#' This requires a current, complete stability analysis at an autonomous
+#' equilibrium. Conditional analyses are supported with their explicit fixed
+#' inputs retained; the returned `sim_params` records that scope and coverage.
+#' Older stability lists without this information must be recomputed.
+#'
 #' The object shows the *shape* of the mode — which species swing, how far, and
 #' in what phase relative to each other and to the resource. Whether the model
 #' actually settles onto this oscillation is a separate question, answered by
@@ -99,20 +104,35 @@ getOscillationModeSim <- function(x, amplitude = 0.1, t_save = 0.1, ...) {
     # ------------------------------------------------------------------
     if (is(x, "MizerParams")) {
         params <- x
-        # `getStability()` raises the not-at-steady-state warning itself.
+        # The returned assessment determines whether an equilibrium mode exists.
         stab <- getStability(params, ...)
-    } else if (is.list(x) && !is.null(x$eigenvalues) && is(x$params, "MizerParams")) {
+    } else if (is.list(x) && is(x$params, "MizerParams")) {
         stab <- x
         params <- stab$params
     } else {
-        stop("The first argument must be a MizerParams object or the stability list returned by getStability().")
+        stop("The first argument must be a MizerParams object or the ",
+             "stability list returned by getStability().")
     }
 
+    if (is.null(stab$scope) || is.null(stab$coverage) ||
+            is.null(stab$assessment) ||
+            is.null(attr(stab, "stability_key"))) {
+        stop("This stability result has no current scope and coverage record. ",
+             "Recompute it with `getStability()`.", call. = FALSE)
+    }
+    if (!identical(attr(stab, "stability_key"), stability_model_key(params))) {
+        stop("The model changed after stability analysis. Recompute it with ",
+             "`getStability()`.", call. = FALSE)
+    }
+    if (!isTRUE(stab$coverage$complete) || !isTRUE(stab$autonomous) ||
+            !isTRUE(stab$assessment$verdict)) {
+        stop("An oscillation mode requires complete stability coverage at ",
+             "an autonomous equilibrium in the requested scope.",
+             call. = FALSE)
+    }
     if (is.null(stab$leading_oscillatory_eigenvalue)) {
-        stop("No oscillatory mode detected: all eigenvalues are real. ",
-             "An oscillation requires at least one complex eigenvalue pair. ",
-             "This model has none, so it returns to its steady state without ",
-             "ringing.")
+        stop("No oscillatory mode detected. An oscillation requires at least ",
+             "one complex eigenvalue pair.", call. = FALSE)
     }
 
     # ------------------------------------------------------------------
@@ -126,6 +146,12 @@ getOscillationModeSim <- function(x, amplitude = 0.1, t_save = 0.1, ...) {
     lam1   <- stab$leading_oscillatory_eigenvalue
     v_fish <- stab$leading_oscillatory_eigenvector$fish
     v_npp  <- stab$leading_oscillatory_eigenvector$resource
+    # Excluded coordinates remain unchanged even when an external result has
+    # retained nonzero entries in the reconstructed eigenvector.
+    v_fish[stab$prescribed_masks$consumers] <- 0
+    v_npp[stab$prescribed_masks$resource] <- 0
+    if ("consumers" %in% stab$fixed) v_fish[] <- 0
+    if ("resource" %in% stab$fixed) v_npp[] <- 0
 
     theta    <- Im(lam1)               # angular frequency, per year
     T_period <- 2 * pi / abs(theta)    # period in years
@@ -190,7 +216,15 @@ getOscillationModeSim <- function(x, amplitude = 0.1, t_save = 0.1, ...) {
         period      = T_period,
         amplitude   = amplitude,
         eigenvalue  = lam1,
-        growth_rate = Re(lam1)
+        growth_rate = Re(lam1),
+        scope = stab$scope,
+        fixed = stab$fixed,
+        prescribed = stab$prescribed,
+        prescribed_masks = stab$prescribed_masks,
+        coverage = stab$coverage,
+        autonomous = stab$autonomous,
+        assessment = stab$assessment,
+        analysis_time = stab$time
     )
 
     has_other <- length(params@other_dynamics) > 0

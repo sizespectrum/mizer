@@ -107,6 +107,7 @@ function` — carry no such quote, so match those rows on the function name.
 | Symptom | Cause | Section |
 |---|---|---|
 | Updating a component no longer resets its colour or line type, or code expecting exactly five entries from `getComponent()` fails | omitted settings are retained and the getter includes the stored definition | Component updates retain omitted settings |
+| `stab$stable` is `NA`, a previously stable model has marginal or invasion modes, or an old oscillation-mode result is rejected | stability needs complete scoped support and retains genuine dynamic coordinates | Stability reports require complete scoped support |
 | A projection with a custom component or resource changes under a second-order method, especially when it uses `pred_rate` or `f_mort` | every standard rate supplied to a custom corrector is now averaged over the step | Component correctors use complete midpoint rates |
 | `isSteady()` returns `NA`, an `if (isSteady(params))` condition fails, or a previously passing model fails despite little net biomass drift | checks now require whole-model coverage and use a non-cancelling state criterion | Steady-state checks cover the requested model scope |
 | A steady-state solver errors with `"Missing convergence support for "` or `"The Newton solver cannot solve dynamic components: "` | the requested scope needs declared assessment support, and Newton cannot evolve arbitrary extension states | Steady-state checks cover the requested model scope |

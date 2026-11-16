@@ -258,8 +258,10 @@ smallest resource sizes replenish tens of thousands of times a year, while at
 the `w_pp_cutoff` of 10 g the rate is under 5 per year — comparable to fish
 rates, and precisely at the sizes fish eat most. So the resource is a fast,
 quasi-static variable at the bottom and a genuinely dynamical one at the top —
-which is why `getStability()` always perturbs it alongside the fish rather than
-slaving it to them; see the `analyse-stability` skill. Raising `r_pp` makes the resource stiffer and the model less sensitive to
+which is why `getStability()` includes its dynamic coordinates alongside the
+fish. Explicitly prescribed inputs are excluded, and a conditional analysis
+records any dynamic states deliberately held fixed; see the
+`analyse-stability` skill. Raising `r_pp` makes the resource stiffer and the model less sensitive to
 competition for food; lowering it makes the resource a slow variable that can
 carry oscillations of its own.
 

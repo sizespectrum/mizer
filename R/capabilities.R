@@ -3,7 +3,7 @@
 # support and distinguish dynamic state from prescribed inputs.
 
 new_capability_registry <- function() {
-    list(schema_version = 6L, components = list(), processes = list(),
+    list(schema_version = 7L, components = list(), processes = list(),
          tuning = list(), transformations = list())
 }
 
@@ -16,14 +16,14 @@ upgrade_capability_registry <- function(registry, params = NULL) {
             !is.numeric(registry$schema_version) ||
             length(registry$schema_version) != 1L ||
             is.na(registry$schema_version) ||
-            !registry$schema_version %in% 1:5) return(registry)
+            !registry$schema_version %in% 1:6) return(registry)
     fields <- c("schema_version", "components", "processes")
     if (registry$schema_version >= 4L) fields <- c(fields, "tuning")
     if (registry$schema_version >= 5L) fields <- c(fields, "transformations")
     if (!setequal(names(registry), fields)) return(registry)
     if (registry$schema_version < 4L) registry$tuning <- list()
     if (registry$schema_version < 5L) registry$transformations <- list()
-    registry$schema_version <- 6L
+    registry$schema_version <- 7L
     if (!is.list(registry$components) ||
             !capability_names_valid(registry$components)) return(registry)
     for (component in names(registry$components)) {
@@ -32,6 +32,13 @@ upgrade_capability_registry <- function(registry, params = NULL) {
         upgraded <- component_definition_defaults()
         upgraded[c("colour", "linetype")] <- list(NULL, NULL)
         upgraded[names(old)] <- old
+        if (!"prescribed_binding" %in% names(old) && !is.null(params)) {
+            upgraded$prescribed_binding <- list(
+                dispatch = process_dispatch_binding(params),
+                dynamics_fun = old$dynamics_fun %||% "component_rate_dynamics",
+                rate_fun = old$rate_fun
+            )
+        }
         registry$components[[component]] <- upgraded
     }
     if (!is.null(params) && is.list(registry$processes)) {
@@ -41,6 +48,8 @@ upgrade_capability_registry <- function(registry, params = NULL) {
             if (is.null(old)) {
                 registry$processes[[owner]] <- defaults[[owner]]
             } else {
+                if (!is.list(old) || is.object(old) ||
+                        !capability_names_valid(old)) next
                 # Previously level support shared the tuning binding. Keep
                 # its old provider claim, including any existing staleness.
                 if (!"level_binding" %in% names(old) &&
@@ -53,6 +62,15 @@ upgrade_capability_registry <- function(registry, params = NULL) {
                         binding$automatic <- TRUE
                     }
                     old["level_binding"] <- list(binding)
+                }
+                if (!"prescribed_binding" %in% names(old) &&
+                        owner != "reproduction") {
+                    binding <- old$binding
+                    if (identical(binding, defaults[[owner]]$binding) &&
+                            identical(old$role, defaults[[owner]]$role)) {
+                        binding$automatic <- TRUE
+                    }
+                    old["prescribed_binding"] <- list(binding)
                 }
                 missing <- setdiff(names(defaults[[owner]]), names(old))
                 old[missing] <- defaults[[owner]][missing]
@@ -70,7 +88,8 @@ component_definition_defaults <- function() {
          stationary = NULL, equation_rates_fun = NULL, tuning = NULL,
          tuning_binding = NULL, transformations = NULL,
          transformation_binding = NULL, biomass_fun = NULL,
-         biomass_filters = character())
+         biomass_filters = character(), prescribed_mask_fun = NULL,
+         prescribed_binding = NULL, autonomous = NULL, temporal_binding = NULL)
 }
 
 component_definition_fields <- function() {
@@ -110,7 +129,7 @@ component_definition_errors <- function(definition, required = TRUE) {
     }
     callbacks <- c("dynamics_fun", "rate_fun", "encounter_fun", "mort_fun",
                    "convergence_fun", "equation_rates_fun", "level_fun",
-                   "biomass_fun")
+                   "biomass_fun", "prescribed_mask_fun")
     for (field in intersect(fields, callbacks)) {
         value <- definition[[field]]
         valid_name <- is.character(value) && length(value) == 1L &&
@@ -143,6 +162,22 @@ component_definition_errors <- function(definition, required = TRUE) {
                  length(definition$stationary) != 1L ||
                  is.na(definition$stationary))) {
         errors <- c(errors, "stationary must be TRUE, FALSE or NULL.")
+    }
+    if (!is.null(definition$autonomous) &&
+            (!is.logical(definition$autonomous) ||
+                 length(definition$autonomous) != 1L ||
+                 is.na(definition$autonomous))) {
+        errors <- c(errors, "autonomous must be TRUE, FALSE or NULL.")
+    }
+    if (identical(definition$role, "prescribed") &&
+            !is.null(definition$prescribed_mask_fun)) {
+        errors <- c(errors, paste0("A prescribed role covers the whole state; ",
+                                   "use a dynamic role for a partial mask."))
+    }
+    for (field in c("prescribed_binding", "temporal_binding")) {
+        if (!state_binding_valid(definition[[field]])) {
+            errors <- c(errors, paste0("Invalid stored ", field, "."))
+        }
     }
     tuning_errors <- tuning_block_errors(definition$tuning)
     if (!isTRUE(tuning_errors)) errors <- c(errors, tuning_errors)
@@ -192,7 +227,7 @@ capability_registry_errors <- function(registry) {
     }
     version <- registry$schema_version
     if (!is.numeric(version) || length(version) != 1L ||
-            is.na(version) || version != 6L) {
+            is.na(version) || version != 7L) {
         return("Unsupported capabilities schema_version; update mizer.")
     }
     components <- registry$components
@@ -235,7 +270,8 @@ legacy_component_definition <- function(params, component) {
          stationary = NULL, equation_rates_fun = NULL, tuning = NULL,
          tuning_binding = NULL, transformations = NULL,
          transformation_binding = NULL, biomass_fun = NULL,
-         biomass_filters = character())
+         biomass_filters = character(), prescribed_mask_fun = NULL,
+         prescribed_binding = NULL, autonomous = NULL, temporal_binding = NULL)
 }
 
 legacy_capability_registry <- function(params) {
@@ -293,14 +329,15 @@ assemble_component_definition <- function(existing = NULL, definition = NULL,
     }
     for (field in c("stationary", "equation_rates_fun", "tuning",
                     "tuning_binding", "transformations",
-                    "transformation_binding")) {
+                    "transformation_binding", "prescribed_mask_fun",
+                    "prescribed_binding", "autonomous", "temporal_binding")) {
         if (provider_changed && !field %in% names(overrides)) result[field] <-
             list(NULL)
     }
     check(result, required = TRUE)
     for (field in c("dynamics_fun", "rate_fun", "encounter_fun", "mort_fun",
                     "convergence_fun", "equation_rates_fun", "level_fun",
-                    "biomass_fun")) {
+                    "biomass_fun", "prescribed_mask_fun")) {
         fun <- result[[field]]
         if (!is.null(fun)) {
             context <- paste0("component `", field, "`")

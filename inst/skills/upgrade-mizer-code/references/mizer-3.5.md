@@ -78,6 +78,39 @@ evolve arbitrary dynamic components; it requires those states to be explicitly
 fixed. The built-in `residual` convergence field remains a biomass diagnostic;
 read `assessment` for the verdict behind `attractor`.
 
+### Stability reports require complete scoped support
+
+`getStability()` and `getDiscreteStability()` now describe the whole model by
+default. A dynamic component that their Jacobians cannot represent leaves the
+report incomplete; it is no longer silently held fixed. To ask about a
+subsystem, supply `scope = "conditional"` and explicit owner IDs in `fixed`,
+such as `fixed = "component:pool"`. The returned scope and coverage describe
+exactly that request. Prescribed inputs declared by the model are separate from
+these temporary exclusions.
+
+`stable` now has three values: `TRUE` for strictly decaying modes at a supported
+autonomous equilibrium, `FALSE` for a growing mode under those conditions, and
+`NA` when a conclusion is unavailable. Inspect `status`, `assessment` and
+`coverage` for the reason. Use `isTRUE(stab$stable)` instead of
+`if (stab$stable)` when code should proceed only after a positive verdict.
+Zero eigenvalues and unit multipliers are marginal and remain in the report;
+they are not evidence of a prescribed input. The tolerance `stability_tol`
+defines the interval around the stability boundary in which no verdict is made.
+
+An absent species retains its possible invasion modes. Resource coordinates
+with zero current abundance or zero carrying capacity are also retained unless
+the model explicitly declares them prescribed. These changes can expose a
+marginal or growing mode that older results omitted. Missing equation or
+temporal support produces an inconclusive report rather than an inferred
+continuous equation from a short numerical step.
+
+`getOscillationModeSim()` requires current support and an autonomous equilibrium
+for the supplied result's scope. Recompute old stability lists, which do not
+record that scope. `scanModel()` adds `scope`, `assessment_complete` and an
+`assessment` list-column; the latter holds the quantitative assessment behind
+each attractor classification. Conditional scan sampling keeps the requested
+inputs fixed throughout.
+
 ### Tuning uses declared balancing strategies
 
 `tuneSteadyState()` now uses the default strategy stored for each process.

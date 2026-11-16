@@ -569,6 +569,13 @@ setRateContributions <- function(params, slot_name, value, noun, arg) {
 #'   to remove it. A dynamic component without this support makes a whole-model
 #'   assessment incomplete.
 #' @param role Either `"dynamic"` (the default) or `"prescribed"`.
+#' @param prescribed_mask_fun Named structural input-mask callback, or NULL.
+#'   For a dynamic numeric component, return logical values with exactly its
+#'   state dimensions and names; TRUE marks prescribed inputs. The callback
+#'   receives params and optional component/owner, without time or state.
+#' @param autonomous TRUE for equations and contributions without explicit time
+#'   dependence, FALSE for forced providers, or NULL for undeclared support.
+#'   This declaration is independent of stationary tuning and convergence.
 #' @param stationary Explicit TRUE/FALSE stationary-tuning declaration.
 #' @param equation_rates_fun Callback exposing effective equation quantities.
 #' @param tuning Named strategies and their default, or NULL to remove support.
@@ -608,7 +615,8 @@ setComponent <- function(params, component, initial_value,
                          definition, rate_fun, integration_order,
                          convergence_fun, role, stationary,
                          equation_rates_fun, tuning, transformations,
-                         biomass_fun, biomass_filters) {
+                         biomass_fun, biomass_filters, prescribed_mask_fun,
+                         autonomous) {
     params <- validParams(params)
     assert_that(is.string(component), nzchar(component))
     if (!missing(initial_value) && is.null(initial_value)) {
@@ -654,6 +662,9 @@ setComponent <- function(params, component, initial_value,
     if (!missing(biomass_fun)) overrides["biomass_fun"] <- list(biomass_fun)
     if (!missing(biomass_filters)) overrides["biomass_filters"] <-
         list(biomass_filters)
+    if (!missing(prescribed_mask_fun)) overrides["prescribed_mask_fun"] <-
+        list(prescribed_mask_fun)
+    if (!missing(autonomous)) overrides["autonomous"] <- list(autonomous)
     assembled <- assemble_component_definition(
         existing = existing,
         definition = if (missing(definition)) NULL else definition,
@@ -698,6 +709,17 @@ setComponent <- function(params, component, initial_value,
             !missing(transformations)) {
         params$capabilities$components[[component]]$transformation_binding <-
             transformation_provider_binding(params)
+    }
+    if (is.null(existing) || !missing(definition) || !missing(role) ||
+            !missing(prescribed_mask_fun) ||
+            !identical(existing$dynamics_fun, assembled$dynamics_fun) ||
+            !identical(existing$rate_fun, assembled$rate_fun)) {
+        params$capabilities$components[[component]]$prescribed_binding <-
+            state_provider_binding(params, paste0("component:", component))
+    }
+    if (is.null(existing) || !missing(definition) || !missing(autonomous)) {
+        params$capabilities$components[[component]]$temporal_binding <-
+            temporal_provider_binding(params, paste0("component:", component))
     }
     providers <- c("dynamics_fun", "rate_fun", "encounter_fun", "mort_fun")
     provider_changed <- is.null(existing) || any(vapply(

@@ -210,7 +210,7 @@ recordExtension <- function(params, name, version = NULL, requirement = NULL) {
 # support against the class chain that coerceToExtensionClass() will adopt.
 refresh_recorded_capabilities <- function(params) {
     if (!is.list(params$capabilities) ||
-            !identical(params$capabilities$schema_version, 6L)) return(params)
+            !identical(params$capabilities$schema_version, 7L)) return(params)
     adopted <- coerceToExtensionClass(params)
     adopted <- refresh_builtin_tuning(adopted)
     params$capabilities <- adopted$capabilities

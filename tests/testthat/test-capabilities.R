@@ -4,7 +4,7 @@ test_that("Stored capability schemas reject ambiguous or executable data", {
 
     registry$schema_version <- 99L
     expect_match(capability_registry_errors(registry), "Unsupported")
-    registry$schema_version <- 6L
+    registry$schema_version <- 7L
     registry$components <- list(pool = list(dynamics_fun = function() 1))
     expect_match(capability_registry_errors(registry), "function name")
     registry$components <- list(pool = list(dynamics_fun = "unloaded_callback"))
@@ -178,7 +178,7 @@ test_that("Schema one upgrades keep stored choices without resolving code", {
         processes = list()
     )
     upgraded <- upgrade_capability_registry(legacy)
-    expect_identical(upgraded$schema_version, 6L)
+    expect_identical(upgraded$schema_version, 7L)
     expect_identical(legacy$schema_version, 1L)
     expect_named(upgraded$components$pool,
                  c("dynamics_fun", "rate_fun", "encounter_fun", "mort_fun",
@@ -186,7 +186,9 @@ test_that("Schema one upgrades keep stored choices without resolving code", {
                    "convergence_fun", "role", "stationary",
                    "equation_rates_fun",
                    "tuning", "tuning_binding", "transformations",
-                   "transformation_binding", "biomass_fun", "biomass_filters"))
+                   "transformation_binding", "biomass_fun", "biomass_filters",
+                   "prescribed_mask_fun",
+                   "prescribed_binding", "autonomous", "temporal_binding"))
     expect_identical(upgraded$components$pool$dynamics_fun, "unloaded_step")
     expect_identical(upgraded$components$pool$mort_fun, "unloaded_mortality")
     expect_identical(upgraded$components$pool$colour, "orange")
@@ -232,7 +234,7 @@ test_that("Schema four upgrades add transformation support without inference", {
         definition[setdiff(names(definition), fields)]
     })
     upgraded <- upgrade_capability_registry(old, params = p)
-    expect_identical(upgraded$schema_version, 6L)
+    expect_identical(upgraded$schema_version, 7L)
     expect_identical(upgraded$tuning, old$tuning)
     expect_identical(upgraded$components$pool[names(old$components$pool)],
                      old$components$pool)
@@ -267,8 +269,9 @@ test_that("Schema five upgrades preserve declared measurement support", {
     old <- p$capabilities
     old$schema_version <- 5L
     old$components <- lapply(old$components, function(definition) {
-        definition[setdiff(names(definition),
-                           c("biomass_fun", "biomass_filters"))]
+        absent <- c("biomass_fun", "biomass_filters", "prescribed_mask_fun",
+                    "prescribed_binding", "autonomous", "temporal_binding")
+        definition[setdiff(names(definition), absent)]
     })
     old$processes <- lapply(old$processes, function(definition) {
         definition[setdiff(names(definition),
@@ -276,7 +279,7 @@ test_that("Schema five upgrades preserve declared measurement support", {
     })
     p$capabilities <- old
     upgraded <- upgrade_capability_registry(old, params = p)
-    expect_identical(upgraded$schema_version, 6L)
+    expect_identical(upgraded$schema_version, 7L)
     expect_identical(upgraded$tuning, old$tuning)
     expect_identical(upgraded$transformations, old$transformations)
     expect_identical(upgraded$components$pool[names(old$components$pool)],
@@ -292,4 +295,61 @@ test_that("Schema five upgrades preserve declared measurement support", {
     expect_identical(
         upgrade_capability_registry(upgraded, params = p), upgraded
     )
+})
+
+test_that("Schema six keeps roles and adds honest temporal support", {
+    p <- setComponent(NS_params_small, "pool", 1,
+                      dynamics_fun = "constant_other", role = "prescribed",
+                      stationary = TRUE)
+    old <- p$capabilities
+    old$schema_version <- 6L
+    fields <- c("prescribed_mask_fun", "prescribed_binding", "autonomous",
+                "temporal_binding")
+    old$components$pool[fields] <- NULL
+    for (owner in names(old$processes)) {
+        missing <- c(fields, "rate_fun", "equation_binding")
+        old$processes[[owner]][missing] <- NULL
+    }
+    upgraded <- upgrade_capability_registry(old, p)
+    expect_identical(upgraded$schema_version, 7L)
+    expect_identical(upgraded$components$pool$role, "prescribed")
+    expect_null(upgraded$components$pool$autonomous)
+    expect_null(upgraded$components$pool$prescribed_mask_fun)
+    expect_true(upgraded$processes$consumers$autonomous)
+    expect_identical(upgraded$processes$resource$rate_fun,
+                     "equation_resource_semichemostat")
+    expect_true(capability_registry_errors(upgraded))
+    expect_identical(upgrade_capability_registry(upgraded, p), upgraded)
+    restored <- p
+    restored$capabilities <- upgraded
+    restored <- setResource(restored, resource_dynamics = "resource_logistic",
+                            balance = FALSE)
+    expect_true(prepare_state_capabilities(restored)$resource$mask_current)
+    p$rates_funcs$RDD <- "unknown_forcing"
+    unknown <- upgrade_capability_registry(old, p)
+    expect_null(unknown$processes$consumers$autonomous)
+    expect_null(unknown$processes$resource$autonomous)
+})
+
+
+test_that("State declarations reject malformed private bindings and scalars", {
+    for (field in c("prescribed_binding", "temporal_binding")) {
+        definition <- list(dynamics_fun = "constant_other")
+        definition[field] <- list("not-a-binding")
+        expect_match(component_definition_errors(definition), "Invalid stored")
+    }
+    for (value in list(NA, 1, "yes", c(TRUE, FALSE))) {
+        definition <- list(dynamics_fun = "constant_other", autonomous = value)
+        expect_match(component_definition_errors(definition), "autonomous")
+    }
+})
+
+
+test_that("Schema migration leaves malformed process records for validation", {
+    p <- NS_params_small
+    old <- p$capabilities
+    old$schema_version <- 6L
+    old$processes$resource <- "invalid"
+    upgraded <- upgrade_capability_registry(old, p)
+    expect_match(capability_registry_errors(upgraded), "Invalid specification")
 })

@@ -227,3 +227,43 @@ test_that("Mortality diagnostics adopt only their own capability family", {
     expect_error(setProcess(p, "consumers", mortality_fun = function() 1),
                  "function name")
 })
+
+test_that("State capability families cannot revive each other's stale claims", {
+    rlang::local_bindings(
+        state_process_mask = function(params) {
+            state_mask_like(params$initial_n_pp)
+        },
+        state_process_rhs = function(n_pp, ...) n_pp * 0,
+        .env = globalenv()
+    )
+    p <- setProcess(NS_params_small, "resource",
+                    prescribed_mask_fun = "state_process_mask",
+                    autonomous = TRUE, rate_fun = "state_process_rhs")
+    p$resource_dynamics <- "process_test_resource"
+    before <- p$capabilities$processes$resource
+    q <- setProcess(p, "resource", convergence_fun = "process_test_assessment")
+    for (field in c("prescribed_binding", "temporal_binding",
+                    "equation_binding")) {
+        expect_identical(q$capabilities$processes$resource[[field]],
+                         before[[field]])
+    }
+    expect_false(prepare_state_capabilities(q)$resource$mask_current)
+    expect_false(prepare_state_capabilities(q)$resource$temporal_current)
+    expect_false(prepare_state_capabilities(q)$resource$equation_current)
+    q <- setProcess(q, "resource", autonomous = FALSE)
+    expect_true(prepare_state_capabilities(q)$resource$temporal_current)
+    expect_false(prepare_state_capabilities(q)$resource$mask_current)
+    expect_false(prepare_state_capabilities(q)$resource$equation_current)
+    q <- setProcess(q, "resource", prescribed_mask_fun = "state_process_mask")
+    expect_true(prepare_state_capabilities(q)$resource$mask_current)
+    expect_false(prepare_state_capabilities(q)$resource$equation_current)
+    expect_true(all(c("state_process_mask", "state_process_rhs") %in%
+                        capability_callback_names(q)))
+    expect_error(setProcess(q, "reproduction", autonomous = TRUE),
+                 "Reproduction has no state capabilities")
+    expect_error(setProcess(q, "consumers", rate_fun = "state_process_rhs"),
+                 "resource equations")
+    expect_error(setProcess(q, "resource", autonomous = NA), "autonomous")
+    expect_error(setProcess(q, "resource", role = "prescribed"),
+                 "whole state")
+})

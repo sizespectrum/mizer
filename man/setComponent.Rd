@@ -26,7 +26,9 @@ setComponent(
   tuning,
   transformations,
   biomass_fun,
-  biomass_filters
+  biomass_filters,
+  prescribed_mask_fun,
+  autonomous
 )
 
 removeComponent(params, component)
@@ -95,6 +97,15 @@ measurement support. This is independent of convergence and dynamics.}
 
 \item{biomass_filters}{Character vector of explicitly supported filters:
 min_w, max_w, min_l, max_l and use_cutoff. Defaults to none.}
+
+\item{prescribed_mask_fun}{Named structural input-mask callback, or NULL.
+For a dynamic numeric component, return logical values with exactly its
+state dimensions and names; TRUE marks prescribed inputs. The callback
+receives params and optional component/owner, without time or state.}
+
+\item{autonomous}{TRUE for equations and contributions without explicit time
+dependence, FALSE for forced providers, or NULL for undeclared support.
+This declaration is independent of stationary tuning and convergence.}
 }
 \value{
 The updated MizerParams object
