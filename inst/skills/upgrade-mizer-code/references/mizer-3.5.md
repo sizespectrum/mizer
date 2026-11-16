@@ -78,6 +78,50 @@ evolve arbitrary dynamic components; it requires those states to be explicitly
 fixed. The built-in `residual` convergence field remains a biomass diagnostic;
 read `assessment` for the verdict behind `attractor`.
 
+### Tuning uses declared balancing strategies
+
+`tuneSteadyState()` now uses the default strategy stored for each process.
+For the usual Beverton-Holt model this still holds resource abundance and
+recruitment fixed and preserves reproduction level when balancing afterwards.
+Other laws use their own defaults. Supply `strategies` to select alternatives,
+or `joint` for a registered strategy covering coupled processes. An explicit
+`preserve` request must be supported by the selected reproduction law.
+
+Missing stationary tuning support stops before the search. A model that can
+project is not necessarily one that can be tuned; update the extension package
+when it reports missing support. Mizer checks that balancing preserves the
+target state and every effective rate entering its equations. It no longer
+accepts a different set of rates simply because their net residual cancels,
+and does not retry with a generic optimiser or repair the result by solving
+again. `search_assessment` describes the constrained search; `assessment`
+describes the restored model.
+
+`balanceRDD()` retains the current reproduction law. With no target it preserves
+current effective recruitment; explicit `rdd_target` values are useful for
+calibration. Matching growth, biomass or abundance no longer implicitly changes
+the law to Beverton-Holt, and partial selections leave unselected reproduction
+parameters alone. Built-in overcompensatory laws use the ascending branch by
+default; request the descending branch explicitly when that is intended.
+
+`reproduction_level()` is now law-specific. It is recruitment divided by the
+law's finite maximum when one exists. No density dependence and unbounded
+Shepherd curves have level zero; constant positive recruitment has level one,
+and constant zero recruitment has an undefined (`NA`) level.
+
+### Beverton-Holt switching respects explicit controls
+
+`setBevertonHolt()` is now an explicit switch to that reproduction law, retaining
+the model's effective recruitment at its current state. On a model away from
+steady state this can differ from the recruitment required to hold egg abundance
+constant. To request that separate target, use
+`balanceRDD(params, rdd_target = getRequiredRDD(params))` after selecting the law.
+
+An explicitly supplied reproductive efficiency, capacity or reproduction level
+must be feasible and is no longer silently clamped or changed. In particular,
+positive recruitment cannot be produced by an absent spawning population, and a
+positive reproduction level cannot describe a species with zero recruitment.
+Choose a feasible control or change the underlying model state deliberately.
+
 ### A model keeps the defaults edition it was created with
 
 `defaults_edition()` chooses the edition of the defaults that mizer fills in for

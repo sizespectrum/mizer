@@ -419,7 +419,8 @@ steady_rates <- function(params, effort = params@initial_effort, dt = 1e-4,
                          n_pp = params@initial_n_pp,
                          n_other = params@initial_n_other, t = 0,
                          evaluate_other = TRUE, evaluate_consumers = TRUE,
-                         evaluate_resource = TRUE) {
+                         evaluate_resource = TRUE,
+                         rates_fns = projectRateFunctions(params)) {
     params <- validParams(params)
     effort <- validEffortVector(effort, params = params)
     assert_that(is.number(dt), dt > 0)
@@ -427,7 +428,6 @@ steady_rates <- function(params, effort = params@initial_effort, dt = 1e-4,
     # Arbitrary resource/component callbacks can depend on any standard rate.
     # Evaluate the effective full rate pipeline once and share its recruitment
     # too, so custom Rates providers and S3 dispatch agree with projection.
-    rates_fns <- projectRateFunctions(params)
     r <- rates_fns$Rates(params, n = n, n_pp = n_pp, n_other = n_other,
                          t = t, effort = effort, rates_fns = rates_fns)
 

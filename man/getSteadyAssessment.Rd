@@ -52,10 +52,10 @@ A \code{MizerSteadyAssessment} list. \code{verdict} is \code{TRUE} when every
 required owner is covered and passes, \code{FALSE} when any measured check
 fails, and \code{NA} when no check fails but required support is missing.
 The list records \code{scope}, \code{fixed}, \code{prescribed}, \code{required}, \code{covered},
-\code{missing}, \code{time} and \code{criterion}. \code{unavailable} gives each missing owner, capability
-and reason. \code{measures} has columns \code{owner}, \code{measure}, \code{value},
-\code{tolerance}, \code{units} and \code{passed}. A scope with no required dynamic owners
-is steady by construction and has no measures.
+\code{missing}, \code{time} and \code{criterion}. \code{unavailable} gives each missing
+owner, capability and reason. \code{measures} has columns \code{owner}, \code{measure},
+\code{value}, \code{tolerance}, \code{units} and \code{passed}. A scope with no required
+dynamic owners is steady by construction and has no measures.
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}

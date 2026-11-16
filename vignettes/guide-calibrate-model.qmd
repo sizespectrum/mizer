@@ -54,9 +54,35 @@ state — the birth rate and the resource abundance you supplied — and moves
 `findSteadyState()` keeps every parameter and moves the state. During setup and
 calibration you almost always want `tuneSteadyState()`, or
 `steadySingleSpecies()` first: holding births constant lets the search settle
-reliably onto *a* steady state. Use the `preserve` argument to choose whether
-[`reproduction_level`](../reference/setBevertonHolt.html) (default), `R_max`, or `erepro` is held fixed while
-`tuneSteadyState()` re-tunes the reproduction parameters.
+reliably onto *a* steady state. Each process supplies a named default tuning
+strategy. Built-in Beverton-Holt and Ricker strategies preserve their
+law-specific [`reproduction_level`](../reference/setBevertonHolt.html). Use `preserve` for an explicitly supported
+alternative, such as `"erepro"` or `"R_max"` for Beverton-Holt, or select named
+strategies with `strategies = c(reproduction = "preserve_erepro")`.
+
+Extensions declare which states stay fixed, which evolve, and which parameters
+may be adjusted afterwards. A missing declaration is an error before the search,
+not permission to guess. `joint` selects registered strategies that own several
+coupled processes; those replace the corresponding local choices. Inspect
+[`getProcess(params)`](../reference/setProcess.html) and [`getComponent(params, component)$definition`](../reference/setComponent.html) for stored
+declarations. The current Newton solver can hold and later balance extension
+states, but cannot evolve arbitrary component states.
+
+Balancing preserves the target state and **all effective rates entering its
+equations**, including final assembled recruitment. The independent checks also
+enforce declared parameter bounds and preserved quantities. A failure returns an
+error, without a generic optimisation fallback or a second steady-state search.
+The resulting off-target response, and hence stability, can still change.
+
+[`balanceRDD(params)`](../reference/balanceRDD.html) preserves the model's current effective recruitment while
+adjusting its current reproduction law. Use `rdd_target` only when a separate
+calculation has established the intended constrained target; named partial
+targets leave other species' recruitment and parameters alone when the strategy
+supports partial requests. [`matchGrowth()`](../reference/matchGrowth.html), [`matchBiomasses()`](../reference/matchBiomasses.html) and
+[`matchNumbers()`](../reference/matchNumbers.html) retain the chosen law and balance only the selected species.
+[`setBevertonHolt()`](../reference/setBevertonHolt.html) is instead an explicit switch to Beverton-Holt, preserving
+effective recruitment at the current state. Infeasible explicit controls are
+errors rather than silently adjusted values.
 
 **When not to use `tuneSteadyState()`.** Holding births fixed is also its
 limit: every state it finds has the recruitment the model started with, and it
@@ -170,7 +196,7 @@ them, re-running `tuneSteadyState()` between, until both are satisfied — usual
 passes.
 
 **If your observations are numbers rather than weights**, use [`calibrateNumber()`](../reference/calibrateNumber.html)
-and [`matchNumbers()`](../reference/matchNumbers.html) in place of the two biomass functions. They are the same
+and `matchNumbers()` in place of the two biomass functions. They are the same
 functions with the factor of the weight taken out of the size integral, and they
 read `number_observed` and `number_cutoff` instead of `biomass_observed` and
 `biomass_cutoff`. Mixing the two — matching some species on biomass and others
@@ -213,7 +239,7 @@ independent, closer to 1 = strongly limited):
 reproduction_level(params) <- 0.25
 ```
 
-Alternatively use [`setBevertonHolt()`](../reference/setBevertonHolt.html) to specify `R_max`, `erepro`, or a per-species
+Alternatively use `setBevertonHolt()` to specify `R_max`, `erepro`, or a per-species
 named vector. This does not change the steady state itself — it sets how the
 model responds to perturbations away from it. Read the current values back with
 `reproduction_level(params)`, useful to check what a model was tuned to before

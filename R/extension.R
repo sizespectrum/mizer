@@ -21,7 +21,7 @@
     t       <- 0
     effort  <- params@initial_effort
 
-    f <- get(fun, mode = "function")
+    f <- resolve_model_callback(fun, "Rate callback")
 
     # For functions that depend on prerequisite rates, compute the current rates
     # first (using whatever functions are already registered).
@@ -246,11 +246,14 @@ setRateFunction <- function(params, rate, fun) {
         stop("The `rate` argument must be one of ",
              toString(names(params@rates_funcs)), ".")
     }
-    if (!exists(fun, mode = "function")) {
+    if (rate == "RDD" && grepl("::", fun, fixed = TRUE)) {
+        resolve_model_callback(fun, "Reproduction rate callback")
+    } else if (!exists(fun, mode = "function")) {
         stop("There is no function called '", fun, "'.")
     }
     .checkRateFunctionOutput(params, rate, fun)
     params@rates_funcs[[rate]] <- fun
+    params <- refresh_builtin_tuning(params)
 
     validObject(params)
 
@@ -491,7 +494,8 @@ setRateContributions <- function(params, slot_name, value, noun, arg) {
 #'
 #' A `definition` is a reusable named list containing `dynamics_fun`,
 #' `rate_fun`, `encounter_fun`, `mort_fun`, `colour`, `linetype` and/or
-#' `integration_order`, `convergence_fun` and/or `role`.
+#' `integration_order`, `convergence_fun`, `role`, `stationary`,
+#' `equation_rates_fun` and/or `tuning`.
 #' Explicit arguments
 #' override its entries. Supplying a definition replaces the component's
 #' previous definition: omitted optional callbacks are removed and omitted
@@ -562,6 +566,9 @@ setRateContributions <- function(params, slot_name, value, noun, arg) {
 #'   to remove it. A dynamic component without this support makes a whole-model
 #'   assessment incomplete.
 #' @param role Either `"dynamic"` (the default) or `"prescribed"`.
+#' @param stationary Explicit TRUE/FALSE stationary-tuning declaration.
+#' @param equation_rates_fun Callback exposing effective equation quantities.
+#' @param tuning Named strategies and their default, or NULL to remove support.
 #' @param encounter_fun Name of function to calculate contribution to encounter
 #'   rate. Optional.
 #' @param mort_fun Name of function to calculate contribution to the
@@ -587,7 +594,8 @@ setComponent <- function(params, component, initial_value,
                          component_params,
                          colour = "grey", linetype = "solid",
                          definition, rate_fun, integration_order,
-                         convergence_fun, role) {
+                         convergence_fun, role, stationary,
+                         equation_rates_fun, tuning) {
     params <- validParams(params)
     assert_that(is.string(component), nzchar(component))
     if (!missing(initial_value) && is.null(initial_value)) {
@@ -624,6 +632,10 @@ setComponent <- function(params, component, initial_value,
         overrides["convergence_fun"] <- list(convergence_fun)
     }
     if (!missing(role)) overrides["role"] <- list(role)
+    if (!missing(stationary)) overrides["stationary"] <- list(stationary)
+    if (!missing(equation_rates_fun)) overrides["equation_rates_fun"] <-
+        list(equation_rates_fun)
+    if (!missing(tuning)) overrides["tuning"] <- list(tuning)
     assembled <- assemble_component_definition(
         existing = existing,
         definition = if (missing(definition)) NULL else definition,
@@ -658,6 +670,13 @@ setComponent <- function(params, component, initial_value,
     accepted <- legacy_component_definition(params, component)
     assembled[c("colour", "linetype")] <- accepted[c("colour", "linetype")]
     params@capabilities$components[[component]] <- assembled
+    if (is.null(existing) || !missing(definition) ||
+            any(c("dynamics_fun", "rate_fun", "stationary",
+                  "equation_rates_fun", "tuning") %in% names(overrides))) {
+        params$capabilities$components[[component]]$tuning_binding <-
+            tuning_provider_binding(params)
+    }
+    params <- refresh_builtin_tuning(params)
 
     params@time_modified <- lubridate::now()
     params
@@ -676,6 +695,7 @@ removeComponent <- function(params, component) {
     params@other_params[[component]] <- NULL
     params@initial_n_other[[component]] <- NULL
     params@capabilities$components[[component]] <- NULL
+    params <- refresh_builtin_tuning(params)
 
     params@time_modified <- lubridate::now()
     params

@@ -156,9 +156,12 @@ match_to <- function(params, species = NULL, to = c("biomass", "number"),
         ))
     }
     factors <- observed[selected] / model
+    if (all(abs(factors - 1) <= 8 * .Machine$double.eps)) return(params)
+    require_reproduction_balance_support(params, partial = any(!selected))
     params@initial_n[selected, ] <-
         params@initial_n[selected, , drop = FALSE] * factors
 
     signal_off_steady(fname)
-    setBevertonHolt(params)
+    target <- getRequiredRDD(params)[selected]
+    balanceRDD(params, rdd_target = target)
 }

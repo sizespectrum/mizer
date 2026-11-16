@@ -92,7 +92,9 @@ newton_steady_state <- function(params, effort, rdd_const,
                                 verbose = FALSE,
                                 solver_tol = 1e-6, maxit = 200,
                                 jacobian = c("update", "recompute"),
-                                global = "dbldog") {
+                                global = "dbldog",
+                                rates_fns = projectRateFunctions(params)) {
+    require_newton_equations(params)
     resource <- match.arg(resource)
     jacobian <- match.arg(jacobian)
     # nleqslv names these after the Jacobian's origin rather than after what it
@@ -103,7 +105,8 @@ newton_steady_state <- function(params, effort, rdd_const,
              "Install it with install.packages('nleqslv').")
     }
     if (resource == "solve" &&
-        params@resource_dynamics != "resource_semichemostat") {
+            sub("^mizer::", "", params@resource_dynamics) !=
+                "resource_semichemostat") {
         stop("`solver = \"newton\"` can only solve for the resource with the ",
              "default semichemostat resource dynamics ",
              "(resource_dynamics = 'resource_semichemostat'). Use ",
@@ -133,7 +136,7 @@ newton_steady_state <- function(params, effort, rdd_const,
 
     residual_fn <- steady_state_residual(params, rdd_const, n_other, effort,
                                          active, extinction_floor = extinction_floor,
-                                         N0 = N0)
+                                         n0 = N0, rates_fns = rates_fns)
 
     x0 <- log(N0[active$mask])
     if (resource == "solve") {
@@ -161,7 +164,8 @@ newton_steady_state <- function(params, effort, rdd_const,
     # Keep an already successful starting guess, and never replace a result
     # with a worse one merely because the retry has a different stopping code.
     if (error > solver_tol && remaining > 0) {
-        seed <- tryCatch(newton_frozen_guess(params, active, N0, effort),
+        seed <- tryCatch(newton_frozen_guess(params, active, N0, effort,
+                                             rates_fns = rates_fns),
                          mizer_steady_nonconvergence = function(e) NULL)
         if (!is.null(seed)) {
             retry_x0 <- x0
@@ -207,12 +211,18 @@ newton_steady_state <- function(params, effort, rdd_const,
         }
     }
 
-    if (resource == "solve") {
-        n_pp <- resource_steady_semichemostat(params, N, n_other)
-    }
-
     list(n = N, n_pp = n_pp, extinct = is_extinct, absent = active$absent,
          termcd = sol$termcd, message = sol$message, residual = error)
+}
+
+# Rate and verification callbacks cannot replace Newton's residual operator.
+require_newton_equations <- function(params) {
+    if (!builtin_consumer_projection(params)) {
+        stop("The Newton solver requires the built-in consumer transport ",
+             "equations. Custom project() or project_simple() dynamics need ",
+             "a supported equation operator.", call. = FALSE)
+    }
+    invisible(TRUE)
 }
 
 #' A frozen-rate starting spectrum for a stalled Newton solve
@@ -230,13 +240,12 @@ newton_steady_state <- function(params, effort, rdd_const,
 #' @param effort The fishing effort vector.
 #' @return A density matrix, strictly positive on the active set.
 #' @noRd
-newton_frozen_guess <- function(params, active, n0, effort) {
-    rates <- mizer_rates_subset(params, n = params@initial_n,
-                                n_pp = params@initial_n_pp,
-                                n_other = params@initial_n_other,
-                                t = 0, effort = effort,
-                                rates_fns = projectRateFunctions(params),
-                                targets = c("EGrowth", "Mort", "Diffusion"))
+newton_frozen_guess <- function(params, active, n0, effort,
+                                rates_fns = projectRateFunctions(params)) {
+    rates <- rates_fns$Rates(params, n = params@initial_n,
+                             n_pp = params@initial_n_pp,
+                             n_other = params@initial_n_other,
+                             t = 0, effort = effort, rates_fns = rates_fns)
     eggs <- n0[cbind(seq_len(nrow(n0)), params@w_min_idx)]
     seed <- get_steady_state_n(params, rates$e_growth, rates$mort,
                                rates$diffusion, eggs)
@@ -389,37 +398,6 @@ fd_step_scale <- function(x, local_scale) {
     pmax(abs(x), local_scale)
 }
 
-#' Analytic semichemostat resource steady state
-#'
-#' Returns the resource number density that is in equilibrium with the consumer
-#' densities `N`. For the semichemostat resource the equilibrium is
-#' `n_pp* = rr_pp * cc_pp / (rr_pp + mu_R(N))`, where the resource predation
-#' mortality `mu_R` depends only on the consumer densities (not on the resource
-#' density itself), so the substitution is exact. This is the `n_steady` of
-#' [resource_semichemostat()].
-#'
-#' @param params A \linkS4class{MizerParams} object.
-#' @param N Consumer densities (species x size).
-#' @param n_other Abundances of other components.
-#' @return The steady-state resource number density vector.
-#' @noRd
-resource_steady_semichemostat <- function(params, N, n_other) {
-    n_pp <- params@initial_n_pp
-    for (i in 1:8) {
-        mu_R <- as.numeric(getResourceMort(params, n = N,
-                                           n_pp = n_pp,
-                                           n_other = n_other, t = 0))
-        mur <- params@rr_pp + mu_R
-        n_pp_new <- params@rr_pp * params@cc_pp / mur
-        # Where both rate and mortality vanish the steady state is undetermined;
-        # keep the initial value.
-        sel <- !is.finite(n_pp_new)
-        n_pp_new[sel] <- params@initial_n_pp[sel]
-        n_pp <- n_pp_new
-    }
-    n_pp
-}
-
 #' Unscaled residual of the discrete steady-state equation
 #'
 #' Evaluates the growth, mortality and diffusion rates at the given state,
@@ -464,14 +442,17 @@ consumer_residual <- function(params, n, n_pp, n_other, effort, rdd = NULL,
 
     r <- rates
     if (is.null(r)) {
-        r <- mizer_rates_subset(params, n = n, n_pp = n_pp, n_other = n_other,
-                                t = 0, effort = effort, rates_fns = rates_fns,
-                                targets = c("EGrowth", "Mort", "Diffusion"))
+        r <- rates_fns$Rates(params, n = n, n_pp = n_pp, n_other = n_other,
+                             t = 0, effort = effort, rates_fns = rates_fns)
     }
 
     if (is.null(rdd)) {
-        rdd <- state_rdd(params, n = n, n_pp = n_pp, n_other = n_other,
-                         rates = r)
+        rdd <- if (!is.null(r$rdd)) {
+            r$rdd
+        } else {
+            state_rdd(params, n = n, n_pp = n_pp, n_other = n_other,
+                      rates = r, effort = effort, rates_fns = rates_fns)
+        }
     }
 
     coefs <- get_transport_coefs(params, n = n, g = r$e_growth,
@@ -501,19 +482,12 @@ consumer_residual <- function(params, n, n_pp, n_other, effort, rdd = NULL,
 #'   and `diffusion`, as returned by `mizer_rates_subset()`.
 #' @return The per-species density-dependent reproduction rate.
 #' @noRd
-state_rdd <- function(params, n, n_pp, n_other, rates) {
-    rdi <- if (params@rates_funcs$RDI == "mizerRDI") {
-        projectRDI(params, n = n, n_pp = n_pp, n_other = n_other, t = 0,
-                   e_repro = rates$e_repro, e_growth = rates$e_growth,
-                   mort = rates$mort, diffusion = rates$diffusion)
-    } else {
-        f_rdi <- get(params@rates_funcs$RDI)
-        f_rdi(params, n = n, n_pp = n_pp, n_other = n_other, t = 0,
-              e_repro = rates$e_repro, e_growth = rates$e_growth,
-              mort = rates$mort, diffusion = rates$diffusion)
-    }
-    projectRDD(params, rdi = rdi, species_params = params@species_params,
-               t = 0)
+state_rdd <- function(params, n, n_pp, n_other, rates,
+                      effort = params@initial_effort,
+                      rates_fns = projectRateFunctions(params)) {
+    if (!is.null(rates$rdd)) return(rates$rdd)
+    rates_fns$Rates(params, n = n, n_pp = n_pp, n_other = n_other,
+                    effort = effort, t = 0, rates_fns = rates_fns)$rdd
 }
 
 #' Residual of the discrete steady-state equation
@@ -542,18 +516,18 @@ state_rdd <- function(params, n, n_pp, n_other, rates) {
 #'   scaled residual.
 #' @noRd
 steady_state_residual <- function(params, rdd_const, n_other, effort, active,
-                                  extinction_floor = 1e-6, N0 = NULL) {
+                                  extinction_floor = 1e-6, n0 = NULL,
+                                  rates_fns = projectRateFunctions(params)) {
     no_w <- length(params@w)
     mask <- active$mask
     mask_pp <- active$mask_pp
     n_fish_active <- active$n_fish_active
     flux_limiter <- flux_limiter_scheme(params)
-    rates_fns <- projectRateFunctions(params)
-    
-    if (is.null(N0)) {
+    force(rates_fns)
+    if (is.null(n0)) {
         x0_initial <- params@initial_n
     } else {
-        x0_initial <- N0
+        x0_initial <- n0
     }
 
     # A floor is always active to handle zero-abundance tail classes smoothly
@@ -585,9 +559,13 @@ steady_state_residual <- function(params, rdd_const, n_other, effort, active,
             return(rep(Inf, length(x)))
         }
 
+        rates <- rates_fns$Rates(params, n = N, n_pp = n_pp,
+                                 n_other = n_other, t = 0, effort = effort,
+                                 rates_fns = rates_fns)
+        recruitment <- if (is.null(rdd_const)) rates$rdd else rdd_const
         res <- consumer_residual(params, n = N, n_pp = n_pp, n_other = n_other,
-                                 effort = effort, rdd = rdd_const,
-                                 rates_fns = rates_fns,
+                                 effort = effort, rdd = recruitment,
+                                 rates_fns = rates_fns, rates = rates,
                                  flux_limiter = flux_limiter)
 
         # Scale to a per-capita rate of change (N > 0 on the active set).
@@ -608,10 +586,9 @@ steady_state_residual <- function(params, rdd_const, n_other, effort, active,
         if (!any(mask_pp)) {
             return(r_ss)
         }
-        mu_R <- as.numeric(getResourceMort(params, n = N,
-                                           n_pp = n_pp,
-                                           n_other = n_other, t = 0))
-        r_pp_ss <- (params@rr_pp * params@cc_pp / n_pp - (params@rr_pp + mu_R))[mask_pp]
+        resource_mort <- as.numeric(rates$resource_mort)
+        r_pp_ss <- (params@rr_pp * params@cc_pp / n_pp -
+                        (params@rr_pp + resource_mort))[mask_pp]
 
         c(r_ss, as.numeric(r_pp_ss))
     }

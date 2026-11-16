@@ -104,3 +104,67 @@ test_that("getRequiredRDD works with predictor-corrector project method", {
     expect_equal(finalN(sim)[species, idx], initialN(params)[species, idx],
                  tolerance = 1e-12)
 })
+
+test_that("required recruitment follows a complete rate replacement", {
+    rlang::local_bindings(
+        required_full_rates = function(params, ...) {
+            r <- mizerRates(params, ...)
+            r$mort <- 2 * r$mort
+            r
+        }, .env = .GlobalEnv
+    )
+    p <- NS_params_small
+    baseline <- getRequiredRDD(p)
+    egg <- cbind(seq_len(nrow(p@initial_n)), p@w_min_idx)
+    extra <- getMort(p)[egg] * p@initial_n[egg] * p@dw[p@w_min_idx]
+    p <- setRateFunction(p, "Rates", "required_full_rates")
+    expect_equal(unname(getRequiredRDD(p)), unname(baseline + extra))
+
+    fns <- projectRateFunctions(p)
+    r <- fns$Rates(p, n = p@initial_n, n_pp = p@initial_n_pp,
+                   n_other = p@initial_n_other, effort = p@initial_effort,
+                   rates_fns = fns)
+    expect_equal(getRequiredRDD(p, rates = r), getRequiredRDD(p))
+})
+
+test_that("required recruitment follows full-rate S3 dispatch", {
+    method <- function(params, ...) {
+        r <- NextMethod()
+        r$mort <- 2 * r$mort
+        r
+    }
+    method_name <- paste0("projectRates.", "required_test")
+    assign(method_name, method, envir = .GlobalEnv)
+    withr::defer(rm(list = method_name, envir = .GlobalEnv))
+    p <- NS_params_small
+    baseline <- getRequiredRDD(p)
+    egg <- cbind(seq_len(nrow(p@initial_n)), p@w_min_idx)
+    extra <- getMort(p)[egg] * p@initial_n[egg] * p@dw[p@w_min_idx]
+    class(p) <- c("required_test", class(p))
+    expect_equal(unname(getRequiredRDD(p)), unname(baseline + extra))
+})
+
+test_that("egg balance does not recursively request ordinary RDI", {
+    rlang::local_bindings(
+        required_rdi = function(params, ...) getRequiredRDD(params),
+        .env = .GlobalEnv
+    )
+    p <- NS_params_small
+    baseline <- getRequiredRDD(p)
+    p <- setRateFunction(p, "RDI", "required_rdi")
+    expect_equal(getRequiredRDD(p), baseline)
+    expect_equal(as.numeric(getRDI(p)), as.numeric(baseline))
+})
+
+test_that("circular complete-rate dependencies give an actionable error", {
+    rlang::local_bindings(
+        recursive_required_rates = function(params, ...) {
+            mizerRates(params, ...)
+        },
+        recursive_required_rdi = function(params, ...) getRequiredRDD(params),
+        .env = .GlobalEnv
+    )
+    p <- setRateFunction(NS_params_small, "Rates", "recursive_required_rates")
+    p <- setRateFunction(p, "RDI", "recursive_required_rdi")
+    expect_error(getRequiredRDD(p), "Recursive full-rate evaluation")
+})

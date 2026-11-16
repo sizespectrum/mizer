@@ -101,7 +101,8 @@ projectRDD.MizerParams <- function(params, rdi,
         stop('"getRDD" is not a valid name for the function giving the density',
              'dependent reproductive rate.')
     }
-    rdd_fn <- get(params@rates_funcs$RDD)
+    rdd_fn <- resolve_model_callback(params@rates_funcs$RDD,
+                                     "Density-dependent reproduction")
     rdd_fn(rdi = rdi, species_params = species_params, params = params,
            t = t, ...)
 }

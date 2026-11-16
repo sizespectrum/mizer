@@ -2,14 +2,19 @@
 % Please edit documentation in R/getRequiredRDD.R
 \name{getRequiredRDD}
 \alias{getRequiredRDD}
+\alias{getRequiredRDD.MizerParams}
 \title{Determine reproduction rate needed for initial egg abundance}
 \usage{
-getRequiredRDD(params, ...)
+getRequiredRDD(params, ..., rates = NULL)
 }
 \arguments{
 \item{params}{A MizerParams object}
 
-\item{...}{Unused.}
+\item{...}{Arguments passed to methods.}
+
+\item{rates}{Optional already evaluated rate list for this model's initial
+state and effort, used to share an effective evaluation with a caller.
+Must contain growth, total mortality and diffusion. Usually omitted.}
 }
 \value{
 A vector of reproduction rates for all species

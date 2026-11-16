@@ -70,6 +70,7 @@ issued if the recalculated values would differ from the stored ones.
 
 \seealso{
 Other functions for setting parameters:
+\code{\link[=balanceRDD]{balanceRDD()}},
 \code{\link[=gear_params]{gear_params()}},
 \code{\link[=setExtEncounter]{setExtEncounter()}},
 \code{\link[=setExtMort]{setExtMort()}},

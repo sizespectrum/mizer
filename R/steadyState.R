@@ -23,13 +23,12 @@
 #' @description
 #' `r lifecycle::badge("experimental")`
 #'
-#' Solves for the consumer size spectra while holding the reproduction rate
-#' (RDD), the resource and any other components at the values stored in
-#' `params`, and then adjusts the reproduction parameters and resource capacity
-#' to make those inputs steady. Other components are assessed after their
-#' dynamics are restored. This is the function to use while setting up and
-#' calibrating a model: holding the inputs to the fish dynamics fixed is what
-#' makes the search reliable.
+#' Solves for a model's steady state using declared tuning strategies. The
+#' built-in defaults hold final recruitment and the resource abundance fixed,
+#' then adjust reproduction parameters and resource capacity. Extensions declare
+#' which states their strategies hold or evolve, what parameters may change,
+#' and how the held targets are balanced. The restored candidate is checked
+#' against every effective equation rate before its final steady assessment.
 #'
 #' It is not the function for asking where a model with given parameters
 #' settles. Because the reproduction rate is held at its current value, it
@@ -40,28 +39,28 @@
 #' share parameters. Use [findSteadyState()] for those questions.
 #'
 #' @details
-#' Concretely, three things are held fixed during the search and two parameters
-#' are re-derived afterwards:
+#' Each provider supplies named strategies and a default. Use `strategies` to
+#' choose alternatives, and `joint` for declared strategies owning coupled
+#' processes. The selected strategies must cover the whole tuning operation
+#' without overlapping parameter ownership. Missing support, unknown stationary
+#' behaviour and unsupported solver combinations stop before the search.
 #'
-#' * The reproduction rate is pinned at `getRDD(params)`. Afterwards, if the
-#'   model uses Beverton-Holt reproduction, [setBevertonHolt()] restores the
-#'   density dependence so that it reproduces exactly that rate at the new
-#'   spectra. Use `preserve` to say which of the reproduction parameters should
-#'   be kept as it was.
-#' * The resource abundance is held at `initialNResource(params)`. Afterwards
-#'   the resource capacity `cc_pp` is recomputed so that this abundance is a
-#'   steady state of the resource under the new spectra. If the capacity had
-#'   been set by hand (frozen), it is rebalanced and thereby unfrozen.
-#' * Other components are held constant throughout and are not adjusted.
+#' Recruitment targets come from the complete effective rate pipeline,
+#' including named replacements and extension wrappers. A held target replaces
+#' the final recruitment entering the equations, so wrappers are not applied a
+#' second time to a total that already includes their contribution.
 #'
-#' The restored model is assessed in full by default. Dynamic components need
-#' their own convergence capability, even though this constrained search holds
-#' them fixed. Their values are not adjusted, so the final assessment may fail
-#' while the consumer search succeeds. Inspect `convergence$assessment` rather
-#' than assuming the returned model is steady. For the projection solver,
-#' `convergence$search_assessment` separately records the conditional search.
-#' Select `scope = "conditional"` with explicit `fixed` owners when the desired
-#' result concerns a subsystem. See [getSteadyAssessment()].
+#' Balancers run once after the constrained search. They must preserve the
+#' candidate state and all effective target equation rates, including growth,
+#' diffusion, total mortality and final recruitment. Mizer independently checks
+#' the released model; it does not repair changed rates by solving the consumers
+#' again or by choosing an undeclared numerical balancing method.
+#'
+#' The `"convergence"` attribute separates `search_assessment`, measured with
+#' the selected state and rate constraints, from `assessment`, measured after
+#' restoring and balancing the model. Whole-model assessment is the default.
+#' Select `scope = "conditional"` with explicit `fixed` owners for a subsystem;
+#' those inputs must also be held by the selected tuning strategies.
 #'
 #' Holding those inputs fixed is what makes the search reliable, but it does not
 #' make the result certain: the state that is stored is only as close to a fixed
@@ -100,10 +99,18 @@
 #' @param effort The fishing effort to use throughout. By default the initial
 #'   effort stored in `params`.
 #' @param preserve `r lifecycle::badge("experimental")`
-#'   Specifies whether the `reproduction_level` should be preserved (default)
-#'   or the maximum reproduction rate `R_max` or the reproductive
-#'   efficiency `erepro`. See [setBevertonHolt()] for an explanation
-#'   of the `reproduction_level`.
+#'   An explicit reproduction-preservation choice, such as `"erepro"`,
+#'   `"R_max"` or `"reproduction_level"` for Beverton-Holt reproduction.
+#'   Omitting this argument selects the provider's declared default strategy.
+#'   Other laws support their own controls; unsupported choices error. Do not
+#'   combine this selector with an explicit reproduction entry in `strategies`.
+#' @param strategies Optional named character vector selecting a strategy for
+#'   each specified owner, such as `c(resource = "evolve")` or
+#'   `c("component:pool" = "hold")`. Omitted owners use their declared defaults.
+#' @param joint Names of joint strategies registered with [setTuningStrategy()].
+#'   `NULL` selects declared joint defaults; `character()` selects none. A joint
+#'   strategy replaces the local defaults of its owners. Conflicting explicit
+#'   local selections or overlapping joint ownership error.
 #' @param info_level Controls the amount of information messages that are shown.
 #'   Higher levels lead to more messages, `info_level = 0` gives silence. The
 #'   default is taken from the `mizer_info_level` option, see
@@ -159,7 +166,8 @@ tuneSteadyState <- function(params, solver = c("project", "newton"),
                             scope = c("whole", "conditional"),
                             fixed = character(),
                             criterion = c("state", "biomass"),
-                            tolerances = NULL, atol = 1e-12, ...) {
+                            tolerances = NULL, atol = 1e-12,
+                            strategies = NULL, joint = NULL, ...) {
     UseMethod("tuneSteadyState")
 }
 
@@ -173,7 +181,9 @@ tuneSteadyState.MizerParams <- function(params,
                                         scope = c("whole", "conditional"),
                                         fixed = character(),
                                         criterion = c("state", "biomass"),
-                                        tolerances = NULL, atol = 1e-12, ...) {
+                                        tolerances = NULL, atol = 1e-12,
+                                        strategies = NULL, joint = NULL, ...) {
+    if (missing(preserve)) preserve <- NULL
     solver <- match.arg(solver)
     with_info_level(info_level = info_level, {
         params <- validParams(params)
@@ -183,12 +193,14 @@ tuneSteadyState.MizerParams <- function(params,
             tune_steady_project(params, effort = effort, preserve = preserve,
                                 info_level = info_level, scope = scope,
                                 fixed = fixed, criterion = criterion,
-                                tolerances = tolerances, atol = atol, ...)
+                                tolerances = tolerances, atol = atol,
+                                strategies = strategies, joint = joint, ...)
         } else {
             tune_steady_newton(params, effort = effort, preserve = preserve,
                                scope = scope, fixed = fixed,
                                criterion = criterion, tolerances = tolerances,
-                               atol = atol, ...)
+                               atol = atol, strategies = strategies,
+                               joint = joint, ...)
         }
     })
 }
@@ -369,120 +381,130 @@ tune_steady_project <- function(params, effort, preserve,
                                 scope = c("whole", "conditional"),
                                 fixed = character(),
                                 criterion = c("state", "biomass"),
-                                tolerances = NULL, atol = 1e-12) {
+                                tolerances = NULL, atol = 1e-12,
+                                strategies = NULL, joint = NULL) {
     method <- normalise_project_method(method)
     prepare_solver_assessment(params, residual_tol, scope, fixed, criterion,
                               tolerances, atol, require_steady = require_steady)
-
-    old_reproduction_level <- NULL
-    old_R_max <- NULL
-    old_erepro <- NULL
-    if (params@rates_funcs$RDD == "BevertonHoltRDD") {
-        preserve <- match.arg(preserve, c("reproduction_level", "erepro",
-                                          "R_max"))
-        old_reproduction_level <- reproduction_level(params)
-        old_R_max <- params@species_params$R_max
-        old_erepro <- params@species_params$erepro
-    }
-
-    # Force the reproduction to stay at the current level
-    params@species_params$constant_reproduction <- getRDD(params)
-    old_rdd_fun <- params@rates_funcs$RDD
-    params@rates_funcs$RDD <- "constantRDD"
-
-    # Force resource to stay at current level
-    old_resource_dynamics <- params@resource_dynamics
-    params@resource_dynamics <- "resource_constant"
-
-    # Force other components to stay at current level
-    old_other_dynamics <- params@other_dynamics
-    for (res in names(params@other_dynamics)) {
-        params@other_dynamics[[res]] <- "constant_other"
-    }
-
-    search_fixed <- "resource"
-    if (length(old_other_dynamics)) {
-        search_fixed <- c(search_fixed,
-                          paste0("component:", names(old_other_dynamics)))
-    }
-    search_tolerances <- tolerances
-    if (length(search_tolerances)) {
-        excluded <- vapply(names(search_tolerances), function(id) {
-            any(startsWith(id, paste0(search_fixed, "/")))
-        }, logical(1))
-        search_tolerances <- search_tolerances[!excluded]
-        if (!length(search_tolerances)) search_tolerances <- NULL
-    }
-    object <- project_until_settled(params,
-                                    effort = effort,
-                                    distance_func = distanceMaxRelRDI,
-                                    t_check = t_check,
-                                    t_max = t_max,
-                                    dt = dt,
-                                    t_save = t_save,
-                                    distance_tol = distance_tol,
-                                    residual_tol = residual_tol,
-                                    amplitude_tol = amplitude_tol,
-                                    amp_rel_tol = amp_rel_tol,
-                                    extinction_threshold = extinction_threshold,
-                                    return_sim = return_sim,
-                                    require_steady = require_steady,
-                                    progress_bar = progress_bar,
-                                    info_level = info_level,
-                                    method = method, subcycle = subcycle,
-                                    max_courant = max_courant,
-                                    max_substeps = max_substeps,
-                                    scope = "conditional",
-                                    fixed = search_fixed,
-                                    criterion = criterion,
-                                    tolerances = search_tolerances, atol = atol)
-    # Capture the convergence diagnostic before the setter functions below
-    # return fresh objects that drop attributes; it is re-attached at the end.
+    preserve <- tuning_preserve_selection(preserve)
+    plan <- prepare_tuning(params, strategies = strategies, joint = joint,
+                           solver = "project", effort = effort,
+                           preserve = preserve)
+    runtime <- prepare_tuning_runtime(params, plan, fixed, "project")
+    search_tolerances <- tuning_search_tolerances(tolerances,
+                                                  runtime$hold_states)
+    object <- project_until_settled(
+        runtime$params, effort = effort, distance_func = distanceMaxRelRDI,
+        t_check = t_check, t_max = t_max, dt = dt, t_save = t_save,
+        distance_tol = distance_tol, residual_tol = residual_tol,
+        amplitude_tol = amplitude_tol, amp_rel_tol = amp_rel_tol,
+        extinction_threshold = extinction_threshold, return_sim = return_sim,
+        require_steady = require_steady, progress_bar = progress_bar,
+        info_level = info_level, method = method, subcycle = subcycle,
+        max_courant = max_courant, max_substeps = max_substeps,
+        scope = runtime$scope, fixed = runtime$hold_states,
+        criterion = criterion, tolerances = search_tolerances, atol = atol,
+        .rates_fns = runtime$rates_fns,
+        .rate_constraints = runtime$rate_constraints
+    )
     conv <- attr(object, "convergence")
-    if (return_sim) {
-        params <- object@params
-    } else {
-        params <- object
-    }
-    # Restore original RDD and dynamics
-    params@rates_funcs$RDD <- old_rdd_fun
-    params@other_dynamics <- old_other_dynamics
-    params@species_params$constant_reproduction <- NULL
+    candidate <- if (return_sim) object@params else object
+    candidate@resource_dynamics <- params@resource_dynamics
+    candidate@other_dynamics <- params@other_dynamics
+    rates <- tuning_target_rates(candidate, runtime$rates_fns, effort,
+                                 t = conv$years)
+    targets <- capture_tuning_targets(candidate, plan, rates = rates,
+                                      t = conv$years)
+    candidate <- finish_tuning(candidate, plan, targets)
 
-    params <- rebalance_resource(params, old_resource_dynamics)
-    params <- restore_reproduction(params, preserve, old_reproduction_level,
-                                   old_R_max, old_erepro)
-
-    # The residual recorded during the run was measured on the model it was
-    # handed, which had reproduction, the resource and the other components
-    # pinned. Restoring the real dynamics above changes the model, so the
-    # residual is measured again on what is actually being returned, and the
-    # verdict on the state is derived from that measurement.
-    #
-    # This is also why a cycle detected during the search does not make the
-    # returned model a limit-cycle attractor: the search was run with the inputs
-    # to the fish dynamics pinned, so what oscillated was a constrained system,
-    # and the model handed back is not that system. `termination` still records
-    # that the search ended on a detected cycle.
     conv$search_assessment <- conv$assessment
     assessment_plan <- prepare_solver_assessment(
-        params, residual_tol, scope, fixed, criterion, tolerances, atol,
+        candidate, residual_tol, scope, fixed, criterion, tolerances, atol,
         require_steady = require_steady
     )
-    conv$assessment <- steady_assessment(params, prepared = assessment_plan,
+    conv$assessment <- steady_assessment(candidate, prepared = assessment_plan,
                                          effort = effort, t = conv$years)
     conv$scope <- conv$assessment$scope
     conv$residual <- attr(conv$assessment, "drift_report")$drift
     conv$attractor <- steady_attractor(conv$assessment)
-
+    candidate@time_modified <- lubridate::now()
     if (return_sim) {
-        object@params <- params
+        object@params <- candidate
         attr(object, "convergence") <- conv
         return(object)
     }
-    params@time_modified <- lubridate::now()
-    attr(params, "convergence") <- conv
-    params
+    attr(candidate, "convergence") <- conv
+    candidate
+}
+
+# Preserve the legacy wrapper's unevaluated default without imposing a
+# Beverton-Holt control on another provider's declared strategy.
+tuning_preserve_selection <- function(preserve) {
+    if (identical(preserve, c("reproduction_level", "erepro", "R_max"))) {
+        NULL
+    } else {
+        preserve
+    }
+}
+
+prepare_tuning_runtime <- function(params, plan, fixed, solver) {
+    hold <- plan$hold_states
+    evolve <- plan$evolve_states
+    if ("consumers" %in% hold) {
+        stop("Tuning solvers cannot hold consumers fixed.", call. = FALSE)
+    }
+    if (length(setdiff(fixed, hold))) {
+        stop("Conditional fixed inputs must be held by the selected tuning ",
+             "strategies: ", paste(setdiff(fixed, hold), collapse = ", "),
+             ". Select a compatible strategy.", call. = FALSE)
+    }
+    if (solver == "newton" && any(startsWith(evolve, "component:"))) {
+        stop("The Newton solver cannot evolve component states. Select a ",
+             "strategy that holds them or use `solver = 'project'`.",
+             call. = FALSE)
+    }
+    if (solver == "newton" && "resource" %in% evolve &&
+            sub("^mizer::", "", params@resource_dynamics) !=
+                "resource_semichemostat") {
+        stop("The Newton solver can evolve only a semichemostat resource. ",
+             "Select a strategy that holds it or use `solver = 'project'`.",
+             call. = FALSE)
+    }
+    rates_fns <- projectRateFunctions(params)
+    constraints <- character()
+    if (isTRUE(plan$hold_recruitment)) {
+        rates_fns <- pin_recruitment_rates(rates_fns, plan$recruitment)
+        constraints <- "consumers/recruitment"
+    }
+    if ("resource" %in% hold) params@resource_dynamics <- "resource_constant"
+    components <- hold[startsWith(hold, "component:")]
+    for (owner in components) {
+        component <- substring(owner, nchar("component:") + 1L)
+        params@other_dynamics[[component]] <- "constant_other"
+    }
+    list(params = params, rates_fns = rates_fns, hold_states = hold,
+         rate_constraints = constraints,
+         scope = if (length(hold) || length(constraints)) {
+             "conditional"
+         } else {
+             "whole"
+         })
+}
+
+tuning_search_tolerances <- function(tolerances, hold) {
+    if (!length(tolerances) || !length(hold)) return(tolerances)
+    excluded <- vapply(names(tolerances), function(id) {
+        any(startsWith(id, paste0(hold, "/")))
+    }, logical(1))
+    tolerances <- tolerances[!excluded]
+    if (!length(tolerances)) NULL else tolerances
+}
+
+tuning_target_rates <- function(params, rates_fns, effort, t = 0) {
+    rates_fns$Rates(params, n = params@initial_n,
+                    n_pp = params@initial_n_pp,
+                    n_other = params@initial_n_other, t = t, effort = effort,
+                    rates_fns = rates_fns)
 }
 
 #' Tune to a steady state with the Newton solver
@@ -504,38 +526,48 @@ tune_steady_newton <- function(params, effort, preserve,
                                scope = c("whole", "conditional"),
                                fixed = character(),
                                criterion = c("state", "biomass"),
-                               tolerances = NULL, atol = 1e-12) {
+                               tolerances = NULL, atol = 1e-12,
+                               strategies = NULL, joint = NULL) {
     prepare_solver_assessment(params, residual_tol, scope, fixed, criterion,
-                              tolerances, atol, newton = TRUE)
-    old_reproduction_level <- NULL
-    old_R_max <- NULL
-    old_erepro <- NULL
-    if (params@rates_funcs$RDD == "BevertonHoltRDD") {
-        preserve <- match.arg(preserve, c("reproduction_level", "erepro",
-                                          "R_max"))
-        old_reproduction_level <- reproduction_level(params)
-        old_R_max <- params@species_params$R_max
-        old_erepro <- params@species_params$erepro
-    }
-    old_resource_dynamics <- params@resource_dynamics
-
-    sol <- newton_steady_state(params, effort = effort,
-                               rdd_const = getRDD(params),
-                               resource = "fixed",
-                               verbose = verbose,
-                               solver_tol = solver_tol, maxit = maxit,
-                               jacobian = jacobian, global = global)
-
-    params@initial_n[] <- sol$n
-    params@initial_n_pp[] <- sol$n_pp
-
-    params <- rebalance_resource(params, old_resource_dynamics)
-    params <- restore_reproduction(params, preserve, old_reproduction_level,
-                                   old_R_max, old_erepro)
-
-    finish_newton(params, sol, effort, residual_tol, scope = scope,
-                  fixed = fixed, criterion = criterion,
-                  tolerances = tolerances, atol = atol)
+                              tolerances, atol)
+    require_newton_equations(params)
+    preserve <- tuning_preserve_selection(preserve)
+    plan <- prepare_tuning(params, strategies = strategies, joint = joint,
+                           solver = "newton", effort = effort,
+                           preserve = preserve)
+    runtime <- prepare_tuning_runtime(params, plan, fixed, "newton")
+    resource <- if ("resource" %in% plan$evolve_states) "solve" else "fixed"
+    recruitment <- if (isTRUE(plan$hold_recruitment)) plan$recruitment else NULL
+    sol <- newton_steady_state(runtime$params, effort = effort,
+                               rdd_const = recruitment, resource = resource,
+                               verbose = verbose, solver_tol = solver_tol,
+                               maxit = maxit, jacobian = jacobian,
+                               global = global, rates_fns = runtime$rates_fns)
+    candidate <- runtime$params
+    candidate@initial_n[] <- sol$n
+    candidate@initial_n_pp[] <- sol$n_pp
+    search_plan <- prepare_solver_assessment(
+        candidate, residual_tol, runtime$scope, runtime$hold_states,
+        criterion, tuning_search_tolerances(tolerances, runtime$hold_states),
+        atol, rate_constraints = runtime$rate_constraints
+    )
+    search_assessment <- steady_assessment(
+        candidate, prepared = search_plan, effort = effort,
+        rates_fns = runtime$rates_fns
+    )
+    candidate@resource_dynamics <- params@resource_dynamics
+    candidate@other_dynamics <- params@other_dynamics
+    rates <- tuning_target_rates(candidate, runtime$rates_fns, effort)
+    targets <- capture_tuning_targets(candidate, plan, rates = rates)
+    candidate <- finish_tuning(candidate, plan, targets)
+    candidate <- finish_newton(candidate, sol, effort, residual_tol,
+                               scope = scope, fixed = fixed,
+                               criterion = criterion, tolerances = tolerances,
+                               atol = atol)
+    conv <- attr(candidate, "convergence")
+    conv$search_assessment <- search_assessment
+    attr(candidate, "convergence") <- conv
+    candidate
 }
 
 #' Find a steady state with the Newton solver
@@ -590,25 +622,9 @@ find_steady_newton <- function(params, effort, extinction_floor = 1e-6,
 
 #' Report that the analysis covers the fish and the resource only
 #'
-#' `tuneSteadyState()`, the Newton solver and the stability analyses all treat
-#' the components registered with [setComponent()] as fixed inputs: the search
-#' holds them at their stored values and the Jacobian has no rows for them.
-#' Where those components have dynamics of their own, the result is a statement
-#' about a subsystem, and this is what says so.
-#'
-#' It is a report rather than a refusal, for the same reason that
-#' `warn_if_not_steady()` is: the analysis is still the right one whenever the
-#' components are slaved to the fish or move on a far slower timescale, and the
-#' user is the one who knows which. Refusing would also lock every model built
-#' with [setComponent()] out of these functions. What the user must not be
-#' allowed to do is *assume* the components were covered, which is why this is a
-#' warning rather than a quiet note.
-#'
-#' The reported `residual` does not cover them either — see
-#' `steady_drift_report()` for why it stopped trying to — so this says where
-#' their rates of change can be found instead. The two halves belong together:
-#' this report names the components that are being held fixed, and
-#' `warn_if_not_steady()` names the ones that are actually moving, with numbers.
+#' Used by stability analyses whose Jacobian contains consumers and resource
+#' states only. Dynamic components are fixed inputs to that analysis; their
+#' separate steady-state assessment does not add rows to the Jacobian.
 #'
 #' @param params A \linkS4class{MizerParams} object.
 #' @param context A sentence naming what is being claimed, appended to the
@@ -624,8 +640,8 @@ warn_other_components_fixed <- function(params, context) {
         "The component", if (length(dynamic) > 1) "s " else " ",
         paste0("`", dynamic, "`", collapse = ", "),
         if (length(dynamic) > 1) " have" else " has",
-        " dynamics of their own, and mizer's steady-state and stability ",
-        "machinery covers the consumers and the resource only: ",
+        " dynamics of their own, and this stability analysis covers the ",
+        "consumers and the resource only: ",
         if (length(dynamic) > 1) "they are" else "it is",
         " held at the stored value throughout and ",
         if (length(dynamic) > 1) "are" else "is",
@@ -635,80 +651,6 @@ warn_other_components_fixed <- function(params, context) {
         " rate of change. ", context),
         level = 1, severity = "warning", unhandled = "show")
     invisible(TRUE)
-}
-
-#' Rebalance the resource so that its preserved abundance is steady
-#'
-#' Restores the original resource dynamics and derives the capacity from the
-#' (preserved) rate, so that the abundance the search held fixed is a genuine
-#' steady state of the resource under the new spectra. A manually set (frozen)
-#' capacity would otherwise block this, leaving the resource off its fixed
-#' point, so the frozen mark is cleared first — exactly as earlier versions of
-#' mizer did when they rebalanced the resource in `steady()`.
-#'
-#' @param params A \linkS4class{MizerParams} object.
-#' @param resource_dynamics The resource dynamics to restore.
-#' @return The `MizerParams` object with the capacity rebalanced.
-#' @noRd
-rebalance_resource <- function(params, resource_dynamics) {
-    # Balancing is what makes the preserved resource abundance a steady state of
-    # the restored dynamics. `setResource()` can only do it where a
-    # `balance_<dynamics>()` function exists, and otherwise says nothing, so a
-    # custom resource would silently come back off its own fixed point.
-    #
-    # `resource_constant()` is the exception that needs no balancing: it hands
-    # back the abundance it was given, so the preserved abundance is a steady
-    # state of it whatever the capacity is. Warning there would fire on every
-    # model that switches the built-in resource off, which includes every model
-    # of an extension that supplies its own resources.
-    if (resource_dynamics != "resource_constant" &&
-        !is.function(get0(paste0("balance_", resource_dynamics)))) {
-        signal_info("cc_pp", paste0(
-            "There is no `balance_", resource_dynamics, "()` function, so the ",
-            "resource capacity could not be rebalanced and the preserved ",
-            "resource abundance need not be a steady state of `",
-            resource_dynamics, "()`. The reported residual measures how far ",
-            "off it is."),
-            level = 1, severity = "warning", unhandled = "show")
-    }
-    comment(params@cc_pp) <- NULL
-    setResource(params, resource_dynamics = resource_dynamics)
-}
-
-#' Restore density-dependent reproduction after a constant-RDD search
-#'
-#' The search held the reproduction rate constant; this puts the Beverton-Holt
-#' density dependence back so that it reproduces exactly that rate at the new
-#' spectra, keeping whichever of the reproduction parameters `preserve` names.
-#'
-#' A species with no egg production, such as one that is absent from the model,
-#' is left as it was: its reproduction is zero whatever its parameters, so there
-#' is no balance to restore, and [setBevertonHolt()] cannot solve for one.
-#'
-#' @param params A \linkS4class{MizerParams} object.
-#' @param preserve One of `"reproduction_level"`, `"R_max"` or `"erepro"`.
-#' @param old_reproduction_level,old_R_max,old_erepro The values recorded before
-#'   the search.
-#' @return The `MizerParams` object with reproduction restored.
-#' @noRd
-restore_reproduction <- function(params, preserve, old_reproduction_level,
-                                 old_R_max, old_erepro) {
-    if (params@rates_funcs$RDD != "BevertonHoltRDD") {
-        return(params)
-    }
-    # setBevertonHolt() leaves alone a species whose value is `NA`.
-    skip <- which(getRDI(params) == 0)
-    old_reproduction_level[skip] <- NA
-    old_R_max[skip] <- NA
-    old_erepro[skip] <- NA
-    if (preserve == "reproduction_level") {
-        reproduction_level(params) <- old_reproduction_level
-    } else if (preserve == "R_max") {
-        params <- setBevertonHolt(params, R_max = old_R_max)
-    } else {
-        params <- setBevertonHolt(params, erepro = old_erepro)
-    }
-    params
 }
 
 #' Report on a Newton solve and attach its convergence diagnostic

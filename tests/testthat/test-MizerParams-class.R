@@ -1,9 +1,10 @@
 # emptyParams ----
 test_that("new models snapshot their built-in assessment capabilities", {
     p <- emptyParams(NS_species_params_small, no_w = 20)
-    expect_identical(p$capabilities$schema_version, 3L)
+    expect_identical(p$capabilities$schema_version, 4L)
     expect_length(p$capabilities$components, 0L)
-    expect_named(p$capabilities$processes, c("consumers", "resource"))
+    expect_named(p$capabilities$processes, c("consumers", "resource",
+                                             "reproduction"))
     expect_identical(p$capabilities$processes$consumers$convergence_fun,
                      "builtin_consumer_assessment")
     expect_identical(p$capabilities$processes$resource$convergence_fun,

@@ -15,7 +15,7 @@ test_that("Newton residuals reject non-finite trials before evaluating rates", {
         active <- steady_active_set(p, resource = resource)
         n0 <- positive_initial_guess(p@initial_n, p@w_min_idx, active$w_top)
         f <- steady_state_residual(p, getRDD(p), p@initial_n_other,
-                                   p@initial_effort, active, N0 = n0)
+                                   p@initial_effort, active, n0 = n0)
         x <- log(n0[active$mask])
         if (resource == "solve") {
             x <- c(x, log(p@initial_n_pp[active$mask_pp]))
@@ -44,7 +44,7 @@ test_that("Newton safeguards do not swallow custom rate-function errors", {
     active <- steady_active_set(p, resource = "fixed")
     n0 <- positive_initial_guess(p@initial_n, p@w_min_idx, active$w_top)
     f <- steady_state_residual(p, rdd, p@initial_n_other,
-                               p@initial_effort, active, N0 = n0)
+                               p@initial_effort, active, n0 = n0)
     expect_equal(f(rep(1000, active$n_fish_active)),
                  rep(Inf, active$n_fish_active))
     expect_error(f(log(n0[active$mask])), "custom growth failed")
@@ -136,7 +136,7 @@ test_that("Newton retries unmet residuals and retains the better result", {
                  iter = 3L, termcd = 2L, message = "small step")
         }
         local_mocked_bindings(nleqslv = solver_stub, .package = "nleqslv")
-        guess_stub <- function(params, active, n0, effort) {
+        guess_stub <- function(params, active, n0, effort, rates_fns) {
             seeds <<- seeds + 1L
             n0
         }
@@ -740,4 +740,126 @@ test_that("stability maps give custom resources the complete effective rates", {
     expect_equal(stepped[seq_len(ctx$n_fish_active)],
                  finalN(sim)[ctx$active$mask])
     expect_equal(stepped[resource_idx], as.numeric(finalNResource(sim)))
+})
+
+test_that("consumer residuals use final rates from complete providers", {
+    assign("newton_complete_rates", function(params, ...) {
+        rates <- mizerRates(params, ...)
+        rates$e_growth <- 0.8 * rates$e_growth
+        rates$mort <- rates$mort + 0.2
+        rates$diffusion <- rates$diffusion + 0.01
+        rates$rdd <- 1.7 * rates$rdd
+        rates
+    }, envir = .GlobalEnv)
+    withr::defer(rm("newton_complete_rates", envir = .GlobalEnv))
+    p <- NS_params_small
+    p$rates_funcs$Rates <- "newton_complete_rates"
+    for (scheme in list(FALSE, TRUE)) {
+        second_order_w(p) <- scheme
+        rates <- getRates(p)
+        expected <- consumer_residual(p, n = p$initial_n,
+                                      n_pp = p$initial_n_pp,
+                                      n_other = p$initial_n_other,
+                                      effort = p$initial_effort,
+                                      rates = rates, rdd = rates$rdd)
+        actual <- consumer_residual(p, n = p$initial_n,
+                                    n_pp = p$initial_n_pp,
+                                    n_other = p$initial_n_other,
+                                    effort = p$initial_effort)
+        expect_equal(actual, expected, ignore_attr = TRUE)
+        partial <- consumer_residual(
+            p, n = p$initial_n, n_pp = p$initial_n_pp,
+            n_other = p$initial_n_other, effort = p$initial_effort,
+            rates = rates[c("e_growth", "mort", "diffusion")]
+        )
+        expect_equal(partial, expected, ignore_attr = TRUE)
+    }
+})
+
+test_that("Newton shares complete rates across its equations", {
+    p <- NS_params_small
+    active <- steady_active_set(p, resource = "solve")
+    n0 <- positive_initial_guess(p$initial_n, p$w_min_idx, active$w_top)
+    target <- getRates(p)$rdd
+    functions <- projectRateFunctions(p)
+    baseline <- steady_state_residual(p, target, p$initial_n_other,
+                                      p$initial_effort, active, n0 = n0,
+                                      rates_fns = functions)
+    original <- functions$Rates
+    observation <- new.env(parent = emptyenv())
+    observation$calls <- 0L
+    functions$Rates <- function(...) {
+        observation$calls <- observation$calls + 1L
+        rates <- original(...)
+        rates$mort <- rates$mort + 0.2
+        rates$resource_mort <- rates$resource_mort + 0.4
+        rates$rdd <- 1000 * rates$rdd
+        rates
+    }
+    changed <- steady_state_residual(p, target, p$initial_n_other,
+                                     p$initial_effort, active, n0 = n0,
+                                     rates_fns = functions)
+    x <- log(c(n0[active$mask], p$initial_n_pp[active$mask_pp]))
+    difference <- changed(x) - baseline(x)
+    expect_equal(observation$calls, 1L)
+    expect_equal(unname(difference[seq_len(active$n_fish_active)]),
+                 rep(0.2, active$n_fish_active), tolerance = 1e-7)
+    expect_equal(unname(tail(difference, sum(active$mask_pp))),
+                 rep(-0.4, sum(active$mask_pp)), tolerance = 1e-7)
+})
+
+test_that("Newton refuses consumer dynamics without its equation operator", {
+    method <- "project_simple.operatorTest"
+    assign(method, function(params, ...) {
+        NextMethod()
+    }, envir = .GlobalEnv)
+    assign("operator_assessment", function(...) {
+        data.frame(measure = "residual", value = 0, tolerance = 1,
+                   units = "1/year")
+    }, envir = .GlobalEnv)
+    withr::defer(rm("project_simple.operatorTest", "operator_assessment",
+                    envir = .GlobalEnv))
+    p <- recordExtension(NS_params_small, "operatorTest")
+    class(p) <- c("operatorTest", class(p))
+    for (owner in c("consumers", "resource")) {
+        p <- setProcess(p, owner, convergence_fun = "operator_assessment")
+    }
+    expect_false(builtin_consumer_projection(p))
+    expect_true(builtin_consumer_projection(NS_params_small))
+    for (finder in list(findSteadyState, tuneSteadyState)) {
+        expect_error(finder(p, solver = "newton", info_level = 0),
+                     "built-in consumer transport equations")
+    }
+})
+
+test_that("Newton retains a coupled root with state-dependent resource rates", {
+    skip_unless_experimental()
+    p <- p_steady
+    reference_rates <- getRates(p)
+    feedback <- function(params, n_pp, ...) {
+        rates <- reference_rates
+        scale <- ifelse(params$cc_pp > 0, params$cc_pp, 1)
+        rates$resource_mort <- 100 * params$rr_pp * (n_pp / scale)^2
+        rates
+    }
+    assign("newton_resource_feedback", feedback, envir = .GlobalEnv)
+    withr::defer(rm("newton_resource_feedback", envir = .GlobalEnv))
+    p$rates_funcs$Rates <- "newton_resource_feedback"
+    sol <- newton_steady_state(p, effort = p$initial_effort,
+                               rdd_const = reference_rates$rdd,
+                               resource = "solve")
+    active <- p$cc_pp > 0 & p$rr_pp > 0
+    ratio <- sol$n_pp[active] / p$cc_pp[active]
+    # The resource root satisfies x + 100*x^3 = 1. A fixed-point iteration
+    # x <- 1/(1 + 100*x^2) is unstable there and must not replace this root.
+    expect_equal(ratio + 100 * ratio^3, rep(1, sum(active)),
+                 tolerance = 1e-6, ignore_attr = TRUE)
+    p$initial_n[] <- sol$n
+    p$initial_n_pp[] <- sol$n_pp
+    rates <- getRates(p)
+    residual <- p$rr_pp * (p$cc_pp - p$initial_n_pp) -
+        rates$resource_mort * p$initial_n_pp
+    scale <- p$rr_pp[active] * p$cc_pp[active]
+    expect_lt(max(abs(residual[active] / scale)), 1e-6)
+    expect_true(getSteadyAssessment(p)$verdict)
 })

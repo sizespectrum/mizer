@@ -4,7 +4,7 @@ test_that("Stored capability schemas reject ambiguous or executable data", {
 
     registry$schema_version <- 99L
     expect_match(capability_registry_errors(registry), "Unsupported")
-    registry$schema_version <- 3L
+    registry$schema_version <- 4L
     registry$components <- list(pool = list(dynamics_fun = function() 1))
     expect_match(capability_registry_errors(registry), "function name")
     registry$components <- list(pool = list(dynamics_fun = "unloaded_callback"))
@@ -61,7 +61,7 @@ test_that("Legacy snapshots preserve only known component registrations", {
     expect_false(any(c("initial_value", "component_params") %in%
                          names(definition)))
     expect_true(capability_registry_errors(registry))
-    expect_named(registry$processes, c("consumers", "resource"))
+    expect_named(registry$processes, c("consumers", "resource", "reproduction"))
     expect_identical(definition$role, "dynamic")
     expect_null(definition$convergence_fun)
 })
@@ -175,12 +175,14 @@ test_that("Schema one upgrades keep stored choices without resolving code", {
         processes = list()
     )
     upgraded <- upgrade_capability_registry(legacy)
-    expect_identical(upgraded$schema_version, 3L)
+    expect_identical(upgraded$schema_version, 4L)
     expect_identical(legacy$schema_version, 1L)
     expect_named(upgraded$components$pool,
                  c("dynamics_fun", "rate_fun", "encounter_fun", "mort_fun",
                    "colour", "linetype", "integration_order",
-                   "convergence_fun", "role"))
+                   "convergence_fun", "role", "stationary",
+                   "equation_rates_fun",
+                   "tuning", "tuning_binding"))
     expect_identical(upgraded$components$pool$dynamics_fun, "unloaded_step")
     expect_identical(upgraded$components$pool$mort_fun, "unloaded_mortality")
     expect_identical(upgraded$components$pool$colour, "orange")
@@ -200,6 +202,7 @@ test_that("Schema upgrades retain malformed and unknown data for validation", {
 
     invalid <- new_capability_registry()
     invalid$schema_version <- 1L
+    invalid$tuning <- NULL
     invalid$components <- "not a list"
     upgraded <- upgrade_capability_registry(invalid)
     expect_match(capability_registry_errors(upgraded), "uniquely named list")

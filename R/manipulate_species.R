@@ -51,8 +51,10 @@
 #'   After adding the new species, the background species are not retuned and
 #'   the system is not run to steady state. This could be done with
 #'   [tuneSteadyState()].
-#'   The new species will have a reproduction level of 1/4, this can then be
-#'   changed with [reproduction_level<-()].
+#'   With Beverton-Holt reproduction, the new species receive a reproduction
+#'   level of 1/4. Other reproduction laws retain their declared balancing
+#'   strategy. Only the new species' recruitment is targeted; a coupled strategy
+#'   that cannot honour a partial request must reject the operation.
 #'
 #' @examples
 #' params <- newTraitParams()
@@ -150,6 +152,7 @@ addSpecies.MizerParams <- function(params, species_params, gear_params = data.fr
     if (any(species_params$species %in% params@species_params$species)) {
         stop("You can not add species that are already there.")
     }
+    if (steady) require_reproduction_balance_support(params, partial = TRUE)
     if (!is.null(comment(params@pred_kernel))) {
         stop("addSpecies() can not add species to a MizerParams object that ",
              "has its predation kernel protected by a comment.")
@@ -377,10 +380,12 @@ addSpecies.MizerParams <- function(params, species_params, gear_params = data.fr
         # Turn self interaction back on
         p@interaction[new_sp, new_sp] <- inter[new_sp, new_sp]
 
-        # Retune reproductive efficiencies of new species
-        repro_level <- rep(1 / 4, length(new_sp))
-        names(repro_level) <- p@species_params$species[new_sp]
-        reproduction_level(p) <- repro_level
+        target <- getRequiredRDD(p)[new_sp]
+        if (identical(builtin_reproduction_law(p), "BevertonHoltRDD")) {
+            p <- balanceRDD(p, rdd_target = target, reproduction_level = 1 / 4)
+        } else {
+            p <- balanceRDD(p, rdd_target = target)
+        }
     }
 
     p <- restoreParamsClass(p, target_class)

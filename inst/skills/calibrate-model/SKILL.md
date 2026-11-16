@@ -49,9 +49,35 @@ state — the birth rate and the resource abundance you supplied — and moves
 `findSteadyState()` keeps every parameter and moves the state. During setup and
 calibration you almost always want `tuneSteadyState()`, or
 `steadySingleSpecies()` first: holding births constant lets the search settle
-reliably onto *a* steady state. Use the `preserve` argument to choose whether
-`reproduction_level` (default), `R_max`, or `erepro` is held fixed while
-`tuneSteadyState()` re-tunes the reproduction parameters.
+reliably onto *a* steady state. Each process supplies a named default tuning
+strategy. Built-in Beverton-Holt and Ricker strategies preserve their
+law-specific `reproduction_level`. Use `preserve` for an explicitly supported
+alternative, such as `"erepro"` or `"R_max"` for Beverton-Holt, or select named
+strategies with `strategies = c(reproduction = "preserve_erepro")`.
+
+Extensions declare which states stay fixed, which evolve, and which parameters
+may be adjusted afterwards. A missing declaration is an error before the search,
+not permission to guess. `joint` selects registered strategies that own several
+coupled processes; those replace the corresponding local choices. Inspect
+`getProcess(params)` and `getComponent(params, component)$definition` for stored
+declarations. The current Newton solver can hold and later balance extension
+states, but cannot evolve arbitrary component states.
+
+Balancing preserves the target state and **all effective rates entering its
+equations**, including final assembled recruitment. The independent checks also
+enforce declared parameter bounds and preserved quantities. A failure returns an
+error, without a generic optimisation fallback or a second steady-state search.
+The resulting off-target response, and hence stability, can still change.
+
+`balanceRDD(params)` preserves the model's current effective recruitment while
+adjusting its current reproduction law. Use `rdd_target` only when a separate
+calculation has established the intended constrained target; named partial
+targets leave other species' recruitment and parameters alone when the strategy
+supports partial requests. `matchGrowth()`, `matchBiomasses()` and
+`matchNumbers()` retain the chosen law and balance only the selected species.
+`setBevertonHolt()` is instead an explicit switch to Beverton-Holt, preserving
+effective recruitment at the current state. Infeasible explicit controls are
+errors rather than silently adjusted values.
 
 **When not to use `tuneSteadyState()`.** Holding births fixed is also its
 limit: every state it finds has the recruitment the model started with, and it

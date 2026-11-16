@@ -67,6 +67,20 @@
 
 ## New features
 
+- Tuning now selects stored, named strategies for each process or explicitly
+  selected joint strategies (#670, #534). Strategies declare fixed inputs,
+  evolving states, adjustable parameters, bounds and preserved quantities.
+  Missing stationary support stops before solving. Final balancing is checked
+  independently against the target state and every effective equation rate;
+  there is no generic numerical fallback or follow-up solve.
+- `balanceRDD()` balances the current reproduction law. Built-in strategies
+  support Beverton-Holt, Ricker, Shepherd, constant recruitment and no density
+  dependence, with law-specific `reproduction_level()` meanings and explicit
+  branch selection. Calibration callers retain that law. `setBevertonHolt()`
+  deliberately switches laws while retaining effective recruitment, and rejects
+  infeasible explicit controls. Tuning pins final assembled recruitment, so
+  extension additions to recruitment are included in the held rate.
+
 - `getSteadyAssessment()` reports named quantitative measures, tolerances,
   units and coverage for the whole model, with explicitly conditional subsystem
   scope available (#670, #589). Components can register `convergence_fun`
