@@ -297,12 +297,13 @@ getComponent(params, "detritus")$definition
 ```
 
 The supported definition fields are `dynamics_fun`, `rate_fun`, `encounter_fun`,
-`mort_fun`, `colour`, `linetype` and `integration_order`. Supply a step, an
+`mort_fun`, `colour`, `linetype`, `integration_order`, `convergence_fun` and
+`role`. Supply a step, an
 equation, or both; a supplied custom step takes precedence during projection.
 Callback identifiers may be ordinary function names or `package::exported_name`.
 Mizer resolves them when preparing an operation. Initial state and component
-parameters are supplied separately. Measurement, assessment and tuning hooks
-will be added with their runtime support.
+parameters are supplied separately. Measurement and tuning hooks remain under
+development; assessment support is described below.
 
 Explicit arguments override the definition. A supplied definition replaces the
 old one: omitted encounter/mortality callbacks are removed and omitted styles
@@ -450,28 +451,63 @@ substep size and are called for each substep.
 
 ### Components and the steady state
 
-A component you give a `dynamics_fun` is outside mizer's steady-state
-machinery, in both directions, and a model with one needs checking accordingly:
+Register a `convergence_fun` when a component can assess whether its state is
+stationary. Biomass and derivatives do not supply this capability implicitly:
+the extension knows the meaningful measures and their tolerances. The callback
+receives the current state, complete standard rates, `t`, `dt`, the component
+name and its derivative when an equation is available (`NULL` otherwise). It
+returns a data frame with `measure`, `value`, `tolerance` and `units` columns:
 
-- [`tuneSteadyState()`](../reference/tuneSteadyState.html), [`findSteadyState(solver = "newton")`](../reference/findSteadyState.html) and `getStability()`
-  hold the component at its stored value and solve the consumer-resource
-  subsystem around it. Mizer warns when it meets a component with dynamics of
-  its own.
-- [`isSteady()`](../reference/isSteady.html), the [`summary()`](../reference/summary.html) drift line and `project(check_steady = TRUE)`
-  judge that same subsystem. A component's state can be any object at all, so
-  mizer cannot form a biomass for it and does not fold its rate of change into
-  the number. **A model can be `isSteady()` while your component is moving.**
+```{r eval=FALSE}
+poolConvergence <- function(params, n_other, component, derivative, ...) {
+    data.frame(measure = "pool_change", value = derivative,
+               tolerance = 1e-6, units = "g/year")
+}
+params <- setComponent(params, "pool", convergence_fun = "poolConvergence")
+```
 
-Mizer names any component that is moving whenever it reports on the drift, and
-`attr(getSteadyResidual(params), "other")` holds the per-cell relative rates of
-change it measured, reduced by `max(abs(...))` for reporting — an overestimate
-whenever the component has fast cells holding almost nothing, which is why that
-number is reported rather than compared against a tolerance.
+This example assumes a scalar pool with a registered `rate_fun`. A step-only
+component can calculate its own measure using its declared equations or an
+appropriate step comparison. Give every measure a unique, non-empty name;
+values must be finite and may be signed, and tolerances must be finite and
+non-negative. Mizer compares `abs(value)` with its tolerance while retaining the
+signed value. Multiple measures can use different units. Return quantitative
+measures, not a pre-combined boolean. A malformed result or callback error stops
+the operation with context.
 
-To settle a component along with everything else, use [`projectUntilSettled()`](../reference/projectUntilSettled.html),
-which advances it like every other state variable; its stopping rule does wait
-for the component. Issue #589 tracks giving components a way to declare their
-own reduction and so re-enter the criterion.
+[`getSteadyAssessment(params)`](../reference/getSteadyAssessment.html) returns the measures and whole-model coverage.
+[`isSteady(params)`](../reference/isSteady.html) is `TRUE` when all required measures pass, `FALSE` when any
+fails, and `NA` when no failure is established but support is missing. A missing
+component measure stays missing even if its state happens to be unchanged.
+[`getSteadyResidual()`](../reference/getSteadyResidual.html) remains a separate per-size diagnostic.
+
+For an explicitly conditional assessment, name the dynamic blocks held fixed:
+
+```{r eval=FALSE}
+getSteadyAssessment(params, scope = "conditional", fixed = "component:pool")
+```
+
+The canonical IDs are `consumers`, `resource` and `component:<name>`. Conditional
+scope does not exempt any other unsupported block. A component with
+`role = "prescribed"` is instead a declared input of the model; do not use this
+role merely to silence a missing-assessment report. A temporary frozen step
+during tuning never changes the structural role.
+
+Built-in consumers and resource use the same assessment contract. A custom
+resource must explicitly register its assessment with `setProcess(params,
+"resource", convergence_fun = "myResourceConvergence")`. `getProcess()` shows
+the stored specification. Process callbacks receive `process` in place of
+`component`. Provider bindings keep a declaration from silently following an
+incompatible replacement; re-register support explicitly after changing the
+implementation. Built-in [`resource_constant`](../reference/resource_constant.html) declares a prescribed resource.
+
+Settling requires coverage of the requested scope before solving. Projection
+can evolve components when they have stepping support, while the current
+Newton solver requires unsupported dynamic components to be held fixed through
+an explicit conditional request. Every returned convergence report retains its
+scope; tuning reassesses restored dynamics before claiming a fixed point.
+Named tuning strategies and complete stability coverage remain later stages of
+[the extension design](https://github.com/sizespectrum/mizer/issues/670).
 
 
 ---

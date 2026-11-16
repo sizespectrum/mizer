@@ -18,7 +18,9 @@ setComponent(
   linetype = "solid",
   definition,
   rate_fun,
-  integration_order
+  integration_order,
+  convergence_fun,
+  role
 )
 
 removeComponent(params, component)
@@ -63,13 +65,20 @@ Required unless \code{dynamics_fun} is supplied.}
 
 \item{integration_order}{Optional positive integer declaring the order of a
 custom \code{dynamics_fun}. \code{NULL} removes the declaration.}
+
+\item{convergence_fun}{Name of a convergence-measurement callback, or \code{NULL}
+to remove it. A dynamic component without this support makes a whole-model
+assessment incomplete.}
+
+\item{role}{Either \code{"dynamic"} (the default) or \code{"prescribed"}.}
 }
 \value{
 The updated MizerParams object
 
 For \code{getComponent}: A list with the entries \code{initial_value},
 \code{dynamics_fun}, \code{rate_fun}, \code{encounter_fun}, \code{mort_fun},
-\code{component_params}, and \code{definition} for the requested component.
+\code{component_params}, \code{convergence_fun}, \code{role}, and \code{definition} for the
+requested component.
 If the requested component does not exist, \code{NULL} is returned.
 If no \code{component} argument is given, then a list of lists for all
 components is returned.
@@ -93,7 +102,7 @@ with \code{removeComponent()}.
 
 A \code{definition} is a reusable named list containing \code{dynamics_fun},
 \code{rate_fun}, \code{encounter_fun}, \code{mort_fun}, \code{colour}, \code{linetype} and/or
-\code{integration_order}.
+\code{integration_order}, \code{convergence_fun} and/or \code{role}.
 Explicit arguments
 override its entries. Supplying a definition replaces the component's
 previous definition: omitted optional callbacks are removed and omitted
@@ -136,6 +145,23 @@ Mizer chooses the integrator for equations-only components, so they must not
 declare a custom integration order.
 }
 
+\section{Steady-state assessment}{
+
+A \code{convergence_fun} returns a data frame with \code{measure}, \code{value}, \code{tolerance}
+and \code{units} columns. It receives the model, state, complete rate list, time,
+derivative when available and component name. Accept \code{...} for unused
+arguments. Mizer compares absolute measured values to their tolerances; the
+callback does not return its own pass/fail verdict.
+
+Components are dynamic by default, including legacy components using
+\code{constant_other}. Declare \code{role = "prescribed"} explicitly when the entire
+component is a prescribed input. Temporarily holding a dynamic component
+fixed during analysis requires conditional assessment scope. Replacing a
+dynamics callback removes its inherited convergence callback and resets an
+inherited prescribed role to dynamic unless those declarations are explicitly
+supplied again with the replacement.
+}
+
 \seealso{
 "Extending mizer":
 \href{https://sizespectrum.org/mizer/articles/guide-extend-mizer.html}{guide to extending mizer}
@@ -146,6 +172,7 @@ Other extension tools:
 \code{\link[=initialNOther<-]{initialNOther<-()}},
 \code{\link[=other_mort]{other_mort()}},
 \code{\link[=recordExtension]{recordExtension()}},
+\code{\link[=setProcess]{setProcess()}},
 \code{\link[=setRateFunction]{setRateFunction()}}
 }
 \concept{extension tools}

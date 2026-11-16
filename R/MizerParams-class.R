@@ -786,6 +786,7 @@ emptyParams <- function(species_params,
         ),
         class = "MizerParams"
     )
+    params$capabilities$processes <- default_process_registry(params)
     })
 
     return(params)

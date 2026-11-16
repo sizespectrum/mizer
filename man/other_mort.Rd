@@ -106,6 +106,7 @@ Other extension tools:
 \code{\link[=initialNOther<-]{initialNOther<-()}},
 \code{\link[=recordExtension]{recordExtension()}},
 \code{\link[=setComponent]{setComponent()}},
+\code{\link[=setProcess]{setProcess()}},
 \code{\link[=setRateFunction]{setRateFunction()}}
 }
 \concept{extension tools}

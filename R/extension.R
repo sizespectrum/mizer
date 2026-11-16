@@ -491,7 +491,7 @@ setRateContributions <- function(params, slot_name, value, noun, arg) {
 #'
 #' A `definition` is a reusable named list containing `dynamics_fun`,
 #' `rate_fun`, `encounter_fun`, `mort_fun`, `colour`, `linetype` and/or
-#' `integration_order`.
+#' `integration_order`, `convergence_fun` and/or `role`.
 #' Explicit arguments
 #' override its entries. Supplying a definition replaces the component's
 #' previous definition: omitted optional callbacks are removed and omitted
@@ -532,6 +532,21 @@ setRateContributions <- function(params, slot_name, value, noun, arg) {
 #' Mizer chooses the integrator for equations-only components, so they must not
 #' declare a custom integration order.
 #'
+#' @section Steady-state assessment:
+#' A `convergence_fun` returns a data frame with `measure`, `value`, `tolerance`
+#' and `units` columns. It receives the model, state, complete rate list, time,
+#' derivative when available and component name. Accept `...` for unused
+#' arguments. Mizer compares absolute measured values to their tolerances; the
+#' callback does not return its own pass/fail verdict.
+#'
+#' Components are dynamic by default, including legacy components using
+#' `constant_other`. Declare `role = "prescribed"` explicitly when the entire
+#' component is a prescribed input. Temporarily holding a dynamic component
+#' fixed during analysis requires conditional assessment scope. Replacing a
+#' dynamics callback removes its inherited convergence callback and resets an
+#' inherited prescribed role to dynamic unless those declarations are explicitly
+#' supplied again with the replacement.
+#'
 #' @param params A MizerParams object
 #' @param component Name of the component
 #' @param initial_value Initial value of the component. Required for a new
@@ -543,6 +558,10 @@ setRateContributions <- function(params, slot_name, value, noun, arg) {
 #'   Required unless `dynamics_fun` is supplied.
 #' @param integration_order Optional positive integer declaring the order of a
 #'   custom `dynamics_fun`. `NULL` removes the declaration.
+#' @param convergence_fun Name of a convergence-measurement callback, or `NULL`
+#'   to remove it. A dynamic component without this support makes a whole-model
+#'   assessment incomplete.
+#' @param role Either `"dynamic"` (the default) or `"prescribed"`.
 #' @param encounter_fun Name of function to calculate contribution to encounter
 #'   rate. Optional.
 #' @param mort_fun Name of function to calculate contribution to the
@@ -567,7 +586,8 @@ setComponent <- function(params, component, initial_value,
                          encounter_fun, mort_fun,
                          component_params,
                          colour = "grey", linetype = "solid",
-                         definition, rate_fun, integration_order) {
+                         definition, rate_fun, integration_order,
+                         convergence_fun, role) {
     params <- validParams(params)
     assert_that(is.string(component), nzchar(component))
     if (!missing(initial_value) && is.null(initial_value)) {
@@ -600,6 +620,10 @@ setComponent <- function(params, component, initial_value,
     if (!missing(integration_order)) {
         overrides["integration_order"] <- list(integration_order)
     }
+    if (!missing(convergence_fun)) {
+        overrides["convergence_fun"] <- list(convergence_fun)
+    }
+    if (!missing(role)) overrides["role"] <- list(role)
     assembled <- assemble_component_definition(
         existing = existing,
         definition = if (missing(definition)) NULL else definition,
@@ -663,7 +687,8 @@ removeComponent <- function(params, component) {
 #'   all components will be returned.
 #' @return For `getComponent`: A list with the entries `initial_value`,
 #'   `dynamics_fun`, `rate_fun`, `encounter_fun`, `mort_fun`,
-#'   `component_params`, and `definition` for the requested component.
+#'   `component_params`, `convergence_fun`, `role`, and `definition` for the
+#'   requested component.
 #'   If the requested component does not exist, `NULL` is returned.
 #'   If no `component` argument is given, then a list of lists for all
 #'   components is returned.
@@ -692,6 +717,8 @@ getComponent <- function(params, component) {
         mort_fun = params@other_mort[[component]],
         encounter_fun = params@other_encounter[[component]],
         component_params = params@other_params[[component]],
+        convergence_fun = definition$convergence_fun,
+        role = definition$role,
         definition = definition
     )
 }

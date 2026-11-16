@@ -239,6 +239,12 @@ params <- setResource(params, resource_dynamics = "resource_constant")
 
 ## Component integration
 
+`project(check_steady = TRUE)` checks the whole model at the starting time and
+the model's stored effort. It warns both about failing convergence measures and
+missing assessment support. This check is optional; projection itself needs
+stepping support, not convergence support. To inspect the detailed verdict,
+use [`getSteadyAssessment()`](../reference/getSteadyAssessment.html).
+
 A component can supply a derivative (`rate_fun`) or a custom stepping function
 (`dynamics_fun`). Mizer integrates derivatives with Euler under the first-order
 method and explicit Heun under either second-order method. A supplied custom

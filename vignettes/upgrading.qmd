@@ -156,8 +156,9 @@ and omitted styles take the defaults; state and component parameters remain
 unchanged unless supplied separately. Explicit `NULL` removes an optional
 encounter or mortality callback.
 
-[`getComponent()`](../reference/setComponent.html) now returns `definition` and `rate_fun` entries alongside its
-original five entries. Code that selects entries by name continues to work;
+[`getComponent()`](../reference/setComponent.html) now returns `definition`, `rate_fun`, `convergence_fun` and
+`role` entries alongside its original five entries. Code that selects entries
+by name continues to work;
 code that relies on an exact five-element result should select the entries it
 needs. The assembled definition is saved in the model, so changing the original
 list does not silently update models that already used it.
@@ -176,6 +177,36 @@ Components can also supply equations for mizer to integrate with Euler or Heun.
 The fish solver does not determine a custom component's numerical order or
 stability. Inspect `sim@sim_params$component_integration` for the recorded method
 and declared order of each component; an unknown custom order is shown as `NA`.
+
+### Steady-state checks cover the requested model scope
+
+[`isSteady()`](../reference/isSteady.html) now has three possible answers. `TRUE` means every required measure
+passed; `FALSE` means at least one failed; `NA` means no failure was established
+but required support was missing. Use `isTRUE(isSteady(params))` when code must
+proceed only after a positive verdict. Inspect [`getSteadyAssessment(params)`](../reference/getSteadyAssessment.html) for
+the measures, tolerances and missing capabilities. Callback errors now propagate
+instead of being silently turned into a negative or unavailable verdict.
+
+The default built-in criterion integrates the magnitudes of size-class changes,
+using the model's quadrature and documented absolute and relative tolerances.
+Changes at different sizes can no longer cancel. A model with little net biomass
+change may therefore fail this stronger check. Request `criterion = "biomass"`
+explicitly to use net biomass drift. [`getSteadyResidual()`](../reference/getSteadyResidual.html) keeps its detailed
+residual-array meaning.
+
+Steady-state checks now include components by default. A component without an
+assessment leaves coverage incomplete, even if projection works. Read-only
+assessment reports this; a solver requiring that support stops before starting.
+`project(check_steady = TRUE)` warns about incomplete coverage, and `summary()`
+reports the assessment and dimensionless tolerance ratios instead of using one
+biomass number as a whole-model verdict.
+
+To request a subsystem explicitly, use `scope = "conditional"` and `fixed`, for
+example `fixed = "component:pool"`. Conditional solver results retain their
+scope, and a final restored model is reassessed. The current Newton solver cannot
+evolve arbitrary dynamic components; it requires those states to be explicitly
+fixed. The built-in `residual` convergence field remains a biomass diagnostic;
+read `assessment` for the verdict behind `attractor`.
 
 ### A model keeps the defaults edition it was created with
 

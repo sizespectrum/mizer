@@ -182,3 +182,38 @@ test_that("MizerSim accessors are registered as S3 methods", {
     expect_identical(utils::getS3method("getEffort", "MizerSim"), getEffort.MizerSim)
     expect_identical(utils::getS3method("getParams", "MizerSim"), getParams.MizerSim)
 })
+
+test_that("getParams preserves arbitrary states at one selected time", {
+    state <- list(label = "ready", nested = list(codes = c("a", "b")))
+    p <- setComponent(NS_params_small, "status", initial_value = state,
+                      dynamics_fun = "constant_other", role = "prescribed")
+    sim <- project(p, t_max = 0.1, dt = 0.1, t_save = 0.1,
+                   progress_bar = FALSE, info_level = 0)
+    for (geometric in c(FALSE, TRUE)) {
+        out <- getParams(sim, time_range = 0.1, geometric_mean = geometric)
+        expect_identical(out$initial_n_other$status, state)
+        expect_named(out$initial_n_other, "status")
+    }
+    expect_identical(finalParams(sim)$initial_n_other$status, state)
+    expect_error(getParams(sim, time_range = c(0, 0.1)),
+                 "Cannot average component 'status'")
+})
+
+test_that("getParams averages only compatible numeric component states", {
+    state <- matrix(1:4, 2, dimnames = list(c("a", "b"), c("x", "y")))
+    p <- setComponent(NS_params_small, "matrix", initial_value = state,
+                      dynamics_fun = "constant_other", role = "prescribed")
+    sim <- project(p, t_max = 0.1, dt = 0.1, t_save = 0.1,
+                   progress_bar = FALSE, info_level = 0)
+    sim$n_other[2, "matrix"] <- list(3 * state)
+    out <- getParams(sim, time_range = c(0, 0.1))
+    expect_equal(out$initial_n_other$matrix, 2 * state)
+    sim$n_other[2, "matrix"] <- list(as.numeric(state))
+    expect_error(getParams(sim, time_range = c(0, 0.1)),
+                 "matching dimensions and names")
+    renamed <- state
+    rownames(renamed) <- c("c", "d")
+    sim$n_other[2, "matrix"] <- list(renamed)
+    expect_error(getParams(sim, time_range = c(0, 0.1)),
+                 "matching dimensions and names")
+})

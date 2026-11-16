@@ -25,8 +25,9 @@
 #'
 #' Solves for the consumer size spectra while holding the reproduction rate
 #' (RDD), the resource and any other components at the values stored in
-#' `params`, and then adjusts the parameters that generate those held values so
-#' that they are steady too. This is the function to use while setting up and
+#' `params`, and then adjusts the reproduction parameters and resource capacity
+#' to make those inputs steady. Other components are assessed after their
+#' dynamics are restored. This is the function to use while setting up and
 #' calibrating a model: holding the inputs to the fish dynamics fixed is what
 #' makes the search reliable.
 #'
@@ -53,11 +54,14 @@
 #'   been set by hand (frozen), it is rebalanced and thereby unfrozen.
 #' * Other components are held constant throughout and are not adjusted.
 #'
-#' So the model you get back is at a fixed point of the *full* dynamics, with
-#' reproduction and the resource free, and [getStability()] can be applied to it
-#' directly. Contrast [findSteadyState()], which changes no parameter and
-#' instead lets the reproduction rate and the resource move to wherever the
-#' parameters you already have put them.
+#' The restored model is assessed in full by default. Dynamic components need
+#' their own convergence capability, even though this constrained search holds
+#' them fixed. Their values are not adjusted, so the final assessment may fail
+#' while the consumer search succeeds. Inspect `convergence$assessment` rather
+#' than assuming the returned model is steady. For the projection solver,
+#' `convergence$search_assessment` separately records the conditional search.
+#' Select `scope = "conditional"` with explicit `fixed` owners when the desired
+#' result concerns a subsystem. See [getSteadyAssessment()].
 #'
 #' Holding those inputs fixed is what makes the search reliable, but it does not
 #' make the result certain: the state that is stored is only as close to a fixed
@@ -69,7 +73,8 @@
 #'
 #' `solver = "project"` (the default) runs the dynamics until they settle, via
 #' [projectUntilSettled()], using [distanceMaxRelRDI()] as its distance
-#' function. It needs no extra packages and works with any resource dynamics.
+#' function. It needs no extra packages. Every required dynamic state must
+#' provide convergence support.
 #'
 #' `solver = "newton"` solves the steady-state equation directly with a
 #' Newton-type root finder from the `nleqslv` package. It converges even when
@@ -81,7 +86,9 @@
 #'
 #' Because the resource is held fixed either way, `solver = "newton"` here does
 #' not need the resource to be a semichemostat, unlike in [findSteadyState()]
-#' where the resource is one of the unknowns.
+#' where the resource is one of the unknowns. The Newton solver does not solve
+#' extension component states; dynamic components require explicit conditional
+#' exclusions with `fixed`, or use the projection solver.
 #'
 #' @templateVar rederived TRUE
 #' @template section_check_steady
@@ -118,8 +125,8 @@
 #'
 #'   With `solver = "newton"`: `solver_tol` (default `1e-6`), a tolerance on
 #'   the per-capita rate of change passed to [nleqslv::nleqslv()]. It was called
-#'   `residual_tol` before mizer 3.3, a name that now belongs to the biomass
-#'   drift criterion above; `maxit`
+#'   `residual_tol` before mizer 3.3, a name now used by the assessment
+#'   criterion above; `maxit`
 #'   (default `200`); `jacobian`, either `"update"` (default, the Jacobian is
 #'   computed once and then updated cheaply each iteration — `nleqslv`'s
 #'   `"Broyden"`) or `"recompute"` (a numerical Jacobian at every iteration —
@@ -127,6 +134,7 @@
 #'   `"dbldog"`, a robust double-dogleg trust region); and `verbose` to trace
 #'   the iterations.
 #'
+#' @inheritParams getSteadyAssessment
 #' @return A `MizerParams` object with the initial state replaced by the steady
 #'   state found, and with `erepro`/`R_max` and `cc_pp` adjusted as described
 #'   above. It carries a `"convergence"` attribute describing the solution
@@ -147,7 +155,11 @@ tuneSteadyState <- function(params, solver = c("project", "newton"),
                             effort = params@initial_effort,
                             preserve = c("reproduction_level", "erepro",
                                          "R_max"),
-                            info_level = default_info_level(), ...) {
+                            info_level = default_info_level(),
+                            scope = c("whole", "conditional"),
+                            fixed = character(),
+                            criterion = c("state", "biomass"),
+                            tolerances = NULL, atol = 1e-12, ...) {
     UseMethod("tuneSteadyState")
 }
 
@@ -158,24 +170,25 @@ tuneSteadyState.MizerParams <- function(params,
                                         preserve = c("reproduction_level",
                                                      "erepro", "R_max"),
                                         info_level = default_info_level(),
-                                        ...) {
+                                        scope = c("whole", "conditional"),
+                                        fixed = character(),
+                                        criterion = c("state", "biomass"),
+                                        tolerances = NULL, atol = 1e-12, ...) {
     solver <- match.arg(solver)
     with_info_level(info_level = info_level, {
         params <- validParams(params)
         effort <- validEffortVector(effort, params = params)
         params@initial_effort <- effort
-        warn_other_components_fixed(params, paste(
-            "The model returned is therefore at a fixed point of the",
-            "consumer-resource dynamics, which is not the same thing as a",
-            "steady state of the whole model. Use `projectUntilSettled()`,",
-            "which advances the components like everything else, if they need",
-            "to settle too."))
         if (solver == "project") {
             tune_steady_project(params, effort = effort, preserve = preserve,
-                                info_level = info_level, ...)
+                                info_level = info_level, scope = scope,
+                                fixed = fixed, criterion = criterion,
+                                tolerances = tolerances, atol = atol, ...)
         } else {
             tune_steady_newton(params, effort = effort, preserve = preserve,
-                               ...)
+                               scope = scope, fixed = fixed,
+                               criterion = criterion, tolerances = tolerances,
+                               atol = atol, ...)
         }
     })
 }
@@ -222,7 +235,9 @@ tuneSteadyState.MizerParams <- function(params,
 #' resource density and the feeding levels it implies are self-consistent even
 #' where consumers are satiated. That equation is written for the default
 #' semichemostat resource dynamics, so `solver = "newton"` stops with an error
-#' for any other `resource_dynamics`; use `solver = "project"` there.
+#' for any other dynamic `resource_dynamics`; use `solver = "project"` there,
+#' or explicitly fix the resource in a conditional analysis. Dynamic extension
+#' components likewise require explicit conditional exclusions for Newton.
 #'
 #' The Newton iteration also needs the residual \eqn{F(N)} to be continuous. A
 #' custom rate function registered with [setRateFunction()] that jumps as a
@@ -272,7 +287,11 @@ tuneSteadyState.MizerParams <- function(params,
 #' }
 findSteadyState <- function(params, solver = c("project", "newton"),
                             effort = params@initial_effort,
-                            info_level = default_info_level(), ...) {
+                            info_level = default_info_level(),
+                            scope = c("whole", "conditional"),
+                            fixed = character(),
+                            criterion = c("state", "biomass"),
+                            tolerances = NULL, atol = 1e-12, ...) {
     UseMethod("findSteadyState")
 }
 
@@ -281,23 +300,26 @@ findSteadyState.MizerParams <- function(params,
                                         solver = c("project", "newton"),
                                         effort = params@initial_effort,
                                         info_level = default_info_level(),
-                                        ...) {
+                                        scope = c("whole", "conditional"),
+                                        fixed = character(),
+                                        criterion = c("state", "biomass"),
+                                        tolerances = NULL, atol = 1e-12, ...) {
     solver <- match.arg(solver)
     with_info_level(info_level = info_level, {
         params <- validParams(params)
         effort <- validEffortVector(effort, params = params)
         params@initial_effort <- effort
         if (solver == "project") {
-            # Nothing is held fixed here: the projection advances the other
-            # components along with everything else, so any dynamics are fine.
+            # Projection advances every state except explicitly fixed inputs.
             project_until_settled(params, effort = effort,
-                                  info_level = info_level, ...,
+                                  info_level = info_level, scope = scope,
+                                  fixed = fixed, criterion = criterion,
+                                  tolerances = tolerances, atol = atol, ...,
                                   return_sim = FALSE)
         } else {
-            warn_other_components_fixed(params, paste(
-                "Use `solver = \"project\"`, which advances them like",
-                "everything else, if they need to settle too."))
-            find_steady_newton(params, effort = effort, ...)
+            find_steady_newton(params, effort = effort, scope = scope,
+                               fixed = fixed, criterion = criterion,
+                               tolerances = tolerances, atol = atol, ...)
         }
     })
 }
@@ -343,8 +365,14 @@ tune_steady_project <- function(params, effort, preserve,
                                 method = c("euler", "predictor_corrector",
                                            "tr_bdf2"),
                                 subcycle = FALSE, max_courant = 1,
-                                max_substeps = 10000) {
+                                max_substeps = 10000,
+                                scope = c("whole", "conditional"),
+                                fixed = character(),
+                                criterion = c("state", "biomass"),
+                                tolerances = NULL, atol = 1e-12) {
     method <- normalise_project_method(method)
+    prepare_solver_assessment(params, residual_tol, scope, fixed, criterion,
+                              tolerances, atol, require_steady = require_steady)
 
     old_reproduction_level <- NULL
     old_R_max <- NULL
@@ -372,6 +400,19 @@ tune_steady_project <- function(params, effort, preserve,
         params@other_dynamics[[res]] <- "constant_other"
     }
 
+    search_fixed <- "resource"
+    if (length(old_other_dynamics)) {
+        search_fixed <- c(search_fixed,
+                          paste0("component:", names(old_other_dynamics)))
+    }
+    search_tolerances <- tolerances
+    if (length(search_tolerances)) {
+        excluded <- vapply(names(search_tolerances), function(id) {
+            any(startsWith(id, paste0(search_fixed, "/")))
+        }, logical(1))
+        search_tolerances <- search_tolerances[!excluded]
+        if (!length(search_tolerances)) search_tolerances <- NULL
+    }
     object <- project_until_settled(params,
                                     effort = effort,
                                     distance_func = distanceMaxRelRDI,
@@ -390,7 +431,11 @@ tune_steady_project <- function(params, effort, preserve,
                                     info_level = info_level,
                                     method = method, subcycle = subcycle,
                                     max_courant = max_courant,
-                                    max_substeps = max_substeps)
+                                    max_substeps = max_substeps,
+                                    scope = "conditional",
+                                    fixed = search_fixed,
+                                    criterion = criterion,
+                                    tolerances = search_tolerances, atol = atol)
     # Capture the convergence diagnostic before the setter functions below
     # return fresh objects that drop attributes; it is re-attached at the end.
     conv <- attr(object, "convergence")
@@ -419,9 +464,16 @@ tune_steady_project <- function(params, effort, preserve,
     # to the fish dynamics pinned, so what oscillated was a constrained system,
     # and the model handed back is not that system. `termination` still records
     # that the search ended on a detected cycle.
-    conv$residual <- tryCatch(steady_biomass_drift(params),
-                              error = function(e) NA_real_)
-    conv$attractor <- steady_attractor(conv$residual, residual_tol)
+    conv$search_assessment <- conv$assessment
+    assessment_plan <- prepare_solver_assessment(
+        params, residual_tol, scope, fixed, criterion, tolerances, atol,
+        require_steady = require_steady
+    )
+    conv$assessment <- steady_assessment(params, prepared = assessment_plan,
+                                         effort = effort, t = conv$years)
+    conv$scope <- conv$assessment$scope
+    conv$residual <- attr(conv$assessment, "drift_report")$drift
+    conv$attractor <- steady_attractor(conv$assessment)
 
     if (return_sim) {
         object@params <- params
@@ -448,7 +500,13 @@ tune_steady_newton <- function(params, effort, preserve,
                                residual_tol = steady_residual_tol(),
                                maxit = 200,
                                jacobian = c("update", "recompute"),
-                               global = "dbldog") {
+                               global = "dbldog",
+                               scope = c("whole", "conditional"),
+                               fixed = character(),
+                               criterion = c("state", "biomass"),
+                               tolerances = NULL, atol = 1e-12) {
+    prepare_solver_assessment(params, residual_tol, scope, fixed, criterion,
+                              tolerances, atol, newton = TRUE)
     old_reproduction_level <- NULL
     old_R_max <- NULL
     old_erepro <- NULL
@@ -475,7 +533,9 @@ tune_steady_newton <- function(params, effort, preserve,
     params <- restore_reproduction(params, preserve, old_reproduction_level,
                                    old_R_max, old_erepro)
 
-    finish_newton(params, sol, effort, residual_tol)
+    finish_newton(params, sol, effort, residual_tol, scope = scope,
+                  fixed = fixed, criterion = criterion,
+                  tolerances = tolerances, atol = atol)
 }
 
 #' Find a steady state with the Newton solver
@@ -494,9 +554,24 @@ find_steady_newton <- function(params, effort, extinction_floor = 1e-6,
                                residual_tol = steady_residual_tol(),
                                maxit = 200,
                                jacobian = c("update", "recompute"),
-                               global = "dbldog") {
+                               global = "dbldog",
+                               scope = c("whole", "conditional"),
+                               fixed = character(),
+                               criterion = c("state", "biomass"),
+                               tolerances = NULL, atol = 1e-12) {
+    assessment_plan <- prepare_solver_assessment(
+        params, residual_tol, scope, fixed, criterion, tolerances, atol,
+        newton = TRUE
+    )
+    resource_mode <- if ("resource" %in%
+                             c(assessment_plan$fixed,
+                               assessment_plan$prescribed)) {
+        "fixed"
+    } else {
+        "solve"
+    }
     sol <- newton_steady_state(params, effort = effort, rdd_const = NULL,
-                               resource = "solve",
+                               resource = resource_mode,
                                extinction_floor = extinction_floor,
                                verbose = verbose,
                                solver_tol = solver_tol, maxit = maxit,
@@ -505,7 +580,9 @@ find_steady_newton <- function(params, effort, extinction_floor = 1e-6,
     params@initial_n[] <- sol$n
     params@initial_n_pp[] <- sol$n_pp
 
-    finish_newton(params, sol, effort, residual_tol)
+    finish_newton(params, sol, effort, residual_tol, scope = scope,
+                  fixed = fixed, criterion = criterion,
+                  tolerances = tolerances, atol = atol)
 }
 
 
@@ -645,12 +722,15 @@ restore_reproduction <- function(params, preserve, old_reproduction_level,
 #' @param params A \linkS4class{MizerParams} object holding the solution.
 #' @param sol The list returned by `newton_steady_state()`.
 #' @param effort The fishing effort the solve used.
-#' @param residual_tol The biomass drift below which the solution counts as a
-#'   fixed point.
+#' @param residual_tol Relative tolerance for the built-in assessment measures.
 #' @return The `MizerParams` object with the attribute attached.
 #' @noRd
 finish_newton <- function(params, sol, effort,
-                          residual_tol = steady_residual_tol()) {
+                          residual_tol = steady_residual_tol(),
+                          scope = c("whole", "conditional"),
+                          fixed = character(),
+                          criterion = c("state", "biomass"),
+                          tolerances = NULL, atol = 1e-12) {
     # A species that had no density to begin with is not news of an extinction:
     # nothing died during the solve, it was already absent and was held at zero
     # rather than solved for. Reporting it as an extinction would send the user
@@ -678,8 +758,12 @@ finish_newton <- function(params, sol, effort,
     # honest measure of the result: with the van Leer reconstruction the
     # residual is only Lipschitz and cannot reach machine precision, so the
     # number is not always as small as `solver_tol` suggests.
-    residual <- tryCatch(steady_biomass_drift(params, effort = effort),
-                         error = function(e) NA_real_)
+    assessment_plan <- prepare_solver_assessment(
+        params, residual_tol, scope, fixed, criterion, tolerances, atol
+    )
+    assessment <- steady_assessment(params, prepared = assessment_plan,
+                                    effort = effort)
+    residual <- attr(assessment, "drift_report")$drift
     if (is.finite(residual)) {
         signal_info("convergence", paste0(
             "The biomasses of the solution change at up to ",
@@ -703,8 +787,9 @@ finish_newton <- function(params, sol, effort,
     attr(params, "convergence") <- convergence_result(
         termination = termination,
         converged = converged,
-        attractor = steady_attractor(residual, residual_tol),
+        attractor = steady_attractor(assessment),
         residual = residual,
+        assessment = assessment,
         extinct = if (any(sol$extinct)) {
             names(sol$extinct)[sol$extinct]
         } else {

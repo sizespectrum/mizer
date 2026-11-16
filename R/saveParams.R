@@ -179,7 +179,10 @@ checkCustomFunctions <- function(params) {
               unique(params@gear_params$sel_func),
               kernel_fns)
     for (definition in params$capabilities$components) {
-        funs <- c(funs, definition$rate_fun)
+        funs <- c(funs, definition$rate_fun, definition$convergence_fun)
+    }
+    for (specification in params$capabilities$processes) {
+        funs <- c(funs, specification$convergence_fun)
     }
     funs <- unique(funs)
     custom <- sapply(funs, is_custom, packages = packages)

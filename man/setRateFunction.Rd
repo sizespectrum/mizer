@@ -130,6 +130,7 @@ Other extension tools:
 \code{\link[=initialNOther<-]{initialNOther<-()}},
 \code{\link[=other_mort]{other_mort()}},
 \code{\link[=recordExtension]{recordExtension()}},
-\code{\link[=setComponent]{setComponent()}}
+\code{\link[=setComponent]{setComponent()}},
+\code{\link[=setProcess]{setProcess()}}
 }
 \concept{extension tools}

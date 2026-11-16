@@ -25,8 +25,8 @@ accurate. Not used for the consumers, whose rate is exact.}
 \item{measure}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 Which rate of change to report. \code{"biomass"} (the default) gives the
 contribution of each size class to the relative rate of change of its
-species' biomass, which sums over sizes to the drift that \code{\link[=isSteady]{isSteady()}}
-judges a model by. \code{"per_capita"} gives the rate of change of each size
+species' biomass, which sums over sizes to its net biomass drift.
+\code{"per_capita"} gives the rate of change of each size
 class relative to its own density. See the sections above.}
 }
 \value{
@@ -41,9 +41,8 @@ further attributes:
 over \code{w_full}.}
 \item{\code{other}}{A named list with one entry per other component, holding
 its per-capita rate of change, or \code{NA} for a component whose state is
-not numeric. These are reported but not folded into the biomass drift
-that \code{\link[=isSteady]{isSteady()}} judges a model by: mizer does not know what a
-component's state is measured in, so it cannot form a biomass for it.}
+not numeric. These remain numerical diagnostics. Components declare
+their convergence measures separately for \code{\link[=getSteadyAssessment]{getSteadyAssessment()}}.}
 }
 }
 \description{
@@ -71,12 +70,10 @@ of change of the species' biomass}:
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{rowSums(getSteadyResidual(params))    # (dB_i/dt) / B_i, one per species
 }\if{html}{\out{</div>}}
 
-That total is the number \code{\link[=isSteady]{isSteady()}}, the \code{summary()} line of a
-\linkS4class{MizerParams} object and \code{project(check_steady = TRUE)} all judge
-a model by, and it is the drift that would actually show up in
-\code{\link[=plotBiomass]{plotBiomass()}}. This array therefore says \emph{where} a model is unsteady in the
-same currency that mizer uses to decide \emph{whether} it is, and a size class can
-only be conspicuous in it if it is moving enough biomass to matter.
+That total is the drift that would show up in \code{\link[=plotBiomass]{plotBiomass()}}. It remains a
+numerical diagnostic: \code{\link[=getSteadyAssessment]{getSteadyAssessment()}} separately checks convergence
+across the whole model, using absolute state residuals by default. A size
+class can only be conspicuous here if it is moving enough biomass to matter.
 
 That last property is why this is the default. A size class near the egg size
 turns over in hours, and one above the size where growth stops decays

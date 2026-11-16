@@ -174,18 +174,23 @@ distanceSSLogN.MizerParams <- function(params, current, previous,
 #' [tuneSteadyState()] instead passes [distanceMaxRelRDI()], which uses the
 #' largest relative change in egg production.
 #'
-#' Second, the state actually reached must be a fixed point: the largest
-#' relative rate of biomass change there, as measured by [getSteadyResidual()],
-#' must be at most `residual_tol`. The distance criterion on its own says only
-#' that the state stopped moving on the scale of the distance function, which is
-#' a different question — a distance function can be insensitive to the very
-#' motion that is left. When the distance criterion is met but the drift is not,
-#' the run carries on rather than declaring a fixed point.
+#' Second, [getSteadyAssessment()] must confirm that every required dynamic
+#' state has settled. The default `criterion = "state"` measures state change
+#' without cancellation between size classes; `criterion = "biomass"` explicitly
+#' selects net biomass drift for the built-in states. Extension components
+#' supply their own named measures and tolerances. Missing required convergence
+#' support stops the search before projection begins.
 #'
-#' When both hold the run stops with `termination = "residual_tolerance"`. That
-#' is deliberately not called `"steady"`: `residual_tol` is a working tolerance
-#' rather than a proof, and the `residual` entry of the `"convergence"`
-#' attribute reports the drift that was actually reached.
+#' Whole-model assessment is the default. With `scope = "conditional"`, the
+#' states named by `fixed` are held fixed throughout the search and excluded
+#' from the assessment. The returned model retains its original dynamics and
+#' records the conditional scope. Holding consumers fixed is not supported by
+#' this solver.
+#'
+#' When both criteria hold, the run stops with
+#' `termination = "residual_tolerance"`. The `assessment` entry of the
+#' `"convergence"` attribute records the measures, tolerances and coverage.
+#' The separate `residual` entry retains its biomass-drift meaning.
 #'
 #' Even so, `t_check` should be an *odd* multiple of `dt`, which is why it
 #' defaults to `15 * dt`. A period-2 cycle (period `2 * dt`), the most common
@@ -260,20 +265,15 @@ distanceSSLogN.MizerParams <- function(params, current, previous,
 #'   between two saves.
 #' @param distance_tol The run stops when the number returned by `distance_func`
 #'   for two states `t_check` years apart drops below `distance_tol`, provided
-#'   the drift criterion below is also met. Its meaning therefore depends on the
+#'   the steady-state assessment below also passes. Its meaning depends on the
 #'   distance function you supply. It was called `tol` before mizer 3.3.
 #' @param residual_tol `r lifecycle::badge("experimental")`
-#'   The largest relative rate of biomass change, in 1/year, that a state may
-#'   have and still be called a fixed point. This is the criterion of
-#'   [isSteady()] and is measured with [getSteadyResidual()], so it has the same
-#'   meaning for every model and every distance function. Default `0.05`.
-#'
-#'   It is a backstop against a distance function that has gone quiet while the
-#'   model is still moving, not the main line of defence against a cycle: an
-#'   oscillation of relative amplitude \eqn{A} and period \eqn{T} drifts at up
-#'   to \eqn{2\pi A/T} per year, which for a small `amplitude_tol` can be below
-#'   any sensible `residual_tol`. Cycles that small are caught by the cycle
-#'   detection above, which is why that runs unconditionally.
+#'   The relative tolerance for built-in state-change measures, in 1/year.
+#'   Default `0.05`; see [getSteadyAssessment()]. Component callbacks provide
+#'   their own tolerances, which can be overridden with `tolerances`.
+#'   `Inf` disables the assessment stopping gate; the reported assessment still
+#'   uses the usual finite tolerance, so this does not declare a fixed point.
+#' @inheritParams getSteadyAssessment
 #' @param amplitude_tol `r lifecycle::badge("experimental")`
 #'   The minimum relative biomass amplitude for a persistent oscillation to be
 #'   reported as a limit cycle rather than treated as an (effectively steady)
@@ -317,7 +317,7 @@ distanceSSLogN.MizerParams <- function(params, current, previous,
 #'     \item{`termination`}{Why the run stopped: `"residual_tolerance"` (both
 #'       convergence criteria were met), `"distance_tolerance"` (the distance
 #'       function was satisfied but the state is still drifting — reachable with
-#'       a loose `residual_tol`, and from the superseded [steady()], which stops
+#'       `residual_tol = Inf`, and from the superseded [steady()], which stops
 #'       on the distance criterion alone), `"cycle_detected"` (a limit cycle),
 #'       `"time_limit"` (still changing at `t_max`) or `"extinction"` (a species
 #'       died out). The steady-state finders can also return
@@ -326,19 +326,18 @@ distanceSSLogN.MizerParams <- function(params, current, previous,
 #'       its own rather than running out of time or losing a species. This is a
 #'       statement about the numerics, not about the state.}
 #'     \item{`attractor`}{What the state that was reached actually is:
-#'       `"fixed_point"` when the biomass drift is within `residual_tol`,
-#'       `"limit_cycle"` when a cycle was detected, and `NA` when it is neither
+#'       `"fixed_point"` when the assessment passes in its recorded scope,
+#'       `"limit_cycle"` when a cycle was detected and no required extension
+#'       state lies outside the cycle diagnostic, and `NA` otherwise
 #'       — a run stopped in mid-flight, or a species on its way out. This is the
 #'       entry to test before treating a result as a steady state.}
 #'     \item{`distance`}{The final value returned by `distance_func`.}
-#'     \item{`residual`}{The largest absolute relative rate of biomass change,
-#'       in 1/year, at the state that was reached. For each consumer species
-#'       this is \eqn{(dB_i/dt) / B_i}, a biomass-weighted aggregate over its
-#'       size classes; the resource is treated the same way and the other
-#'       components contribute their own relative rates. Unlike
-#'       `distance`, which compares two states `t_check` apart on whatever scale
-#'       the distance function uses, this measures how far the state actually is
-#'       from being a fixed point.}
+#'     \item{`residual`}{The largest absolute relative rate of net biomass
+#'       change among assessed consumer species and resource states, in 1/year.
+#'       This compatibility diagnostic can hide compensating changes within a
+#'       size spectrum and does not include extension-defined measures.}
+#'     \item{`assessment`, `scope`}{The full [getSteadyAssessment()] result and
+#'       its scope. Inspect these before interpreting a fixed-point claim.}
 #'     \item{`years`}{The number of years simulated. `NA` for a direct solve.}
 #'     \item{`period`}{For a limit cycle, its period in years; otherwise `NA`.}
 #'     \item{`amplitude`}{For a limit cycle, the largest per-species relative
@@ -373,7 +372,11 @@ projectUntilSettled <- function(params,
                                 method = c("euler", "predictor_corrector",
                                            "tr_bdf2"),
                                 subcycle = FALSE, max_courant = 1,
-                                max_substeps = 10000, ...) {
+                                max_substeps = 10000,
+                                scope = c("whole", "conditional"),
+                                fixed = character(),
+                                criterion = c("state", "biomass"),
+                                tolerances = NULL, atol = 1e-12, ...) {
     UseMethod("projectUntilSettled")
 }
 
@@ -395,7 +398,11 @@ projectUntilSettled.MizerParams <- function(params,
                                 method = c("euler", "predictor_corrector",
                                            "tr_bdf2"),
                                 subcycle = FALSE, max_courant = 1,
-                                max_substeps = 10000, ...) {
+                                max_substeps = 10000,
+                                scope = c("whole", "conditional"),
+                                fixed = character(),
+                                criterion = c("state", "biomass"),
+                                tolerances = NULL, atol = 1e-12, ...) {
     project_until_settled(params = params, effort = effort,
                           distance_func = distance_func,
                           t_check = t_check, t_max = t_max, dt = dt,
@@ -408,6 +415,8 @@ projectUntilSettled.MizerParams <- function(params,
                           method = method, subcycle = subcycle,
                           max_courant = max_courant,
                           max_substeps = max_substeps,
+                          scope = scope, fixed = fixed, criterion = criterion,
+                          tolerances = tolerances, atol = atol,
                           ..., return_sim = TRUE)
 }
 
@@ -437,13 +446,14 @@ projectUntilSettled.MizerParams <- function(params,
 #' @param years The number of years simulated, or `NA` for a direct solve.
 #' @param period,amplitude The period and relative amplitude of a limit cycle.
 #' @param extinct Character vector naming species that went extinct.
+#' @param assessment The final steady-state assessment, including its scope.
 #' @return A named list.
 #' @noRd
 convergence_result <- function(termination, converged, attractor,
                                distance = NA_real_, residual = NA_real_,
                                years = NA_real_, period = NA_real_,
                                amplitude = NA_real_,
-                               extinct = character(0)) {
+                               extinct = character(0), assessment = NULL) {
     list(termination = termination,
          converged = converged,
          attractor = attractor,
@@ -452,25 +462,87 @@ convergence_result <- function(termination, converged, attractor,
          years = years,
          period = period,
          amplitude = amplitude,
-         extinct = extinct)
+         extinct = extinct,
+         assessment = assessment,
+         scope = if (is.null(assessment)) NA_character_ else assessment$scope)
 }
 
-#' Whether a state counts as a fixed point
+#' Whether the assessed state counts as a fixed point
 #'
-#' The single place that turns a measured biomass drift into the claim that a
-#' state is a fixed point, so that the claim means the same thing whichever
-#' solver produced the state and whatever criterion that solver stopped on.
+#' Only a complete, passing assessment supports a fixed-point claim. Its scope
+#' remains attached to the convergence result, including any fixed inputs.
 #'
-#' @param residual The biomass drift, from `steady_biomass_drift()`.
-#' @param residual_tol The tolerance to judge it against.
+#' @param assessment The result of [getSteadyAssessment()].
 #' @return `"fixed_point"` or `NA_character_`.
 #' @noRd
-steady_attractor <- function(residual, residual_tol) {
-    if (is.finite(residual) && residual <= residual_tol) {
-        "fixed_point"
-    } else {
-        NA_character_
+steady_attractor <- function(assessment) {
+    if (isTRUE(assessment$verdict)) "fixed_point" else NA_character_
+}
+
+#' Prepare a solver's assessment and check its supported state variables
+#'
+#' @inheritParams getSteadyAssessment
+#' @param residual_tol The requested built-in tolerance. Infinite values switch
+#'   off the stopping gate, but the reported assessment uses the usual finite
+#'   tolerance so that this choice cannot manufacture a fixed point.
+#' @param require_steady Whether missing assessment capabilities are an error.
+#' @param newton Whether to check the Newton solver's more limited state space.
+#' @noRd
+prepare_solver_assessment <- function(params, residual_tol, scope, fixed,
+                                      criterion, tolerances, atol,
+                                      require_steady = TRUE, newton = FALSE) {
+    prepared <- prepare_steady_assessment(
+        params, tol = if (is.finite(residual_tol)) {
+            residual_tol
+        } else {
+            steady_residual_tol()
+        },
+        scope = scope, fixed = fixed, criterion = criterion,
+        tolerances = tolerances, atol = atol, dt = 1e-4
+    )
+    if ("consumers" %in% prepared$fixed) {
+        stop("Steady-state solvers cannot hold consumers fixed. ",
+             "Use `getSteadyAssessment()` for this conditional analysis.",
+             call. = FALSE)
     }
+    if (require_steady && length(prepared$missing) > 0) {
+        stop("Missing convergence support for ",
+             paste(prepared$missing, collapse = ", "), ". ",
+             "Declare `convergence_fun`, or explicitly hold these inputs ",
+             'fixed with `scope = "conditional"` and `fixed`.', call. = FALSE)
+    }
+    unsupported <- grep("^component:", prepared$required, value = TRUE)
+    if (newton && length(unsupported) > 0) {
+        stop("The Newton solver cannot solve dynamic components: ",
+             paste(unsupported, collapse = ", "), ". ",
+             'Use `solver = "project"`, or explicitly hold them fixed with ',
+             '`scope = "conditional"` and `fixed`.', call. = FALSE)
+    }
+    prepared
+}
+
+#' Name the state variables preventing a complete steady-state verdict
+#' @param assessment The result of [getSteadyAssessment()].
+#' @noRd
+steady_assessment_details <- function(assessment) {
+    failed <- assessment$measures$owner[!assessment$measures$passed]
+    failed <- unique(failed)
+    details <- character()
+    if (length(failed) > 0) {
+        details <- c(details, paste0(" Measures exceed their tolerances for ",
+                                     paste(failed, collapse = ", "), "."))
+    }
+    if (length(assessment$missing) > 0) {
+        details <- c(details, paste0(" Convergence support is unavailable for ",
+                                     paste(assessment$missing, collapse = ", "),
+                                     "."))
+    }
+    if (assessment$scope == "conditional") {
+        details <- c(details, paste0(" This is a conditional assessment with ",
+                                     paste(assessment$fixed, collapse = ", "),
+                                     " held fixed."))
+    }
+    paste0(details, collapse = "")
 }
 
 #' The engine behind [projectUntilSettled()] and the steady-state finders
@@ -484,15 +556,11 @@ steady_attractor <- function(residual, residual_tol) {
 #' @inheritParams projectUntilSettled
 #' @param return_sim Whether to build and return a `MizerSim` of the run rather
 #'   than a `MizerParams` holding only the final state.
-#' @param require_steady Whether the biomass drift has to be within
-#'   `residual_tol` before the run may stop on the distance criterion. `TRUE`
-#'   for everything mizer exports; the superseded [steady()] and
-#'   [projectToSteady()] pass `FALSE`, because released code was written against
-#'   a stopping rule that used the distance function alone and a run that
-#'   suddenly takes ten times as long is a bad way to learn about a new
-#'   criterion. It changes when the run stops and nothing else: the drift is
-#'   measured either way, and `attractor` is derived from it either way, so a
-#'   wrapper that stops early still reports honestly what it stopped on.
+#' @param require_steady Whether the steady-state assessment must pass before
+#'   the run may stop on the distance criterion. The superseded [steady()] and
+#'   [projectToSteady()] pass `FALSE` to preserve their distance-only stopping
+#'   rule. The result still records the complete assessment, including missing
+#'   support, and only a passing verdict supports a fixed-point claim.
 #' @return A `MizerSim` or a `MizerParams`, in either case carrying the
 #'   `"convergence"` attribute.
 #' @noRd
@@ -515,7 +583,11 @@ project_until_settled <- function(params,
                                   subcycle = FALSE, max_courant = 1,
                                   max_substeps = 10000,
                                   return_sim = FALSE,
-                                  require_steady = TRUE) {
+                                  require_steady = TRUE,
+                                  scope = c("whole", "conditional"),
+                                  fixed = character(),
+                                  criterion = c("state", "biomass"),
+                                  tolerances = NULL, atol = 1e-12) {
     with_info_level(info_level = info_level, {
     # `tol` used to be the name of `distance_tol`. It would otherwise be passed
     # on to the distance function and silently ignored, which is the one way
@@ -531,6 +603,26 @@ project_until_settled <- function(params,
     method <- normalise_project_method(method)
     effort <- validEffortVector(effort, params = params)
     params@initial_effort <- effort
+        assessment_plan <- prepare_solver_assessment(
+            params, residual_tol, scope, fixed, criterion, tolerances, atol,
+            require_steady = require_steady
+        )
+        original_resource_dynamics <- params@resource_dynamics
+        original_other_dynamics <- params@other_dynamics
+        if ("resource" %in% assessment_plan$fixed) {
+            params@resource_dynamics <- "resource_constant"
+        }
+        fixed_components <- grep("^component:", assessment_plan$fixed,
+                                 value = TRUE)
+        fixed_components <- substring(fixed_components,
+                                      nchar("component:") + 1L)
+        for (component in fixed_components) {
+            params@other_dynamics[[component]] <- "constant_other"
+        }
+        assessment_plan <- prepare_solver_assessment(
+            params, residual_tol, scope, fixed, criterion, tolerances, atol,
+            require_steady = require_steady
+        )
     assert_that(t_max >= t_check,
                 distance_tol > 0,
                 is.number(residual_tol), residual_tol > 0,
@@ -698,35 +790,13 @@ project_until_settled <- function(params,
         }
 
         if (distance < distance_tol) {
-            # The distance function has gone quiet. Whether that means a fixed
-            # point has been reached is a different question, asked of the state
-            # itself rather than of the distance function's scale. It is asked
-            # here whatever `require_steady` says, because the answer is
-            # reported either way; only whether it can hold the run open
-            # depends on that argument.
-            report <- tryCatch(
-                steady_drift_report(params, effort = effort,
-                                    n = current$n, n_pp = current$n_pp,
-                                    n_other = current$n_other),
-                error = function(e) NULL)
-            residual <- if (is.null(report)) NA_real_ else report$drift
-            # The gate, unlike the criterion, takes the other components in.
-            # This is the one place where they are live -- the run advances
-            # whatever `other_dynamics` says -- so a run that stops here while a
-            # component is still moving would be stopping short of something it
-            # could have settled. `tune_steady_project()` pins its components
-            # for the duration of its run, so they contribute nothing when the
-            # gate is reached from there.
-            gate <- if (is.null(report)) {
-                NA_real_
-            } else {
-                steady_total_drift(report)
-            }
-            # An unmeasurable drift is no reason to keep running: the distance
-            # criterion the user asked for has been met, and `residual` records
-            # that the check could not be made.
-            if (!require_steady || !is.finite(gate) ||
-                gate <= residual_tol) {
+            assessment <- steady_assessment(
+                params, prepared = assessment_plan,
+                n = current$n, n_pp = current$n_pp,
+                n_other = current$n_other, effort = effort, t = k * dt
+            )
+            if (!require_steady || is.infinite(residual_tol) ||
+                isTRUE(assessment$verdict)) {
                 success <- TRUE
                 break
             }
@@ -740,154 +810,85 @@ project_until_settled <- function(params,
     params@initial_n_pp[] <- current$n_pp
     params@initial_n_other[] <- current$n_other
 
-    # How far the state that was reached actually is from a fixed point. The
-    # distance function above only compares two states `t_check` apart, which
-    # is a proxy; this is the thing itself. It is recorded even for a cycle or a
-    # non-converged run, where it says how far off the run stopped. On a
-    # successful run it has already been measured at this very state, as the
-    # second half of the convergence criterion, so it is not measured twice.
-    if (!success) {
-        report <- tryCatch(steady_drift_report(params, effort = effort),
-                           error = function(e) NULL)
-        residual <- if (is.null(report)) NA_real_ else report$drift
-    }
-    # Whatever the run did, a component that is still moving has to be named:
-    # the drift above no longer covers it, and "fixed point" said over a
-    # component drifting at 6 per year is the failure this reporting exists to
-    # prevent. It is judged against the package tolerance rather than
-    # `residual_tol`, as the advisory `caveat` below is -- this is a statement
-    # about the model, not about the stopping rule the user chose, so switching
-    # the gate off with `residual_tol = Inf` must not also switch off the one
-    # report that says a component is moving.
-    components_txt <- if (is.null(report)) {
-        ""
-    } else {
-        paste0(component_drift_txt(report, advanced = TRUE),
-               component_unmeasured_txt(report))
-    }
-    # Whether a component is what kept the run going, which the diagnosis below
-    # needs to tell apart from a distance function that is still unsatisfied.
-    # Judged at `residual_tol`, because that is the tolerance the gate itself
-    # used, unlike the reporting text above.
-    held_by_component <- !is.null(report) && require_steady &&
-        is.finite(residual) && residual <= residual_tol &&
-        length(component_groups(report, tol = residual_tol)$moving) > 0
-    residual_txt <- if (is.finite(residual)) {
-        paste0(" The biomasses change at up to ", signif(residual, 2),
-               " per year.")
-    } else {
-        ""
-    }
+        # Conditional searches restore the original dynamics on the returned
+        # model. Assess that model afresh, retaining the requested exclusions.
+        params@resource_dynamics <- original_resource_dynamics
+        params@other_dynamics <- original_other_dynamics
+        assessment_plan <- prepare_solver_assessment(
+            params, residual_tol, scope, fixed, criterion, tolerances, atol,
+            require_steady = require_steady
+        )
+        assessment <- steady_assessment(params, prepared = assessment_plan,
+                                        effort = effort, t = years)
+        residual <- attr(assessment, "drift_report")$drift
+        details <- steady_assessment_details(assessment)
+        residual_txt <- if (is.finite(residual)) {
+            paste0(" The biomasses change at up to ", signif(residual, 2),
+                   " per year.")
+        } else {
+            " The biomass drift is unavailable."
+        }
 
-    if (!is.null(cycle)) {
-        termination <- "cycle_detected"
-        converged <- TRUE
-        attractor <- "limit_cycle"
-        signal_info("convergence", paste0(
-            "Settled onto a limit cycle of period ",
-            signif(cycle$period, 3), " years (relative amplitude ",
-            signif(cycle$amplitude, 2), ") after ", years, " years."),
-            unhandled = "show")
-    } else if (success) {
-        # The drift was measured at this very state, so the verdict is not
-        # re-derived; it still goes through the same function, so that "fixed
-        # point" cannot come to mean two things. Where the run stopped on the
-        # distance criterion alone the termination says so, rather than naming a
-        # tolerance that was not part of the test.
-        attractor <- steady_attractor(residual, residual_tol)
-        converged <- TRUE
-        termination <- if (identical(attractor, "fixed_point")) {
-            "residual_tolerance"
+        if (!is.null(cycle)) {
+            termination <- "cycle_detected"
+            converged <- TRUE
+            # Consumer biomass periodicity does not establish periodicity of an
+            # extension's independently evolving state.
+            has_components <- any(startsWith(assessment$required, "component:"))
+            attractor <- if (has_components) NA_character_ else "limit_cycle"
+            caveat <- if (has_components) {
+                paste0(" Periodicity of the other dynamic components ",
+                       "was not assessed.")
+            } else {
+                ""
+            }
+            text <- paste0(
+                "Detected a cycle in consumer biomasses of period ",
+                signif(cycle$period, 3), " years (relative amplitude ",
+                signif(cycle$amplitude, 2), ") after ", years, " years.",
+                caveat, details
+            )
+            signal_info("convergence", text, unhandled = "show")
+        } else if (success) {
+            attractor <- steady_attractor(assessment)
+            converged <- TRUE
+            termination <- if (isTRUE(assessment$verdict) && require_steady &&
+                                   is.finite(residual_tol)) {
+                "residual_tolerance"
+            } else {
+                "distance_tolerance"
+            }
+            text <- paste0("Reached the convergence tolerance after ", years,
+                           " years.", residual_txt, details)
+            signal_info("convergence", text, unhandled = "show")
         } else {
-            "distance_tolerance"
+            termination <- if (any(extinct)) "extinction" else "time_limit"
+            converged <- FALSE
+            attractor <- if (any(extinct)) {
+                NA_character_
+            } else {
+                steady_attractor(assessment)
+            }
+            distance_met <- !any(extinct) && is.finite(distance) &&
+                distance < distance_tol
+            why <- if (distance_met) {
+                paste0("The distance function returned ", signif(distance, 3),
+                       ", which is below the distance tolerance, but the ",
+                       "steady-state assessment did not pass.", details)
+            } else if (identical(attractor, "fixed_point")) {
+                paste0("The distance function returned ", signif(distance, 3),
+                       ", which is above the distance tolerance, but the ",
+                       "state reached is a fixed point within the assessed ",
+                       "scope.",
+                       details)
+            } else {
+                paste0("Value returned by the distance function was: ",
+                       distance, details)
+            }
+            text <- paste0("Simulation run did not converge after ", years,
+                           " years. ", why, residual_txt)
+            signal_info("convergence", text, unhandled = "show")
         }
-        # The distance function being satisfied only says that the state stopped
-        # moving on that function's own scale, so the message says that and no
-        # more. The residual is reported every time, not only when it is large:
-        # it is the evidence for whether this is a fixed point, and a number the
-        # user only ever sees when something has gone wrong is a number they
-        # never learn to look at. Only the instruction to act on it is
-        # conditional. This stays an "info": the user asked for convergence at
-        # their `distance_tol` and got it, so nothing they asked for failed to
-        # happen.
-        # The drift is only unmeasurable when `steady_biomass_drift()` itself
-        # failed, in which case the run stopped on the distance criterion alone
-        # and the user should know that half the test did not happen.
-        caveat <- if (!is.finite(residual)) {
-            paste0(" The biomass drift could not be measured, so only the ",
-                   "distance criterion was checked.")
-        } else if (residual > steady_residual_tol()) {
-            paste0(" Reduce the tolerance on the distance function to ",
-                   "converge further.")
-        } else {
-            ""
-        }
-        signal_info("convergence",
-                    paste0("Reached the convergence tolerance after ", years,
-                           " years.", residual_txt, caveat, components_txt),
-                    unhandled = "show")
-    } else {
-        termination <- if (any(extinct)) "extinction" else "time_limit"
-        converged <- FALSE
-        # Running out of time says nothing about where the run had got to. If
-        # the state it stopped at is not drifting, it is a fixed point, however
-        # unhappy the distance function was about it.
-        attractor <- if (any(extinct)) {
-            NA_character_
-        } else {
-            steady_attractor(residual, residual_tol)
-        }
-        # A run that has met the distance criterion but is still drifting is
-        # the case the two-part test exists for. Saying so is the difference
-        # between a puzzling long run and a diagnosis.
-        distance_met <- !any(extinct) && is.finite(distance) &&
-            distance < distance_tol
-        why <- if (distance_met && is.finite(residual) &&
-                   residual > residual_tol) {
-            paste0("The distance function returned ", signif(distance, 3),
-                   ", which is below the distance tolerance, but the ",
-                   "biomasses are still changing at up to ",
-                   signif(residual, 2), " per year, which is above the ",
-                   "residual tolerance, so this state is not a fixed point.")
-        } else if (distance_met && held_by_component) {
-            # Both halves of the test on the consumers and the resource are
-            # met, and the run kept going only because the gate also waits for
-            # the components this run advances. Without this branch the check
-            # below would fire and tell the user that the distance function was
-            # above its tolerance, which is the opposite of what happened.
-            # `components_txt` names the components and their rates, so this
-            # says only why the run continued.
-            paste0("The distance function returned ", signif(distance, 3),
-                   ", which is below the distance tolerance, and the ",
-                   "consumers and the resource have settled: they change at ",
-                   "only ",
-                   signif(residual, 2), " per year. The run continued because ",
-                   "a component of the model had not settled, and ran out of ",
-                   "time. Raise `t_max`, or set `residual_tol = Inf` to stop ",
-                   "on the distance criterion alone.")
-        } else if (!distance_met && identical(attractor, "fixed_point")) {
-            # The opposite case, and the one that reads as a contradiction
-            # until it is spelled out: the distance function is still
-            # unsatisfied while the state it is unsatisfied about has stopped
-            # drifting. `converged` and `attractor` answer different questions,
-            # so say which is which rather than leaving the two entries of the
-            # convergence attribute to be compared.
-            paste0("The distance function returned ", signif(distance, 3),
-                   ", which is above the distance tolerance, but the state ",
-                   "reached is a fixed point: the biomasses change at only ",
-                   signif(residual, 2), " per year. The distance function is ",
-                   "measuring motion that the biomasses do not see, so ",
-                   "`attractor` is \"fixed_point\" even though `converged` is ",
-                   "FALSE. Loosen `distance_tol`, or use a distance function ",
-                   "that ignores what this one is still seeing.")
-        } else {
-            paste0("Value returned by the distance function was: ", distance)
-        }
-        signal_info("convergence", paste0(
-            "Simulation run did not converge after ", years, " years. ", why,
-            components_txt),
-            unhandled = "show")
-    }
 
     convergence <- convergence_result(
         termination = termination,
@@ -895,6 +896,7 @@ project_until_settled <- function(params,
         attractor = attractor,
         distance = distance,
         residual = residual,
+        assessment = assessment,
         years = years,
         period = if (!is.null(cycle)) cycle$period else NA_real_,
         amplitude = if (!is.null(cycle)) cycle$amplitude else NA_real_,

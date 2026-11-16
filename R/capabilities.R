@@ -1,15 +1,15 @@
 # Stored capability specifications. Component equations and custom steps are
-# separate capabilities. Process capabilities and further callbacks are added
-# together with their runtime consumers in subsequent development previews.
+# separate capabilities. Assessment declarations state quantitative convergence
+# support and distinguish dynamic state from prescribed inputs.
 
 new_capability_registry <- function() {
-    list(schema_version = 2L, components = list(), processes = list())
+    list(schema_version = 3L, components = list(), processes = list())
 }
 
 # Upgrade data only: extension callbacks may not be available until the model's
 # required packages have been loaded. Leave malformed fields for the structural
 # validator, rather than silently dropping them while adding the new defaults.
-upgrade_capability_registry <- function(registry) {
+upgrade_capability_registry <- function(registry, params = NULL) {
     fields <- c("schema_version", "components", "processes")
     if (!is.list(registry) || is.object(registry) ||
             !capability_names_valid(registry) ||
@@ -18,10 +18,10 @@ upgrade_capability_registry <- function(registry) {
     }
     version <- registry$schema_version
     if (!is.numeric(version) || is.complex(version) || length(version) != 1L ||
-            is.na(version) || version != 1L) {
+            is.na(version) || !version %in% c(1L, 2L)) {
         return(registry)
     }
-    registry$schema_version <- 2L
+    registry$schema_version <- 3L
     components <- registry$components
     if (!is.list(components) || is.object(components) ||
             !capability_names_valid(components)) {
@@ -35,16 +35,20 @@ upgrade_capability_registry <- function(registry) {
         }
         upgraded <- list(dynamics_fun = NULL, rate_fun = NULL,
                          encounter_fun = NULL, mort_fun = NULL, colour = NULL,
-                         linetype = NULL, integration_order = NULL)
+                         linetype = NULL, integration_order = NULL,
+                         convergence_fun = NULL, role = "dynamic")
         upgraded[names(definition)] <- definition
         registry$components[[component]] <- upgraded
+    }
+    if (!is.null(params) && identical(registry$processes, list())) {
+        registry$processes <- default_process_registry(params)
     }
     registry
 }
 
 component_definition_fields <- function() {
     c("dynamics_fun", "rate_fun", "encounter_fun", "mort_fun", "colour",
-      "linetype", "integration_order")
+      "linetype", "integration_order", "convergence_fun", "role")
 }
 
 capability_names_valid <- function(x) {
@@ -73,7 +77,8 @@ component_definition_errors <- function(definition, required = TRUE) {
             is.null(definition$rate_fun)) {
         errors <- c(errors, "Component requires `dynamics_fun` or `rate_fun`.")
     }
-    callbacks <- c("dynamics_fun", "rate_fun", "encounter_fun", "mort_fun")
+    callbacks <- c("dynamics_fun", "rate_fun", "encounter_fun", "mort_fun",
+                   "convergence_fun")
     for (field in intersect(fields, callbacks)) {
         value <- definition[[field]]
         valid_name <- is.character(value) && length(value) == 1L &&
@@ -81,6 +86,14 @@ component_definition_errors <- function(definition, required = TRUE) {
         if (!is.null(value) && !valid_name) {
             errors <- c(errors, paste0("`", field,
                                        "` must be a function name or NULL."))
+        }
+    }
+    if ("role" %in% fields) {
+        valid_role <- is.character(definition$role) &&
+            length(definition$role) == 1L && !is.na(definition$role) &&
+            definition$role %in% c("dynamic", "prescribed")
+        if (!valid_role) {
+            errors <- c(errors, "`role` must be 'dynamic' or 'prescribed'.")
         }
     }
     for (field in intersect(fields, c("colour", "linetype"))) {
@@ -120,7 +133,7 @@ capability_registry_errors <- function(registry) {
     }
     version <- registry$schema_version
     if (!is.numeric(version) || length(version) != 1L ||
-            is.na(version) || version != 2L) {
+            is.na(version) || version != 3L) {
         return("Unsupported capabilities schema_version; update mizer.")
     }
     components <- registry$components
@@ -128,10 +141,8 @@ capability_registry_errors <- function(registry) {
             !capability_names_valid(components)) {
         return("`capabilities$components` must be a uniquely named list.")
     }
-    if (!identical(registry$processes, list())) {
-        return("Process capability specifications are not supported yet.")
-    }
-    errors <- character()
+    process_errors <- process_registry_errors(registry$processes)
+    errors <- if (isTRUE(process_errors)) character() else process_errors
     for (component in names(components)) {
         result <- component_definition_errors(components[[component]])
         if (!isTRUE(result)) {
@@ -157,7 +168,7 @@ legacy_component_definition <- function(params, component) {
          mort_fun = params$other_mort[[component]],
          colour = style(params$linecolour),
          linetype = style(params$linetype),
-         integration_order = NULL)
+         integration_order = NULL, convergence_fun = NULL, role = "dynamic")
 }
 
 legacy_capability_registry <- function(params) {
@@ -166,6 +177,7 @@ legacy_capability_registry <- function(params) {
         registry$components[[component]] <-
             legacy_component_definition(params, component)
     }
+    registry$processes <- default_process_registry(params)
     registry
 }
 
@@ -190,7 +202,8 @@ assemble_component_definition <- function(existing = NULL, definition = NULL,
     if (replace) check(definition)
     result <- list(dynamics_fun = NULL, rate_fun = NULL, encounter_fun = NULL,
                    mort_fun = NULL, colour = "grey", linetype = "solid",
-                   integration_order = NULL)
+                   integration_order = NULL, convergence_fun = NULL,
+                   role = "dynamic")
     if (!replace && !is.null(existing)) {
         check(existing, required = TRUE)
         result[names(existing)] <- existing
@@ -199,14 +212,24 @@ assemble_component_definition <- function(existing = NULL, definition = NULL,
     # drops them by default, conflating removal with omission.
     if (replace) result[names(definition)] <- definition
     previous_dynamics <- result$dynamics_fun
+    previous_rate <- result$rate_fun
     result[names(overrides)] <- overrides
     if ("dynamics_fun" %in% names(overrides) &&
             !identical(previous_dynamics, result$dynamics_fun) &&
             !"integration_order" %in% names(overrides)) {
         result["integration_order"] <- list(NULL)
     }
+    provider_changed <- !identical(previous_dynamics, result$dynamics_fun) ||
+        !identical(previous_rate, result$rate_fun)
+    if (provider_changed && !"role" %in% names(overrides)) {
+        result$role <- "dynamic"
+    }
+    if (provider_changed && !"convergence_fun" %in% names(overrides)) {
+        result["convergence_fun"] <- list(NULL)
+    }
     check(result, required = TRUE)
-    for (field in c("dynamics_fun", "rate_fun", "encounter_fun", "mort_fun")) {
+    for (field in c("dynamics_fun", "rate_fun", "encounter_fun", "mort_fun",
+                    "convergence_fun")) {
         fun <- result[[field]]
         if (!is.null(fun)) {
             context <- paste0("component `", field, "`")

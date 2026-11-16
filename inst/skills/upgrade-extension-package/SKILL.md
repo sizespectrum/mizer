@@ -66,6 +66,7 @@ package.
 |---|---|---|
 | A package's reusable component definition has changed, but previously created models still use the old choices | component definitions are stored as assembled snapshots in the model | Stored component definitions |
 | A component needs its own derivative or predicted endpoint, or corrector results change when it uses `pred_rate` or `f_mort` | equations and custom steps are separate capabilities, and correctors now provide complete midpoint rates | Component equations and prediction context |
+| A model using the package has incomplete steady-state coverage, or a solver refuses missing convergence support | a component or custom resource needs a quantitative convergence declaration; an equation or biomass alone does not provide it | Registering convergence support |
 | `is()` / `setClass()` / `expect_s4_class()` in the package, or `.onLoad()` calling `registerExtension()` / `getRegisteredExtensions()` | written against the S4 mizer | Part 1 |
 | After `rm(list = ls())`, or in the second and later examples of `R CMD check`, mizer reports the extension's class is not a defined class | the dynamic S4 marker classes lived in `.GlobalEnv` | Part 1 — the mechanism is gone, migrate rather than repair |
 | After `devtools::load_all()`, `coerceToExtensionClass()` reports no method or default for coercing `MizerParams` | same obsolete marker-class machinery | Part 1 |
@@ -688,6 +689,43 @@ Callbacks may use exported `package::function` identifiers. The core saved-model
 upgrade adds equation and method metadata without executing callbacks. Existing
 models do not acquire equations merely because a package's definition changed;
 update their stored definitions explicitly through the extension upgrade.
+
+## Registering convergence support
+
+The assessment preview (3.4.0.9006) adds `convergence_fun` and `role` to stored
+component definitions and `setProcess()` for consumers and resource. Existing
+components upgrade as dynamic with no invented convergence support. Projection
+continues to work, but an operation requiring whole-model assessment can now
+report incomplete coverage or stop before solving.
+
+Supply a convergence callback returning named quantitative rows (`measure`,
+`value`, `tolerance`, `units`). Values may be signed; mizer tests their absolute
+values against the corresponding non-negative tolerances. Different units can
+coexist. Provide meaningful measures for non-biomass and non-numeric states too;
+do not wrap a maximum relative cell rate merely to reproduce the old fallback.
+The callback receives the full rate context and the current state and time.
+Strict callbacks may accept only the context arguments they need.
+
+For a custom resource, use `setProcess(params, "resource", convergence_fun =
+"myResourceConvergence")`. The core stores provider bindings, so a declaration
+cannot silently follow a different dynamics implementation. `setProcess()` is
+an explicit adoption of the current provider. When changing a component's
+equation or custom step, explicitly select the convergence callback and role
+again if they still apply. A complete replacement definition must include all
+the optional capabilities it is to retain.
+
+Use `role = "prescribed"` only when the state block is an input of the model.
+Freezing a dynamic state for one analysis instead uses explicit conditional
+scope. Temporary frozen callbacks do not alter the stored structural role.
+Partial prescribed-coordinate masks and joint tuning ownership are later
+previews. The built-in constant resource is recognised as a prescribed input.
+
+Update saved models through the package's upgrade method to install these
+declarations. Test passing, failing and missing coverage; signed and zero-state
+measures; callback failures; provider replacement; and both quadrature schemes
+for any size integrals. The current Newton solver requires unsupported dynamic
+components to be explicitly fixed. A convergence callback alone does not add
+their states to that solver.
 
 ## Finishing
 

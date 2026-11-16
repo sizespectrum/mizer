@@ -674,6 +674,45 @@ update their stored definitions explicitly through the extension upgrade.
 
 ---
 
+## Registering convergence support
+
+The assessment preview (3.4.0.9006) adds `convergence_fun` and `role` to stored
+component definitions and [`setProcess()`](../reference/setProcess.html) for consumers and resource. Existing
+components upgrade as dynamic with no invented convergence support. Projection
+continues to work, but an operation requiring whole-model assessment can now
+report incomplete coverage or stop before solving.
+
+Supply a convergence callback returning named quantitative rows (`measure`,
+`value`, `tolerance`, `units`). Values may be signed; mizer tests their absolute
+values against the corresponding non-negative tolerances. Different units can
+coexist. Provide meaningful measures for non-biomass and non-numeric states too;
+do not wrap a maximum relative cell rate merely to reproduce the old fallback.
+The callback receives the full rate context and the current state and time.
+Strict callbacks may accept only the context arguments they need.
+
+For a custom resource, use `setProcess(params, "resource", convergence_fun =
+"myResourceConvergence")`. The core stores provider bindings, so a declaration
+cannot silently follow a different dynamics implementation. `setProcess()` is
+an explicit adoption of the current provider. When changing a component's
+equation or custom step, explicitly select the convergence callback and role
+again if they still apply. A complete replacement definition must include all
+the optional capabilities it is to retain.
+
+Use `role = "prescribed"` only when the state block is an input of the model.
+Freezing a dynamic state for one analysis instead uses explicit conditional
+scope. Temporary frozen callbacks do not alter the stored structural role.
+Partial prescribed-coordinate masks and joint tuning ownership are later
+previews. The built-in constant resource is recognised as a prescribed input.
+
+Update saved models through the package's upgrade method to install these
+declarations. Test passing, failing and missing coverage; signed and zero-state
+measures; callback failures; provider replacement; and both quadrature schemes
+for any size integrals. The current Newton solver requires unsupported dynamic
+components to be explicitly fixed. A convergence callback alone does not add
+their states to that solver.
+
+---
+
 ## Finishing
 
 Run the checklist for package authors in the [guide to creating a mizer extension package](guide-create-extension-package.html)

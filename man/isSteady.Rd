@@ -5,61 +5,67 @@
 \alias{isSteady.MizerParams}
 \title{Check whether a model is at steady state}
 \usage{
-isSteady(params, tol = 0.05, effort = params@initial_effort, ...)
+isSteady(
+  params,
+  tol = 0.05,
+  effort = params@initial_effort,
+  scope = c("whole", "conditional"),
+  fixed = character(),
+  criterion = c("state", "biomass"),
+  tolerances = NULL,
+  atol = 1e-12,
+  t = 0,
+  dt = 1e-04,
+  ...
+)
 }
 \arguments{
-\item{params}{A \linkS4class{MizerParams} object or an extension thereof.}
+\item{params}{A MizerParams object or an extension thereof.}
 
-\item{tol}{Tolerance for the relative rate of biomass change in 1/year.
-Defaults to \code{0.05} (5\% change per year).}
+\item{tol}{Relative tolerance for built-in checks, in 1/year.}
 
-\item{effort}{The fishing effort at which to evaluate steadiness. By default
-the initial effort stored in \code{params}.}
+\item{effort}{Fishing effort at which to evaluate steadiness.}
 
-\item{...}{Additional arguments passed to methods.}
+\item{scope}{\code{"whole"} or \code{"conditional"}.}
+
+\item{fixed}{Canonical owner IDs held fixed under conditional analysis:
+\code{"consumers"}, \code{"resource"}, or \code{"component:name"}.}
+
+\item{criterion}{\code{"state"} for absolute state residuals, or \code{"biomass"} for
+net biomass drift in built-in checks.}
+
+\item{tolerances}{Optional named vector of owner/measure tolerance overrides.}
+
+\item{atol}{Absolute tolerance for built-in checks, in grams per year.}
+
+\item{t}{Time at which to evaluate the model, in years.}
+
+\item{dt}{Step length for resource dynamics supplied as a step map.}
+
+\item{...}{Additional arguments made available to convergence callbacks.}
 }
 \value{
-\code{TRUE} if the model's biomass drift is within \code{tol}, \code{FALSE}
-otherwise.
+A single logical value, possibly \code{NA}. Conditional verdicts carry
+\code{scope} and \code{fixed} attributes.
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
-Returns \code{TRUE} if the model is at its steady state (within a specified
-tolerance), \code{FALSE} otherwise.
+Returns the verdict from \code{\link[=getSteadyAssessment]{getSteadyAssessment()}}: \code{TRUE} if all required
+owners pass, \code{FALSE} if any measure fails, or \code{NA} if no measure fails but
+required convergence support is missing. The default assesses the whole
+model, including extension components. Callback errors propagate.
 }
 \details{
-Steadiness is judged by computing the relative rate of change of biomass
-across all consumer species and the resource (see \code{\link[=getSteadyResidual]{getSteadyResidual()}}). If
-the largest biomass drift is less than or equal to \code{tol}, the model is
-considered to be at steady state.
+The default state-residual criterion prevents changes at different sizes
+from cancelling. Net biomass drift remains available explicitly with
+\code{criterion = "biomass"}. A conditional assessment requires an explicit
+list of owners held fixed; its scalar verdict retains \code{scope} and \code{fixed}
+attributes so that it cannot be mistaken for a whole-model judgement.
 }
-\section{Components are not included}{
-Components registered with \code{\link[=setComponent]{setComponent()}} are deliberately left out of this
-judgement. Their state can be any object at all, so mizer does not know what
-currency its entries are in and cannot form a biomass for them; and
-\code{\link[=tuneSteadyState]{tuneSteadyState()}}, \code{\link[=findSteadyState]{findSteadyState()}} and \code{\link[=getStability]{getStability()}} all hold them
-fixed, so a criterion that included them could be one that no mizer function
-is able to satisfy.
-
-A model can therefore be \code{isSteady()} while a component of it is still
-changing. If your model has components with dynamics of their own, check them
-as well: \code{attr(getSteadyResidual(params), "other")} holds their rates of
-change, and mizer names any that are moving whenever it reports on the
-model's steady state. To settle them along with everything else, project the
-model with \code{\link[=projectUntilSettled]{projectUntilSettled()}}, which advances the components like every
-other state variable.
-}
-
 \examples{
 isSteady(NS_params)
-
-\donttest{
-# Moving a species abundance off its steady state makes isSteady() FALSE
-params <- NS_params
-initialN(params)[1, ] <- initialN(params)[1, ] * 2
-isSteady(params)
-}
 }
 \seealso{
-\code{\link[=getSteadyResidual]{getSteadyResidual()}}, \code{\link[=tuneSteadyState]{tuneSteadyState()}}, \code{\link[=findSteadyState]{findSteadyState()}}
+\code{\link[=getSteadyAssessment]{getSteadyAssessment()}}, \code{\link[=getSteadyResidual]{getSteadyResidual()}}, \code{\link[=tuneSteadyState]{tuneSteadyState()}},
+\code{\link[=findSteadyState]{findSteadyState()}}
 }

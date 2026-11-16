@@ -110,7 +110,9 @@ to do. It is meant for a \code{MizerParams} object; when continuing from a
 ended, so there is nothing to check. The check is made at the effort stored in the params
 object rather than at the \code{effort} supplied here, so that running a fishing
 scenario at a new effort — which legitimately starts away from the steady
-state of that new effort — does not warn. See \code{\link[=getSteadyResidual]{getSteadyResidual()}}.}
+state of that new effort — does not warn. This uses the whole-model
+assessment at \code{t_start}, and also warns when required assessment support
+is missing. See \code{\link[=getSteadyAssessment]{getSteadyAssessment()}}.}
 
 \item{subcycle}{If \code{TRUE}, split each requested \code{dt} into coupled substeps
 using the growth Courant target. Consumers, resources and other components

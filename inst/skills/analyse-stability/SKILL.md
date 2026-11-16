@@ -73,13 +73,14 @@ warning. `plot(getSteadyResidual(params))` shows how far off it is — see the
 attribute, which answers three questions separately: `termination` says why the
 run stopped, `converged` whether the solver met its own criterion, and
 `attractor` what the state reached actually is — `"fixed_point"`,
-`"limit_cycle"` or `NA`. **Read `attractor`**: it is the only one set from the
-measured biomass drift (reported as `residual`), and so the only one that can be
-taken as a claim that the model is at a steady state.
+`"limit_cycle"` or `NA`. **Read `attractor` together with `assessment`**:
+a fixed-point label requires the measures for its recorded scope to pass.
+`residual` remains a separate biomass-drift diagnostic. An explicitly conditional
+fixed point is not a whole-model equilibrium claim.
 
 Stopping on a fixed point takes both a distance function below `distance_tol`
-and a drift within `residual_tol`; a state that meets the first but not the
-second keeps running. Limit cycles are detected from the per-species biomass
+and every required assessment passing; missing assessment support stops the
+operation before the search. Limit cycles are detected from the per-species biomass
 series sampled at every time step, at every check rather than only when the
 distance criterion has failed, because a cycle whose period divides `t_check` is
 sampled at one phase and looks converged. The relative-amplitude floor for calling an
@@ -87,22 +88,20 @@ oscillation a cycle is the `amplitude_tol` argument (default `0.01`).
 
 ### What the analysis covers
 
-`getStability()`, `getDiscreteStability()`, `tuneSteadyState()` and
-`findSteadyState(solver = "newton")` all treat components registered with
-`setComponent()` as fixed inputs: they are held at their stored values and have
-no rows in the Jacobian. The verdict is therefore about the consumer-resource
-subsystem with the components frozen, which is exact when a component is a fixed
-input and a good approximation when it is much faster or much slower than the
-fish. Mizer warns when it meets a component with dynamics of its own.
-`findSteadyState(solver = "project")` is the one that advances everything.
+`getSteadyAssessment()` and `isSteady()` cover the whole model by default,
+including registered component assessments. A conditional request names the
+states held fixed, and its scope stays attached to the result. The current
+Newton solver can solve consumers and resource only; dynamic component states
+must be explicitly held fixed when using it. The projection solver can advance
+components, provided their convergence measures are declared.
 
-The reported `residual` measures that same subsystem: a component's rate of
-change is not folded into it, because mizer does not know what a component's
-state is measured in and so cannot form a biomass for it. So `attractor ==
-"fixed_point"` is a claim about the consumers and the resource, not about the
-whole model. Mizer names any component that is moving in the same message, and
-`attr(getSteadyResidual(params), "other")` holds the rates themselves. To settle
-the components too, project the model with `projectUntilSettled()`.
+Stability coverage is still being migrated in the development previews. The
+current `getStability()` and `getDiscreteStability()` Jacobians contain consumers
+and resource and hold other components at their stored values. Their precondition
+check uses whole-model assessment, but that does not add missing component rows
+to the Jacobian. Treat these eigenvalues as a subsystem analysis when dynamic
+components are present. Explicit structural input masks and whole/conditional
+stability verdicts are a later stage of the extension design.
 
 ## Is mizer's time step stable? — `getDiscreteStability()`
 

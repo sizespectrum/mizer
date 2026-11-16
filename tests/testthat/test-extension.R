@@ -234,6 +234,8 @@ test_that("We can set, get and remove components", {
                                encounter_fun = "test_dyn",
                                dynamics_fun = "test_dyn",
                                rate_fun = NULL,
+                               convergence_fun = NULL,
+                               role = "dynamic",
                                mort_fun = "test_dyn",
                                component_params = list(a = 2),
                                definition = list(dynamics_fun = "test_dyn",
@@ -242,7 +244,9 @@ test_that("We can set, get and remove components", {
                                                  mort_fun = "test_dyn",
                                                  colour = "grey",
                                                  linetype = "solid",
-                                                 integration_order = NULL)))
+                                                 integration_order = NULL,
+                                                 convergence_fun = NULL,
+                                                 role = "dynamic")))
     all <- getComponent(p)
     expect_type(all, "list")
     expect_identical(all$test, comp)
@@ -251,7 +255,7 @@ test_that("We can set, get and remove components", {
                       mort_fun = "test_dyn")
     all2 <- getComponent(p2)
     expect_length(all2, 2)
-    expect_length(all2$test2, 7)
+    expect_length(all2$test2, 9)
     expect_null(all2$test2$encounter_fun)
     p <- setComponent(p2, "test2", 1, "test_dyn", mort_fun = NULL)
     expect_null(getComponent(p, "test2")$mort_fun)
@@ -273,6 +277,32 @@ test_that("We can set, get and remove components", {
                      p2@capabilities$components$test2)
 })
 
+test_that("Component assessment declarations support explicit updates", {
+    p <- setComponent(NS_params_small, "assessed", initial_value = 1,
+                      definition = list(dynamics_fun = "constant_other",
+                                        convergence_fun = "stats::median",
+                                        role = "prescribed"),
+                      role = "dynamic")
+    expect_identical(getComponent(p, "assessed")$role, "dynamic")
+    expect_identical(getComponent(p, "assessed")$convergence_fun,
+                     "stats::median")
+    patched <- setComponent(p, "assessed", colour = "red")
+    expect_identical(getComponent(patched, "assessed")$convergence_fun,
+                     "stats::median")
+    cleared <- setComponent(p, "assessed", convergence_fun = NULL)
+    expect_null(getComponent(cleared, "assessed")$convergence_fun)
+    replaced <- setComponent(p, "assessed",
+                              definition = list(dynamics_fun = "constant_other"))
+    expect_null(getComponent(replaced, "assessed")$convergence_fun)
+    expect_identical(getComponent(replaced, "assessed")$role, "dynamic")
+    expect_error(setComponent(p, "assessed", role = NULL), "role")
+    expect_error(setComponent(p, "assessed", role = "fixed"), "role")
+    expect_error(setComponent(p, "assessed", convergence_fun = "missing_check"),
+                 "missing_check")
+    expect_identical(getComponent(p, "assessed")$convergence_fun,
+                     "stats::median")
+})
+
 test_that("Component definitions are stored as assembled snapshots", {
     definition <- list(dynamics_fun = "test_dyn",
                        encounter_fun = "test_dyn", mort_fun = "test_dyn",
@@ -284,7 +314,8 @@ test_that("Component definitions are stored as assembled snapshots", {
     expected <- list(dynamics_fun = "test_dyn", rate_fun = NULL,
                      encounter_fun = "test_dyn", mort_fun = NULL,
                      colour = "blue", linetype = "dashed",
-                     integration_order = NULL)
+                     integration_order = NULL, convergence_fun = NULL,
+                     role = "dynamic")
     expect_identical(p@capabilities$components$pool, expected)
     expect_identical(getComponent(p, "pool")$definition, expected)
     expect_null(p@other_mort$pool)
@@ -349,11 +380,11 @@ test_that("Component definitions reject unsupported inputs without changes", {
     expect_error(setComponent(p, "pool", definition = NULL), "definition")
     expect_error(setComponent(p, "pool", dynamics_fun = NULL), "dynamics_fun")
     missing_fun <- list(dynamics_fun = "not_a_function")
-    unsupported <- list(dynamics_fun = "test_dyn", convergence_fun = "test_dyn")
+    unsupported <- list(dynamics_fun = "test_dyn", biomass_fun = "test_dyn")
     expect_error(setComponent(p, "pool", definition = missing_fun),
                  "not_a_function")
     expect_error(setComponent(p, "pool", definition = unsupported),
-                 "convergence_fun")
+                 "biomass_fun")
     expect_error(setComponent(p, "new", dynamics_fun = "test_dyn"),
                  "initial_value")
     expect_identical(p, before)

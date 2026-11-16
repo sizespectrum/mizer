@@ -26,11 +26,21 @@ e$settled_component <- function(params, n_other, component, ...) {
 e$opaque_component <- function(params, n_other, component, ...) {
     n_other[[component]]
 }
+e$drifting_component_assessment <- function(...) {
+    data.frame(measure = "relative_change", value = 2,
+               tolerance = 0.05, units = "1/year")
+}
+e$settled_component_assessment <- function(...) {
+    data.frame(measure = "relative_change", value = 0,
+               tolerance = 0.05, units = "1/year")
+}
 
 # A settled model carrying one component that never settles.
 component_params <- setComponent(
     residual_params, "drifter", initial_value = c(1, 2, 3),
-    dynamics_fun = "drifting_component")
+    dynamics_fun = "drifting_component",
+    convergence_fun = "drifting_component_assessment"
+)
 
 # getSteadyResidual ----
 
@@ -373,7 +383,8 @@ test_that("getSteadyResidual() honours the effort it is given", {
     # ... and must actually change the answer.
     expect_false(isTRUE(all.equal(
         unclass(getSteadyResidual(p, effort = higher)),
-        unclass(getSteadyResidual(p)), check.attributes = FALSE)))
+        unclass(getSteadyResidual(p)), check.attributes = FALSE
+    )))
 })
 
 test_that("getSteadyResidual() works under the second-order scheme", {
@@ -515,11 +526,11 @@ test_that("an unmeasurable component state is reported as such", {
     expect_match(component_unmeasured_txt(report), "`opaque`")
 })
 
-test_that("an unmeasurable component does not make the model unsteady", {
+test_that("an unsupported component makes whole-model steadiness unknown", {
     p <- setComponent(residual_params, "opaque",
                       initial_value = list(a = "not numeric"),
                       dynamics_fun = "opaque_component")
-    expect_true(isSteady(p))
+    expect_identical(isSteady(p), NA)
     # The report says what could not be checked, and claims nothing beyond it.
     w <- expect_warning(warn_if_not_steady(p, "Context."),
                         "could not be determined")
@@ -536,9 +547,9 @@ test_that("a moving component and an unmeasurable one are reported apart", {
     expect_named(groups$moving, "drifter")
     expect_identical(groups$unmeasured, "opaque")
     w <- expect_warning(warn_if_not_steady(p, "Context."),
-                        "but the model as a whole is not")
-    expect_match(conditionMessage(w), "`drifter`")
-    expect_match(conditionMessage(w), "`opaque`")
+                        "not at its steady state")
+    expect_match(conditionMessage(w), "component:drifter")
+    expect_match(conditionMessage(w), "component:opaque")
 })
 
 test_that("the component sentence suits a caller that advances them", {
@@ -561,7 +572,7 @@ test_that("the biomass drift excludes the other components", {
     # while the component moves at 2 per year.
     expect_equal(steady_biomass_drift(component_params),
                  steady_biomass_drift(residual_params))
-    expect_true(isSteady(component_params))
+    expect_false(isSteady(component_params))
     expect_lt(steady_biomass_drift(component_params), steady_residual_tol())
 })
 
@@ -576,18 +587,12 @@ test_that("the excluded component is still measured and reported", {
                  steady_drift_report(component_params)$other[["drifter"]])
 })
 
-test_that("a drifting component is named even when the consumers are steady", {
-    # The loud half of the bargain. Taking the components out of the scalar is
-    # the workaround that hid a 2-3/year drift in the report behind #589; what
-    # makes it safe here is that mizer says so itself, and names the component.
-    expect_warning(warn_if_not_steady(component_params, "Context."),
-                   "drifter")
-    expect_warning(warn_if_not_steady(component_params, "Context."),
-                   "not included in the biomass drift")
-    # And it says that the consumers are not the problem, rather than sending
-    # the user off to look at species that have settled.
-    expect_warning(warn_if_not_steady(component_params, "Context."),
-                   "consumers and the resource in this model are at their steady state")
+test_that("a drifting component is assessed when the consumers are steady", {
+    warning <- expect_warning(warn_if_not_steady(component_params, "Context."),
+                              "not at its steady state")
+    expect_match(conditionMessage(warning), "component:drifter/relative_change")
+    expect_match(conditionMessage(warning), "getSteadyAssessment")
+    expect_no_match(conditionMessage(warning), "Missing convergence support")
 })
 
 test_that("a drifting component is named alongside a drifting species", {
@@ -598,9 +603,10 @@ test_that("a drifting component is named alongside a drifting species", {
     expect_warning(warn_if_not_steady(p, "Context."), "drifter")
 })
 
-test_that("a settled component is not named", {
+test_that("a component with a passing assessment is not named", {
     p <- setComponent(residual_params, "still", initial_value = c(1, 2),
-                      dynamics_fun = "settled_component")
+                      dynamics_fun = "settled_component",
+                      convergence_fun = "settled_component_assessment")
     expect_identical(component_drift_txt(steady_drift_report(p)), "")
     expect_silent(warn_if_not_steady(p, "Context."))
 })
@@ -618,13 +624,13 @@ test_that("steady_total_drift() folds the components back in", {
 
 # warn_if_not_steady ----
 
-test_that("warn_if_not_steady() fires only when the model is off steady state", {
+test_that("warn_if_not_steady() reports unsettled models", {
     expect_warning(warn_if_not_steady(off_steady_params, "Context."),
                    "not at its steady state")
     expect_silent(warn_if_not_steady(residual_params, "Context."))
 })
 
-test_that("warn_if_not_steady() includes the context and is silenced by info_level", {
+test_that("warn_if_not_steady() honours context and info_level", {
     expect_warning(warn_if_not_steady(off_steady_params, "Sentinel phrase."),
                    "Sentinel phrase")
     withr::local_options(mizer_info_level = 0)
@@ -666,7 +672,9 @@ test_that("isSteady() works under the second-order scheme", {
 
 test_that("isSteady() dispatches via S3", {
     dummy <- structure(list(), class = "DummyModel")
-    isSteady.DummyModel <- function(params, ...) TRUE  # nolint: object_name_linter.
+    # nolint start: object_name_linter.
+    isSteady.DummyModel <- function(params, ...) TRUE
+    # nolint end: object_name_linter.
     expect_true(isSteady(dummy))
 })
 
@@ -759,4 +767,61 @@ test_that("steady diagnostics reject bad derivatives and propagate errors", {
     expect_error(steady_rates(p), "component derivative failed")
     p <- setComponent(p, "pool", rate_fun = "diagnostic_wrong_shape")
     expect_error(steady_rates(p), "pool")
+})
+
+test_that("Conditional isSteady verdicts retain scope and fixed owners", {
+    p <- setComponent(residual_params, "opaque", initial_value = list(a = 1),
+                      dynamics_fun = "constant_other")
+    verdict <- isSteady(p, scope = "conditional", fixed = "component:opaque")
+    expect_true(verdict)
+    expect_identical(attr(verdict, "scope"), "conditional")
+    expect_identical(attr(verdict, "fixed"), "component:opaque")
+})
+
+test_that("Steadiness checks preserve callback errors and assessment time", {
+    rlang::local_bindings(
+        timed_assessment = function(t, ...) {
+            data.frame(measure = "time", value = t,
+                       tolerance = 1, units = "year")
+        },
+        failed_assessment = function(...) stop("assessment programming error"),
+        .env = .GlobalEnv
+    )
+    p <- setComponent(residual_params, "clock", initial_value = 0,
+                      dynamics_fun = "constant_other",
+                      convergence_fun = "timed_assessment")
+    expect_true(isSteady(p, t = 0))
+    expect_false(isSteady(p, t = 2))
+    expect_warning(warn_if_not_steady(p, "Context.", t = 2), "component:clock")
+    p <- setComponent(p, "clock", convergence_fun = "failed_assessment")
+    expect_error(isSteady(p), "assessment programming error")
+    expect_error(warn_if_not_steady(p, "Context."),
+                 "assessment programming error")
+    withr::local_options(mizer_info_level = 0)
+    expect_error(warn_if_not_steady(p, "Context."),
+                 "assessment programming error")
+})
+
+
+test_that("Steady diagnostics identify malformed effective rate fields", {
+    rlang::local_bindings(
+        nonfinite_assessment_rates = function(params, ...) {
+            rates <- mizerRates(params, ...)
+            rates$encounter[1, 1] <- NaN
+            rates
+        },
+        nonnumeric_assessment_rates = function(params, ...) {
+            rates <- mizerRates(params, ...)
+            rates$rdd <- "invalid recruitment"
+            rates
+        }, .env = .GlobalEnv
+    )
+    p <- NS_params_small
+    p$rates_funcs$Rates <- "nonfinite_assessment_rates"
+    expect_error(steady_rates(p),
+                 "nonfinite_assessment_rates.*returned non-finite.*encounter")
+    expect_error(isSteady(p), "returned non-finite values")
+    p$rates_funcs$Rates <- "nonnumeric_assessment_rates"
+    expect_error(steady_rates(p),
+                 "nonnumeric_assessment_rates.*non-numeric.*rdd")
 })
