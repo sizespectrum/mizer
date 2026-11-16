@@ -192,6 +192,11 @@
 
 ## Bug fixes
 
+- Fix package check warnings by declaring the `digest` dependency, aligning
+  `project.MizerSim()` with the generic's `check_steady` argument while
+  preserving its forwarding, and qualifying `utils::head()` in rate dependency
+  traversal.
+
 - Recursive rate dependencies now report the dependency cycle explicitly;
   independent nested rate requests remain supported. Package-qualified rate
   names use the same effective dispatch during validation and projection.

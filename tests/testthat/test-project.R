@@ -777,6 +777,17 @@ test_that("project(check_steady) judges at the model's own effort", {
                           t_max = 0.1, progress_bar = FALSE, check_steady = TRUE))
 })
 
+test_that("project.MizerSim checks the steady state only when asked", {
+    sim <- project(off_steady_small, t_max = 0.1, progress_bar = FALSE)
+    for (append in c(TRUE, FALSE)) {
+        expect_silent(project(sim, t_max = 0.1, append = append,
+                              progress_bar = FALSE))
+        expect_warning(project(sim, t_max = 0.1, append = append,
+                               progress_bar = FALSE, check_steady = TRUE),
+                       "not at its steady state")
+    }
+})
+
 test_that("project(check_steady) is silenced by info_level 0", {
     withr::local_options(mizer_info_level = 0)
     expect_silent(project(off_steady_small, t_max = 0.1, progress_bar = FALSE,

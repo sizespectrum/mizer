@@ -187,7 +187,7 @@ needed_rates <- function(targets) {
         }
         state$visiting <- c(state$visiting, x)
         for (dep in .rate_dependencies[[x]]) visit(dep)
-        state$visiting <- head(state$visiting, -1L)
+        state$visiting <- utils::head(state$visiting, -1L)
         state$need <- c(state$need, x)
     }
     for (target in targets) visit(target)

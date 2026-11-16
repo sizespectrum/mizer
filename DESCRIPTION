@@ -24,6 +24,7 @@ License: GPL-3
 Imports:
     assertthat,
     deSolve,
+    digest,
     dplyr,
     ggplot2 (>= 3.4.0),
     ggrepel,

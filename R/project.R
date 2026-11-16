@@ -517,6 +517,7 @@ project.MizerSim <- function(object, effort,
                              progress_bar = TRUE,
                              callback = NULL,
                              method = c("euler", "predictor_corrector", "tr_bdf2"),
+                             check_steady = FALSE,
                              subcycle = FALSE, max_courant = 1,
                              max_substeps = 10000,
                              info_level = default_info_level(), ...) {
@@ -565,7 +566,8 @@ project.MizerSim <- function(object, effort,
         initial_n = initial_n, initial_n_pp = initial_n_pp,
         progress_bar = progress_bar,
         callback = callback,
-        method = method, subcycle = subcycle, max_courant = max_courant,
+        method = method, check_steady = check_steady,
+        subcycle = subcycle, max_courant = max_courant,
         max_substeps = max_substeps, info_level = info_level, ...
     )
 
