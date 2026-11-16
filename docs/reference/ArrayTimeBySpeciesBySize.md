@@ -86,6 +86,12 @@ attributes:
 
 - `params` – the `MizerParams` object that the value was computed from.
 
+Size selections keep the original model coordinates and bin widths, as
+for
+[`ArraySpeciesBySize()`](https://sizespectrum.org/mizer/reference/ArraySpeciesBySize.md).
+This also holds when a time slice is extracted or plotted. Reordered and
+repeated size columns are not treated as a new grid.
+
 ## See also
 
 [`print()`](https://sizespectrum.org/mizer/reference/print.md),
@@ -116,7 +122,7 @@ summary(fmort)
 #>  Gurnard 0.0000000000 0.00541050 0.1054407
 #>   Plaice 0.0089964121 0.18786555 0.8670560
 #>  Haddock 0.0015854377 0.22672527 1.4275500
-#>      Cod 0.0494762790 0.36512704 1.0721072
+#>      Cod 0.0494762790 0.37063678 1.0721081
 #>   Saithe 0.0009633361 0.15208058 1.2032857
 plot(fmort, time = 2007)
 

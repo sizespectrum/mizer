@@ -83,109 +83,109 @@ setParams(
 
   `params`
 
-  :   A MizerParams object
+  : A MizerParams object
 
   `pred_kernel`
 
-  :   Optional. An array (species x predator size x prey size) that
-      holds the predation coefficient of each predator at size on each
-      prey size. If not supplied, a default is set as described in
-      section "Setting predation kernel".
+  : Optional. An array (species x predator size x prey size) that holds
+    the predation coefficient of each predator at size on each prey
+    size. If not supplied, a default is set as described in section
+    "Setting predation kernel".
 
   `value`
 
-  :   pred_kernel
+  : pred_kernel
 
   `search_vol`
 
-  :   Optional. An array (species x size) holding the search volume for
-      each species at size. If not supplied, a default is set as
-      described in the section "Setting search volume".
+  : Optional. An array (species x size) holding the search volume for
+    each species at size. If not supplied, a default is set as described
+    in the section "Setting search volume".
 
   `intake_max`
 
-  :   Optional. An array (species x size) holding the maximum intake
-      rate for each species at size. If not supplied, a default is set
-      as described in the section "Setting maximum intake rate".
+  : Optional. An array (species x size) holding the maximum intake rate
+    for each species at size. If not supplied, a default is set as
+    described in the section "Setting maximum intake rate".
 
   `metab`
 
-  :   Optional. An array (species x size) holding the metabolic rate for
-      each species at size. If not supplied, a default is set as
-      described in the section "Setting metabolic rate".
+  : Optional. An array (species x size) holding the metabolic rate for
+    each species at size. If not supplied, a default is set as described
+    in the section "Setting metabolic rate".
 
   `ext_mort`
 
-  :   Optional. An array (species x size) holding the external mortality
-      rate. If not supplied, a default is set as described in the
-      section "Setting external mortality rate".
+  : Optional. An array (species x size) holding the external mortality
+    rate. If not supplied, a default is set as described in the section
+    "Setting external mortality rate".
 
   `z0pre`
 
-  :   If `z0`, the mortality from other sources, is not present in
-      [`given_species_params()`](https://sizespectrum.org/mizer/reference/species_params.md),
-      it is calculated as `z0pre * w_inf ^ z0exp`. Default value is 0.6.
+  : If `z0`, the mortality from other sources, is not present in
+    [`given_species_params()`](https://sizespectrum.org/mizer/reference/species_params.md),
+    it is calculated as `z0pre * w_inf ^ z0exp`. Default value is 0.6.
 
   `z0exp`
 
-  :   The exponent used with `z0pre` to calculate non-given `z0`.
-      Default value is `n - 1`.
+  : The exponent used with `z0pre` to calculate non-given `z0`. Default
+    value is `n - 1`.
 
   `z0`
 
-  :   **\[deprecated\]** Use `ext_mort` instead. Not to be confused with
-      the species_parameter `z0`.
+  : **\[deprecated\]** Use `ext_mort` instead. Not to be confused with
+    the species_parameter `z0`.
 
   `ext_encounter`
 
-  :   Optional. An array (species x size) holding the external encounter
-      rate. If not supplied, a default is calculated from the `E_ext`
-      and `n` species parameters as described in the section "Setting
-      external encounter rate".
+  : Optional. An array (species x size) holding the external encounter
+    rate. If not supplied, a default is calculated from the `E_ext` and
+    `n` species parameters as described in the section "Setting external
+    encounter rate".
 
   `ext_diffusion`
 
-  :   Optional. An array (species x size) holding the external diffusion
-      rate. If not supplied, a default is calculated from the `D_ext`
-      and `n` species parameters as described in the section "Setting
-      external diffusion rate".
+  : Optional. An array (species x size) holding the external diffusion
+    rate. If not supplied, a default is calculated from the `D_ext` and
+    `n` species parameters as described in the section "Setting external
+    diffusion rate".
 
   `maturity`
 
-  :   Optional. An array (species x size) that holds the proportion of
-      individuals of each species at size that are mature. If not
-      supplied, a default is set as described in the section "Setting
-      reproduction".
+  : Optional. An array (species x size) that holds the proportion of
+    individuals of each species at size that are mature. If not
+    supplied, a default is set as described in the section "Setting
+    reproduction".
 
   `repro_prop`
 
-  :   Optional. An array (species x size) that holds the proportion of
-      the energy available for growth and reproduction that a mature
-      individual allocates to reproduction for each species at size. If
-      not supplied, a default is set as described in the section
-      "Setting reproduction".
+  : Optional. An array (species x size) that holds the proportion of the
+    energy available for growth and reproduction that a mature
+    individual allocates to reproduction for each species at size. If
+    not supplied, a default is set as described in the section "Setting
+    reproduction".
 
   `RDD`
 
-  :   The name of the function calculating the density-dependent
-      reproduction rate from the density-independent rate. Defaults to
-      "[`BevertonHoltRDD()`](https://sizespectrum.org/mizer/reference/BevertonHoltRDD.md)".
+  : The name of the function calculating the density-dependent
+    reproduction rate from the density-independent rate. Defaults to
+    "[`BevertonHoltRDD()`](https://sizespectrum.org/mizer/reference/BevertonHoltRDD.md)".
 
   `selectivity`
 
-  :   Optional. An array (gear x species x size) that holds the
-      selectivity of each gear for species and size, \\S\_{g,i,w}\\.
+  : Optional. An array (gear x species x size) that holds the
+    selectivity of each gear for species and size, \\S\_{g,i,w}\\.
 
   `catchability`
 
-  :   Optional. An array (gear x species) that holds the catchability of
-      each species by each gear, \\Q\_{g,i}\\.
+  : Optional. An array (gear x species) that holds the catchability of
+    each species by each gear, \\Q\_{g,i}\\.
 
   `initial_effort`
 
-  :   Optional. A number or a named numeric vector specifying the
-      fishing effort. If a number, the same effort is used for all
-      gears. If a vector, must be named by gear.
+  : Optional. A number or a named numeric vector specifying the fishing
+    effort. If a number, the same effort is used for all gears. If a
+    vector, must be named by gear.
 
 - reset:
 
@@ -756,6 +756,7 @@ where it is also possible to specify an effort that varies through time.
 ## See also
 
 Other functions for setting parameters:
+[`balanceRDD()`](https://sizespectrum.org/mizer/reference/balanceRDD.md),
 [`gear_params()`](https://sizespectrum.org/mizer/reference/gear_params.md),
 [`setExtDiffusion()`](https://sizespectrum.org/mizer/reference/setExtDiffusion.md),
 [`setExtEncounter()`](https://sizespectrum.org/mizer/reference/setExtEncounter.md),

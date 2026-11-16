@@ -20,9 +20,10 @@ get_initial_n(params, n0_mult = NULL, a = 0.35)
 
 - n0_mult:
 
-  Multiplier for the abundance at size 0 when using defaults edition 1.
-  If not supplied, `kappa / 1000` is used. This argument is ignored for
-  defaults edition 2 and later.
+  Multiplier for the abundance at size 0 for a model of defaults
+  edition 1. If not supplied, `kappa / 1000` is used. This argument is
+  ignored for a model of defaults edition 2 or later, see
+  [`defaults_edition()`](https://sizespectrum.org/mizer/reference/defaults_edition.md).
 
 - a:
 

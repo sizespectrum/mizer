@@ -121,7 +121,7 @@ copyPreservedParamsSlots <- function(params, old_params) {
     params@time_created <- old_params@time_created
     params@mizer_version <- old_params@mizer_version
     params@extensions <- old_params@extensions
-    params
+    preserve_upgrade_guard(params, old_params)
 }
 
 copyParamsComments <- function(params, old_params) {

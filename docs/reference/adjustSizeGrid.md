@@ -5,7 +5,10 @@ This function adjusts the size grid in a
 object to the desired minimum and maximum size. It can both expand and
 truncate the grid. If the grid is truncated, any data outside the new
 grid is discarded. A warning is issued if there is non-negligible
-biomass in the discarded size bins.
+biomass in the discarded size bins. Manually supplied dense predation
+kernels and fishing arrays retain their existing overlap; newly
+introduced bins are zero unless an explicit transformation hook supplies
+other values.
 
 ## Usage
 

@@ -39,6 +39,14 @@ projectUntilSettled(
   progress_bar = TRUE,
   info_level = default_info_level(),
   method = c("euler", "predictor_corrector", "tr_bdf2"),
+  subcycle = FALSE,
+  max_courant = 1,
+  max_substeps = 10000,
+  scope = c("whole", "conditional"),
+  fixed = character(),
+  criterion = c("state", "biomass"),
+  tolerances = NULL,
+  atol = 1e-12,
   ...
 )
 ```
@@ -99,28 +107,18 @@ projectUntilSettled(
 
   The run stops when the number returned by `distance_func` for two
   states `t_check` years apart drops below `distance_tol`, provided the
-  drift criterion below is also met. Its meaning therefore depends on
-  the distance function you supply. It was called `tol` before mizer
-  3.3.
+  steady-state assessment below also passes. Its meaning depends on the
+  distance function you supply. It was called `tol` before mizer 3.3.
 
 - residual_tol:
 
-  **\[experimental\]** The largest relative rate of biomass change, in
-  1/year, that a state may have and still be called a fixed point. This
-  is the criterion of
-  [`isSteady()`](https://sizespectrum.org/mizer/reference/isSteady.md)
-  and is measured with
-  [`getSteadyResidual()`](https://sizespectrum.org/mizer/reference/getSteadyResidual.md),
-  so it has the same meaning for every model and every distance
-  function. Default `0.05`.
-
-  It is a backstop against a distance function that has gone quiet while
-  the model is still moving, not the main line of defence against a
-  cycle: an oscillation of relative amplitude \\A\\ and period \\T\\
-  drifts at up to \\2\pi A/T\\ per year, which for a small
-  `amplitude_tol` can be below any sensible `residual_tol`. Cycles that
-  small are caught by the cycle detection above, which is why that runs
-  unconditionally.
+  **\[experimental\]** The relative tolerance for built-in state-change
+  measures, in 1/year. Default `0.05`; see
+  [`getSteadyAssessment()`](https://sizespectrum.org/mizer/reference/getSteadyAssessment.md).
+  Component callbacks provide their own tolerances, which can be
+  overridden with `tolerances`. `Inf` disables the assessment stopping
+  gate; the reported assessment still uses the usual finite tolerance,
+  so this does not declare a fixed point.
 
 - amplitude_tol:
 
@@ -142,11 +140,11 @@ projectUntilSettled(
   its value at the start of the run. For example the default `1e-6`
   treats a species as extinct once its reproduction has collapsed to a
   millionth of its initial level. Because it is relative to the initial
-  reproduction, a species that starts with zero reproduction is flagged
-  immediately, and (in
+  reproduction, a species that is present but starts with zero
+  reproduction is flagged immediately, and (in
   [`tuneSteadyState()`](https://sizespectrum.org/mizer/reference/tuneSteadyState.md),
   where reproduction is held constant) a healthy species is never
-  flagged.
+  flagged. A species with no fish at the start is not tested.
 
 - progress_bar:
 
@@ -164,6 +162,48 @@ projectUntilSettled(
 
   The numerical method to use for the consumer density update. See
   [`project()`](https://sizespectrum.org/mizer/reference/project.md).
+
+- subcycle:
+
+  Whether to use coupled growth-Courant substeps, as in
+  [`project()`](https://sizespectrum.org/mizer/reference/project.md).
+  Default `FALSE`.
+
+- max_courant:
+
+  Positive growth Courant target, default 1; see
+  [`project()`](https://sizespectrum.org/mizer/reference/project.md).
+
+- max_substeps:
+
+  Positive integer cap on substeps per requested `dt`, default 10000;
+  see
+  [`project()`](https://sizespectrum.org/mizer/reference/project.md).
+
+- scope:
+
+  `"whole"` or `"conditional"`.
+
+- fixed:
+
+  Owners held fixed for a conditional assessment. Use `"consumers"`,
+  `"resource"`, or `"component:name"` for a component named `name`. This
+  must be empty for whole-model assessments and nonempty for conditional
+  assessments.
+
+- criterion:
+
+  `"state"` for the absolute state residual, or `"biomass"` for net
+  biomass drift in the built-in checks.
+
+- tolerances:
+
+  Optional named numeric vector overriding individual tolerances. Names
+  are `owner/measure`, as shown in the `measures` table.
+
+- atol:
+
+  Absolute tolerance for built-in checks, in grams per year.
 
 - ...:
 
@@ -188,8 +228,8 @@ answer three different questions and should not be read as one:
 
   Why the run stopped: `"residual_tolerance"` (both convergence criteria
   were met), `"distance_tolerance"` (the distance function was satisfied
-  but the state is still drifting — reachable with a loose
-  `residual_tol`, and from the superseded
+  but the state is still drifting — reachable with `residual_tol = Inf`,
+  and from the superseded
   [`steady()`](https://sizespectrum.org/mizer/reference/superseded_steady.md),
   which stops on the distance criterion alone), `"cycle_detected"` (a
   limit cycle), `"time_limit"` (still changing at `t_max`) or
@@ -206,10 +246,11 @@ answer three different questions and should not be read as one:
 - `attractor`:
 
   What the state that was reached actually is: `"fixed_point"` when the
-  biomass drift is within `residual_tol`, `"limit_cycle"` when a cycle
-  was detected, and `NA` when it is neither — a run stopped in
-  mid-flight, or a species on its way out. This is the entry to test
-  before treating a result as a steady state.
+  assessment passes in its recorded scope, `"limit_cycle"` when a cycle
+  was detected and no required extension state lies outside the cycle
+  diagnostic, and `NA` otherwise — a run stopped in mid-flight, or a
+  species on its way out. This is the entry to test before treating a
+  result as a steady state.
 
 - `distance`:
 
@@ -217,14 +258,17 @@ answer three different questions and should not be read as one:
 
 - `residual`:
 
-  The largest absolute relative rate of biomass change, in 1/year, at
-  the state that was reached. For each consumer species this is
-  \\(dB_i/dt) / B_i\\, a biomass-weighted aggregate over its size
-  classes; the resource is treated the same way and the other components
-  contribute their own relative rates. Unlike `distance`, which compares
-  two states `t_check` apart on whatever scale the distance function
-  uses, this measures how far the state actually is from being a fixed
-  point.
+  The largest absolute relative rate of net biomass change among
+  assessed consumer species and resource states, in 1/year. This
+  compatibility diagnostic can hide compensating changes within a size
+  spectrum and does not include extension-defined measures.
+
+- `assessment`, `scope`:
+
+  The full
+  [`getSteadyAssessment()`](https://sizespectrum.org/mizer/reference/getSteadyAssessment.md)
+  result and its scope. Inspect these before interpreting a fixed-point
+  claim.
 
 - `years`:
 
@@ -273,17 +317,21 @@ If the reproduction rate (RDD) of any species has fallen below
 `extinction_threshold` times its value at the start of the run, or has
 become `NA`, that species is deemed to be on its way to extinction. A
 warning naming the affected species is issued and the run stops with
-`type = "extinction"`. Because the criterion is relative to the initial
-reproduction, a species that starts with zero reproduction is flagged
-immediately, whereas in
+`termination = "extinction"`. Because the criterion is relative to the
+initial reproduction, a species that is present but starts with zero
+reproduction is flagged immediately, whereas in
 [`tuneSteadyState()`](https://sizespectrum.org/mizer/reference/tuneSteadyState.md),
 where reproduction is held constant, a healthy species is never flagged.
+A species with no fish at the start of the run is not tested: it stays
+absent while the others settle, as it does with the Newton solver of
+[`findSteadyState()`](https://sizespectrum.org/mizer/reference/findSteadyState.md).
 
 ### 2. Limit cycle
 
 The recorded biomass series is examined to see whether the run has
 settled onto a limit cycle. If it has, the run stops with
-`type = "cycle"` and the period and amplitude of the cycle are reported.
+`termination = "cycle_detected"` and the period and amplitude of the
+cycle are reported.
 
 It is made at every check, whether or not the state looks converged by
 the measure below. A cycle whose period divides `t_check` puts the two
@@ -307,20 +355,25 @@ instead passes
 [`distanceMaxRelRDI()`](https://sizespectrum.org/mizer/reference/distanceMaxRelRDI.md),
 which uses the largest relative change in egg production.
 
-Second, the state actually reached must be a fixed point: the largest
-relative rate of biomass change there, as measured by
-[`getSteadyResidual()`](https://sizespectrum.org/mizer/reference/getSteadyResidual.md),
-must be at most `residual_tol`. The distance criterion on its own says
-only that the state stopped moving on the scale of the distance
-function, which is a different question — a distance function can be
-insensitive to the very motion that is left. When the distance criterion
-is met but the drift is not, the run carries on rather than declaring a
-fixed point.
+Second,
+[`getSteadyAssessment()`](https://sizespectrum.org/mizer/reference/getSteadyAssessment.md)
+must confirm that every required dynamic state has settled. The default
+`criterion = "state"` measures state change without cancellation between
+size classes; `criterion = "biomass"` explicitly selects net biomass
+drift for the built-in states. Extension components supply their own
+named measures and tolerances. Missing required convergence support
+stops the search before projection begins.
 
-When both hold the run stops with `termination = "residual_tolerance"`.
-That is deliberately not called `"steady"`: `residual_tol` is a working
-tolerance rather than a proof, and the `residual` entry of the
-`"convergence"` attribute reports the drift that was actually reached.
+Whole-model assessment is the default. With `scope = "conditional"`, the
+states named by `fixed` are held fixed throughout the search and
+excluded from the assessment. The returned model retains its original
+dynamics and records the conditional scope. Holding consumers fixed is
+not supported by this solver.
+
+When both criteria hold, the run stops with
+`termination = "residual_tolerance"`. The `assessment` entry of the
+`"convergence"` attribute records the measures, tolerances and coverage.
+The separate `residual` entry retains its biomass-drift meaning.
 
 Even so, `t_check` should be an *odd* multiple of `dt`, which is why it
 defaults to `15 * dt`. A period-2 cycle (period `2 * dt`), the most
@@ -329,7 +382,7 @@ every check, and its amplitude can sit below `amplitude_tol` where the
 cycle detection deliberately ignores it.
 
 If none of the three checks fires before `t_max` is reached, the run
-stops with `type = "not_converged"`. In every case the outcome is
+stops with `termination = "time_limit"`. In every case the outcome is
 recorded in the `"convergence"` attribute of the returned object,
 described under *Value* below.
 

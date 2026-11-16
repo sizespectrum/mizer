@@ -25,7 +25,7 @@ rate."><meta property="og:image" content="https://sizespectrum.org/mizer/referen
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0.9011</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -184,8 +184,10 @@ impossible to wipe out a component's contribution by assigning a whole list.</p>
 <code><a href="NOther.html">NOther()</a></code>,
 <code><a href="coerceToExtensionClass.html">coerceToExtensionClass()</a></code>,
 <code><a href="initialNOther-set.html">initialNOther&lt;-()</a></code>,
+<code><a href="mizerReproductionDefinition.html">mizerReproductionDefinition()</a></code>,
 <code><a href="recordExtension.html">recordExtension()</a></code>,
 <code><a href="setComponent.html">setComponent()</a></code>,
+<code><a href="setProcess.html">setProcess()</a></code>,
 <code><a href="setRateFunction.html">setRateFunction()</a></code></p></div>
     </div>
 
@@ -207,18 +209,6 @@ impossible to wipe out a component's contribution by assigning a whole list.</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># The contribution is included in the mortality rate</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="fu"><a href="getMort.html">getMort</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="getMort.html">getMort</a></span><span class="op">(</span><span class="va">NS_params</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `b` column so using the isometric default b = 3 in w = a l^b.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `b` column so using the isometric default b = 3 in w = a l^b.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `b` column so using the isometric default b = 3 in w = a l^b.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `b` column so using the isometric default b = 3 in w = a l^b.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `b` column so using the isometric default b = 3 in w = a l^b.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `b` column so using the isometric default b = 3 in w = a l^b.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0 0</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># and can be removed again</span></span></span>

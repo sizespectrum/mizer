@@ -17,7 +17,7 @@ The function has many arguments, all of which have default values."><meta proper
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0.9011</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -117,7 +117,7 @@ The function has many arguments, all of which have default values.</p>
 <span>  r_pp <span class="op">=</span> <span class="fl">10</span>,</span>
 <span>  knife_edge_size <span class="op">=</span> <span class="fl">1000</span>,</span>
 <span>  <span class="va">reproduction</span>,</span>
-<span>  second_order_w <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  second_order_w <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  info_level <span class="op">=</span> <span class="fu"><a href="default_info_level.html">default_info_level</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -220,7 +220,11 @@ bin-averaged from the start (unlike setting <code><a href="second_order_w.html">
 existing object). The <code>flux</code> scheme governs time projection only, so the
 robust first-order upwind scheme is used for the construction-time
 steady-state solve and the chosen scheme is then activated for the returned
-model. Defaults to <code>FALSE</code> (the first-order behaviour of previous mizer).</p></dd>
+model. By default the model gets the scheme of the active
+<code><a href="defaults_edition.html">defaults_edition()</a></code>: the second-order scheme, as with <code>TRUE</code>, from
+edition 3 on, and the first-order scheme of previous mizer versions, as
+with <code>FALSE</code>, in earlier editions. A value that sets only one of the two
+entries leaves the other at the default of the edition.</p></dd>
 
 
 <dt id="arg-info-level">info_level<a class="anchor" aria-label="anchor" href="#arg-info-level"></a></dt>

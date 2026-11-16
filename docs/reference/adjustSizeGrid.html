@@ -9,11 +9,15 @@
 minimum and maximum size. It can both expand and truncate the grid.
 If the grid is truncated, any data outside the new grid is discarded.
 A warning is issued if there is non-negligible biomass in the discarded
-size bins."><meta property="og:description" content="This function adjusts the size grid in a MizerParams object to the desired
+size bins. Manually supplied dense predation kernels and fishing arrays
+retain their existing overlap; newly introduced bins are zero unless an
+explicit transformation hook supplies other values."><meta property="og:description" content="This function adjusts the size grid in a MizerParams object to the desired
 minimum and maximum size. It can both expand and truncate the grid.
 If the grid is truncated, any data outside the new grid is discarded.
 A warning is issued if there is non-negligible biomass in the discarded
-size bins."><meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png"><meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R"><meta name="twitter:card" content="summary"><meta name="twitter:creator" content="@mizer_model"><meta name="twitter:site" content="@mizer_model"></head><body>
+size bins. Manually supplied dense predation kernels and fishing arrays
+retain their existing overlap; newly introduced bins are zero unless an
+explicit transformation hook supplies other values."><meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png"><meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R"><meta name="twitter:card" content="summary"><meta name="twitter:creator" content="@mizer_model"><meta name="twitter:site" content="@mizer_model"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -21,7 +25,7 @@ size bins."><meta property="og:image" content="https://sizespectrum.org/mizer/re
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0.9011</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -100,7 +104,9 @@ size bins."><meta property="og:image" content="https://sizespectrum.org/mizer/re
 minimum and maximum size. It can both expand and truncate the grid.
 If the grid is truncated, any data outside the new grid is discarded.
 A warning is issued if there is non-negligible biomass in the discarded
-size bins.</p>
+size bins. Manually supplied dense predation kernels and fishing arrays
+retain their existing overlap; newly introduced bins are zero unless an
+explicit transformation hook supplies other values.</p>
     </div>
 
     <div class="section level2">

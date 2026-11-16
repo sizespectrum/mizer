@@ -1,4 +1,4 @@
-pandoc: 3.8.3
+pandoc: '3.10'
 pkgdown: 2.2.1
 pkgdown_sha: ~
 articles:
@@ -31,7 +31,7 @@ articles:
   trait_model: trait_model.html
   upgrading-extension-packages: upgrading-extension-packages.html
   upgrading: upgrading.html
-last_built: 2026-09-02T09:51Z
+last_built: 2026-11-16T08:15Z
 urls:
   reference: https://sizespectrum.org/mizer/reference
   article: https://sizespectrum.org/mizer/articles

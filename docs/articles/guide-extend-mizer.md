@@ -66,6 +66,16 @@ This is the right choice when the extra process is not itself depleted
 or replenished, and the fish do not feed back on it. If it needs to
 respond to the fish, you need a component instead.
 
+One such process is a species that you take out of the model but whose
+effect on the others you want to keep.
+`removeSpecies(params, species, compensate = TRUE)` adds what the
+removed species contributed to the encounter rate and mortality of the
+remaining species to their `ext_encounter` and `ext_mort` (and likewise
+external diffusion). It checks the remaining species’ effective equation
+rates and balances supported built-in resource dynamics. Extensions
+supply their own compensation through removal hooks; the operation does
+not establish that every component is at steady state.
+
 External encounter changes the realised encounter and feeding level, but
 it does not enter the power-law reference state used by
 [`get_gamma_default()`](https://sizespectrum.org/mizer/reference/get_gamma_default.md)
@@ -75,6 +85,18 @@ Those defaults likewise exclude functions registered with
 [`other_encounter()`](https://sizespectrum.org/mizer/reference/other_mort.md),
 including a component’s `encounter_fun`: they describe feeding on the
 reference resource alone, before extra food sources are added.
+
+If instead of adding food you *replace* the resource — a package that
+installs a resource system of its own — then any `gamma` mizer
+auto-derived at construction time is calibrated against a resource that
+is no longer in the model, and it will not be re-derived on its own.
+Give your class a
+[`measure_avail_energy()`](https://sizespectrum.org/mizer/reference/measure_avail_energy.md)
+method, which is the hook both defaults use to look at the prey in the
+model, and rebuild the species parameters after installing your
+resources; see the section “But they do go through your
+`get_*_default()` method” in [Creating a mizer extension
+package](https://sizespectrum.org/mizer/articles/guide-create-extension-package.html).
 
 ------------------------------------------------------------------------
 
@@ -223,9 +245,14 @@ A model may be on either of two quadrature schemes, selected by the
 [`second_order_w()`](https://sizespectrum.org/mizer/reference/second_order_w.md)
 (see the [guide to running a mizer
 simulation](https://sizespectrum.org/mizer/articles/guide-run-simulation.md)).
-Code that ignores this looks correct and passes its tests, because the
-default is the first-order scheme — and is then silently wrong by around
-10% for anyone who has switched the second-order scheme on. Three rules:
+A model of defaults edition 3 or later is on the second-order scheme
+unless its creator chose otherwise; a model of an earlier edition, which
+includes
+[`NS_params`](https://sizespectrum.org/mizer/reference/NS_params.md) and
+every model built with the default edition, is on the first-order one.
+Code that ignores this looks correct and passes tests run on such a
+model — and is then silently wrong by around 10% for anyone whose model
+is on the second-order scheme. Four rules:
 
 - **Build derived quantities from the rate functions, don’t re-derive
   them.**
@@ -236,7 +263,20 @@ default is the first-order scheme — and is then silently wrong by around
   already carry the right quadrature for whichever scheme the model is
   on. Re-deriving a rate from the species parameters is how this goes
   wrong.
-- **To go inside the encounter convolution, use
+- **To evaluate the encounter of a prey density of your own, use
+  [`convolve_pred_kernel()`](https://sizespectrum.org/mizer/reference/convolve_pred_kernel.md).**
+  It is the convolution
+  [`mizerEncounter()`](https://sizespectrum.org/mizer/reference/mizerEncounter.md)
+  itself uses, with the kernel of whichever scheme the model is on. In a
+  model of defaults edition 3 or later it zero-pads the grid, so the
+  part of a kernel that falls below `min_w_pp` does not wrap around to
+  the largest prey; in a model of an earlier edition it reproduces the
+  circular convolution that mizer itself uses there. Its `"predation"`
+  and `"diffusion"` kernels do the same for the predation rate and the
+  predation diffusion. Never multiply the `ft_pred_kernel_*` slots by
+  Fourier transforms of your own: in a model of edition 3 their length
+  is not the length of `w_full`.
+- **To write the encounter convolution out in full, use
   [`encounter_kernel()`](https://sizespectrum.org/mizer/reference/encounter_kernel.md),
   not
   [`pred_kernel()`](https://sizespectrum.org/mizer/reference/setPredKernel.md).**
@@ -278,7 +318,8 @@ Use
 for a new dynamical quantity — any R object: a scalar, a vector on the
 size grid, or a list. A component may contribute in up to three ways:
 
-- `dynamics_fun` — updates the component’s own state during projection,
+- `dynamics_fun` — integrates the component’s state over a step, or
+  `rate_fun` — supplies its derivative for mizer to integrate,
 - `encounter_fun` — adds to
   [`getEncounter()`](https://sizespectrum.org/mizer/reference/getEncounter.md),
 - `mort_fun` — adds to
@@ -301,6 +342,63 @@ remove them with
 [`removeComponent()`](https://sizespectrum.org/mizer/reference/setComponent.md).
 Component state is available to all custom functions as
 `n_other[["detritus"]]`, and its parameters via `component_params`.
+
+### Reusable component definitions
+
+You can collect the callbacks and plotting styles in a plain named list
+and reuse it across models:
+
+``` r
+
+detritus_definition <- list(
+    dynamics_fun = "detritusDynamics",
+    encounter_fun = "detritusEncounter",
+    colour = "orange"
+)
+params <- setComponent(params, "detritus", initial_value = 1e5,
+                       definition = detritus_definition,
+                       component_params = list(rate = 1, capacity = 1e6))
+getComponent(params, "detritus")$definition
+```
+
+The supported definition fields are `dynamics_fun`, `rate_fun`,
+`encounter_fun`, `mort_fun`, `colour`, `linetype`, `integration_order`,
+`convergence_fun`, `role`, `stationary`, `equation_rates_fun`, `tuning`,
+`transformations`, `biomass_fun`, `biomass_filters`,
+`prescribed_mask_fun` and `autonomous`. Supply a step, an equation, or
+both; a supplied custom step takes precedence during projection.
+Callback identifiers may be ordinary function names or
+`package::exported_name`. Mizer resolves them when preparing an
+operation. Initial state and component parameters are supplied
+separately. Assessment and tuning support are described below;
+measurement hooks remain under development.
+
+Explicit arguments override the definition. A supplied definition
+replaces the old one: omitted encounter/mortality callbacks are removed
+and omitted styles default to grey/solid. Without a definition, a call
+patches only the arguments supplied, retaining the rest. Explicit `NULL`
+removes an optional callback:
+
+``` r
+
+params <- setComponent(params, "detritus", mort_fun = NULL)
+params <- setComponent(params, "detritus", colour = "blue")
+```
+
+For an existing component, omitted initial state and component
+parameters are retained even when replacing its definition. The model
+stores the assembled definition, so editing `detritus_definition`
+afterwards does not change it. Apply a new definition explicitly with
+[`setComponent()`](https://sizespectrum.org/mizer/reference/setComponent.md),
+or in an extension’s upgrade method when migrating a saved model. The
+snapshot stores function names, not function bodies; the installed
+implementation of those functions still matters. Use
+`getComponent(params, "detritus")$definition` to inspect the stored
+choices. Ordinary
+[`setColours()`](https://sizespectrum.org/mizer/reference/setColours.md)
+and
+[`setLinetypes()`](https://sizespectrum.org/mizer/reference/setColours.md)
+updates keep those choices in step with the plotting settings.
 
 If there is nothing for `dynamics_fun` to update — a starvation or
 senescence mortality reads the state but keeps none of its own — do not
@@ -341,12 +439,11 @@ fish eat and that relaxes back towards a capacity:
 ``` r
 
 detritusEncounter <- function(params, n, n_pp, n_other, component, ...) {
-    params2 <- params
-    # Drop this component before delegating, or mizerEncounter() calls back
-    # into this function and recurses.
-    params2@other_encounter[[component]] <- NULL
-    mizerEncounter(params2, n = n, n_pp = n_other[[component]],
-                   n_other = n_other, ...)
+    # The detritus is eaten through the same kernel and with the same
+    # interaction as the resource
+    prey <- n_other[[component]] * params@w_full * params@dw_full
+    params@species_params$interaction_resource * params@search_vol *
+        convolve_pred_kernel(params, prey)
 }
 
 detritusDynamics <- function(params, n_other, rates, dt, component, ...) {
@@ -360,125 +457,497 @@ detritusDynamics <- function(params, n_other, rates, dt, component, ...) {
 }
 ```
 
-Passing the component’s own abundance to
-[`mizerEncounter()`](https://sizespectrum.org/mizer/reference/mizerEncounter.md)
-as `n_pp`, as `detritusEncounter()` does, is the trick for making a
-component act as an extra prey spectrum: it is then eaten through the
-ordinary predation kernel and shows up in
+Convolving the component’s own abundance with the predation kernel, as
+`detritusEncounter()` does, is how to make a component act as an extra
+prey spectrum: it is then eaten through the ordinary predation kernel,
+under whichever quadrature scheme the model is on, and shows up as a
+column of its own in
 [`getDiet()`](https://sizespectrum.org/mizer/reference/getDiet.md)
-without further work.
+without further work. An `encounter_fun` returns only the component’s
+own contribution, which
+[`getEncounter()`](https://sizespectrum.org/mizer/reference/getEncounter.md)
+adds to the rest. So do not delegate to
+[`mizerEncounter()`](https://sizespectrum.org/mizer/reference/mizerEncounter.md)
+with the component’s abundance as `n_pp`:
+[`mizerEncounter()`](https://sizespectrum.org/mizer/reference/mizerEncounter.md)
+returns the whole encounter rate, and the component would count the
+encounter of the fish and
+[`ext_encounter()`](https://sizespectrum.org/mizer/reference/setExtEncounter.md)
+a second time.
+[`convolve_pred_kernel()`](https://sizespectrum.org/mizer/reference/convolve_pred_kernel.md)
+refuses a model with a custom predation kernel; there, write the sum out
+in full with
+[`encounter_kernel()`](https://sizespectrum.org/mizer/reference/encounter_kernel.md),
+as described above.
 
 ### Components and the time stepper
 
-Under the second-order time steppers —
-`project(method = "second_order")`, and the superseded
-`"predictor_corrector"`, which behaves the same way here — a
-`dynamics_fun` is called **twice per time step**: once as the predictor
-with the start-of-step rates, and once as the corrector with the
-midpoint rates, so that the component reaches the same order of accuracy
-as the spectra. Both calls receive the same `t` and the same
-start-of-step state, and only the corrector’s return value survives. The
-same holds for a custom `resource_dynamics` function.
+A `rate_fun` supplies the derivative of a finite numeric component
+state. Its return value must have the same length, dimensions and names
+as that state:
 
-The repeated `t` is deliberate: you are handed the start of the step and
-its length and asked for the state at the end, so both calls are
-advancing the same interval and the second one is simply redoing it with
-better rates. The rate functions, which return an instantaneous rate
-rather than a step, are the other case and are evaluated at `t` and then
-at `t + dt`.
+``` r
 
-That makes purity a requirement rather than a matter of taste:
+poolRate <- function(params, n_other, component, ...) {
+    -params@other_params[[component]]$decay * n_other[[component]]
+}
+params <- setComponent(params, "pool", initial_value = 1,
+                       rate_fun = "poolRate",
+                       component_params = list(decay = 2))
+```
 
-- **Return the new state, computed from the state you were handed.**
-  Anything that instead accumulates into a store outside the function —
-  `<<-`, writing into `other_params(params)`, a running total, a log
-  file — happens twice per step and comes out wrong by a factor of two,
-  while looking correct under the default `"euler"`.
-- **Take the rates from the `rates` argument.** Recomputing them from
-  `n` hands the corrector the start-of-step rates a second time, which
-  quietly drops the run back to first order rather than failing.
+Mizer applies Euler under `method = "euler"` and Heun under the
+second-order methods (`"second_order"`, `"tr_bdf2"` and
+`"predictor_corrector"`). Heun evaluates the derivative at the start and
+at the full predicted endpoint, including the predicted states of other
+components and the endpoint rates. This handles both the component’s
+dependence on itself and its coupling to the rest of the model.
 
-`detritusDynamics()` above satisfies both: it reads the pool out of
-`n_other` and the predation rate out of `rates`, and returns the new
-pool size.
+Heun is explicit. Selecting TR-BDF2 for fish does not give components a
+stiff solver, and growth-Courant subcycling does not provide a universal
+component stability bound. Retain a custom `dynamics_fun` for stiff,
+exactly integrable or non-numeric states. Supplying both capabilities
+uses the custom step for projection and makes the derivative available
+to diagnostics; the author is responsible for their consistency.
 
-What the corrector buys you is part of the **coupling to the rest of the
-model**, and it is worth knowing exactly how much: five entries of the
-rate list are replaced by their midpoint values — `e_growth`, `mort`,
-`diffusion`, `rdd` and `resource_mort`, the ones the consumer and
-resource steppers consume. Every other entry, `encounter`,
-`feeding_level`, `pred_rate`, `pred_mort`, `f_mort`, `e` and `rdi` among
-them, is still the start-of-step value in the corrector call. A
-component coupling through one of those — `detritusDynamics()` above
-reads `rates$pred_rate` — is first order in that coupling however
-carefully it integrates, and on
-[`NS_params`](https://sizespectrum.org/mizer/reference/NS_params.md) a
-single `dt = 0.1` step moves `pred_rate` by nearly 30%. Prefer a
-coupling through the five averaged rates where the choice is yours.
+For the linear decay above, an exact custom step also works for a decay
+rate that is too stiff for explicit integration:
 
-The rest of the step is yours, because the interface asks for the new
-state rather than for a rate of change — mizer never evaluates your
-right-hand side and so cannot integrate it for you. A component written
-as `state + dt * f(state, rates)` is therefore first order even under
-`"second_order"`, however good the rates are. Two ways to be second
-order, both using the rates frozen at the values you were given:
+``` r
 
-- **Solve the step exactly.** For a relaxation towards a target — much
-  the commonest shape — this is the one-liner `detritusDynamics()` uses
-  above, and mizer’s own
-  [`resource_semichemostat()`](https://sizespectrum.org/mizer/reference/resource_semichemostat.md)
-  is the same pattern. Exact for frozen coefficients, so the only error
-  left is the O(dt^2) in the rates themselves, and it is unconditionally
-  stable into the bargain.
-- **Take an RK2 step inside your function**:
-  `y + dt * f(y + dt / 2 * f(y))`. General, and enough for anything
-  non-linear.
+poolStep <- function(params, n_other, component, dt, ...) {
+    n_other[[component]] * exp(-params@other_params[[component]]$decay * dt)
+}
+params <- setComponent(params, "pool", rate_fun = "poolRate",
+                       dynamics_fun = "poolStep", integration_order = 2,
+                       component_params = list(decay = 1000))
+```
 
-Explicit time dependence of your own goes the same way, since `t` is the
-start of the step in both calls: integrate the forcing across the step
-or evaluate it at `t + dt / 2`. None of this gains anything under the
-default `"euler"`, where the rates are the start-of-step ones and the
-step is first order whatever you do inside, but neither does it cost
-anything there.
+This step is exact for that independent linear equation. A more general
+custom step needs its own accuracy checks, including any coupling to
+other states.
 
-Test any new component under `method = "second_order"` as well as the
-default; halving `dt` should then move the answer by roughly a quarter
-rather than a half.
+A custom `dynamics_fun` still receives the **start** state, start time
+`t` and step length `dt` and must return the updated state. Under a
+second-order method it is called twice, once for the predictor and once
+for the corrector. Only the corrector’s result survives. Both calls
+advance the same interval, so callbacks must not accumulate changes in
+external mutable storage or assume one call per step. Custom resource
+dynamics follow the same convention.
+
+The predictor receives the complete start rates. The corrector receives
+a complete effective midpoint list for **all standard numeric rates**,
+including `pred_rate` and `f_mort`. The consumer stepper keeps its
+specialised internal rate representation. Arbitrary extra fields in an
+extension’s rate list are not automatically averaged. Dynamics and
+diagnostic callbacks receive complete standard rates; ordinary
+single-rate getters retain their selective evaluation.
+
+Custom component and resource steps can optionally accept
+`predicted_state` and `endpoint_rates`. The former is a list containing
+`n`, `n_pp`, `n_other` and `t` at the predicted endpoint; the latter is
+the rates evaluated there. These are predictions, not the final
+corrected state. Both are `NULL` when no prediction is available,
+including Euler and predictor calls. Legacy callbacks without these
+arguments or `...` continue to receive their original arguments.
+
+Passing better rates does not integrate the component’s self-dependence.
+A custom step written as `state + dt * f(state, rates)` remains first
+order. Integrate that dependence yourself, for example analytically for
+a relaxation process, or use `rate_fun`. A custom step that recomputes
+quantities from state can use `predicted_state` and `endpoint_rates` to
+form a consistent corrector.
+
+The simulation’s `sim_params$component_integration` records the method
+and order used for each component: Euler/Heun for equations, or `custom`
+with an author-declared `integration_order` (unknown when omitted). This
+records the custom author’s declaration, not a numerical proof or a
+whole-model accuracy guarantee. Mixed order is permitted. If you replace
+a custom step, declare its order again rather than inheriting the
+previous function’s claim.
+
+Test new dynamics by refining `dt` against an analytical solution or a
+suitably fine reference, including a genuinely coupled example. A
+second-order error should shrink by about a factor of four when `dt` is
+halved. Check stiffness separately. With subcycling enabled, callbacks
+receive the actual internal substep size and are called for each
+substep.
 
 ### Components and the steady state
 
-A component you give a `dynamics_fun` is outside mizer’s steady-state
-machinery, in both directions, and a model with one needs checking
-accordingly:
+Register a `convergence_fun` when a component can assess whether its
+state is stationary. Biomass and derivatives do not supply this
+capability implicitly: the extension knows the meaningful measures and
+their tolerances. The callback receives the current state, complete
+standard rates, `t`, `dt`, the component name and its derivative when an
+equation is available (`NULL` otherwise). It returns a data frame with
+`measure`, `value`, `tolerance` and `units` columns:
 
-- [`tuneSteadyState()`](https://sizespectrum.org/mizer/reference/tuneSteadyState.md),
-  [`findSteadyState(solver = "newton")`](https://sizespectrum.org/mizer/reference/findSteadyState.md)
-  and
-  [`getStability()`](https://sizespectrum.org/mizer/reference/getStability.md)
-  hold the component at its stored value and solve the consumer-resource
-  subsystem around it. Mizer warns when it meets a component with
-  dynamics of its own.
-- [`isSteady()`](https://sizespectrum.org/mizer/reference/isSteady.md),
-  the [`summary()`](https://sizespectrum.org/mizer/reference/summary.md)
-  drift line and `project(check_steady = TRUE)` judge that same
-  subsystem. A component’s state can be any object at all, so mizer
-  cannot form a biomass for it and does not fold its rate of change into
-  the number. **A model can be
-  [`isSteady()`](https://sizespectrum.org/mizer/reference/isSteady.md)
-  while your component is moving.**
+``` r
 
-Mizer names any component that is moving whenever it reports on the
-drift, and `attr(getSteadyResidual(params), "other")` holds the per-cell
-relative rates of change it measured, reduced by `max(abs(...))` for
-reporting — an overestimate whenever the component has fast cells
-holding almost nothing, which is why that number is reported rather than
-compared against a tolerance.
+poolConvergence <- function(params, n_other, component, derivative, ...) {
+    data.frame(measure = "pool_change", value = derivative,
+               tolerance = 1e-6, units = "g/year")
+}
+params <- setComponent(params, "pool", convergence_fun = "poolConvergence")
+```
 
-To settle a component along with everything else, use
-[`projectUntilSettled()`](https://sizespectrum.org/mizer/reference/projectUntilSettled.md),
-which advances it like every other state variable; its stopping rule
-does wait for the component. Issue \#589 tracks giving components a way
-to declare their own reduction and so re-enter the criterion.
+This example assumes a scalar pool with a registered `rate_fun`. A
+step-only component can calculate its own measure using its declared
+equations or an appropriate step comparison. Give every measure a
+unique, non-empty name; values must be finite and may be signed, and
+tolerances must be finite and non-negative. Mizer compares `abs(value)`
+with its tolerance while retaining the signed value. Multiple measures
+can use different units. Return quantitative measures, not a
+pre-combined boolean. A malformed result or callback error stops the
+operation with context.
+
+[`getSteadyAssessment(params)`](https://sizespectrum.org/mizer/reference/getSteadyAssessment.md)
+returns the measures and whole-model coverage.
+[`isSteady(params)`](https://sizespectrum.org/mizer/reference/isSteady.md)
+is `TRUE` when all required measures pass, `FALSE` when any fails, and
+`NA` when no failure is established but support is missing. A missing
+component measure stays missing even if its state happens to be
+unchanged.
+[`getSteadyResidual()`](https://sizespectrum.org/mizer/reference/getSteadyResidual.md)
+remains a separate per-size diagnostic.
+
+For an explicitly conditional assessment, name the dynamic blocks held
+fixed:
+
+``` r
+
+getSteadyAssessment(params, scope = "conditional", fixed = "component:pool")
+```
+
+The canonical IDs are `consumers`, `resource` and `component:<name>`.
+Conditional scope does not exempt any other unsupported block. A
+component with `role = "prescribed"` is instead a declared input of the
+model; do not use this role merely to silence a missing-assessment
+report. A temporary frozen step during tuning never changes the
+structural role.
+
+Built-in consumers and resource use the same assessment contract. A
+custom resource must explicitly register its assessment with
+`setProcess(params, "resource", convergence_fun = "myResourceConvergence")`.
+[`getProcess()`](https://sizespectrum.org/mizer/reference/setProcess.md)
+shows the stored specification. Process callbacks receive `process` in
+place of `component`. Provider bindings keep a declaration from silently
+following an incompatible replacement; re-register support explicitly
+after changing the implementation. Built-in
+[`resource_constant`](https://sizespectrum.org/mizer/reference/resource_constant.md)
+declares a prescribed resource.
+
+Settling requires coverage of the requested scope before solving.
+Projection can evolve components when they have stepping support, while
+the current Newton solver requires unsupported dynamic components to be
+held fixed through an explicit conditional request. Every returned
+convergence report retains its scope; tuning reassesses restored
+dynamics before claiming a fixed point. \### Declaring prescribed
+coordinates and time dependence
+
+Use `prescribed_mask_fun` on a component or state-owning process to
+exclude only part of a numeric state from equilibrium and stability
+analysis. The callback receives `params` and optional `owner`,
+`component` or `process` identifiers; it returns a logical array or
+vector matching the state’s dimensions and names exactly, without `NA`.
+`TRUE` denotes a structural input. The mask describes the model, not the
+current size of its derivative. `role = "prescribed"` denotes a wholly
+prescribed block. A caller holding an otherwise dynamic block fixed for
+one calculation instead requests conditional scope.
+
+Convergence callbacks receive `prescribed_mask` and `dynamic_mask` for
+their owner. Apply the dynamic mask before forming quantitative
+measures; mizer cannot remove excluded coordinates from an already
+aggregated custom measure. The built-in consumer and resource
+assessments do this before integration.
+
+A non-biomass state needs no artificial biomass measurement. For
+example, temperature can be assessed in degrees per year:
+
+``` r
+
+temperatureRate <- function(params, n_other, component, ...) {
+    settings <- params@other_params[[component]]
+    (settings$target - n_other[[component]]) / settings$tau
+}
+temperatureConvergence <- function(params, n_other, component, ...) {
+    data.frame(measure = "temperature_change",
+               value = temperatureRate(params, n_other, component),
+               tolerance = 0.01, units = "degrees/year")
+}
+params <- setComponent(params, "temperature", initial_value = 15,
+    rate_fun = "temperatureRate", convergence_fun = "temperatureConvergence",
+    autonomous = TRUE, component_params = list(target = 15, tau = 1))
+```
+
+That declaration supports projection and assessment. Tuning or
+transforming the component still requires the corresponding
+declarations.
+
+The independent `autonomous` declaration states whether the effective
+providers have explicit time dependence. Use `TRUE` only for
+time-independent providers, `FALSE` for forcing, and `NULL` for unknown
+support. Reproduction has no state of its own: its temporal dependence
+belongs to the consumers’ declaration. For continuous resource analysis,
+`setProcess(params, "resource", rate_fun = "myResourceEquation")`
+supplies the derivative in the shape of the resource state, with the
+complete current rate context. This is independent of the resource’s
+custom projection step.
+
+These declarations have separate stored provider bindings. Updating a
+convergence callback does not renew a stale mask, equation or temporal
+declaration. Explicitly adopt each family that still applies after
+changing a provider. Arbitrary dynamic component coordinates are not yet
+supported by the stability Jacobians, even when equations are
+registered; whole-model reports then remain incomplete unless the caller
+explicitly requests a conditional subsystem.
+
+### Declaring tuning strategies
+
+Projection, convergence assessment and tuning are separate capabilities.
+To support stationary tuning, declare `stationary = TRUE` explicitly,
+provide an `equation_rates_fun`, and register named strategies. A
+prescribed state alone does not establish stationarity: its effects on
+other processes could still depend on time. Time-dependent processes
+must provide an appropriate stationary formulation; mizer does not infer
+one by probing a few times.
+
+For example, a pool that should evolve during tuning and needs no
+parameter adjustment can declare:
+
+``` r
+
+poolEquationRates <- function(params, n_other, component, ...) {
+    pool <- params@other_params[[component]]
+    list(source = pool$source, loss = pool$loss * n_other[[component]])
+}
+params <- setComponent(params, "pool", stationary = TRUE,
+    equation_rates_fun = "poolEquationRates",
+    tuning = list(default = "evolve", strategies = list(
+        evolve = list(action = "none", evolve = "component:pool"))))
+```
+
+The equation callback returns a named list of finite numeric effective
+rates or equation terms, retaining their dimensions and names. Report
+independently adjustable inputs separately: reporting only
+`source - loss` would hide changes that cancel. It receives the shared
+`rates`, state, time and effort context; component callbacks also
+receive `component`. Core growth, diffusion, total mortality and final
+recruitment always get independent checks.
+
+Each local strategy owns its process. Its `hold$states` and `evolve`
+partition the owned state blocks. Reproduction owns a rate, not a
+fictitious state, and can hold `hold$rates = "consumers/recruitment"`. A
+balancing strategy supplies `action = "balance"`, a named `balance_fun`,
+and `adjust` entries describing parameter paths, bounds and whether they
+are species vectors. For example:
+
+``` r
+
+adjust = list(source = list(path = c("other_params", "pool", "source"),
+                            lower = 0, upper = Inf, species = FALSE))
+```
+
+Optional `preserve` entries select parameter paths or named callbacks
+returning quantities to retain. `target_fun` derives released equation
+targets from the constrained state before balancing; it must describe
+the constraints, not report targets chosen by the balancer. `solvers`
+lists supported operations (`"project"`, `"newton"`, `"balance"`), and
+`partial_species = FALSE` rejects partial requests. `settings` holds
+serialisable callback settings.
+
+The balancer returns a candidate model. Mizer independently checks the
+target state, declared parameter changes and bounds, preserved
+quantities and all effective equation rates. It refreshes affected
+dependencies and reassesses the released model. There is no numerical
+fallback, silent clamp or second search to repair a failed balance.
+
+Use
+[`setProcess()`](https://sizespectrum.org/mizer/reference/setProcess.md)
+for the same declarations on `"consumers"`, `"resource"` or
+`"reproduction"`. Reproduction can also provide `level_fun` for its own
+level definition; it has no state role or convergence callback. Shared
+parameters require one joint strategy, registered with
+[`setTuningStrategy()`](https://sizespectrum.org/mizer/reference/setTuningStrategy.md)
+and its explicit `owners`. A joint equation callback returns a named
+list of rate lists, one per owner. A selected joint strategy suppresses
+those owners’ local defaults; overlapping responsibilities or adjustable
+paths are errors.
+
+Users can select alternatives with
+`tuneSteadyState(params, strategies = c("component:pool" = "evolve"))`
+or `joint = "coupled"`. Declarations are stored with the model and bound
+to their effective named/S3 providers. Changing a provider requires
+explicit adoption of the corresponding support, not merely leaving an
+old function name in the registry.
+
+When an extension changes mortality or encounter while preserving a
+built-in reproduction law,
+[`mizerReproductionDefinition(params)`](https://sizespectrum.org/mizer/reference/mizerReproductionDefinition.md)
+supplies its reusable strategy and level definitions. Explicitly adopt
+this through
+[`setProcess()`](https://sizespectrum.org/mizer/reference/setProcess.md)
+only after checking the effective RDI/RDD route and its proportional
+dependence on `erepro`. The helper does not register support, validate
+an unknown wrapper or supply transformation declarations. A custom
+reproduction law needs its own specification.
+
+### Measuring component biomass
+
+A component’s `biomass_fun` measures its stocks without defining
+convergence or changing the model. It receives `params`, `n`, `n_pp`,
+`n_other`, `t`, `component` and `filters`. Accept `...` for arguments
+the callback does not need. Return finite nonnegative biomass in grams
+as a named numeric vector, or a data frame with `series` and `value`
+columns. Name a single value too, for example `c(biomass = value)`. The
+richer form can also provide `label`, `colour`, `linetype`, `source`,
+`available` and `reason`; unavailable values must be `NA` with a reason.
+
+``` r
+
+poolBiomass <- function(params, n_other, component, ...) {
+    stocks <- n_other[[component]]
+    c(detritus = stocks$detritus, microbes = stocks$microbes)
+}
+params <- setComponent(
+    params, "pool",
+    initial_value = list(detritus = 20, microbes = 3, temperature = 15),
+    dynamics_fun = "constant_other", biomass_fun = "poolBiomass"
+)
+getBiomass(params, include = "component:pool")
+```
+
+The default `biomass_filters = character()` declares only full-stock
+measurement. List supported filter names explicitly from `min_w`,
+`max_w`, `min_l`, `max_l` and `use_cutoff`; the callback must honour
+them. Unsupported filters produce unavailable measurements rather than
+silently returning the unfiltered stock. Only requested filters appear
+in `filters`.
+
+Keep series identifiers, labels, styles and physical-source identifiers
+stable across saved simulation times. Use an unavailable row when a
+measurement is missing at one time. Distinct series default to distinct
+physical sources; if your component measures the built-in resource,
+declare `source = "resource"` so selecting both representations cannot
+double count it. Components without a biomass callback remain explicitly
+unavailable when requested.
+
+### Declaring mortality breakdowns
+
+Additive contributions registered through `mort_fun` or
+[`other_mort()`](https://sizespectrum.org/mizer/reference/other_mort.md)
+are included automatically by
+[`getMortByCause()`](https://sizespectrum.org/mizer/reference/getMortByCause.md)
+when the outer mortality assembler is built in. A custom `Rates` or
+`Mort` provider instead registers
+`setProcess(params, "consumers", mortality_fun = "myBreakdown")`. This
+diagnostic capability is bound independently of convergence, tuning and
+transformation support; registering one family does not re-adopt another
+after a provider change.
+
+The callback receives the model, state, effort, time, complete `rates`,
+authoritative `total` and `process = "consumers"`. Return
+`list(causes = list(...), complete = TRUE)` with each named cause a
+finite species-by-size matrix. Optional `metadata` supplies `id`,
+`label`, `owner`, `colour` and `linetype`; optional `unavailable` rows
+explain missing causes of an incomplete report. Mizer checks complete
+causes against the actual total, cell by cell and time by time. Do not
+manufacture an attribution for unexplained mortality or use proportional
+rescaling to force agreement.
+
+If the extension retains mizer’s ordinary mortality terms, its callback
+can start with
+[`mizerMortalityBreakdown()`](https://sizespectrum.org/mizer/reference/mizerMortalityBreakdown.md)
+using the supplied context, append its own causes and metadata, and
+return the complete specification. This helper does not evaluate the
+rates again or validate the final sum;
+[`getMortByCause()`](https://sizespectrum.org/mizer/reference/getMortByCause.md)
+performs that check after the author’s callback returns.
+
+`predation_by_species = TRUE` requests a refinement into predator
+species. Mizer uses it only when those terms sum to the effective
+predation mortality; otherwise predation remains aggregated. The
+built-in callback uses one consistent grouping across selected
+simulation times. An author callback using the helper is responsible for
+keeping its returned series stable too.
+
+### Transforming extension data with the model
+
+Species, grid and scale operations need their own capability. A
+component that can project or tune does not automatically know how its
+data should transform. Register a `transformations` map on its
+definition, or on a built-in process with
+[`setProcess()`](https://sizespectrum.org/mizer/reference/setProcess.md).
+The operation names are `add_species`, `remove_species`,
+`reorder_species`, `rename_species`, `size_grid`, `scale_abundance` and
+`scale_rates`. Missing support stops the operation before changes. Use
+`list(action = "none")` explicitly for an operation requiring no action.
+
+An updating declaration supplies `action = "update"` and a named
+`transform_fun`. The callback receives the candidate `params`, the
+original model as `before`, `operation`, `details`, ownership context
+and any stored `settings`. It returns the updated candidate. Component
+callbacks receive `component`, and process callbacks receive `process`.
+
+For example, a pool can contain a stock alongside an intensive
+temperature and a text label. Scaling should multiply only the stock:
+
+``` r
+
+scalePool <- function(params, before, component, details, ...) {
+    state <- before@initial_n_other[[component]]
+    state$stock <- state$stock * details$factor
+    params@initial_n_other[[component]] <- state
+    params
+}
+params <- setComponent(params, "mixed_pool",
+    initial_value = list(stock = 2, temperature = 15, label = "inshore"),
+    definition = list(dynamics_fun = "constant_other", role = "prescribed",
+        stationary = TRUE,
+        transformations = list(
+            scale_abundance = list(action = "update", transform_fun = "scalePool"),
+            scale_rates = list(action = "none"))))
+```
+
+A component owns its own initial state and component-parameter subtree
+by default. Declare additional permitted `paths` explicitly, as a list
+of character vectors naming fields in the model, when the hook must
+update other data it owns. Process hooks likewise declare their
+permitted paths. Mizer checks that hooks respect their declarations; it
+does not guess which dimensions represent species, sizes or biomass.
+Shared data require one joint declaration through
+[`setTransformation(params, name, owners, operation, definition)`](https://sizespectrum.org/mizer/reference/setTransformation.md).
+A registered joint hook replaces local hooks for those owners and that
+operation. Overlapping owners or writable paths are errors.
+
+Species-operation details include `old_species`, `new_species`,
+`species_map` (old to new indices) and `new_to_old` (new to old
+indices); missing entries are `NA`. Renaming also supplies `rename`, a
+named old-to-new label vector. Grid details include `old_w`, `new_w`,
+`old_w_full`, `new_w_full` and their overlap maps: `w_map`,
+`new_w_to_old`, `w_full_map`, `new_w_full_to_old`. Scaling supplies
+`factor`. Use these explicit mappings to transform a species-by-size
+array such as spatial overlap; decide explicitly how newly added entries
+are initialised.
+
+Hooks run after core structural bookkeeping and before dependent rate
+setters, initialisation or steady-state calculations. At this point the
+candidate is deliberately incomplete: other owners’ hooks may still be
+pending. Update only your declared data, using `before` when original
+values are needed; defer whole-model validation and dependent rate
+calculations to mizer. Coupled owners that need a coordinated update
+should use a joint hook. Errors leave the input model unchanged. The
+completed transformation retains its defaults edition and stored
+capability declarations.
+
+When a process hook deliberately supplies a core rate array, declare
+that path explicitly. Its authored values are retained through dependent
+construction, including initial-state calculations. Update an
+authoritative predation kernel or its parameters, rather than its
+derived FFT caches. A manually supplied dense kernel or fishing array
+retains its overlap and freeze status through a grid change; new cells
+are zero unless the hook fills them.
 
 ------------------------------------------------------------------------
 
@@ -489,33 +958,7 @@ The `extra_food` built above adds straight to the total encounter rate:
 ``` r
 
 enc_base <- getEncounter(NS_params)
-```
-
-    ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-    ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-    ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-    ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-    ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-    ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-    ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-    ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-
-``` r
-
 enc_ext <- getEncounter(params_ext)
-```
-
-    ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-    ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-    ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-    ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-    ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-    ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-    ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-    ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-
-``` r
-
 range(enc_ext - enc_base, na.rm = TRUE)
 ```
 
@@ -561,13 +1004,6 @@ Registered by name, the rate now moves with `t`:
 ``` r
 
 params2 <- setRateFunction(params, "Encounter", "seasonalEncounter")
-```
-
-    ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-    ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-
-``` r
-
 enc0 <- getEncounter(params2, t = 0)
 enc_quarter <- getEncounter(params2, t = 0.25)
 range(enc_quarter / enc0, na.rm = TRUE)
@@ -604,12 +1040,6 @@ at half the capacity it relaxes towards:
 
 detritus_params <- list(capacity = initialNResource(params),
                         rate = params@rr_pp)
-```
-
-    ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-    ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-
-``` r
 
 params3 <- setComponent(
     params,
@@ -622,9 +1052,6 @@ params3 <- setComponent(
 )
 ```
 
-    ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-    ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-
 Its initial state is now in
 [`initialNOther(params3)$Detritus`](https://sizespectrum.org/mizer/reference/initialNOther-set.md)
 and its settings in `getComponent(params3, "Detritus")`. Because it is
@@ -636,10 +1063,21 @@ no further work:
 plotDiet(params3, species = "Cod")
 ```
 
-    ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-    ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-
 ![](guide-extend-mizer_files/figure-html/detritus-diet-1.png)
+
+The pool holds half the resource’s abundance at every size and is eaten
+with the resource’s interaction, so at every predator size its share of
+the diet is exactly half the resource’s — a quick check that an
+`encounter_fun` returns the component’s own contribution and nothing
+more:
+
+``` r
+
+diet <- getDiet(params3, proportion = FALSE)
+range(diet[, , "Detritus"] / diet[, , "Resource"], na.rm = TRUE)
+```
+
+    [1] 0.5 0.5
 
 To let the component kill fish as well as feed them, give
 [`setComponent()`](https://sizespectrum.org/mizer/reference/setComponent.md)
@@ -708,6 +1146,22 @@ breaks the package, and nothing checks that it is.
   [`getDiet()`](https://sizespectrum.org/mizer/reference/getDiet.md),
   [`project()`](https://sizespectrum.org/mizer/reference/project.md) —
   uses your extension as intended.
+- An encounter function registered with
+  [`setRateFunction()`](https://sizespectrum.org/mizer/reference/setRateFunction.md)
+  reaches
+  [`getDiet()`](https://sizespectrum.org/mizer/reference/getDiet.md) and
+  [`getTrophicLevel()`](https://sizespectrum.org/mizer/reference/getTrophicLevel.md)
+  only through its total: they cannot know how your change is shared
+  between the food sources, so they scale all of them in proportion and
+  say so. That is exact for a factor that multiplies the whole encounter
+  rate, like `seasonalEncounter()` above. For extra food, use a
+  component with an `encounter_fun` instead, which
+  [`getDiet()`](https://sizespectrum.org/mizer/reference/getDiet.md)
+  shows as a food source of its own. An extension package can give the
+  exact split for any change, with a
+  [`getEncounterByPrey()`](https://sizespectrum.org/mizer/reference/getEncounterByPrey.md)
+  method; see the [guide to creating a mizer extension
+  package](https://sizespectrum.org/mizer/articles/guide-create-extension-package.md).
 - After registering a custom rate, run
   [`project()`](https://sizespectrum.org/mizer/reference/project.md) on
   a short horizon and check the affected `get…()` output looks right;

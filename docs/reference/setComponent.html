@@ -19,7 +19,7 @@ resources or .... This function allows you to set up such components."><meta pro
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0.9011</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -111,7 +111,20 @@ resources or .... This function allows you to set up such components.</p>
 <span>  <span class="va">mort_fun</span>,</span>
 <span>  <span class="va">component_params</span>,</span>
 <span>  colour <span class="op">=</span> <span class="st">"grey"</span>,</span>
-<span>  linetype <span class="op">=</span> <span class="st">"solid"</span></span>
+<span>  linetype <span class="op">=</span> <span class="st">"solid"</span>,</span>
+<span>  <span class="va">definition</span>,</span>
+<span>  <span class="va">rate_fun</span>,</span>
+<span>  <span class="va">integration_order</span>,</span>
+<span>  <span class="va">convergence_fun</span>,</span>
+<span>  <span class="va">role</span>,</span>
+<span>  <span class="va">stationary</span>,</span>
+<span>  <span class="va">equation_rates_fun</span>,</span>
+<span>  <span class="va">tuning</span>,</span>
+<span>  <span class="va">transformations</span>,</span>
+<span>  <span class="va">biomass_fun</span>,</span>
+<span>  <span class="va">biomass_filters</span>,</span>
+<span>  <span class="va">prescribed_mask_fun</span>,</span>
+<span>  <span class="va">autonomous</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">removeComponent</span><span class="op">(</span><span class="va">params</span>, <span class="va">component</span><span class="op">)</span></span>
@@ -133,11 +146,14 @@ all components will be returned.</p></dd>
 
 
 <dt id="arg-initial-value">initial_value<a class="anchor" aria-label="anchor" href="#arg-initial-value"></a></dt>
-<dd><p>Initial value of the component</p></dd>
+<dd><p>Initial value of the component. Required for a new
+component; retained when omitted for an existing component. Must not be
+<code>NULL</code>; use <code>removeComponent()</code> to remove a component.</p></dd>
 
 
 <dt id="arg-dynamics-fun">dynamics_fun<a class="anchor" aria-label="anchor" href="#arg-dynamics-fun"></a></dt>
-<dd><p>Name of function to calculate value at the next time step</p></dd>
+<dd><p>Name of function to calculate value at the next time
+step. Required unless <code>rate_fun</code> is supplied.</p></dd>
 
 
 <dt id="arg-encounter-fun">encounter_fun<a class="anchor" aria-label="anchor" href="#arg-encounter-fun"></a></dt>
@@ -164,13 +180,85 @@ functions. This could for example be a named list of parameters. Optional.</p></
 <dd><p>Line type to use for the component in plots. Defaults to
 <code>"solid"</code>.</p></dd>
 
+
+<dt id="arg-definition">definition<a class="anchor" aria-label="anchor" href="#arg-definition"></a></dt>
+<dd><p>A named list specifying the component's callbacks and
+plotting styles. Supplying a list replaces its previous definition before
+explicitly supplied arguments are applied. State and component parameters
+are supplied separately.
+Updating only state or component parameters does not re-adopt capabilities
+after a global provider change; supply the relevant capability explicitly.</p></dd>
+
+
+<dt id="arg-rate-fun">rate_fun<a class="anchor" aria-label="anchor" href="#arg-rate-fun"></a></dt>
+<dd><p>Name of function returning the component's derivative.
+Required unless <code>dynamics_fun</code> is supplied.</p></dd>
+
+
+<dt id="arg-integration-order">integration_order<a class="anchor" aria-label="anchor" href="#arg-integration-order"></a></dt>
+<dd><p>Optional positive integer declaring the order of a
+custom <code>dynamics_fun</code>. <code>NULL</code> removes the declaration.</p></dd>
+
+
+<dt id="arg-convergence-fun">convergence_fun<a class="anchor" aria-label="anchor" href="#arg-convergence-fun"></a></dt>
+<dd><p>Name of a convergence-measurement callback, or <code>NULL</code>
+to remove it. A dynamic component without this support makes a whole-model
+assessment incomplete.</p></dd>
+
+
+<dt id="arg-role">role<a class="anchor" aria-label="anchor" href="#arg-role"></a></dt>
+<dd><p>Either <code>"dynamic"</code> (the default) or <code>"prescribed"</code>.</p></dd>
+
+
+<dt id="arg-stationary">stationary<a class="anchor" aria-label="anchor" href="#arg-stationary"></a></dt>
+<dd><p>Explicit TRUE/FALSE stationary-tuning declaration.</p></dd>
+
+
+<dt id="arg-equation-rates-fun">equation_rates_fun<a class="anchor" aria-label="anchor" href="#arg-equation-rates-fun"></a></dt>
+<dd><p>Callback exposing effective equation quantities.</p></dd>
+
+
+<dt id="arg-tuning">tuning<a class="anchor" aria-label="anchor" href="#arg-tuning"></a></dt>
+<dd><p>Named strategies and their default, or NULL to remove support.</p></dd>
+
+
+<dt id="arg-transformations">transformations<a class="anchor" aria-label="anchor" href="#arg-transformations"></a></dt>
+<dd><p>Named transformation declarations. Update hooks may
+modify this component's initial state and parameters; additional paths
+must be explicit. Use action = 'none' for supported no-action operations.</p></dd>
+
+
+<dt id="arg-biomass-fun">biomass_fun<a class="anchor" aria-label="anchor" href="#arg-biomass-fun"></a></dt>
+<dd><p>Named biomass measurement callback, or NULL to remove
+measurement support. This is independent of convergence and dynamics.</p></dd>
+
+
+<dt id="arg-biomass-filters">biomass_filters<a class="anchor" aria-label="anchor" href="#arg-biomass-filters"></a></dt>
+<dd><p>Character vector of explicitly supported filters:
+min_w, max_w, min_l, max_l and use_cutoff. Defaults to none.</p></dd>
+
+
+<dt id="arg-prescribed-mask-fun">prescribed_mask_fun<a class="anchor" aria-label="anchor" href="#arg-prescribed-mask-fun"></a></dt>
+<dd><p>Named structural input-mask callback, or NULL.
+For a dynamic numeric component, return logical values with exactly its
+state dimensions and names; TRUE marks prescribed inputs. The callback
+receives params and optional component/owner, without time or state.</p></dd>
+
+
+<dt id="arg-autonomous">autonomous<a class="anchor" aria-label="anchor" href="#arg-autonomous"></a></dt>
+<dd><p>TRUE for equations and contributions without explicit time
+dependence, FALSE for forced providers, or NULL for undeclared support.
+This declaration is independent of stationary tuning and convergence.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>The updated MizerParams object</p>
-<p>For <code>getComponent</code>: A list with the entries <code>initial_value</code>, <code>dynamics_fun</code>,
-<code>encounter_fun</code>, <code>mort_fun</code>, <code>component_params</code> for the requested
-component. If the requested component does not exist, <code>NULL</code> is returned.
+<p>For <code>getComponent</code>: A list with the entries <code>initial_value</code>,
+<code>dynamics_fun</code>, <code>rate_fun</code>, <code>encounter_fun</code>, <code>mort_fun</code>,
+<code>component_params</code>, <code>convergence_fun</code>, <code>role</code>, and <code>definition</code> for the
+requested component.
+If the requested component does not exist, <code>NULL</code> is returned.
 If no <code>component</code> argument is given, then a list of lists for all
 components is returned.</p>
     </div>
@@ -178,12 +266,71 @@ components is returned.</p>
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>The component can be a number, a vector, an array, a list, or any other
 data structure you like.</p>
-<p>If you set a component with a new name, the new component will be added
-to the existing components. If you set a component with an existing name,
-the <code>initial_value</code> and <code>dynamics_fun</code> are overwritten, while the optional
-<code>encounter_fun</code>, <code>mort_fun</code> and <code>component_params</code> are only changed if the
-corresponding arguments are supplied. You can remove a component with
-<code>removeComponent()</code>.</p>
+<p>A new component needs an <code>initial_value</code>, supplied separately from its
+definition. Supply at least one of <code>dynamics_fun</code> and <code>rate_fun</code>, directly
+or through <code>definition</code>. For an existing component, omitted arguments retain
+their existing values. Explicit <code>NULL</code> removes an optional callback, provided
+at least one of the two dynamics capabilities remains. Remove a component
+with <code>removeComponent()</code>.</p>
+<p>A <code>definition</code> is a reusable named list containing <code>dynamics_fun</code>,
+<code>rate_fun</code>, <code>encounter_fun</code>, <code>mort_fun</code>, <code>colour</code>, <code>linetype</code> and/or
+<code>integration_order</code>, <code>convergence_fun</code>, <code>role</code>, <code>stationary</code>,
+<code>equation_rates_fun</code> and/or <code>tuning</code>.
+Explicit arguments
+override its entries. Supplying a definition replaces the component's
+previous definition: omitted optional callbacks are removed and omitted
+styles default to <code>"grey"</code> and <code>"solid"</code>. Without <code>definition</code>, explicitly
+supplied arguments patch the existing definition instead. Initial state and
+<code>component_params</code> belong to the component instance and are retained when
+omitted, including when its definition is replaced.</p>
+<p>The assembled definition is stored in the model. Subsequent changes to the
+list used as <code>definition</code> do not change that model; call <code>setComponent()</code>
+again to apply an update. Callback function names are stored, rather than
+their implementations, so the functions still need to be available when
+the model is used.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="equations-and-custom-steps">Equations and custom steps<a class="anchor" aria-label="anchor" href="#equations-and-custom-steps"></a></h2>
+
+
+<p>A <code>rate_fun</code> returns the component's derivative, with the numeric shape and
+names of its state preserved. It receives <code>params</code>, <code>n</code>, <code>n_pp</code>, <code>n_other</code>,
+<code>rates</code>, <code>t</code>, <code>component</code> and <code>...</code>. Mizer applies Euler under first-order
+projection and Heun under the second-order methods. This is explicit
+integration, including when the fish use TR-BDF2.</p>
+<p>A <code>dynamics_fun</code> returns the new state and owns the integration. It is the
+appropriate capability for stiff or non-numeric states. When both callbacks
+are supplied, the custom step performs projection and the derivative remains
+available for diagnostics. Callback names may be unqualified or use
+<code>package::exported_function</code>.</p>
+<p>Custom steps may accept <code>predicted_state</code> and <code>endpoint_rates</code>. During a
+second-order corrector these contain the predicted endpoint state (a list
+with <code>n</code>, <code>n_pp</code>, <code>n_other</code> and <code>t</code>) and its rate list. They are <code>NULL</code> when
+no prediction is available. The ordinary state arguments still describe the
+start of the step. Prediction data do not by themselves establish the
+accuracy or stability of the custom integration.</p>
+<p><code>integration_order</code> declares the order of a custom step; omission means
+unknown, not an assumed second order. Replacing <code>dynamics_fun</code> clears an
+inherited order unless an order is explicitly supplied with the replacement.
+Mizer chooses the integrator for equations-only components, so they must not
+declare a custom integration order.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="steady-state-assessment">Steady-state assessment<a class="anchor" aria-label="anchor" href="#steady-state-assessment"></a></h2>
+
+
+<p>A <code>convergence_fun</code> returns a data frame with <code>measure</code>, <code>value</code>, <code>tolerance</code>
+and <code>units</code> columns. It receives the model, state, complete rate list, time,
+derivative when available and component name. Accept <code>...</code> for unused
+arguments. Mizer compares absolute measured values to their tolerances; the
+callback does not return its own pass/fail verdict.</p>
+<p>Components are dynamic by default, including legacy components using
+<code>constant_other</code>. Declare <code>role = "prescribed"</code> explicitly when the entire
+component is a prescribed input. Temporarily holding a dynamic component
+fixed during analysis requires conditional assessment scope. Replacing a
+dynamics callback removes its inherited convergence callback and resets an
+inherited prescribed role to dynamic unless those declarations are explicitly
+supplied again with the replacement.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -193,8 +340,10 @@ corresponding arguments are supplied. You can remove a component with
 <code><a href="NOther.html">NOther()</a></code>,
 <code><a href="coerceToExtensionClass.html">coerceToExtensionClass()</a></code>,
 <code><a href="initialNOther-set.html">initialNOther&lt;-()</a></code>,
+<code><a href="mizerReproductionDefinition.html">mizerReproductionDefinition()</a></code>,
 <code><a href="other_mort.html">other_mort()</a></code>,
 <code><a href="recordExtension.html">recordExtension()</a></code>,
+<code><a href="setProcess.html">setProcess()</a></code>,
 <code><a href="setRateFunction.html">setRateFunction()</a></code></p></div>
     </div>
 

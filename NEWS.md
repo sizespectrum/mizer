@@ -67,6 +67,12 @@
 
 ## New features
 
+- Extension authors can reuse built-in reproduction strategies through
+  `mizerReproductionDefinition()` and extend the standard diagnostic callback
+  through `mizerMortalityBreakdown()`, without copying their implementations.
+  `getMortByCause(predation_by_species = TRUE)` supplies a checked predator
+  breakdown when it agrees with the effective predation rate; otherwise it
+  retains aggregate predation (#670).
 - Stability reports now state their scope, coverage and autonomy, and use
   `stable = NA` when a conclusion is unsupported or a mode is marginal.
   Whole-model analysis is the default; holding extension states fixed requires
@@ -186,6 +192,12 @@
 
 ## Bug fixes
 
+- Extension upgrades can use validating public setters without recursively
+  restarting their own upgrade chain. Mizer keeps inner-to-outer ordering,
+  stamps each extension after success and clears the runtime guard on failure.
+- Saved S4 extension models recover their core model family when the original
+  S4 class definition is no longer available, allowing `readParams()` and
+  `readSim()` to run the normal upgrade chain.
 - Steady-state and stability diagnostics now share a complete effective rate
   evaluation with resource and component callbacks, including final recruitment
   (#592, #670). Callbacks using rates such as fishing mortality no longer fail

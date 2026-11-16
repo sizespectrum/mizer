@@ -7,20 +7,18 @@
   };
 </script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.1/jquery-3.6.1.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet"><script src="../extra.js"></script><meta property="og:title" content="Set Beverton-Holt reproduction without changing the steady state — setBevertonHolt"><meta name="description" content="Takes a MizerParams object params with arbitrary density dependence in
 reproduction and
-returns a MizerParams object with Beverton-Holt density-dependence in such a
-way that the energy invested into reproduction by the mature individuals
-leads to the reproduction rate that is required to maintain the given egg
-abundance. Hence if you have tuned your params object to describe a
+returns a MizerParams object with Beverton-Holt density dependence while
+preserving the current effective recruitment at the initial state. Hence if
+you have tuned your params object to describe a
 particular steady state, then setting the Beverton-Holt density dependence
 with this function will leave you with the exact same steady state. By
 specifying one of the parameters erepro, R_max or reproduction_level
 you pick the desired reproduction curve. More details of these parameters are
 provided below."><meta property="og:description" content="Takes a MizerParams object params with arbitrary density dependence in
 reproduction and
-returns a MizerParams object with Beverton-Holt density-dependence in such a
-way that the energy invested into reproduction by the mature individuals
-leads to the reproduction rate that is required to maintain the given egg
-abundance. Hence if you have tuned your params object to describe a
+returns a MizerParams object with Beverton-Holt density dependence while
+preserving the current effective recruitment at the initial state. Hence if
+you have tuned your params object to describe a
 particular steady state, then setting the Beverton-Holt density dependence
 with this function will leave you with the exact same steady state. By
 specifying one of the parameters erepro, R_max or reproduction_level
@@ -33,7 +31,7 @@ provided below."><meta property="og:image" content="https://sizespectrum.org/miz
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0.9011</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -110,10 +108,9 @@ provided below."><meta property="og:image" content="https://sizespectrum.org/miz
     <div class="ref-description section level2">
     <p>Takes a MizerParams object <code>params</code> with arbitrary density dependence in
 reproduction and
-returns a MizerParams object with Beverton-Holt density-dependence in such a
-way that the energy invested into reproduction by the mature individuals
-leads to the reproduction rate that is required to maintain the given egg
-abundance. Hence if you have tuned your <code>params</code> object to describe a
+returns a MizerParams object with Beverton-Holt density dependence while
+preserving the current effective recruitment at the initial state. Hence if
+you have tuned your <code>params</code> object to describe a
 particular steady state, then setting the Beverton-Holt density dependence
 with this function will leave you with the exact same steady state. By
 specifying one of the parameters <code>erepro</code>, <code>R_max</code> or <code>reproduction_level</code>
@@ -213,9 +210,8 @@ the curve and <code>erepro</code> its initial slope. A higher <code>R_max</code>
 lower <code>erepro</code> (black curves) can give the same value as a lower <code>R_max</code>
 coupled with a higher <code>erepro</code> (blue curves).</p>
 <p>For the given initial state in the MizerParams object <code>params</code> one can
-calculate the energy \(E_R\) that is invested into reproduction by the
-mature individuals and the reproduction rate \(R_{dd}\) that is
-required to keep the egg abundance constant. These two values determine the
+calculate the energy \(E_R\) invested into reproduction and the current
+effective recruitment \(R_{dd}\). These two values determine the
 location of the black dot in the above graph. You then only need one
 parameter to select one curve from the family of Beverton-Holt curves going
 through that point. This parameter can be <code>erepro</code> or <code>R_max</code>. Instead of
@@ -230,14 +226,18 @@ species, or a named vector where the names determine which species are
 affected, or a single unnamed value that is then used for all species. Any
 species for which the given value is <code>NA</code> will remain unaffected.</p>
 <p>The values for <code>R_max</code> must be larger than \(R_{dd}\) and can range
-up to <code>Inf</code>. If a smaller value is requested a warning is issued and the
-value is increased to the value required for a reproduction level of 0.99.</p>
+up to <code>Inf</code>. An infeasible requested value is an error.</p>
 <p>The values for the <code>reproduction_level</code> must be non-negative and
 less than 1. The values for <code>erepro</code> must be large enough to allow the
-required reproduction rate. If a smaller value is requested a warning is
-issued and the value is increased to the smallest possible value. The values
+preserved recruitment rate. A smaller requested value is an error. The values
 for <code>erepro</code> should also be smaller than 1 to be physiologically sensible,
 but this is not enforced by the function.</p>
+<p>A species that is absent from the initial state, with zero abundance at all
+sizes, has no reproduction whatever its parameters, so every Beverton-Holt
+curve keeps it at its steady state. For such a species a given <code>erepro</code> or
+<code>R_max</code> is used as it is and the other parameter is left unchanged. Its
+reproduction level is zero whatever its <code>R_max</code>, so a non-zero
+<code>reproduction_level</code> cannot be set for it and is rejected.</p>
 <p>As can be seen in the graph above, choosing a lower value for <code>R_max</code> or a
 higher value for <code>erepro</code> means that near the steady state the reproduction
 will be less sensitive to a change in the energy invested into reproduction
@@ -254,79 +254,76 @@ fishing, leading to a higher F_MSY.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       1       1       1       1       1       1       1       1       1       1 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     Cod  Saithe </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       1       1 </span>
-<span class="r-in"><span><span class="co"># Attempting to set the same erepro for all species</span></span></span>
-<span class="r-in"><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu">setBevertonHolt</span><span class="op">(</span><span class="va">params</span>, erepro <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `b` column so using the isometric default b = 3 in w = a l^b.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>For the following species `erepro` has been increased to the smallest possible value: erepro[Gurnard] = 0.558; erepro[Plaice] = 0.921</span>
+<span class="r-in"><span><span class="co"># Increase efficiency while preserving recruitment</span></span></span>
+<span class="r-in"><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu">setBevertonHolt</span><span class="op">(</span><span class="va">params</span>,</span></span>
+<span class="r-in"><span>    erepro <span class="op">=</span> <span class="fl">2</span> <span class="op">*</span> <span class="fu"><a href="species_params.html">species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">erepro</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span><span style="color: #BBBB00;">!</span> The following species require an unrealistic value greater than 1 for `erepro`: Sprat</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> The following species require an unrealistic value greater than 1 for `erepro`: Sandeel</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> The following species require an unrealistic value greater than 1 for `erepro`: N.pout</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> The following species require an unrealistic value greater than 1 for `erepro`: Herring</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> The following species require an unrealistic value greater than 1 for `erepro`: Dab</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> The following species require an unrealistic value greater than 1 for `erepro`: Whiting</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> The following species require an unrealistic value greater than 1 for `erepro`: Sole</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> The following species require an unrealistic value greater than 1 for `erepro`: Gurnard</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> The following species require an unrealistic value greater than 1 for `erepro`: Plaice</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> The following species require an unrealistic value greater than 1 for `erepro`: Haddock</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> The following species require an unrealistic value greater than 1 for `erepro`: Cod</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> The following species require an unrealistic value greater than 1 for `erepro`: Saithe</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="fu"><a href="species_params.html">species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"erepro"</span>, <span class="st">"R_max"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>               Sprat      Sandeel       N.pout      Herring          Dab</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> erepro 1.000000e-01 1.000000e-01 1.000000e-01 1.000000e-01 1.000000e-01</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> R_max  8.071481e+11 4.112049e+11 3.472063e+13 1.197577e+12 1.167176e+10</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            Whiting         Sole   Gurnard    Plaice      Haddock          Cod</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> erepro 1.00000e-01 1.000000e-01 0.5582259 0.9212325 1.000000e-01          0.1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> R_max  6.22081e+11 4.007876e+10       Inf       Inf 3.929056e+12 8280106764.0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>              Saithe</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> erepro 1.000000e-01</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> R_max  1.145835e+11</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>               Sprat      Sandeel       N.pout      Herring         Dab</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> erepro            2            2 2.000000e+00 2.000000e+00           2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> R_max  734568053068 409973456848 1.010954e+13 1.105535e+12 11176346947</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             Whiting        Sole     Gurnard       Plaice      Haddock</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> erepro            2           2 2.00000e+00 2.000000e+00 2.000000e+00</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> R_max  544466527832 38630947185 1.01135e+12 6.059906e+13 1.787419e+12</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>               Cod       Saithe</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> erepro          2            2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> R_max  8259738057 111869833966</span>
 <span class="r-in"><span><span class="co"># Setting erepro for some species</span></span></span>
-<span class="r-in"><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu">setBevertonHolt</span><span class="op">(</span><span class="va">params</span>, erepro <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Gurnard"</span> <span class="op">=</span> <span class="fl">0.6</span>, <span class="st">"Plaice"</span> <span class="op">=</span> <span class="fl">0.95</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `b` column so using the isometric default b = 3 in w = a l^b.</span>
+<span class="r-in"><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu">setBevertonHolt</span><span class="op">(</span><span class="va">params</span>, reproduction_level <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>Gurnard <span class="op">=</span> <span class="fl">0.6</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>The following species require an unrealistic value greater than 1 for `erepro`: Gurnard</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="fu"><a href="species_params.html">species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"erepro"</span>, <span class="st">"R_max"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>               Sprat      Sandeel       N.pout      Herring          Dab</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> erepro 1.000000e-01 1.000000e-01 1.000000e-01 1.000000e-01 1.000000e-01</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> R_max  8.071481e+11 4.112049e+11 3.472063e+13 1.197577e+12 1.167176e+10</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            Whiting         Sole      Gurnard       Plaice      Haddock</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> erepro 1.00000e-01 1.000000e-01 6.000000e-01 9.500000e-01 1.000000e-01</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> R_max  6.22081e+11 4.007876e+10 1.047481e+13 1.082568e+15 3.929056e+12</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                 Cod       Saithe</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> erepro          0.1 1.000000e-01</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> R_max  8280106764.0 1.145835e+11</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>               Sprat      Sandeel       N.pout      Herring         Dab</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> erepro            2            2 2.000000e+00 2.000000e+00           2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> R_max  734568053068 409973456848 1.010954e+13 1.105535e+12 11176346947</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             Whiting        Sole      Gurnard       Plaice      Haddock</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> erepro            2           2 1.395255e+00 2.000000e+00 2.000000e+00</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> R_max  544466527832 38630947185 1.215220e+12 6.059906e+13 1.787419e+12</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>               Cod       Saithe</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> erepro          2            2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> R_max  8259738057 111869833966</span>
 <span class="r-in"><span><span class="co"># Setting R_max</span></span></span>
-<span class="r-in"><span><span class="va">R_max</span> <span class="op">&lt;-</span> <span class="fl">1e17</span> <span class="op">*</span> <span class="fu"><a href="species_params.html">species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">w_max</span><span class="op">^</span><span class="op">-</span><span class="fl">1</span></span></span>
+<span class="r-in"><span><span class="va">R_max</span> <span class="op">&lt;-</span> <span class="fl">2</span> <span class="op">*</span> <span class="fu"><a href="getRDD.html">getRDD</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu">setBevertonHolt</span><span class="op">(</span><span class="va">NS_params</span>, R_max <span class="op">=</span> <span class="va">R_max</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `b` column so using the isometric default b = 3 in w = a l^b.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>The following species require an unrealistic value greater than 1 for `erepro`: Plaice</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span><span style="color: #BBBB00;">!</span> The following species require an unrealistic value greater than 1 for `erepro`: Gurnard</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> The following species require an unrealistic value greater than 1 for `erepro`: Plaice</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="fu"><a href="species_params.html">species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"erepro"</span>, <span class="st">"R_max"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>               Sprat      Sandeel       N.pout      Herring          Dab</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> erepro 9.274305e-03 1.297184e-04 7.257409e-02 8.045063e-03 4.224791e-03</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> R_max  3.030303e+15 2.777778e+15 1.000000e+15 2.994012e+14 3.086420e+14</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> erepro 1.851524e-02 2.589408e-04 1.434136e-01 1.602395e-02 8.429716e-03</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> R_max  1.462336e+12 8.198938e+11 1.949416e+13 2.202213e+12 2.230559e+10</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>             Whiting         Sole      Gurnard       Plaice      Haddock</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> erepro 1.292557e-02 3.571380e-03 5.609587e-01 3.773957e+01 6.020565e-02</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> R_max  8.389262e+13 1.154734e+14 1.497006e+14 3.360215e+13 2.316692e+13</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> erepro 2.562653e-02 7.124529e-03 1.116204e+00 1.839558e+00 1.111311e-01</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> R_max  1.081957e+12 7.712428e+10 1.458264e+12 6.546038e+13 3.475519e+12</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                 Cod       Saithe</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> erepro 6.375069e-05 2.433424e-03</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> R_max  2.509328e+12 2.521521e+12</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> erepro 1.268449e-04 4.643390e-03</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> R_max  1.651895e+10 2.234799e+11</span>
 <span class="r-in"><span><span class="co"># Setting reproduction_level</span></span></span>
 <span class="r-in"><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu">setBevertonHolt</span><span class="op">(</span><span class="va">params</span>, reproduction_level <span class="op">=</span> <span class="fl">0.3</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `b` column so using the isometric default b = 3 in w = a l^b.</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>The following species require an unrealistic value greater than 1 for `erepro`: Plaice</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="fu"><a href="species_params.html">species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"erepro"</span>, <span class="st">"R_max"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>               Sprat      Sandeel       N.pout      Herring          Dab</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> erepro 1.324581e-02 1.852847e-04 1.026645e-01 1.145066e-02 6.035197e-03</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> R_max  2.441029e+12 1.368905e+12 3.256200e+13 3.671952e+12 3.726224e+10</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> erepro 1.322517e-02 1.849577e-04 1.024383e-01 1.144568e-02 6.021226e-03</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> R_max  2.437226e+12 1.366490e+12 3.249026e+13 3.670356e+12 3.717598e+10</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>             Whiting         Sole      Gurnard       Plaice      Haddock</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> erepro 1.834577e-02 5.100263e-03 7.974655e-01 1.316046e+00 7.954325e-02</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> R_max  1.807310e+12 1.288262e+11 2.430980e+12 1.092730e+14 5.804489e+12</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> erepro 1.830466e-02 5.088950e-03 7.972884e-01 1.313970e+00 7.937939e-02</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> R_max  1.803261e+12 1.285405e+11 2.430440e+12 1.091006e+14 5.792531e+12</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                 Cod       Saithe</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> erepro 9.077210e-05 3.322021e-03</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> R_max  2.758282e+10 3.730633e+11</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> erepro 9.060350e-05 3.316707e-03</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> R_max  2.753159e+10 3.724666e+11</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Inspecting reproduction level</span></span></span>
 <span class="r-in"><span><span class="fu">reproduction_level</span><span class="op">(</span><span class="va">NS_params</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `b` column so using the isometric default b = 3 in w = a l^b.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `b` column so using the isometric default b = 3 in w = a l^b.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `b` column so using the isometric default b = 3 in w = a l^b.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `b` column so using the isometric default b = 3 in w = a l^b.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `b` column so using the isometric default b = 3 in w = a l^b.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      Sprat    Sandeel     N.pout    Herring        Dab    Whiting       Sole </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 0.99074238 0.99987053 0.92829319 0.99198802 0.99578514 0.98718674 0.99643774 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    Gurnard     Plaice    Haddock        Cod     Saithe </span>
@@ -334,20 +331,9 @@ fishing, leading to a higher F_MSY.</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># The reproduction level can be changed without changing the steady state:</span></span></span>
 <span class="r-in"><span><span class="fu">reproduction_level</span><span class="op">(</span><span class="va">params</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fl">0.9</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `b` column so using the isometric default b = 3 in w = a l^b.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>The following species require an unrealistic value greater than 1 for `erepro`: Gurnard, Plaice</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span><span style="color: #BBBB00;">!</span> The following species require an unrealistic value greater than 1 for `erepro`: Gurnard</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> The following species require an unrealistic value greater than 1 for `erepro`: Plaice</span>
 <span class="r-in"><span><span class="fu">reproduction_level</span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `b` column so using the isometric default b = 3 in w = a l^b.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `b` column so using the isometric default b = 3 in w = a l^b.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `b` column so using the isometric default b = 3 in w = a l^b.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `b` column so using the isometric default b = 3 in w = a l^b.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `b` column so using the isometric default b = 3 in w = a l^b.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Sprat Sandeel  N.pout Herring     Dab Whiting    Sole Gurnard  Plaice Haddock </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     0.9     0.9     0.9     0.9     0.9     0.9     0.9     0.9     0.9     0.9 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     Cod  Saithe </span>

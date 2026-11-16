@@ -37,11 +37,11 @@ class. Thus size-spectrum dynamics is the result of the interplay
 between the death rate and the changes in the growth rate. For the
 mathematically minded, this interplay is expressed by the partial
 differential equation \\\frac{\partial}{\partial t}N(w,t) =
--\frac{\partial}{\partial w}\big(N(w,t)g(w,t)\big) - \mu(w,t)\\ where
-\\N(w,t)\\ is the fish density at size \\w\\ and time \\t\\, \\g(w,t)\\
-is the growth rate of an individual of size \\w\\ at time \\t\\ and
-\\\mu(w,t)\\ is its death rate. There is no need for you to understand
-the mathematical notation.
+-\frac{\partial}{\partial w}\big(N(w,t)g(w,t)\big) - \mu(w,t)N(w,t)\\
+where \\N(w,t)\\ is the fish density at size \\w\\ and time \\t\\,
+\\g(w,t)\\ is the growth rate of an individual of size \\w\\ at time
+\\t\\ and \\\mu(w,t)\\ is its death rate. There is no need for you to
+understand the mathematical notation.
 
 Size-spectrum dynamics is like the traffic on a highway where cars can
 leave the highway (fish can die) at any point, but they can only join
@@ -612,6 +612,35 @@ That is not quite the result of the linear model fit, but that is the
 nature of numerical calculations: one gets discretisation errors and
 rounding errors.
 
+### The steady-state spectrum in general
+
+The power law for the juvenile spectrum is a special case of a general
+formula. Suppose eggs enter the spectrum at the egg size \\w_0\\ at a
+fixed rate \\R\\. Then at steady state the number density is \\N(w) =
+\frac{R}{g(w)}\exp\left(-\int\_{w_0}^{w}\frac{\mu(w')}{g(w')}\\dw'\right).\\
+Each part of this formula has a simple meaning:
+
+- The factor \\1/g(w)\\ says that fish pile up where they grow slowly.
+  This is the traffic-jam effect from the introduction.
+- The exponential is the proportion of fish that survive the journey
+  from the egg size to size \\w\\. The ratio \\\mu/g\\ inside the
+  integral is the mortality rate multiplied by the time a fish takes to
+  grow through one gram, so it is the risk of dying per gram of growth.
+  The integral adds up this risk over all the sizes that a fish has to
+  grow through to reach size \\w\\.
+
+If you put in the power laws \\g(w) = g_0\\w^p\\ and \\\mu(w) =
+\mu_0\\w^{p-1}\\, the integral works out as \\(\mu_0/g_0)\ln(w/w_0)\\
+and the formula reduces to the power law \\N(w) \propto w^{-\mu_0/g_0 -
+p}\\ that we checked above.
+
+The most important lesson from this formula is that the abundance at a
+size is not determined by the growth and mortality rates at that size
+alone. Through the integral it depends on the growth and mortality rates
+at all smaller sizes, because every fish had to grow through those
+first. We will see the consequences of this below, when we change the
+growth rate and the mortality rate.
+
 ## Shape of adult spectrum
 
 Now that we understand the shape of the size spectrum for the juvenile
@@ -860,7 +889,7 @@ species_params(params_changed_maturity)$erepro
 ```
 
     ## Target species 
-    ##      0.8894122
+    ##       0.899483
 
 When the population deviates from the steady state, for example due to a
 change in fishing, the reproduction rate can be set to change according
@@ -915,11 +944,43 @@ plotSpectra2(params, name1 = "original",
 
 ![](single_species_size-spectrum_dynamics_files/figure-html/unnamed-chunk-44-1.png)
 
-As expected, the lack of food and the resulting slow-down in growth
-leads to a traffic jam: a peak in the biomass density. This slow-down
-occurs at a size that is about a factor of 100 larger than the size at
-which food is reduced. Why this is we will discuss in the next section.
-But first investigate what happens when the prey abundance is increased
+The lack of food slows down the growth of fish that are about a factor
+of 100 larger than the prey that has been reduced. Why this is we will
+discuss in the next section. To see how the slow-down affects the
+spectrum it helps to look at relative changes.
+[`plotRelative()`](https://sizespectrum.org/mizer/reference/plotRelative.md)
+shows the relative difference between the growth rates in the two models
+and
+[`plotSpectraRelative()`](https://sizespectrum.org/mizer/reference/plotSpectraRelative.md)
+the relative difference between the abundances:
+
+``` r
+
+plotRelative(getEGrowth(params), getEGrowth(params_starved))
+```
+
+![](single_species_size-spectrum_dynamics_files/figure-html/unnamed-chunk-45-1.png)
+
+``` r
+
+plotSpectraRelative(params, params_starved, resource = FALSE)
+```
+
+![](single_species_size-spectrum_dynamics_files/figure-html/unnamed-chunk-45-2.png)
+
+The slow-down in growth affects the abundance in the two ways described
+by [the steady-state formula](#sec:steady_state_formula) above. Where
+the growth starts to slow down, fish pile up, like cars at the start of
+a traffic jam. This gives the small rise in abundance below 0.1 g. But
+the fish also take longer to grow through the sizes where growth is
+slow, so they are exposed to mortality for longer and fewer of them
+survive. Here this second effect is much larger, and it does not go away
+again: even at sizes above 10 g, where the growth rate is back to
+normal, there are about 13 times fewer fish than in the original model.
+After the traffic jam has cleared there are fewer cars on the road,
+because more of them left the highway while they were stuck.
+
+Now investigate what happens when the prey abundance is increased
 instead of decreased.
 
 > ### Exercise 5
@@ -942,7 +1003,10 @@ plotSpectra2(params, name1 = "original",
              per_log_size = TRUE)
 ```
 
-![](single_species_size-spectrum_dynamics_files/figure-html/unnamed-chunk-45-1.png)
+![](single_species_size-spectrum_dynamics_files/figure-html/unnamed-chunk-46-1.png)
+Now growth speeds up. Where it speeds up, the fish thin out a little,
+and because they spend less time exposed to mortality on the way, more
+of them survive to larger sizes.
 
 ### How predation is modelled
 
@@ -1007,7 +1071,7 @@ ggplot(melt(pred_kernel_10)) +
   scale_x_log10()
 ```
 
-![](single_species_size-spectrum_dynamics_files/figure-html/unnamed-chunk-48-1.png)
+![](single_species_size-spectrum_dynamics_files/figure-html/unnamed-chunk-49-1.png)
 
 We see that the predator of size 10g likes to feed on prey that is about
 a factor 100 smaller than itself, but also feeds on other sizes, just
@@ -1047,11 +1111,11 @@ pred_kernel(params_pk)[, 81, , drop = FALSE] %>%
   scale_x_log10()
 ```
 
-![](single_species_size-spectrum_dynamics_files/figure-html/unnamed-chunk-51-1.png)
+![](single_species_size-spectrum_dynamics_files/figure-html/unnamed-chunk-52-1.png)
 
 If we now again reduce the prey in the size range from 1mg to 10mg as
-before, we now expect this to produce a peak in the biomass spectrum
-somewhere between 1g and 10g. Let’s check.
+before, we now expect the slow-down in growth, and with it the drop in
+abundance, to happen somewhere between 1g and 10g. Let’s check.
 
 ``` r
 
@@ -1062,10 +1126,10 @@ plotSpectra2(params_starved, name1 = "beta = 100",
              per_log_size = TRUE)
 ```
 
-![](single_species_size-spectrum_dynamics_files/figure-html/unnamed-chunk-52-1.png)
+![](single_species_size-spectrum_dynamics_files/figure-html/unnamed-chunk-53-1.png)
 
 Yes, as expected: with the larger preferred predator/prey mass ratio the
-peak has moved to a larger size.
+drop has moved to larger sizes.
 
 For details of how `beta` and `sigma` parametrise the predation kernel,
 see
@@ -1103,7 +1167,7 @@ pred_kernel(params3)[, 61, , drop = FALSE] %>%
   scale_x_log10()
 ```
 
-![](single_species_size-spectrum_dynamics_files/figure-html/unnamed-chunk-53-1.png)
+![](single_species_size-spectrum_dynamics_files/figure-html/unnamed-chunk-54-1.png)
 
 > Next, plot the steady state arising with this feeding kernel when the
 > prey abundance is artificially reduced by a factor of 10 in the size
@@ -1121,7 +1185,7 @@ plotSpectra2(params, name1 = "original",
              per_log_size = TRUE)
 ```
 
-![](single_species_size-spectrum_dynamics_files/figure-html/unnamed-chunk-54-1.png)
+![](single_species_size-spectrum_dynamics_files/figure-html/unnamed-chunk-55-1.png)
 There is no pronounced bump created this time. This is because the
 larvae experience a decreased growth rate already almost from the start
 of their life, so there is no sharp slow-down at a particular size to
@@ -1161,7 +1225,7 @@ species_params(params)$gamma
     ## Target species 
     ##       2066.004
 
-We change that to 2000 and find the new steady state.
+We change that to 1000 and find the new steady state.
 
 ``` r
 
@@ -1178,7 +1242,7 @@ original model it looks as follows:
 plotGrowthCurves(params)
 ```
 
-![](single_species_size-spectrum_dynamics_files/figure-html/unnamed-chunk-57-1.png)
+![](single_species_size-spectrum_dynamics_files/figure-html/unnamed-chunk-58-1.png)
 
 In the modified model it looks like
 
@@ -1187,7 +1251,7 @@ In the modified model it looks like
 plotGrowthCurves(params_new_gamma)
 ```
 
-![](single_species_size-spectrum_dynamics_files/figure-html/unnamed-chunk-58-1.png)
+![](single_species_size-spectrum_dynamics_files/figure-html/unnamed-chunk-59-1.png)
 
 > ### Exercise 7
 >
@@ -1208,7 +1272,7 @@ plotSpectra2(params, name1 = "original",
              biomass = FALSE, resource = FALSE)
 ```
 
-![](single_species_size-spectrum_dynamics_files/figure-html/unnamed-chunk-59-1.png)
+![](single_species_size-spectrum_dynamics_files/figure-html/unnamed-chunk-60-1.png)
 
 ### Feeding level
 
@@ -1226,7 +1290,7 @@ In our simple model this feeding level is constant.
 plot2(getFeedingLevel(params), getFeedingLevel(params_new_gamma))
 ```
 
-![](single_species_size-spectrum_dynamics_files/figure-html/unnamed-chunk-60-1.png)
+![](single_species_size-spectrum_dynamics_files/figure-html/unnamed-chunk-61-1.png)
 
 In the model with the reduced search volume the feeding level is lower
 
@@ -1264,6 +1328,95 @@ animals that we have not included in our model, like sea birds or
 mammals, or it could be death from old age (senescent death) or disease.
 Mizer allows setting of background death with
 [`setExtMort()`](https://sizespectrum.org/mizer/reference/setExtMort.md).
+
+### Effect of a change in mortality
+
+How does a change in mortality change the steady-state spectrum? To find
+out we change the external mortality, which in our single-species model
+is all the mortality there is: the species does not feed on itself, the
+background community is fixed and we have not switched on fishing. The
+external mortality is returned by
+[`ext_mort()`](https://sizespectrum.org/mizer/reference/setExtMort.md)
+and can be changed with `ext_mort<-()`. Let us increase it by 50% for
+fish between 0.1 g and 1 g and find the new steady state:
+
+``` r
+
+params_mort <- params
+mort <- ext_mort(params)
+band1 <- w(params) >= 0.1 & w(params) < 1
+mort[, band1] <- mort[, band1] * 1.5
+ext_mort(params_mort) <- mort
+params_mort <- steadySingleSpecies(params_mort)
+plotSpectraRelative(params, params_mort, resource = FALSE)
+```
+
+![](single_species_size-spectrum_dynamics_files/figure-html/unnamed-chunk-63-1.png)
+
+The abundance falls across the band where the mortality has been
+increased, which is no surprise. But it then stays lower at all larger
+sizes, by a factor of about 2.7, even though the mortality at those
+sizes is exactly what it was before. Fewer fish make it through the
+band, and nothing at larger sizes makes up for that loss. This is the
+integral in [the steady-state formula](#sec:steady_state_formula) at
+work.
+
+Now let us in addition decrease the mortality by 50% for fish between 1
+g and 10 g:
+
+``` r
+
+params_mort2 <- params_mort
+band2 <- w(params) >= 1 & w(params) < 10
+mort[, band2] <- mort[, band2] * 0.5
+ext_mort(params_mort2) <- mort
+params_mort2 <- steadySingleSpecies(params_mort2)
+plotRelative(getMort(params), getMort(params_mort2))
+```
+
+![](single_species_size-spectrum_dynamics_files/figure-html/unnamed-chunk-64-1.png)
+
+``` r
+
+plotSpectraRelative(params, params_mort2, resource = FALSE)
+```
+
+![](single_species_size-spectrum_dynamics_files/figure-html/unnamed-chunk-64-2.png)
+
+The abundance falls across the first band and rises again across the
+second. Its lowest point is at 1 g, where the change in mortality
+switches from an increase to a decrease. It is not in the middle of the
+band where the mortality has been increased, even though the mortality
+is increased equally across the whole band.
+
+This follows from the steady-state formula. The change in the logarithm
+of the abundance at a size is minus the change in \\\mu/g\\ added up
+over all smaller sizes. It is a running total. As long as the fish grow
+through sizes where they do worse than before, every further bit of
+growth costs them a little more, so the running total keeps falling. It
+only starts to recover once the fish reach sizes where they do better
+than before. So the abundance has a minimum where the change in
+mortality switches from an increase to a decrease, and a maximum where
+it switches from a decrease to an increase. Think of a bath with the tap
+running and the plug pulled: the water level is the running total of
+what flows in minus what flows out, and it is highest not when the tap
+runs fastest but at the moment the outflow overtakes the inflow.
+
+The lines in the plot are almost straight because for juveniles in our
+model \\\mu/g\\ is proportional to \\1/w\\, so a 50% change in mortality
+changes the logarithm of the abundance by the same amount for every
+factor of 10 in size. More generally, because it is the ratio \\\mu/g\\
+that enters the formula, the same change in mortality has a larger
+effect where fish grow slowly. And when the growth rate changes as well,
+the factor \\1/g(w)\\ adds its local effect on top: fish pile up where
+growth slows down and thin out where it speeds up.
+
+This way of thinking is essential for understanding how size spectra
+respond in multi-species models. There the mortality and the growth
+rates change because the abundances of the predators and the prey
+change, and the result is a trophic cascade. See for example [the
+trophic cascade in the community
+model](https://sizespectrum.org/mizer/articles/community_model.html#sec:trophic_cascade_comm_model).
 
 ### Fishing mortality
 
@@ -1313,7 +1466,7 @@ initial_effort(params_fishing) <- 1
 plot2(getFMort(params), getFMort(params_fishing), log_x = FALSE)
 ```
 
-![](single_species_size-spectrum_dynamics_files/figure-html/unnamed-chunk-64-1.png)
+![](single_species_size-spectrum_dynamics_files/figure-html/unnamed-chunk-67-1.png)
 
 ## Outlook
 

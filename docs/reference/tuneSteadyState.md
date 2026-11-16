@@ -2,12 +2,23 @@
 
 **\[experimental\]**
 
-Solves for the consumer size spectra while holding the reproduction rate
-(RDD), the resource and any other components at the values stored in
-`params`, and then adjusts the parameters that generate those held
-values so that they are steady too. This is the function to use while
-setting up and calibrating a model: holding the inputs to the fish
-dynamics fixed is what makes the search reliable.
+Solves for a model's steady state using declared tuning strategies. The
+built-in defaults hold final recruitment and the resource abundance
+fixed, then adjust reproduction parameters and resource capacity.
+Extensions declare which states their strategies hold or evolve, what
+parameters may change, and how the held targets are balanced. The
+restored candidate is checked against every effective equation rate
+before its final steady assessment.
+
+It is not the function for asking where a model with given parameters
+settles. Because the reproduction rate is held at its current value, it
+cannot reach a steady state in which a species' reproduction rate is
+very different, such as an alternative stable state or a state that
+exists because predation changes the reproduction of the prey. Because
+it re-derives `erepro`/`R_max` and `cc_pp`, two states found with it do
+not share parameters. Use
+[`findSteadyState()`](https://sizespectrum.org/mizer/reference/findSteadyState.md)
+for those questions.
 
 ## Usage
 
@@ -18,6 +29,13 @@ tuneSteadyState(
   effort = params@initial_effort,
   preserve = c("reproduction_level", "erepro", "R_max"),
   info_level = default_info_level(),
+  scope = c("whole", "conditional"),
+  fixed = character(),
+  criterion = c("state", "biomass"),
+  tolerances = NULL,
+  atol = 1e-12,
+  strategies = NULL,
+  joint = NULL,
   ...
 )
 ```
@@ -43,11 +61,12 @@ tuneSteadyState(
 
 - preserve:
 
-  **\[experimental\]** Specifies whether the `reproduction_level` should
-  be preserved (default) or the maximum reproduction rate `R_max` or the
-  reproductive efficiency `erepro`. See
-  [`setBevertonHolt()`](https://sizespectrum.org/mizer/reference/setBevertonHolt.md)
-  for an explanation of the `reproduction_level`.
+  **\[experimental\]** An explicit reproduction-preservation choice,
+  such as `"erepro"`, `"R_max"` or `"reproduction_level"` for
+  Beverton-Holt reproduction. Omitting this argument selects the
+  provider's declared default strategy. Other laws support their own
+  controls; unsupported choices error. Do not combine this selector with
+  an explicit reproduction entry in `strategies`.
 
 - info_level:
 
@@ -56,14 +75,55 @@ tuneSteadyState(
   default is taken from the `mizer_info_level` option, see
   [`default_info_level()`](https://sizespectrum.org/mizer/reference/default_info_level.md).
 
+- scope:
+
+  `"whole"` or `"conditional"`.
+
+- fixed:
+
+  Owners held fixed for a conditional assessment. Use `"consumers"`,
+  `"resource"`, or `"component:name"` for a component named `name`. This
+  must be empty for whole-model assessments and nonempty for conditional
+  assessments.
+
+- criterion:
+
+  `"state"` for the absolute state residual, or `"biomass"` for net
+  biomass drift in the built-in checks.
+
+- tolerances:
+
+  Optional named numeric vector overriding individual tolerances. Names
+  are `owner/measure`, as shown in the `measures` table.
+
+- atol:
+
+  Absolute tolerance for built-in checks, in grams per year.
+
+- strategies:
+
+  Optional named character vector selecting a strategy for each
+  specified owner, such as `c(resource = "evolve")` or
+  `c("component:pool" = "hold")`. Omitted owners use their declared
+  defaults.
+
+- joint:
+
+  Names of joint strategies registered with
+  [`setTuningStrategy()`](https://sizespectrum.org/mizer/reference/setTuningStrategy.md).
+  `NULL` selects declared joint defaults;
+  [`character()`](https://rdrr.io/r/base/character.html) selects none. A
+  joint strategy replaces the local defaults of its owners. Conflicting
+  explicit local selections or overlapping joint ownership error.
+
 - ...:
 
   Arguments for the chosen solver.
 
   With `solver = "project"`: `t_max`, `t_check`, `dt`, `distance_tol`,
   `residual_tol`, `amplitude_tol`, `amp_rel_tol`,
-  `extinction_threshold`, `progress_bar` and `method`, all as described
-  in
+  `extinction_threshold`, `progress_bar`, `method`, `subcycle`,
+  `max_courant` and `max_substeps`, all as described in
   [`projectUntilSettled()`](https://sizespectrum.org/mizer/reference/projectUntilSettled.md).
   There is no `t_save`, because no trajectory is returned. Note that
   `distance_tol` here defaults to `0.1 * dt` and measures the largest
@@ -77,10 +137,10 @@ tuneSteadyState(
   With `solver = "newton"`: `solver_tol` (default `1e-6`), a tolerance
   on the per-capita rate of change passed to
   [`nleqslv::nleqslv()`](https://bertcarnell.github.io/nleqslv/reference/nleqslv.html).
-  It was called `residual_tol` before mizer 3.3, a name that now belongs
-  to the biomass drift criterion above; `maxit` (default `200`);
-  `jacobian`, either `"update"` (default, the Jacobian is computed once
-  and then updated cheaply each iteration — `nleqslv`'s `"Broyden"`) or
+  It was called `residual_tol` before mizer 3.3, a name now used by the
+  assessment criterion above; `maxit` (default `200`); `jacobian`,
+  either `"update"` (default, the Jacobian is computed once and then
+  updated cheaply each iteration — `nleqslv`'s `"Broyden"`) or
   `"recompute"` (a numerical Jacobian at every iteration — `nleqslv`'s
   `"Newton"`); `global`, the globalisation strategy (default `"dbldog"`,
   a robust double-dogleg trust region); and `verbose` to trace the
@@ -97,31 +157,32 @@ Check it: convergence is not guaranteed.
 
 ## Details
 
-Concretely, three things are held fixed during the search and two
-parameters are re-derived afterwards:
+Each provider supplies named strategies and a default. Use `strategies`
+to choose alternatives, and `joint` for declared strategies owning
+coupled processes. The selected strategies must cover the whole tuning
+operation without overlapping parameter ownership. Missing support,
+unknown stationary behaviour and unsupported solver combinations stop
+before the search.
 
-- The reproduction rate is pinned at `getRDD(params)`. Afterwards, if
-  the model uses Beverton-Holt reproduction,
-  [`setBevertonHolt()`](https://sizespectrum.org/mizer/reference/setBevertonHolt.md)
-  restores the density dependence so that it reproduces exactly that
-  rate at the new spectra. Use `preserve` to say which of the
-  reproduction parameters should be kept as it was.
+Recruitment targets come from the complete effective rate pipeline,
+including named replacements and extension wrappers. A held target
+replaces the final recruitment entering the equations, so wrappers are
+not applied a second time to a total that already includes their
+contribution.
 
-- The resource abundance is held at `initialNResource(params)`.
-  Afterwards the resource capacity `cc_pp` is recomputed so that this
-  abundance is a steady state of the resource under the new spectra. If
-  the capacity had been set by hand (frozen), it is rebalanced and
-  thereby unfrozen.
+Balancers run once after the constrained search. They must preserve the
+candidate state and all effective target equation rates, including
+growth, diffusion, total mortality and final recruitment. Mizer
+independently checks the released model; it does not repair changed
+rates by solving the consumers again or by choosing an undeclared
+numerical balancing method.
 
-- Other components are held constant throughout and are not adjusted.
-
-So the model you get back is at a fixed point of the *full* dynamics,
-with reproduction and the resource free, and
-[`getStability()`](https://sizespectrum.org/mizer/reference/getStability.md)
-can be applied to it directly. Contrast
-[`findSteadyState()`](https://sizespectrum.org/mizer/reference/findSteadyState.md),
-which changes no parameter and instead lets the reproduction rate and
-the resource move to wherever the parameters you already have put them.
+The `"convergence"` attribute separates `search_assessment`, measured
+with the selected state and rate constraints, from `assessment`,
+measured after restoring and balancing the model. Whole-model assessment
+is the default. Select `scope = "conditional"` with explicit `fixed`
+owners for a subsystem; those inputs must also be held by the selected
+tuning strategies.
 
 Holding those inputs fixed is what makes the search reliable, but it
 does not make the result certain: the state that is stored is only as
@@ -137,8 +198,8 @@ via
 [`projectUntilSettled()`](https://sizespectrum.org/mizer/reference/projectUntilSettled.md),
 using
 [`distanceMaxRelRDI()`](https://sizespectrum.org/mizer/reference/distanceMaxRelRDI.md)
-as its distance function. It needs no extra packages and works with any
-resource dynamics.
+as its distance function. It needs no extra packages. Every required
+dynamic state must provide convergence support.
 
 `solver = "newton"` solves the steady-state equation directly with a
 Newton-type root finder from the `nleqslv` package. It converges even
@@ -152,7 +213,9 @@ from a nearby stable parameterisation, or the (diverging) output of
 Because the resource is held fixed either way, `solver = "newton"` here
 does not need the resource to be a semichemostat, unlike in
 [`findSteadyState()`](https://sizespectrum.org/mizer/reference/findSteadyState.md)
-where the resource is one of the unknowns.
+where the resource is one of the unknowns. The Newton solver does not
+solve extension component states; dynamic components require explicit
+conditional exclusions with `fixed`, or use the projection solver.
 
 ## What you get back may not be a steady state
 
@@ -200,6 +263,19 @@ tolerance on the distance function to converge further." — but they are
 suppressed by `info_level = 0`, so in a script the `"convergence"`
 attribute is the reliable check.
 
+Even a genuine fixed point can be one the model cannot sustain. `erepro`
+is the proportion of the energy invested in reproduction that ends up as
+egg biomass, so if a re-derived `erepro` is greater than 1, the
+reproduction rate held during the search is inconsistent with the state
+that was found. Usually this means that the state you asked for does not
+exist with births held at their current values; try
+[`findSteadyState()`](https://sizespectrum.org/mizer/reference/findSteadyState.md)
+instead. mizer warns when this happens, but with the default `preserve`
+the warning reads the same for an `erepro` of 1.01 as for one of 1e34,
+and `info_level = 0` suppresses it, so look at the values:
+
+    species_params(params)$erepro          # greater than 1 is unrealistic
+
 Finally, a genuine fixed point need not be a *stable* one. Use
 [`getStability()`](https://sizespectrum.org/mizer/reference/getStability.md)
 to find out, and `solver = "newton"` to converge onto a fixed point that
@@ -221,7 +297,7 @@ the dynamics themselves would run away from.
 params <- newTraitParams()
 species_params(params)$gamma[5] <- 3000
 params <- tuneSteadyState(params)
-#> Reached the convergence tolerance after 12 years. The biomasses change at up to 0.0025 per year.
+#> Reached the convergence tolerance after 21 years. The biomasses change at up to 0.0026 per year. This is a conditional assessment with resource, consumers/recruitment held fixed.
 plotSpectra(params)
 
 # }

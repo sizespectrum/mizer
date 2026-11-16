@@ -92,9 +92,9 @@ plotM2(
 
   `time_range`
 
-  :   The time range (either a vector of values, a vector of min and max
-      time, or a single value) to average the predation mortality over.
-      Default is the final time step.
+  : The time range (either a vector of values, a vector of min and max
+    time, or a single value) to average the predation mortality over.
+    Default is the final time step.
 
 ## Value
 
@@ -136,8 +136,6 @@ Other plotting functions:
 # \donttest{
 params <-  NS_params
 sim <- project(params, effort=1, t_max=20, t_save = 2, progress_bar = FALSE)
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 plotPredMort(sim)
 
 plotPredMort(sim, time_range = 10:20)

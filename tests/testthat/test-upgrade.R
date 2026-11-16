@@ -308,3 +308,199 @@ test_that("schema-two upgrades distinguish known and unspecified fixed states", 
                      "prescribed")
     expect_identical(p$capabilities$schema_version, 2L)
 })
+
+test_that("Validating setters preserve extension upgrade ordering and stamps", {
+    table <- get(".__S3MethodsTable__.", asNamespace("utils"))
+    names <- c("upgrade.stats", "upgrade.utils")
+    old <- mget(names, table, ifnotfound = list(NULL))
+    withr::defer({
+        for (name in names) {
+            if (is.null(old[[name]])) rm(list = name, envir = table) else
+                assign(name, old[[name]], envir = table)
+        }
+    })
+    calls <- character()
+    inner <- function(p) {
+        calls <<- c(calls, "inner:start")
+        restored <- unserialize(serialize(p, NULL))
+        expect_false(extension_upgrade_active(restored))
+        expect_false(extension_upgrade_active(clone_params_runtime(restored)))
+        copied <- clone_params_runtime(p)
+        expect_true(extension_upgrade_active(copied))
+        expect_identical(attr(copied, "mizer_extension_upgrade"),
+                         attr(p, "mizer_extension_upgrade"))
+        expect_identical(unname(extensionVersions(p$extensions)["utils"]),
+                         "0.0.0")
+        p <- setComponent(p, "upgraded", initial_value = 1,
+                          dynamics_fun = "constant_other")
+        calls <<- c(calls, "inner:end")
+        p
+    }
+    outer <- function(p) {
+        calls <<- c(calls, "outer")
+        expect_identical(unname(extensionVersions(p$extensions)["utils"]),
+                         as.character(utils::packageVersion("utils")))
+        expect_identical(unname(extensionVersions(p$extensions)["stats"]),
+                         "0.0.0")
+        setProcess(p, "consumers", autonomous = TRUE)
+    }
+    registerS3method("upgrade", "utils", inner, envir = asNamespace("utils"))
+    registerS3method("upgrade", "stats", outer, envir = asNamespace("utils"))
+    p <- NS_params_small
+    p$extensions <- list(stats = c(requirement = NA, version = "0.0.0"),
+                         utils = c(requirement = NA, version = "0.0.0"))
+    q <- validParams(p)
+    expect_identical(calls, c("inner:start", "inner:end", "outer"))
+    expect_identical(q$initial_n_other$upgraded, 1)
+    expect_false(extension_needs_upgrading(q))
+    expect_true(extension_needs_upgrading(p))
+    expect_null(attr(q, "mizer_extension_upgrade"))
+    expect_length(extension_upgrade_runtime$active, 0)
+})
+
+test_that("Failed upgrades clear runtime guards and remain retryable", {
+    table <- get(".__S3MethodsTable__.", asNamespace("utils"))
+    name <- "upgrade.stats"
+    old <- get0(name, table, inherits = FALSE)
+    withr::defer({
+        if (is.null(old)) rm(list = name, envir = table) else
+            assign(name, old, envir = table)
+    })
+    captured <- NULL
+    fail <- function(p) {
+        captured <<- p
+        p <- setProcess(p, "consumers", autonomous = TRUE)
+        stop("migration failed")
+    }
+    registerS3method("upgrade", "stats", fail, envir = asNamespace("utils"))
+    p <- NS_params_small
+    p$extensions <- list(stats = c(requirement = NA, version = "0.0.0"))
+    expect_error(validParams(p), "migration failed")
+    expect_length(extension_upgrade_runtime$active, 0)
+    expect_false(extension_upgrade_active(captured))
+    expect_null(attr(p, "mizer_extension_upgrade"))
+    registerS3method("upgrade", "stats", function(p) p,
+                     envir = asNamespace("utils"))
+    q <- validParams(captured)
+    expect_false(extension_needs_upgrading(q))
+    expect_null(attr(q, "mizer_extension_upgrade"))
+    expect_true(extension_needs_upgrading(p))
+})
+
+test_that("Independent models can upgrade inside another migration", {
+    table <- get(".__S3MethodsTable__.", asNamespace("utils"))
+    name <- "upgrade.stats"
+    old <- get0(name, table, inherits = FALSE)
+    withr::defer({
+        if (is.null(old)) rm(list = name, envir = table) else
+            assign(name, old, envir = table)
+    })
+    p <- NS_params_small
+    p$extensions <- list(stats = c(requirement = NA, version = "0.0.0"))
+    calls <- 0L
+    nested <- NULL
+    upgrade <- function(candidate) {
+        calls <<- calls + 1L
+        if (calls == 1L) nested <<- validParams(p)
+        validParams(candidate)
+    }
+    registerS3method("upgrade", "stats", upgrade,
+                     envir = asNamespace("utils"))
+    q <- validParams(p)
+    expect_identical(calls, 2L)
+    expect_false(extension_needs_upgrading(q))
+    expect_false(extension_needs_upgrading(nested))
+    expect_null(attr(q, "mizer_extension_upgrade"))
+    expect_null(attr(nested, "mizer_extension_upgrade"))
+    expect_length(extension_upgrade_runtime$active, 0)
+})
+
+test_that("Scaling inside an upgrade retains the active guard", {
+    table <- get(".__S3MethodsTable__.", asNamespace("utils"))
+    name <- "upgrade.stats"
+    old <- get0(name, table, inherits = FALSE)
+    withr::defer({
+        if (is.null(old)) rm(list = name, envir = table) else
+            assign(name, old, envir = table)
+    })
+    hook_calls <- 0L
+    rlang::local_bindings(
+        scale_upgrade_pool = function(params, before, component, details, ...) {
+            hook_calls <<- hook_calls + 1L
+            expect_true(extension_upgrade_active(params))
+            expect_true(extension_upgrade_active(before))
+            params$initial_n_other[[component]] <-
+                before$initial_n_other[[component]] * details$factor
+            params
+        }, .env = globalenv()
+    )
+    calls <- 0L
+    upgrade <- function(candidate) {
+        calls <<- calls + 1L
+        if (calls > 1L) stop("Scaling restarted the migration")
+        candidate <- setComponent(candidate, "stock", initial_value = 2,
+            dynamics_fun = "constant_other", transformations = list(
+                scale_abundance = list(action = "update",
+                                       transform_fun = "scale_upgrade_pool"),
+                scale_rates = list(action = "none")
+            )
+        )
+        for (owner in c("consumers", "resource", "reproduction")) {
+            candidate <- setProcess(candidate, owner, transformations = list(
+                scale_abundance = list(action = "none"),
+                scale_rates = list(action = "none")
+            ))
+        }
+        scaleRates(scaleModel(candidate, 2), 3)
+    }
+    registerS3method("upgrade", "stats", upgrade,
+                     envir = asNamespace("utils"))
+    p <- NS_params_small
+    p$extensions <- list(stats = c(requirement = NA, version = "0.0.0"))
+    q <- validParams(p)
+    expect_identical(calls, 1L)
+    expect_identical(hook_calls, 1L)
+    expect_equal(q$initial_n, 2 * p$initial_n)
+    expect_equal(q$initial_n_pp, 2 * p$initial_n_pp)
+    expect_equal(q$metab, 3 * p$metab, ignore_attr = TRUE)
+    expect_equal(q$initial_n_other$stock, 4)
+    expect_null(p$initial_n_other$stock)
+    expect_false(extension_needs_upgrading(q))
+    expect_true(extension_needs_upgrading(p))
+    expect_null(attr(q, "mizer_extension_upgrade"))
+    expect_length(extension_upgrade_runtime$active, 0)
+})
+
+test_that("Grid reconstruction inside an upgrade retains the active guard", {
+    table <- get(".__S3MethodsTable__.", asNamespace("utils"))
+    name <- "upgrade.stats"
+    old <- get0(name, table, inherits = FALSE)
+    withr::defer({
+        if (is.null(old)) rm(list = name, envir = table) else
+            assign(name, old, envir = table)
+    })
+    calls <- 0L
+    upgrade <- function(candidate) {
+        calls <<- calls + 1L
+        if (calls > 1L) stop("Grid reconstruction restarted the migration")
+        for (owner in c("consumers", "resource", "reproduction")) {
+            candidate <- setProcess(candidate, owner, transformations = list(
+                size_grid = list(action = "none")
+            ))
+        }
+        step <- candidate$w[[2L]] / candidate$w[[1L]]
+        adjustSizeGrid(candidate, new_max_w = max(candidate$w) * step)
+    }
+    registerS3method("upgrade", "stats", upgrade,
+                     envir = asNamespace("utils"))
+    p <- NS_params_small
+    p$extensions <- list(stats = c(requirement = NA, version = "0.0.0"))
+    q <- validParams(p)
+    expect_identical(calls, 1L)
+    expect_length(q$w, length(p$w) + 1L)
+    expect_equal(q$initial_n[, seq_along(p$w)], p$initial_n)
+    expect_false(extension_needs_upgrading(q))
+    expect_true(extension_needs_upgrading(p))
+    expect_null(attr(q, "mizer_extension_upgrade"))
+    expect_length(extension_upgrade_runtime$active, 0)
+})

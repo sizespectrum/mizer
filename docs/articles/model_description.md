@@ -368,7 +368,7 @@ loss due to activity and movement, scaling with exponent \\1\\: \\{\tt
 metab}\_i(w) = k\_{s.i}\\w^p + k_i\\w.\\ See the help page for
 [`setMetabolicRate()`](https://sizespectrum.org/mizer/reference/setMetabolicRate.md).
 
-The remaining rate, if any,  
+The remaining rate, if any,\
 is then available for growth and reproduction. So the rate at which
 energy becomes available for growth and reproduction is \\ \label{eq:Er}
 E\_{r.i}(w) = \max(0, \alpha_i f_i(w)\\ h_i(w) - {\tt metab}\_i(w)) \\

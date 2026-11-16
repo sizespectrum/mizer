@@ -96,7 +96,7 @@ Useful optional arguments to
 | `max_w` | largest consumer-grid size; by default the largest species `w_max`, and it cannot be smaller than any species’ `w_max` |
 | `min_w_pp` | smallest target size for the resource grid; it must be below the consumer grid and resolves to `1e-12` g when omitted |
 | [`gear_params`](https://sizespectrum.org/mizer/reference/gear_params.md) | fishing gear definitions (usually omitted and configured later — see the [guide to setting up fishing](https://sizespectrum.org/mizer/articles/guide-set-up-fishing.md); defaults to a knife-edge gear catching every species) |
-| [`second_order_w`](https://sizespectrum.org/mizer/reference/second_order_w.md) | use the second-order size-advection scheme; see the section “Numerical scheme: watch for numerical diffusion” in the [guide to running a mizer simulation](https://sizespectrum.org/mizer/articles/guide-run-simulation.md) |
+| [`second_order_w`](https://sizespectrum.org/mizer/reference/second_order_w.md) | use the second-order scheme in size (`TRUE`) or the first-order one (`FALSE`); by default the scheme of the active defaults edition, second order from edition 3 on; see the section “Numerical scheme: watch for numerical diffusion” in the [guide to running a mizer simulation](https://sizespectrum.org/mizer/articles/guide-run-simulation.md) |
 
 The `no_w` bins are equally spaced in log weight between the resulting
 consumer-grid minimum and `max_w`. The resource uses the same spacing

@@ -13,7 +13,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0.9011</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -230,6 +230,13 @@
 
         <dt>
 
+          <code><a href="reorderSpecies.html">reorderSpecies()</a></code>
+
+        </dt>
+        <dd>Reorder species</dd>
+
+        <dt>
+
           <code><a href="renameGear.html">renameGear()</a></code>
 
         </dt>
@@ -299,6 +306,13 @@
           <span class="badge lifecycle lifecycle-experimental">experimental</span>
         </dt>
         <dd>Check whether a model is at steady state</dd>
+
+        <dt>
+
+          <code><a href="getSteadyAssessment.html">getSteadyAssessment()</a></code>
+          <span class="badge lifecycle lifecycle-experimental">experimental</span>
+        </dt>
+        <dd>Assess the steady state of the whole model or a conditional subsystem</dd>
 
         <dt>
 
@@ -480,6 +494,13 @@
           <span class="badge lifecycle lifecycle-experimental">experimental</span>
         </dt>
         <dd>Project the dynamics until they settle</dd>
+
+        <dt>
+
+          <code><a href="getCourant.html">getCourant()</a></code>
+
+        </dt>
+        <dd>Growth Courant numbers on the consumer size grid</dd>
       </dl></div><div class="section level2">
       <h2 id="accessing-results">Accessing results<a class="anchor" aria-label="anchor" href="#accessing-results"></a></h2>
 
@@ -557,10 +578,24 @@
 
         <dt>
 
+          <code><a href="getEncounterByPrey.html">getEncounterByPrey()</a></code>
+
+        </dt>
+        <dd>Get encounter rate of predator at size, resolved by food source</dd>
+
+        <dt>
+
           <code><a href="getGrowthCurves.html">getGrowthCurves()</a></code>
 
         </dt>
         <dd>Get growth curves giving weight as a function of age</dd>
+
+        <dt>
+
+          <code><a href="getMortByCause.html">getMortByCause()</a></code>
+
+        </dt>
+        <dd>Diagnose mortality by cause</dd>
 
         <dt>
 
@@ -668,6 +703,20 @@
 
         </dt>
         <dd>Get all rates</dd>
+
+        <dt>
+
+          <code><a href="getMortByCause.html">getMortByCause()</a></code>
+
+        </dt>
+        <dd>Diagnose mortality by cause</dd>
+
+        <dt>
+
+          <code><a href="mizerMortalityBreakdown.html">mizerMortalityBreakdown()</a></code>
+
+        </dt>
+        <dd>Build the standard mortality diagnostic from supplied rates</dd>
 
         <dt>
 
@@ -1148,6 +1197,41 @@
 
         <dt>
 
+          <code><a href="setProcess.html">setProcess()</a></code> <code><a href="setProcess.html">getProcess()</a></code>
+
+        </dt>
+        <dd>Declare capabilities for a model process</dd>
+
+        <dt>
+
+          <code><a href="mizerReproductionDefinition.html">mizerReproductionDefinition()</a></code>
+
+        </dt>
+        <dd>Reuse the built-in reproduction capability definition</dd>
+
+        <dt>
+
+          <code><a href="setTuningStrategy.html">setTuningStrategy()</a></code>
+
+        </dt>
+        <dd>Register a joint tuning strategy</dd>
+
+        <dt>
+
+          <code><a href="setTransformation.html">setTransformation()</a></code>
+
+        </dt>
+        <dd>Register a joint model transformation</dd>
+
+        <dt>
+
+          <code><a href="convolve_pred_kernel.html">convolve_pred_kernel()</a></code>
+          <span class="badge lifecycle lifecycle-experimental">experimental</span>
+        </dt>
+        <dd>Sum over the predation kernel</dd>
+
+        <dt>
+
           <code><a href="initialNOther-set.html">`initialNOther&lt;-`()</a></code> <code><a href="initialNOther-set.html">initialNOther()</a></code>
 
         </dt>
@@ -1375,6 +1459,13 @@
 
         <dt>
 
+          <code><a href="balanceRDD.html">balanceRDD()</a></code>
+
+        </dt>
+        <dd>Balance the active reproduction law while preserving dynamical rates</dd>
+
+        <dt>
+
           <code><a href="getRequiredRDD.html">getRequiredRDD()</a></code>
 
         </dt>
@@ -1461,6 +1552,13 @@
 
         <dt>
 
+          <code><a href="mizerMortalityBreakdown.html">mizerMortalityBreakdown()</a></code>
+
+        </dt>
+        <dd>Build the standard mortality diagnostic from supplied rates</dd>
+
+        <dt>
+
           <code><a href="mizerPredMort.html">projectPredMort()</a></code> <code><a href="mizerPredMort.html">mizerPredMort()</a></code>
 
         </dt>
@@ -1479,6 +1577,13 @@
 
         </dt>
         <dd>Get density-independent rate of reproduction needed to project standard mizer model</dd>
+
+        <dt>
+
+          <code><a href="mizerReproductionDefinition.html">mizerReproductionDefinition()</a></code>
+
+        </dt>
+        <dd>Reuse the built-in reproduction capability definition</dd>
 
         <dt>
 
@@ -1724,6 +1829,13 @@
 
         <dt>
 
+          <code><a href="measure_avail_energy.html">measure_avail_energy()</a></code>
+
+        </dt>
+        <dd>Measure the available energy in a power-law prey spectrum</dd>
+
+        <dt>
+
           <code><a href="needs_upgrading.html">needs_upgrading()</a></code>
 
         </dt>
@@ -1815,7 +1927,7 @@
 
         <dt>
 
-          <code><a href="defaults_edition.html">defaults_edition()</a></code>
+          <code><a href="defaults_edition.html">defaults_edition()</a></code> <code><a href="defaults_edition.html">`defaults_edition&lt;-`()</a></code>
 
         </dt>
         <dd>Default editions</dd>

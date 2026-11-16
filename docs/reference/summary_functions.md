@@ -11,6 +11,7 @@ A list of available summary functions is given in the table below.
 |----|----|----|
 | Function | Returns | Description |
 | [`getDiet()`](https://sizespectrum.org/mizer/reference/getDiet.md) | Three dimensional array (predator x size x prey) | Diet of predator at size, resolved by prey species |
+| [`getEncounterByPrey()`](https://sizespectrum.org/mizer/reference/getEncounterByPrey.md) | Three dimensional array (predator x size x prey) | Encounter rate of predator at size, resolved by prey species |
 | [`getTrophicLevel()`](https://sizespectrum.org/mizer/reference/getTrophicLevel.md) | `ArraySpeciesBySize` (species x size) | Trophic level of individuals at size, accounting for ontogenetic diet shifts |
 | [`getTrophicLevelBySpecies()`](https://sizespectrum.org/mizer/reference/getTrophicLevelBySpecies.md) | Named vector (species) | Consumption-rate-weighted mean trophic level of each species |
 | [`getSSB()`](https://sizespectrum.org/mizer/reference/getSSB.md) | Two dimensional array (time x species) | Total Spawning Stock Biomass (SSB) of each species through time where SSB is calculated as the sum of weight of all mature individuals. |

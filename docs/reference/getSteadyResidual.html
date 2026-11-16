@@ -23,7 +23,7 @@ at its steady state?"><meta property="og:image" content="https://sizespectrum.or
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0.9011</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -140,8 +140,8 @@ accurate. Not used for the consumers, whose rate is exact.</p></dd>
 <dd><p><a href="https://lifecycle.r-lib.org/articles/stages.html#experimental" class="external-link"><img src="figures/lifecycle-experimental.svg" alt="[Experimental]"></a>
 Which rate of change to report. <code>"biomass"</code> (the default) gives the
 contribution of each size class to the relative rate of change of its
-species' biomass, which sums over sizes to the drift that <code><a href="isSteady.html">isSteady()</a></code>
-judges a model by. <code>"per_capita"</code> gives the rate of change of each size
+species' biomass, which sums over sizes to its net biomass drift.
+<code>"per_capita"</code> gives the rate of change of each size
 class relative to its own density. See the sections above.</p></dd>
 
 </dl></div>
@@ -159,9 +159,8 @@ over <code>w_full</code>.</p></dd>
 <dt><code>other</code></dt>
 <dd><p>A named list with one entry per other component, holding
 its per-capita rate of change, or <code>NA</code> for a component whose state is
-not numeric. These are reported but not folded into the biomass drift
-that <code><a href="isSteady.html">isSteady()</a></code> judges a model by: mizer does not know what a
-component's state is measured in, so it cannot form a biomass for it.</p></dd>
+not numeric. These remain numerical diagnostics. Components declare
+their convergence measures separately for <code><a href="getSteadyAssessment.html">getSteadyAssessment()</a></code>.</p></dd>
 
 
 </dl></div>
@@ -181,12 +180,10 @@ biomass, so it follows whichever quadrature scheme the model is on (see
 <code><a href="second_order_w.html">second_order_w()</a></code>), and the values <strong>add up over sizes to the relative rate
 of change of the species' biomass</strong>:</p>
 <p></p><div class="sourceCode r"><pre><code><span><span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowSums</a></span><span class="op">(</span><span class="fu"><a href="../reference/getSteadyResidual.html">getSteadyResidual</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">)</span>    <span class="co"># (dB_i/dt) / B_i, one per species</span></span></code></pre><p></p></div>
-<p>That total is the number <code><a href="isSteady.html">isSteady()</a></code>, the <code><a href="summary.html">summary()</a></code> line of a
-<a href="MizerParams-class.html">MizerParams</a> object and <code>project(check_steady = TRUE)</code> all judge
-a model by, and it is the drift that would actually show up in
-<code><a href="plotBiomass.html">plotBiomass()</a></code>. This array therefore says <em>where</em> a model is unsteady in the
-same currency that mizer uses to decide <em>whether</em> it is, and a size class can
-only be conspicuous in it if it is moving enough biomass to matter.</p>
+<p>That total is the drift that would show up in <code><a href="plotBiomass.html">plotBiomass()</a></code>. It remains a
+numerical diagnostic: <code><a href="getSteadyAssessment.html">getSteadyAssessment()</a></code> separately checks convergence
+across the whole model, using absolute state residuals by default. A size
+class can only be conspicuous here if it is moving enough biomass to matter.</p>
 <p>That last property is why this is the default. A size class near the egg size
 turns over in hours, and one above the size where growth stops decays
 exponentially towards zero for ever; both carry enormous <em>per-capita</em> rates
@@ -227,13 +224,26 @@ the instantaneous rate with no time-discretisation error. The resource and
 other components have arbitrary user-supplied dynamics functions, so their
 rates are obtained by taking one short step of length <code>dt</code>, accurate to
 \(O(dt)\).</p>
+<p>Empty classes above a species' retained size support contribute zero when
+transport holds that tail at zero: with a higher-order flux, or when the
+evaluated diffusion is positive anywhere in the model. This removes inflow
+into excluded empty classes, while retaining outgoing losses from the last
+included class and recruitment into the egg class. Empty classes inside the
+support can still fill and contribute to the drift. With upwind transport
+and no diffusion, the legacy Euler step can fill an empty tail, so those
+contributions are retained.</p>
+<p>This correction applies only at exactly zero density. Populated classes
+above the support retain their algebraic rates, including mortality decay.
+A projection that clamps such a populated tail removes its abundance
+immediately; that discontinuous change is not represented by this finite
+instantaneous diagnostic.</p>
 <p>Everything is evaluated at the model's own stored state — <code><a href="initialN-set.html">initialN()</a></code>,
 <code><a href="initialNResource-set.html">initialNResource()</a></code>, <code><a href="initialNOther-set.html">initialNOther()</a></code> — using the model's own reproduction
 function and its own <code>resource_dynamics</code>. Nothing is substituted or held
-fixed. The number therefore answers exactly "if I called <code><a href="project.html">project()</a></code> now,
-would anything move?", which is why it works for every model rather than only
-for the semichemostat resource that <code>findSteadyState(solver = "newton")</code>
-requires.</p>
+fixed. Subject to the tail behaviour above, the number answers "if I called
+<code><a href="project.html">project()</a></code> now, would anything move?" for general resource dynamics,
+including those beyond the semichemostat resource required by
+<code>findSteadyState(solver = "newton")</code>.</p>
 </div>
 
 <div class="section">
@@ -267,7 +277,9 @@ other.</p>
 <p>Other summary functions:
 <code><a href="getBiomass.html">getBiomass()</a></code>,
 <code><a href="getDiet.html">getDiet()</a></code>,
+<code><a href="getEncounterByPrey.html">getEncounterByPrey()</a></code>,
 <code><a href="getGrowthCurves.html">getGrowthCurves()</a></code>,
+<code><a href="getMortByCause.html">getMortByCause()</a></code>,
 <code><a href="getN.html">getN()</a></code>,
 <code><a href="getSSB.html">getSSB()</a></code>,
 <code><a href="getTrophicLevel.html">getTrophicLevel()</a></code>,
@@ -280,8 +292,6 @@ other.</p>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># The relative rate of change of each species' biomass, in 1/year</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowSums</a></span><span class="op">(</span><span class="fu">getSteadyResidual</span><span class="op">(</span><span class="va">NS_params</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `b` column so using the isometric default b = 3 in w = a l^b.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        Sprat      Sandeel       N.pout      Herring          Dab      Whiting </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 0.0032783633 0.0013206130 0.0138556255 0.0080776332 0.0050505885 0.0037296515 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>         Sole      Gurnard       Plaice      Haddock          Cod       Saithe </span>
@@ -296,6 +306,13 @@ other.</p>
 <span class="r-in"><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="calibrateBiomass.html">calibrateBiomass</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="matchBiomasses.html">matchBiomasses</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> `matchBiomasses()` has rescaled the model and so moved it off its steady state. Run `tuneSteadyState()` to settle it again. You can check with `getSteadyResidual()`.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span><span style="color: #BBBB00;">!</span> The following species require an unrealistic value greater than 1 for `erepro`: Dab</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> The following species require an unrealistic value greater than 1 for `erepro`: Whiting</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> The following species require an unrealistic value greater than 1 for `erepro`: Sole</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> The following species require an unrealistic value greater than 1 for `erepro`: Gurnard</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> The following species require an unrealistic value greater than 1 for `erepro`: Plaice</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> The following species require an unrealistic value greater than 1 for `erepro`: Haddock</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> The following species require an unrealistic value greater than 1 for `erepro`: Saithe</span>
 <span class="r-in"><span><span class="fu"><a href="plot.html">plot</a></span><span class="op">(</span><span class="fu">getSteadyResidual</span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="getSteadyResidual-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="co"># }</span></span></span>

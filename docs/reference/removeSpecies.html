@@ -5,9 +5,9 @@
       fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
     }
   };
-</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.1/jquery-3.6.1.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet"><script src="../extra.js"></script><meta property="og:title" content="Remove species — removeSpecies"><meta name="description" content="This function simply removes all entries from the MizerParams object that
+</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.1/jquery-3.6.1.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet"><script src="../extra.js"></script><meta property="og:title" content="Remove species — removeSpecies"><meta name="description" content="This function removes all entries from the MizerParams object that
 refer to the selected species. It does not recalculate the steady state for
-the remaining species or retune their reproductive efficiency."><meta property="og:description" content="This function simply removes all entries from the MizerParams object that
+the remaining species or retune their reproductive efficiency."><meta property="og:description" content="This function removes all entries from the MizerParams object that
 refer to the selected species. It does not recalculate the steady state for
 the remaining species or retune their reproductive efficiency."><meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png"><meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R"><meta name="twitter:card" content="summary"><meta name="twitter:creator" content="@mizer_model"><meta name="twitter:site" content="@mizer_model"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -17,7 +17,7 @@ the remaining species or retune their reproductive efficiency."><meta property="
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0.9011</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -92,14 +92,20 @@ the remaining species or retune their reproductive efficiency."><meta property="
     </div>
 
     <div class="ref-description section level2">
-    <p>This function simply removes all entries from the MizerParams object that
+    <p>This function removes all entries from the MizerParams object that
 refer to the selected species. It does not recalculate the steady state for
 the remaining species or retune their reproductive efficiency.</p>
     </div>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">removeSpecies</span><span class="op">(</span><span class="va">params</span>, <span class="va">species</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">removeSpecies</span><span class="op">(</span></span>
+<span>  <span class="va">params</span>,</span>
+<span>  <span class="va">species</span>,</span>
+<span>  compensate <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  info_level <span class="op">=</span> <span class="fu"><a href="default_info_level.html">default_info_level</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -116,6 +122,20 @@ numeric vector of species indices, or a logical vector indicating for
 each species whether it is to be removed (TRUE) or not.</p></dd>
 
 
+<dt id="arg-compensate">compensate<a class="anchor" aria-label="anchor" href="#arg-compensate"></a></dt>
+<dd><p>If <code>TRUE</code>, the external rates of the remaining species
+are adjusted and checked to preserve growth, diffusion, mortality and
+recruitment at the initial state. Supported resource dynamics are balanced.
+See the section
+"Compensating for the removed species". Default is <code>FALSE</code>.</p></dd>
+
+
+<dt id="arg-info-level">info_level<a class="anchor" aria-label="anchor" href="#arg-info-level"></a></dt>
+<dd><p>Controls the amount of information messages that are
+shown. Higher levels lead to more messages. Set to 0 to suppress all such
+messages.</p></dd>
+
+
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
 <dd><p>Currently unused.</p></dd>
 
@@ -126,9 +146,51 @@ each species whether it is to be removed (TRUE) or not.</p></dd>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>If a gear was targeting only the removed species, then this function will
+    <p>Removing species changes the rates of the species that remain: the
+predators of the removed species lose some of their food, so their encounter
+rate drops, and the prey of the removed species lose some of their
+predators, so their predation mortality drops. A model that was at steady
+state is therefore no longer at steady state after the removal. If you want
+the remaining species not to notice the removal, set <code>compensate = TRUE</code>, as
+described in the section "Compensating for the removed species" below.</p>
+<p>If a gear was targeting only the removed species, then this function will
 NOT remove that gear. If you want to also remove that gear then you can do
 that by calling <code><a href="setFishing.html">setFishing()</a></code>.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="compensating-for-the-removed-species">Compensating for the removed species<a class="anchor" aria-label="anchor" href="#compensating-for-the-removed-species"></a></h2>
+
+
+<p>With <code>compensate = TRUE</code>, the external rates of the remaining species take
+over what the removed species contributed to their rates:</p><ul><li><p>the food that the remaining species found in the removed species is added
+to their external encounter rate, see <code><a href="setExtEncounter.html">setExtEncounter()</a></code>,</p></li>
+<li><p>the predation mortality that the removed species imposed on the remaining
+species is added to their external mortality rate, see <code><a href="setExtMort.html">setExtMort()</a></code>,</p></li>
+<li><p>the diffusion that the removed prey species caused is added to the
+external diffusion rate, see <code><a href="setExtDiffusion.html">setExtDiffusion()</a></code>. This only matters if
+<code><a href="use_predation_diffusion.html">use_predation_diffusion()</a></code> is switched on.</p></li>
+</ul><p>Compensation is evaluated through the complete effective rate pipeline at
+the initial state. After trimming species and running all declared hooks,
+mizer checks growth, diffusion, total mortality and final recruitment of
+every remaining species. A failed check stops the operation. These quantities
+are preserved at this state; their responses to later changes may differ.</p>
+<p>For the built-in semichemostat and logistic resource, reduced predation is
+balanced analytically by changing capacity, using the effective resource
+mortality. This puts the resource at steady state and keeps its renewal rate.
+A capacity set manually is replaced. A constant resource needs no adjustment.
+Custom resource dynamics and other components require explicit removal
+support; their hooks receive <code>details$compensate</code> and are responsible for
+their own compensation. This is not a whole-model steady-state guarantee.</p>
+<p>The core adds each external-rate shortfall once. Custom callbacks that scale
+or otherwise alter that response need an authored transformation hook with
+permission to update the affected arrays. Mizer does not estimate a numerical
+correction for an unknown callback.</p>
+<p>Each external rate that is changed is marked as set manually. A later
+change to the species parameters that the rate is usually calculated from
+(such as <code>E_ext</code>, <code>z0</code> or <code>D_ext</code>) therefore does not overwrite the
+compensation; mizer tells you when it ignores such a change. External rates
+to which the removed species contributed nothing are left unchanged and
+unmarked.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -142,11 +204,23 @@ that by calling <code><a href="setFishing.html">setFishing()</a></code>.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "Sprat"   "Sandeel" "N.pout"  "Herring" "Dab"     "Whiting" "Sole"   </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [8] "Gurnard" "Plaice"  "Haddock" "Cod"     "Saithe" </span>
 <span class="r-in"><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu">removeSpecies</span><span class="op">(</span><span class="va">params</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Cod"</span>, <span class="st">"Haddock"</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `b` column so using the isometric default b = 3 in w = a l^b.</span>
 <span class="r-in"><span><span class="fu"><a href="species_params.html">species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">species</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "Sprat"   "Sandeel" "N.pout"  "Herring" "Dab"     "Whiting" "Sole"   </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [8] "Gurnard" "Plaice"  "Saithe" </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Removing Cod and Haddock moves the model off its steady state, unless the</span></span></span>
+<span class="r-in"><span><span class="co"># remaining species are compensated for their loss</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowSums</a></span><span class="op">(</span><span class="fu"><a href="getSteadyResidual.html">getSteadyResidual</a></span><span class="op">(</span><span class="fu">removeSpecies</span><span class="op">(</span><span class="va">NS_params</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Cod"</span>, <span class="st">"Haddock"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       Sprat     Sandeel      N.pout     Herring         Dab     Whiting </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.24068904  0.09865627  0.45749567  0.42999736  0.38410262  0.42358061 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        Sole     Gurnard      Plaice      Saithe </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.25579948  0.43635238  0.30499751 -0.01867903 </span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowSums</a></span><span class="op">(</span><span class="fu"><a href="getSteadyResidual.html">getSteadyResidual</a></span><span class="op">(</span><span class="fu">removeSpecies</span><span class="op">(</span><span class="va">NS_params</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Cod"</span>, <span class="st">"Haddock"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                                        compensate <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       Sprat     Sandeel      N.pout     Herring         Dab     Whiting </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 0.003278363 0.001320613 0.013855625 0.008077633 0.005050589 0.003729652 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        Sole     Gurnard      Plaice      Saithe </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 0.003286390 0.009183216 0.006807205 0.002111153 </span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

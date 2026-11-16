@@ -10,7 +10,16 @@ state: the map does not amplify perturbations when the spectral radius
 ## Usage
 
 ``` r
-getDiscreteStability(params, effort = params@initial_effort, h = 1e-04, dt = 1)
+getDiscreteStability(
+  params,
+  effort = params@initial_effort,
+  h = 1e-04,
+  dt = 1,
+  scope = c("whole", "conditional"),
+  fixed = character(),
+  t = 0,
+  stability_tol = 1e-08
+)
 ```
 
 ## Arguments
@@ -38,6 +47,24 @@ getDiscreteStability(params, effort = params@initial_effort, h = 1e-04, dt = 1)
 
   The time step size of the one-step map. Default `1`.
 
+- scope:
+
+  `"whole"` (the default) or `"conditional"`.
+
+- fixed:
+
+  Canonical owner IDs held fixed for an explicitly conditional analysis:
+  `"consumers"`, `"resource"`, or `"component:name"`.
+
+- t:
+
+  Time at which to evaluate the state and rates, in years.
+
+- stability_tol:
+
+  Nonnegative margin used to distinguish strict stability or instability
+  from a marginal spectrum. Default `1e-8`.
+
 ## Value
 
 A named list with the following components:
@@ -54,7 +81,9 @@ A named list with the following components:
 
 - `stable`:
 
-  Logical: `TRUE` when `spectral_radius < 1`.
+  `TRUE` below `1 - stability_tol`, `FALSE` above `1 + stability_tol`,
+  and otherwise `NA`. Requires complete coverage and a passing scoped
+  steady assessment.
 
 - `dt`:
 
@@ -73,6 +102,10 @@ A named list with the following components:
 - `params`:
 
   The validated `params` object the analysis was made at.
+
+Scope, coverage and assessment fields are the same as
+[`getStability()`](https://sizespectrum.org/mizer/reference/getStability.md).
+Missing support gives `NULL` eigenvalues and an inconclusive verdict.
 
 ## Details
 
@@ -114,6 +147,15 @@ here reproduces a single `project(method = "euler")` step exactly, which
 is what makes the spectral radius a statement about mizer's solver
 rather than about a nearby scheme.
 
+With excluded coordinates, this is the projected map \\P\_{dynamic}
+\Phi\_{dt}(x\_{dynamic}, x\_{fixed})\\: the full Euler step is evaluated
+at the fixed inputs, then only dynamic output coordinates are retained.
+Excluded inputs are restored before the next step. This need not equal
+discretising the constrained continuous equations: an implicit solve can
+couple excluded and dynamic rows within a step. A provider declaring
+structural prescribed inputs remains responsible for honouring that
+claim in its own equations and step map.
+
 ## Requires smooth dynamics
 
 The finite-difference Jacobian is only meaningful if the rates of change
@@ -124,8 +166,9 @@ the state sits on the switching threshold, some perturbations straddle
 it and pick up the jump, and the reported eigenvalues then vary wildly
 with `h`. If the state is near but not on the threshold, no perturbation
 crosses it, and the function silently returns the stability of the
-single branch the state happens to lie on — which can read as `stable`
-for a model whose simulations never settle.
+single branch the state happens to lie on. Those local eigenvalues do
+not describe trajectories that cross the discontinuity. A stability
+verdict additionally requires a passing scoped steady assessment.
 
 Re-running with a different `h` is the cheapest check: if the answer
 moves, do not trust it. See [Discontinuous rate

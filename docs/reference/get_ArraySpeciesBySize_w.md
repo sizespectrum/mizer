@@ -1,8 +1,8 @@
 # Get the size grid for an ArraySpeciesBySize object
 
-Internal helper that returns the consumer size grid `params@w` or the
-full prey/resource size grid `params@w_full`, depending on the number of
-columns in the array.
+Internal helper that follows the array's mapping to the original
+consumer or prey/resource grid. A subset keeps its original bins even if
+its width happens to equal the length of a different grid.
 
 ## Usage
 

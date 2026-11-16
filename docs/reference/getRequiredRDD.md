@@ -5,7 +5,7 @@ Determine reproduction rate needed for initial egg abundance
 ## Usage
 
 ``` r
-getRequiredRDD(params, ...)
+getRequiredRDD(params, ..., rates = NULL)
 ```
 
 ## Arguments
@@ -16,7 +16,13 @@ getRequiredRDD(params, ...)
 
 - ...:
 
-  Unused.
+  Arguments passed to methods.
+
+- rates:
+
+  Optional already evaluated rate list for this model's initial state
+  and effort, used to share an effective evaluation with a caller. Must
+  contain growth, total mortality and diffusion. Usually omitted.
 
 ## Value
 

@@ -182,6 +182,7 @@ where it is also possible to specify an effort that varies through time.
 [`gear_params()`](https://sizespectrum.org/mizer/reference/gear_params.md)
 
 Other functions for setting parameters:
+[`balanceRDD()`](https://sizespectrum.org/mizer/reference/balanceRDD.md),
 [`gear_params()`](https://sizespectrum.org/mizer/reference/gear_params.md),
 [`setExtDiffusion()`](https://sizespectrum.org/mizer/reference/setExtDiffusion.md),
 [`setExtEncounter()`](https://sizespectrum.org/mizer/reference/setExtEncounter.md),

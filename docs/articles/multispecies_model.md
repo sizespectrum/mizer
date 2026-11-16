@@ -344,9 +344,10 @@ summary(params)
 ```
 
     ## An object of class "MizerParams" 
-    ## mizer version: 3.4.0
-    ## Created: 2026-09-02 10:04:24
-    ## Modified: 2026-09-02 10:04:24
+    ## mizer version: 3.4.0.9011
+    ## Defaults edition: 1
+    ## Created: 2026-11-16 08:26:14
+    ## Modified: 2026-11-16 08:26:14
     ## Consumer size spectrum:
     ##  minimum size:   0.001
     ##  maximum size:   60066
@@ -356,7 +357,8 @@ summary(params)
     ##  maximum size:   8.48399
     ##  no. size bins:  166 (215 size bins in total)
     ## Steady state:
-    ##  biomass drift:  1.4 /year   (not at steady state, largest in Sandeel - run tuneSteadyState())
+    ##  assessment: not at steady state (whole scope)
+    ##  largest tolerance ratio:    30 (consumers/Sandeel)
     ## Species details:
     ## An object of class "species_params" containing parameters for 12 species:
     ##  species w_inf w_mat w_min   beta sigma
@@ -593,9 +595,10 @@ summary(params)
 ```
 
     ## An object of class "MizerParams" 
-    ## mizer version: 3.4.0
-    ## Created: 2026-09-02 10:04:24
-    ## Modified: 2026-09-02 10:04:26
+    ## mizer version: 3.4.0.9011
+    ## Defaults edition: 1
+    ## Created: 2026-11-16 08:26:14
+    ## Modified: 2026-11-16 08:26:15
     ## Consumer size spectrum:
     ##  minimum size:   0.001
     ##  maximum size:   60066
@@ -605,7 +608,8 @@ summary(params)
     ##  maximum size:   8.48399
     ##  no. size bins:  166 (215 size bins in total)
     ## Steady state:
-    ##  biomass drift:  1.4 /year   (not at steady state, largest in Sandeel - run tuneSteadyState())
+    ##  assessment: not at steady state (whole scope)
+    ##  largest tolerance ratio:    30.1 (consumers/Sandeel)
     ## Species details:
     ## An object of class "species_params" containing parameters for 12 species:
     ##  species w_inf w_mat w_min   beta sigma

@@ -106,6 +106,9 @@ for how to do this.
   : Species parameters
 - [`record_given_species_params()`](https://sizespectrum.org/mizer/reference/record_given_species_params.md)
   **\[experimental\]** : Record the species parameters that have changed
+- [`reconcileSpeciesParams()`](https://sizespectrum.org/mizer/reference/reconcileSpeciesParams.md)
+  **\[experimental\]** : Reconcile the species parameters with the given
+  species parameters
 - [`gear_params()`](https://sizespectrum.org/mizer/reference/gear_params.md)
   [`` `gear_params<-`() ``](https://sizespectrum.org/mizer/reference/gear_params.md)
   [`is.gear_params()`](https://sizespectrum.org/mizer/reference/gear_params.md)
@@ -125,6 +128,8 @@ for how to do this.
   : Remove species
 - [`renameSpecies()`](https://sizespectrum.org/mizer/reference/renameSpecies.md)
   : Rename species
+- [`reorderSpecies()`](https://sizespectrum.org/mizer/reference/reorderSpecies.md)
+  : Reorder species
 - [`renameGear()`](https://sizespectrum.org/mizer/reference/renameGear.md)
   : Rename gears
 - [`adjustSizeGrid()`](https://sizespectrum.org/mizer/reference/adjustSizeGrid.md)
@@ -179,6 +184,9 @@ reproduces the observations.
   **\[experimental\]** : Find the steady state of a model
 - [`isSteady()`](https://sizespectrum.org/mizer/reference/isSteady.md)
   **\[experimental\]** : Check whether a model is at steady state
+- [`getSteadyAssessment()`](https://sizespectrum.org/mizer/reference/getSteadyAssessment.md)
+  **\[experimental\]** : Assess the steady state of the whole model or a
+  conditional subsystem
 - [`getSteadyResidual()`](https://sizespectrum.org/mizer/reference/getSteadyResidual.md)
   **\[experimental\]** : How far a model is from its steady state
 - [`getStability()`](https://sizespectrum.org/mizer/reference/getStability.md)
@@ -265,6 +273,8 @@ object containing the full time series of size spectra.
   Project size spectrum forward in time
 - [`projectUntilSettled()`](https://sizespectrum.org/mizer/reference/projectUntilSettled.md)
   **\[experimental\]** : Project the dynamics until they settle
+- [`getCourant()`](https://sizespectrum.org/mizer/reference/getCourant.md)
+  : Growth Courant numbers on the consumer size grid
 
 ## Accessing results
 
@@ -303,8 +313,12 @@ introduces these functions.
   each time step.
 - [`getDiet()`](https://sizespectrum.org/mizer/reference/getDiet.md) :
   Get diet of predator at size, resolved by prey species
+- [`getEncounterByPrey()`](https://sizespectrum.org/mizer/reference/getEncounterByPrey.md)
+  : Get encounter rate of predator at size, resolved by food source
 - [`getGrowthCurves()`](https://sizespectrum.org/mizer/reference/getGrowthCurves.md)
   : Get growth curves giving weight as a function of age
+- [`getMortByCause()`](https://sizespectrum.org/mizer/reference/getMortByCause.md)
+  : Diagnose mortality by cause
 - [`getN()`](https://sizespectrum.org/mizer/reference/getN.md) :
   Calculate the number of individuals within a size range
 - [`getSSB()`](https://sizespectrum.org/mizer/reference/getSSB.md) :
@@ -369,6 +383,10 @@ the background resource* spectrum, not a component of fish mortality
 
 - [`getRates()`](https://sizespectrum.org/mizer/reference/getRates.md) :
   Get all rates
+- [`getMortByCause()`](https://sizespectrum.org/mizer/reference/getMortByCause.md)
+  : Diagnose mortality by cause
+- [`mizerMortalityBreakdown()`](https://sizespectrum.org/mizer/reference/mizerMortalityBreakdown.md)
+  : Build the standard mortality diagnostic from supplied rates
 - [`getDiffusion()`](https://sizespectrum.org/mizer/reference/getDiffusion.md)
   : Get diffusion rate from predation
 - [`getEGrowth()`](https://sizespectrum.org/mizer/reference/getEGrowth.md)
@@ -592,42 +610,60 @@ and gear parameters with your own rate arrays.
   [`` `selectivity<-`() ``](https://sizespectrum.org/mizer/reference/setFishing.md)
   : Set fishing parameters
 
-## Extending Mizer
+## Extending mizer
 
-See the [guide to extending
-mizer](https://sizespectrum.org/mizer/articles/guide-extend-mizer.html),
-[Using mizer extension
-packages](https://sizespectrum.org/mizer/articles/guide-use-extension-packages.html)
-and [Creating a mizer extension
-package](https://sizespectrum.org/mizer/articles/guide-create-extension-package.html)
-for more details.
+Functions for customising a model with new rate functions or ecosystem
+components. See the [guide to extending
+mizer](https://sizespectrum.org/mizer/articles/guide-extend-mizer.html).
 
 - [`setRateFunction()`](https://sizespectrum.org/mizer/reference/setRateFunction.md)
   [`getRateFunction()`](https://sizespectrum.org/mizer/reference/setRateFunction.md)
   [`other_params()`](https://sizespectrum.org/mizer/reference/setRateFunction.md)
   [`` `other_params<-`() ``](https://sizespectrum.org/mizer/reference/setRateFunction.md)
   : Set own rate function to replace mizer rate function
+- [`other_mort()`](https://sizespectrum.org/mizer/reference/other_mort.md)
+  [`` `other_mort<-`() ``](https://sizespectrum.org/mizer/reference/other_mort.md)
+  [`other_encounter()`](https://sizespectrum.org/mizer/reference/other_mort.md)
+  [`` `other_encounter<-`() ``](https://sizespectrum.org/mizer/reference/other_mort.md)
+  : Extra contributions to the mortality and encounter rates
 - [`setComponent()`](https://sizespectrum.org/mizer/reference/setComponent.md)
   [`removeComponent()`](https://sizespectrum.org/mizer/reference/setComponent.md)
   [`getComponent()`](https://sizespectrum.org/mizer/reference/setComponent.md)
   : Add a dynamical ecosystem component
+- [`setProcess()`](https://sizespectrum.org/mizer/reference/setProcess.md)
+  [`getProcess()`](https://sizespectrum.org/mizer/reference/setProcess.md)
+  : Declare capabilities for a model process
+- [`mizerReproductionDefinition()`](https://sizespectrum.org/mizer/reference/mizerReproductionDefinition.md)
+  : Reuse the built-in reproduction capability definition
+- [`setTuningStrategy()`](https://sizespectrum.org/mizer/reference/setTuningStrategy.md)
+  : Register a joint tuning strategy
+- [`setTransformation()`](https://sizespectrum.org/mizer/reference/setTransformation.md)
+  : Register a joint model transformation
+- [`convolve_pred_kernel()`](https://sizespectrum.org/mizer/reference/convolve_pred_kernel.md)
+  **\[experimental\]** : Sum over the predation kernel
 - [`` `initialNOther<-`() ``](https://sizespectrum.org/mizer/reference/initialNOther-set.md)
   [`initialNOther()`](https://sizespectrum.org/mizer/reference/initialNOther-set.md)
   : Initial values for other ecosystem components
 - [`NOther()`](https://sizespectrum.org/mizer/reference/NOther.md)
   [`finalNOther()`](https://sizespectrum.org/mizer/reference/NOther.md)
   : Time series of other components
-- [`coerceToExtensionClass()`](https://sizespectrum.org/mizer/reference/coerceToExtensionClass.md)
-  : Coerce a mizer object to its extension class
-- [`other_mort()`](https://sizespectrum.org/mizer/reference/other_mort.md)
-  [`` `other_mort<-`() ``](https://sizespectrum.org/mizer/reference/other_mort.md)
-  [`other_encounter()`](https://sizespectrum.org/mizer/reference/other_mort.md)
-  [`` `other_encounter<-`() ``](https://sizespectrum.org/mizer/reference/other_mort.md)
-  : Extra contributions to the mortality and encounter rates
-- [`recordExtension()`](https://sizespectrum.org/mizer/reference/recordExtension.md)
-  : Record an extension and its version stamp on a mizer object
 - [`customFunction()`](https://sizespectrum.org/mizer/reference/customFunction.md)
   **\[experimental\]** : Replace a mizer function with a custom version
+
+## Creating extension packages
+
+Infrastructure used by extension package constructors to record their
+package and apply its S3 class. Model users do not need to call these
+functions;
+[`readParams()`](https://sizespectrum.org/mizer/reference/saveParams.md)
+and validation manage existing objects. See the [guide to creating an
+extension
+package](https://sizespectrum.org/mizer/articles/guide-create-extension-package.html).
+
+- [`recordExtension()`](https://sizespectrum.org/mizer/reference/recordExtension.md)
+  : Record an extension and its version stamp on a mizer object
+- [`coerceToExtensionClass()`](https://sizespectrum.org/mizer/reference/coerceToExtensionClass.md)
+  : Coerce a mizer object to its extension class
 
 ## Predation kernels
 
@@ -708,6 +744,8 @@ energy invested in reproduction and the actual egg production rate.
   [`reproduction_level()`](https://sizespectrum.org/mizer/reference/setBevertonHolt.md)
   [`` `reproduction_level<-`() ``](https://sizespectrum.org/mizer/reference/setBevertonHolt.md)
   : Set Beverton-Holt reproduction without changing the steady state
+- [`balanceRDD()`](https://sizespectrum.org/mizer/reference/balanceRDD.md)
+  : Balance the active reproduction law while preserving dynamical rates
 - [`getRequiredRDD()`](https://sizespectrum.org/mizer/reference/getRequiredRDD.md)
   : Determine reproduction rate needed for initial egg abundance
 
@@ -750,6 +788,8 @@ calculate instantaneous rates at each time step. You should use the
 - [`projectMort()`](https://sizespectrum.org/mizer/reference/mizerMort.md)
   [`mizerMort()`](https://sizespectrum.org/mizer/reference/mizerMort.md)
   : Get total mortality rate needed to project standard mizer model
+- [`mizerMortalityBreakdown()`](https://sizespectrum.org/mizer/reference/mizerMortalityBreakdown.md)
+  : Build the standard mortality diagnostic from supplied rates
 - [`projectPredMort()`](https://sizespectrum.org/mizer/reference/mizerPredMort.md)
   [`mizerPredMort()`](https://sizespectrum.org/mizer/reference/mizerPredMort.md)
   : Get total predation mortality rate needed to project standard mizer
@@ -761,6 +801,8 @@ calculate instantaneous rates at each time step. You should use the
   [`mizerRDI()`](https://sizespectrum.org/mizer/reference/mizerRDI.md) :
   Get density-independent rate of reproduction needed to project
   standard mizer model
+- [`mizerReproductionDefinition()`](https://sizespectrum.org/mizer/reference/mizerReproductionDefinition.md)
+  : Reuse the built-in reproduction capability definition
 - [`projectResourceMort()`](https://sizespectrum.org/mizer/reference/mizerResourceMort.md)
   [`mizerResourceMort()`](https://sizespectrum.org/mizer/reference/mizerResourceMort.md)
   : Get predation mortality rate for resource needed to project standard
@@ -896,6 +938,10 @@ users building extensions or working with model objects directly.
 - [`project_simple()`](https://sizespectrum.org/mizer/reference/project_simple.md)
   : Project abundances by a given number of time steps into the future
 
+- [`reconcileSpeciesParams()`](https://sizespectrum.org/mizer/reference/reconcileSpeciesParams.md)
+  **\[experimental\]** : Reconcile the species parameters with the given
+  species parameters
+
 - [`record_given_species_params()`](https://sizespectrum.org/mizer/reference/record_given_species_params.md)
   **\[experimental\]** : Record the species parameters that have changed
 
@@ -919,14 +965,15 @@ users building extensions or working with model objects directly.
   : Helper function to assure validity of species argument
 
 - [`defaults_edition()`](https://sizespectrum.org/mizer/reference/defaults_edition.md)
+  [`` `defaults_edition<-`() ``](https://sizespectrum.org/mizer/reference/defaults_edition.md)
   : Default editions
 
 ## Classes
 
-The S4 and S3 classes used by mizer, together with functions for
-constructing, inspecting, comparing, and validating them.
+The S3 classes used by mizer, together with functions for constructing,
+inspecting, comparing, and validating them.
 
-- [`` `@`( ``*`<MizerParams>`*`)`](https://sizespectrum.org/mizer/reference/MizerParams-class.md)
+- [`MizerParams-class`](https://sizespectrum.org/mizer/reference/MizerParams-class.md)
   : A class to hold the parameters for a size based model.
 
 - [`summary(`*`<ArraySpeciesBySize>`*`)`](https://sizespectrum.org/mizer/reference/summary.md)
@@ -949,7 +996,7 @@ constructing, inspecting, comparing, and validating them.
 - [`validParams()`](https://sizespectrum.org/mizer/reference/validParams.md)
   : Validate MizerParams object and upgrade if necessary
 
-- [`` `@`( ``*`<MizerSim>`*`)`](https://sizespectrum.org/mizer/reference/MizerSim-class.md)
+- [`MizerSim-class`](https://sizespectrum.org/mizer/reference/MizerSim-class.md)
   : A class to hold the results of a simulation
 
 - [`getSimParams()`](https://sizespectrum.org/mizer/reference/getSimParams.md)
@@ -1164,6 +1211,8 @@ ones warn and will eventually be removed.
 
 - [Upgrading your mizer
   code](https://sizespectrum.org/mizer/articles/upgrading.md):
+- [Upgrading your extension
+  package](https://sizespectrum.org/mizer/articles/upgrading-extension-packages.md):
 
 ### Technical articles
 

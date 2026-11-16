@@ -23,5 +23,8 @@ core mizer upgrade is \emph{not} run here; see \code{\link[=upgrade.MizerParams]
 Extension upgrade methods are looked up with
 \code{getS3method("upgrade", name, optional = TRUE)}, must perform only their own
 migration, must be idempotent, and must not call \code{NextMethod()}.
+Validating setters called during a migration do not re-enter the upgrade
+chain for that candidate. Version stamps remain unchanged until each method
+returns successfully; independent nested models can still be upgraded.
 }
 \keyword{internal}

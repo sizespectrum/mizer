@@ -29,7 +29,9 @@ at each time step for all species.
 Other summary functions:
 [`getBiomass()`](https://sizespectrum.org/mizer/reference/getBiomass.md),
 [`getDiet()`](https://sizespectrum.org/mizer/reference/getDiet.md),
+[`getEncounterByPrey()`](https://sizespectrum.org/mizer/reference/getEncounterByPrey.md),
 [`getGrowthCurves()`](https://sizespectrum.org/mizer/reference/getGrowthCurves.md),
+[`getMortByCause()`](https://sizespectrum.org/mizer/reference/getMortByCause.md),
 [`getN()`](https://sizespectrum.org/mizer/reference/getN.md),
 [`getSteadyResidual()`](https://sizespectrum.org/mizer/reference/getSteadyResidual.md),
 [`getTrophicLevel()`](https://sizespectrum.org/mizer/reference/getTrophicLevel.md),

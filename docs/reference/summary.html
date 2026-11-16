@@ -15,7 +15,7 @@ array classes returned by many mizer functions."><meta property="og:image" conte
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0.9011</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -163,12 +163,11 @@ species. Pass <code>all.sizes = TRUE</code> for the whole grid.</p>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
 <span class="r-in"><span><span class="fu">summary</span><span class="op">(</span><span class="va">NS_params</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `b` column so using the isometric default b = 3 in w = a l^b.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> An object of class "MizerParams" </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> mizer version: 3.0.0.9003</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Created: 2021-09-03 21:29:38</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Modified: 2026-06-24 14:50:03</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> mizer version: 3.4.0.9010</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Defaults edition: 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Created: 2021-09-03 20:29:38</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Modified: 2026-11-16 02:30:12</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Consumer size spectrum:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 	minimum size:	0.001</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 	maximum size:	39851.3</span>
@@ -178,7 +177,8 @@ species. Pass <code>all.sizes = TRUE</code> for the whole grid.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 	maximum size:	9.82091</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 	no. size bins:	179	(226 size bins in total)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Steady state:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 	biomass drift:	0.014 /year	(at steady state)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 	assessment:	at steady state (whole scope)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 	largest tolerance ratio:	0.279 (consumers/N.pout)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Species details:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> An object of class "species_params" containing parameters for 12 species:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  species   w_inf w_mat w_min  f0   beta sigma</span>
@@ -206,9 +206,10 @@ species. Pass <code>all.sizes = TRUE</code> for the whole grid.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> An object of class "MizerSim" </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Parameters:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> An object of class "MizerParams" </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> mizer version: 3.0.0.9003</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Created: 2021-09-03 21:30:02</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Modified: 2026-06-24 14:50:03</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> mizer version: 3.4.0.9010</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Defaults edition: 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Created: 2021-09-03 20:30:02</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Modified: 2026-11-16 02:30:14</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Consumer size spectrum:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 	minimum size:	0.001</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 	maximum size:	39851.3</span>
@@ -218,7 +219,8 @@ species. Pass <code>all.sizes = TRUE</code> for the whole grid.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 	maximum size:	9.82091</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 	no. size bins:	171	(218 size bins in total)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Steady state:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 	biomass drift:	0.91 /year	(not at steady state, largest in Cod - run tuneSteadyState())</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 	assessment:	not at steady state (whole scope)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 	largest tolerance ratio:	18.2 (consumers/Cod)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Species details:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> An object of class "species_params" containing parameters for 12 species:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  species   w_inf w_mat w_min   beta sigma</span>
@@ -256,14 +258,6 @@ species. Pass <code>all.sizes = TRUE</code> for the whole grid.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 	Output stored every 1 years</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 	Time step 	Method: </span>
 <span class="r-in"><span><span class="fu">summary</span><span class="op">(</span><span class="fu"><a href="getEncounter.html">getEncounter</a></span><span class="op">(</span><span class="va">NS_params</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `b` column so using the isometric default b = 3 in w = a l^b.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `b` column so using the isometric default b = 3 in w = a l^b.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `b` column so using the isometric default b = 3 in w = a l^b.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `b` column so using the isometric default b = 3 in w = a l^b.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Encounter rate [g/year] </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 12 species x 100 sizes</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -295,7 +289,7 @@ species. Pass <code>all.sizes = TRUE</code> for the whole grid.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  Gurnard 0.0000000000 0.00541050 0.1054407</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Plaice 0.0089964121 0.18786555 0.8670560</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  Haddock 0.0015854377 0.22672527 1.4275500</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      Cod 0.0494762790 0.36512704 1.0721072</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      Cod 0.0494762790 0.37063678 1.0721081</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Saithe 0.0009633361 0.15208058 1.2032857</span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>

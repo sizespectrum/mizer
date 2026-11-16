@@ -5,9 +5,9 @@ Internal helper, the three-dimensional analogue of
 Returns the geometric bin centres (see
 [`bin_midpoints()`](https://sizespectrum.org/mizer/reference/bin_midpoints.md))
 when the array is tagged as a bin average and the model uses
-second-order bin-averaging, otherwise the grid nodes read from the size
-dimension names. Falls back to the dimension names when no `params` is
-attached.
+second-order bin-averaging, otherwise the original grid nodes. The
+stored size mapping preserves these coordinates through subsetting.
+Falls back to dimension names when no model grid is available.
 
 ## Usage
 

@@ -96,6 +96,37 @@ class(params)
 # [1] "mizerShelf" "mizerMR" "MizerParams"
 ```
 
+## Which operations does an extension support?
+
+A model can project successfully while lacking support for tuning, changing
+species, rescaling or whole-model stability. The model stores separate
+capability declarations for those operations. A model-changing operation stops
+when required extension support is missing; updating the extension package and
+upgrading the saved model is the appropriate next step.
+
+Read-only assessments can return incomplete information. `isSteady()` and the
+`stable` field of a stability result can be `NA`; use `isTRUE()` when proceeding
+requires a positive verdict. Inspect `getSteadyAssessment(params)` or a stability
+result's `coverage` to see the missing support. To deliberately analyse a
+subsystem, request `scope = "conditional"` and name the dynamic owners held
+fixed, for example `fixed = "component:pool"`. That result remains conditional.
+
+Biomass inclusion is explicit:
+
+```r
+biomass <- getBiomass(sim, include = c("species", "resource", "components"))
+plot(biomass)
+```
+
+The default remains species-only. A component can provide several named biomass
+series, and a component without a biomass measurement is shown as unavailable
+when requested. Convergence does not depend on having a biomass measurement.
+
+Reusable definitions are stored as assembled snapshots in each model. Installing
+a newer extension does not silently adopt every changed definition: the
+extension's upgrade method or an explicit update applies the appropriate
+changes. Save the upgraded model to retain those declarations.
+
 ## Params objects and the extension chain
 
 When an extension package creates a `MizerParams` object (for example

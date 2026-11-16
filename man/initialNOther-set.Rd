@@ -30,6 +30,7 @@ Values used as starting values for simulations with \code{project()}.
 Other extension tools:
 \code{\link[=NOther]{NOther()}},
 \code{\link[=coerceToExtensionClass]{coerceToExtensionClass()}},
+\code{\link[=mizerReproductionDefinition]{mizerReproductionDefinition()}},
 \code{\link[=other_mort]{other_mort()}},
 \code{\link[=recordExtension]{recordExtension()}},
 \code{\link[=setComponent]{setComponent()}},

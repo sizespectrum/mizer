@@ -34,7 +34,8 @@ params <- tuneSteadyState(params)
 | [`steadySingleSpecies(params)`](https://sizespectrum.org/mizer/reference/steadySingleSpecies.md) | set each species to its single-species steady form, births held fixed, without changing the resource — a fast way to get a sensible starting spectrum before [`tuneSteadyState()`](https://sizespectrum.org/mizer/reference/tuneSteadyState.md) |
 | [`findSteadyState(params)`](https://sizespectrum.org/mizer/reference/findSteadyState.md) | change **no parameter**: births, resource and spectra settle together wherever the parameters you already have put them |
 | [`projectUntilSettled(params)`](https://sizespectrum.org/mizer/reference/projectUntilSettled.md) | the same run as [`findSteadyState(params)`](https://sizespectrum.org/mizer/reference/findSteadyState.md) but returning the [`MizerSim`](https://sizespectrum.org/mizer/reference/MizerSim.md), when you want to watch the approach |
-| [`isSteady(params)`](https://sizespectrum.org/mizer/reference/isSteady.md) | *(experimental)* ask whether a model **is** at its steady state (boolean) |
+| [`isSteady(params)`](https://sizespectrum.org/mizer/reference/isSteady.md) | *(experimental)* `TRUE` if every required measure passes, `FALSE` if any fails, `NA` if coverage is incomplete without a demonstrated failure |
+| [`getSteadyAssessment(params)`](https://sizespectrum.org/mizer/reference/getSteadyAssessment.md) | *(experimental)* measures, tolerances, scope and missing support behind that verdict |
 | [`getSteadyResidual(params)`](https://sizespectrum.org/mizer/reference/getSteadyResidual.md) | *(experimental)* each size class’s contribution to its species’ biomass drift, showing where it is not; [`rowSums()`](https://rdrr.io/r/base/colSums.html) gives the per-species drift |
 
 The two finders differ in **what they keep**.
@@ -49,11 +50,74 @@ you almost always want
 or
 [`steadySingleSpecies()`](https://sizespectrum.org/mizer/reference/steadySingleSpecies.md)
 first: holding births constant lets the search settle reliably onto *a*
-steady state. Use the `preserve` argument to choose whether
-[`reproduction_level`](https://sizespectrum.org/mizer/reference/setBevertonHolt.md)
-(default), `R_max`, or `erepro` is held fixed while
+steady state. Each process supplies a named default tuning strategy.
+Built-in Beverton-Holt and Ricker strategies preserve their law-specific
+[`reproduction_level`](https://sizespectrum.org/mizer/reference/setBevertonHolt.md).
+Use `preserve` for an explicitly supported alternative, such as
+`"erepro"` or `"R_max"` for Beverton-Holt, or select named strategies
+with `strategies = c(reproduction = "preserve_erepro")`.
+
+Extensions declare which states stay fixed, which evolve, and which
+parameters may be adjusted afterwards. A missing declaration is an error
+before the search, not permission to guess. `joint` selects registered
+strategies that own several coupled processes; those replace the
+corresponding local choices. Inspect
+[`getProcess(params)`](https://sizespectrum.org/mizer/reference/setProcess.md)
+and
+[`getComponent(params, component)$definition`](https://sizespectrum.org/mizer/reference/setComponent.md)
+for stored declarations. The current Newton solver can hold and later
+balance extension states, but cannot evolve arbitrary component states.
+
+Balancing preserves the target state and **all effective rates entering
+its equations**, including final assembled recruitment. The independent
+checks also enforce declared parameter bounds and preserved quantities.
+A failure returns an error, without a generic optimisation fallback or a
+second steady-state search. The resulting off-target response, and hence
+stability, can still change.
+
+[`balanceRDD(params)`](https://sizespectrum.org/mizer/reference/balanceRDD.md)
+preserves the model’s current effective recruitment while adjusting its
+current reproduction law. Use `rdd_target` only when a separate
+calculation has established the intended constrained target; named
+partial targets leave other species’ recruitment and parameters alone
+when the strategy supports partial requests.
+[`matchGrowth()`](https://sizespectrum.org/mizer/reference/matchGrowth.md),
+[`matchBiomasses()`](https://sizespectrum.org/mizer/reference/matchBiomasses.md)
+and
+[`matchNumbers()`](https://sizespectrum.org/mizer/reference/matchNumbers.md)
+retain the chosen law and balance only the selected species.
+[`setBevertonHolt()`](https://sizespectrum.org/mizer/reference/setBevertonHolt.md)
+is instead an explicit switch to Beverton-Holt, preserving effective
+recruitment at the current state. Infeasible explicit controls are
+errors rather than silently adjusted values.
+
+**When not to use
+[`tuneSteadyState()`](https://sizespectrum.org/mizer/reference/tuneSteadyState.md).**
+Holding births fixed is also its limit: every state it finds has the
+recruitment the model started with, and it gets there by changing
+`erepro`/`R_max` and `cc_pp`. So it is the wrong tool when
+
+- the question is where a model with *given* parameters settles, for
+  instance under a changed fishing effort;
+- you are looking for more than one steady state: two alternative stable
+  states found with it have different parameters, so they are not states
+  of the same model;
+- a change in reproduction is the mechanism you are studying, as when
+  predation thins a prey species and so raises its recruitment, or when
+  a predator’s juveniles depend on the small prey that response produces
+  (an emergent Allee effect).
+
+Use
+[`findSteadyState()`](https://sizespectrum.org/mizer/reference/findSteadyState.md),
+or
+[`projectUntilSettled()`](https://sizespectrum.org/mizer/reference/projectUntilSettled.md)
+to watch the approach, with the parameters fixed and starting from a
+suitable initial state, then `findSteadyState(solver = "newton")` to
+polish the result. A re-derived `erepro` greater than 1 is the sign that
 [`tuneSteadyState()`](https://sizespectrum.org/mizer/reference/tuneSteadyState.md)
-re-tunes the reproduction parameters.
+was asked for a state that does not exist with births held where they
+were; see [Diagnosing calibration
+problems](#diagnosing-calibration-problems).
 
 Both take a `solver` argument. The default `solver = "project"` runs the
 dynamics until they settle. `solver = "newton"` *(experimental, needs
@@ -76,21 +140,23 @@ result](#verifying-the-result):
 params <- tuneSteadyState(params)
 attr(params, "convergence")$attractor    # "fixed_point", "limit_cycle" or NA
 attr(params, "convergence")$termination  # why the run stopped
-attr(params, "convergence")$residual     # largest biomass drift, in 1/year
-                                         # (consumers and resource only)
+attr(params, "convergence")$assessment   # measures, coverage and scope
+attr(params, "convergence")$residual     # separate biomass-drift diagnostic
 plot(getSteadyResidual(params))          # which species, and at which sizes
 ```
 
-**`attractor` is the field to read.** It is set from the measured
-biomass drift of the model that is returned, so `"fixed_point"` means
-the drift is within `residual_tol` (default `0.05`/year) and nothing
-else does. `termination` says how the run ended and `converged` whether
-the solver was happy, neither of which is a claim about the state.
+**Read `attractor` together with `assessment`.** A `"fixed_point"`
+requires all required assessments to pass. With `scope = "conditional"`
+that claim applies only with the named states fixed; the report retains
+those names. `termination` says how the run ended and `converged`
+whether the solver was happy. Neither alone establishes a whole-model
+steady state, and the legacy `residual` biomass number is no longer the
+verdict.
 
 A `termination` of `"residual_tolerance"` is the ordinary success: the
-distance function dropped below `distance_tol` *and* the drift was
-within `residual_tol`. `"cycle_detected"` means the search ran into a
-limit cycle — see the [guide to analysing dynamic
+distance function dropped below `distance_tol` *and* every required
+assessment passed. `"cycle_detected"` means the search ran into a limit
+cycle — see the [guide to analysing dynamic
 stability](https://sizespectrum.org/mizer/articles/guide-analyse-stability.md).
 `"time_limit"` means the run ran out of time: raise `t_max`, or get a
 better starting spectrum from
@@ -149,7 +215,7 @@ shows the verdict:
 
 ``` r
 
-summary(params)                        # "biomass drift: 3.2e-05 /year (at steady state)"
+summary(params)                        # verdict, coverage and tolerance ratios
 plot(getSteadyResidual(params))        # which species, and at which sizes
 ```
 
@@ -243,20 +309,50 @@ plotBiomassObservedVsModel(params)     # points near the 1:1 line?
 plotYieldObservedVsModel(params)
 ```
 
-**A model with components registered by
-[`setComponent()`](https://sizespectrum.org/mizer/reference/setComponent.md)
-needs the extra line.**
-[`isSteady()`](https://sizespectrum.org/mizer/reference/isSteady.md) and
-the [`summary()`](https://sizespectrum.org/mizer/reference/summary.md)
-drift cover the consumers and the resource only: a component’s state can
-be any object at all, so mizer cannot form a biomass for it, and the
-functions that find steady states hold it fixed anyway. Mizer names any
-component that is moving whenever it reports on the drift, and
-[`summary()`](https://sizespectrum.org/mizer/reference/summary.md) lists
-them on their own lines, but the number in front of you is not about
-them.
-[`projectUntilSettled()`](https://sizespectrum.org/mizer/reference/projectUntilSettled.md)
-is what settles them along with everything else.
+Whole-model coverage is the default. For built-in abundance states, the
+default measure integrates the magnitude of each size-class derivative,
+weighted by body mass. Each species and the resource is checked
+separately against `atol + tol * integral(w * abs(N))`, with
+`atol = 1e-12` g/year and `tol = 0.05` per year by default. The model’s
+size quadrature is respected. At zero abundance, zero change passes and
+positive inflow must fit the absolute tolerance. Taking magnitudes
+before summing prevents changes at different sizes from cancelling.
+
+For the previous net-biomass criterion, explicitly request
+`getSteadyAssessment(params, criterion = "biomass")`. This can pass
+while the shape of a spectrum is changing, so it is a deliberate weaker
+criterion. Extension measures have their own units and tolerances; `tol`
+applies to the built-in measures. Use named `tolerances` overrides keyed
+by `owner/measure` to adjust an individual reported measure.
+
+A component needs its own convergence capability even if it supplies an
+equation or a biomass measurement. Missing support appears in
+`assessment$missing` and `assessment$unavailable`; it cannot be treated
+as passing. Callback errors are errors. Solvers stop before starting if
+required support is missing.
+
+Use `scope = "conditional", fixed = "component:pool"` to analyse a
+subsystem with a particular dynamic component held fixed. Other IDs are
+`consumers` and `resource`; several can be supplied together. The
+current solvers cannot hold consumers fixed, and Newton cannot evolve
+arbitrary extension states. A conditional result remains labelled
+conditional. A structurally prescribed input is recorded separately from
+a dynamic state fixed for this analysis.
+
+When projection holds the size classes above a species’ retained support
+at zero, the drift diagnostic excludes inflow into those classes if they
+are empty. It still includes losses from the last retained class and
+inflow into empty classes inside the support. A small biomass drift
+indicates little net biomass change in the truncated model; it does not
+rule out changes within the size spectrum or establish that `w_max` is
+large enough for boundary losses to be negligible.
+
+Populated classes above the support retain their algebraic drift,
+including mortality decay. If a projection clears that tail, the
+instantaneous removal is not represented by this finite diagnostic. The
+legacy upwind Euler path without diffusion can instead fill an empty
+tail; its diagnostic contributions are also retained. See the
+upper-boundary discussion in the numerical details for these limits.
 
 `project(params, check_steady = TRUE)` makes the same check at the point
 where it matters, warning if the run is about to start from a state that
@@ -294,10 +390,29 @@ results](https://sizespectrum.org/mizer/articles/guide-analyse-and-plot.md).
   between them.
 - **[`tuneSteadyState()`](https://sizespectrum.org/mizer/reference/tuneSteadyState.md)
   said it converged but the results still drift.** Check
-  `attr(params, "convergence")$residual`, or `summary(params)`, for how
-  far the state actually is from a fixed point, and reduce
+  `attr(params, "convergence")$assessment`, or `summary(params)`, for
+  which measures still fail, and reduce
   [`tuneSteadyState()`](https://sizespectrum.org/mizer/reference/tuneSteadyState.md)’s
-  `tol` if it is too large. It warns when the two disagree.
+  `distance_tol` if it is too large. It warns when the two disagree.
+- **[`tuneSteadyState()`](https://sizespectrum.org/mizer/reference/tuneSteadyState.md)
+  warns that a species requires “an unrealistic value greater than 1 for
+  `erepro`”.** The recruitment held during the search needs more eggs
+  than that species’ spawners can produce in the state that was found,
+  and the `"convergence"` attribute will not tell you so: it can still
+  report a fixed point. Look at `species_params(params)$erepro`, because
+  the warning reads the same for 1.01 as for 1e34. A value far above 1
+  means the state you asked for does not exist with births held at their
+  current values, which is what happens when
+  [`tuneSteadyState()`](https://sizespectrum.org/mizer/reference/tuneSteadyState.md)
+  is used to look for an alternative stable state or for a state that
+  depends on a change in reproduction; use
+  [`findSteadyState()`](https://sizespectrum.org/mizer/reference/findSteadyState.md)
+  or
+  [`projectUntilSettled()`](https://sizespectrum.org/mizer/reference/projectUntilSettled.md)
+  with the parameters fixed instead (see [Finding the steady
+  state](#finding-the-steady-state)). A value just above 1 during
+  calibration says the spawners cannot fund the recruitment they have:
+  look at the species’ feeding level and growth before anything else.
 - **Results move even though nothing was changed.** The model was not at
   its steady state to begin with. `plot(getSteadyResidual(params))`
   shows which species and which sizes are moving.

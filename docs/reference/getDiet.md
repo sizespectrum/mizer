@@ -37,18 +37,24 @@ getDiet(object, proportion = TRUE, ...)
 
   `n`
 
-  :   A matrix of species abundances (species x size). Defaults to the
-      initial abundances stored in `object`.
+  : A matrix of species abundances (species x size). Defaults to the
+    initial abundances stored in `object`.
 
   `n_pp`
 
-  :   A vector of the resource abundance by size. Defaults to the
-      initial resource abundance stored in `object`.
+  : A vector of the resource abundance by size. Defaults to the initial
+    resource abundance stored in `object`.
 
   `n_other`
 
-  :   A named list of the abundances of other dynamical components.
-      Defaults to the initial values stored in `object`.
+  : A named list of the abundances of other dynamical components.
+    Defaults to the initial values stored in `object`.
+
+  `t`
+
+  : The time at which to evaluate the rates. Defaults to 0. It matters
+    only in a model whose rates depend on time, for example through an
+    extension or through the encounter function of a component.
 
   **For a
   [MizerSim](https://sizespectrum.org/mizer/reference/MizerSim-class.md)
@@ -56,14 +62,17 @@ getDiet(object, proportion = TRUE, ...)
 
   `time_range`
 
-  :   The time range over which to return the diet. Either a vector of
-      values, a vector of min and max time, or a single value. Defaults
-      to the whole time range of the simulation.
+  : The time range over which to return the diet. Either a vector of
+    values, a vector of min and max time, or a single value. Defaults to
+    the whole time range of the simulation.
 
   `drop`
 
-  :   If `TRUE` then any dimension of length 1 is removed from the
-      returned array.
+  : If `TRUE` then any dimension of length 1 is removed from the
+    returned array.
+
+  The diet at each saved time is calculated from the abundances saved at
+  that time and with the rates evaluated at that time.
 
 ## Value
 
@@ -92,7 +101,10 @@ encounter rate function. These encounter rates are multiplied by
 \\1-f_i(w)\\ to give the rate of consumption of biomass from these extra
 components.
 
-This function performs the same integration as
+The rates resolved by food source, before the multiplication by
+\\1-f_i(w)\\, are those returned by
+[`getEncounterByPrey()`](https://sizespectrum.org/mizer/reference/getEncounterByPrey.md),
+so this function performs the same integration as
 [`getEncounter()`](https://sizespectrum.org/mizer/reference/getEncounter.md)
 but does not aggregate over prey species, and multiplies by \\1-f_i(w)\\
 to get the consumed biomass rather than the available biomass. Outside
@@ -102,13 +114,37 @@ reproduces `getEncounter(params) * (1 - getFeedingLevel(params))`,
 whichever quadrature scheme the model uses (see
 [`second_order_w()`](https://sizespectrum.org/mizer/reference/second_order_w.md)).
 
+## Changed encounter rates
+
+The total consumption rate is always taken from the model's own
+encounter rate, as returned by
+[`getEncounter()`](https://sizespectrum.org/mizer/reference/getEncounter.md),
+and its own feeding level. If the encounter rate has been changed, by a
+function registered with
+[`setRateFunction()`](https://sizespectrum.org/mizer/reference/setRateFunction.md)
+or by an extension package, then the split between food sources has to
+come from somewhere else. An extension that gives
+[`getEncounterByPrey()`](https://sizespectrum.org/mizer/reference/getEncounterByPrey.md)
+a method matching its change to the encounter rate supplies that split
+exactly. Otherwise `getDiet()` scales the contributions of all food
+sources in proportion, so that they still add up to the consumption
+rate, and tells you that it has done so. That split is exact when the
+change affects all food sources equally, as does for example a factor
+multiplying the whole encounter rate. At a size at which the predator
+encounters food although none of the food sources contributes anything,
+there is nothing to scale, and `getDiet()` attributes all of that food
+to the "External" food source, which stands for food that the model does
+not resolve.
+
 ## See also
 
 [`plotDiet()`](https://sizespectrum.org/mizer/reference/plotDiet.md)
 
 Other summary functions:
 [`getBiomass()`](https://sizespectrum.org/mizer/reference/getBiomass.md),
+[`getEncounterByPrey()`](https://sizespectrum.org/mizer/reference/getEncounterByPrey.md),
 [`getGrowthCurves()`](https://sizespectrum.org/mizer/reference/getGrowthCurves.md),
+[`getMortByCause()`](https://sizespectrum.org/mizer/reference/getMortByCause.md),
 [`getN()`](https://sizespectrum.org/mizer/reference/getN.md),
 [`getSSB()`](https://sizespectrum.org/mizer/reference/getSSB.md),
 [`getSteadyResidual()`](https://sizespectrum.org/mizer/reference/getSteadyResidual.md),
@@ -121,12 +157,6 @@ Other summary functions:
 
 ``` r
 diet <- getDiet(NS_params)
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 str(diet)
 #>  num [1:12, 1:100, 1:14] 8.94e-18 6.86e-19 3.46e-18 1.75e-09 1.12e-17 ...
 #>  - attr(*, "dimnames")=List of 3
@@ -136,8 +166,6 @@ str(diet)
 # \donttest{
 # For a MizerSim the diet is returned at each saved time step
 sim <- project(NS_params, t_max = 20, effort = 0.5)
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 # Diet at the saved time steps over years 15 - 20
 diet <- getDiet(sim, time_range = c(15, 20))
 str(diet)

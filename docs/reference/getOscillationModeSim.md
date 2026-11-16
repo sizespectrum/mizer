@@ -55,6 +55,12 @@ oscillatory mode.
 
 ## Details
 
+This requires a current, complete stability analysis at an autonomous
+equilibrium. Conditional analyses are supported with their explicit
+fixed inputs retained; the returned `sim_params` records that scope and
+coverage. Older stability lists without this information must be
+recomputed.
+
 The object shows the *shape* of the mode — which species swing, how far,
 and in what phase relative to each other and to the resource. Whether
 the model actually settles onto this oscillation is a separate question,

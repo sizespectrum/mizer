@@ -138,7 +138,7 @@ coefficient is
 (getDiffusion(params_pred_diff) / w(params)^(7/4))[1]
 ```
 
-    ## [1] 0.02073303
+    ## [1] 0.02097511
 
 ## Adding external diffusion
 

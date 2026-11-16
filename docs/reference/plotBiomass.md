@@ -22,7 +22,8 @@ plotBiomass(
   log_x = FALSE,
   log_y = TRUE,
   use_cutoff = FALSE,
-  ...
+  ...,
+  include = "species"
 )
 ```
 
@@ -106,23 +107,31 @@ plotBiomass(
 
   `min_w`
 
-  :   Smallest weight in size range. Defaults to smallest weight in the
-      model.
+  : Smallest weight in size range. Defaults to smallest weight in the
+    model.
 
   `max_w`
 
-  :   Largest weight in size range. Defaults to largest weight in the
-      model.
+  : Largest weight in size range. Defaults to largest weight in the
+    model.
 
   `min_l`
 
-  :   Smallest length in size range. If supplied, this takes precedence
-      over `min_w`.
+  : Smallest length in size range. If supplied, this takes precedence
+    over `min_w`.
 
   `max_l`
 
-  :   Largest length in size range. If supplied, this takes precedence
-      over `max_w`.
+  : Largest length in size range. If supplied, this takes precedence
+    over `max_w`.
+
+- include:
+
+  Biomass series to measure, passed to
+  [`getBiomass()`](https://sizespectrum.org/mizer/reference/getBiomass.md).
+  Defaults to `"species"`; resources and components require explicit
+  inclusion. Plotting uses only the getter's result and metadata. A
+  total requires complete coverage of every requested series.
 
 ## Value
 

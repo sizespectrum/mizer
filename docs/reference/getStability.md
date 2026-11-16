@@ -9,7 +9,15 @@ oscillates.
 ## Usage
 
 ``` r
-getStability(params, effort = params@initial_effort, h = 1e-04)
+getStability(
+  params,
+  effort = params@initial_effort,
+  h = 1e-04,
+  scope = c("whole", "conditional"),
+  fixed = character(),
+  t = 0,
+  stability_tol = 1e-08
+)
 ```
 
 ## Arguments
@@ -33,6 +41,24 @@ getStability(params, effort = params@initial_effort, h = 1e-04)
   result should not depend on this choice. If it does, the dynamics are
   not smooth at the state being analysed — see the section below.
 
+- scope:
+
+  `"whole"` (the default) or `"conditional"`.
+
+- fixed:
+
+  Canonical owner IDs held fixed for an explicitly conditional analysis:
+  `"consumers"`, `"resource"`, or `"component:name"`.
+
+- t:
+
+  Time at which to evaluate the state and rates, in years.
+
+- stability_tol:
+
+  Nonnegative margin used to distinguish strict stability or instability
+  from a marginal spectrum. Default `1e-8`.
+
 ## Value
 
 A named list with the following components:
@@ -45,11 +71,14 @@ A named list with the following components:
 - `max_real_part`:
 
   The largest real part of the eigenvalues: \\\max_i
-  \text{Re}(\lambda_i)\\. Greater than 0 means unstable.
+  \text{Re}(\lambda_i)\\. A value above `stability_tol` establishes
+  instability only for complete, autonomous coverage and a passing
+  scoped steady assessment.
 
 - `stable`:
 
-  Logical: `TRUE` when `max_real_part < 0`.
+  `TRUE` for strictly stable, `FALSE` for unstable and `NA` for
+  inconclusive or inapplicable analyses.
 
 - `dominant_period`:
 
@@ -73,9 +102,9 @@ A named list with the following components:
 
 - `leading_oscillatory_eigenvector`:
 
-  Its eigenvector, as a list with `$fish`, a complex
-  `(n_species, n_sizes)` matrix, and `$resource`, a complex vector of
-  length `n_w_full`. This is the mode
+  Its eigenvector, with `$fish`, a complex `(n_species, n_sizes)`
+  matrix, and `$resource`, a complex vector of length `n_w_full`. This
+  is the mode
   [`getOscillationModeSim()`](https://sizespectrum.org/mizer/reference/getOscillationModeSim.md)
   draws, and it is not in general one of `leading_eigenvectors`: the
   dominant mode of the system can be real while the dominant
@@ -83,8 +112,8 @@ A named list with the following components:
 
 - `n_active`:
 
-  Dimension of the Jacobian: the number of active fish cells plus all
-  resource cells.
+  Dimension of the Jacobian: the number of active fish consumer and
+  resource coordinates; `NA` if coverage is incomplete.
 
 - `leading_eigenvectors`:
 
@@ -106,6 +135,25 @@ A named list with the following components:
 - `params`:
 
   The validated `params` object the analysis was made at.
+
+- `status`:
+
+  `"stable"`, `"unstable"`, `"inconclusive"`, or `"not_applicable"` when
+  a complete scope has no dynamic coordinates.
+
+- `scope`, `fixed`, `prescribed`, `prescribed_masks`:
+
+  The requested scope and the explicitly excluded states.
+
+- `coverage`:
+
+  Required, covered and missing owners, an `unavailable` reason table,
+  and a logical `complete` flag.
+
+- `autonomous`, `time`, `tolerance`, `assessment`:
+
+  Temporal coverage, evaluation time, stability margin and the scoped
+  steady assessment.
 
 ## Details
 
@@ -150,24 +198,24 @@ otherwise it is the period of a damped (or growing) oscillation.
 
 ### What is in the Jacobian
 
-The resource is a state variable of the system like any other: fish and
-resource cells are perturbed independently, giving the full coupled
-Jacobian. Its eigenvalues include both the slow fish modes and a cluster
-of fast resource-relaxation modes, at \\\lambda \approx -(r\_{pp} +
-\mu_R)\\. Any resource dynamics function is supported: the semichemostat
-derivative is written down analytically, and anything else is
-differenced over a short step.
+The default scope is the whole model. Consumers and resource are
+supported dynamic coordinates; consumers include absent-species invasion
+modes. Only structural support limits, explicit prescribed masks and an
+explicit conditional `fixed` selection remove coordinates. Zero rates,
+zero capacity and neutral eigenvalues never remove a dynamic coordinate.
 
-Components registered with
-[`setComponent()`](https://sizespectrum.org/mizer/reference/setComponent.md)
-are *not* state variables here. They are held at their stored values
-while the fish and the resource are perturbed, so the spectrum is that
-of the consumer-resource subsystem with the components frozen. This is
-exact when a component is a fixed input, and a good approximation when
-it is much faster or much slower than the fish, but it is not the full
-model, and mizer says so with a warning when it meets one. Giving
-extension components an explicit residual and Jacobian is the work that
-would lift this restriction.
+Continuous resource dynamics require a built-in equation or a declared
+`rate_fun`; a custom step alone is insufficient. Dynamic component
+Jacobian coordinates are not yet supported. Missing state, equation or
+autonomous dynamics declarations return an inconclusive report without
+eigenvalues. To analyse a subsystem, request `scope = "conditional"` and
+name the owners to hold fixed. The result records this scope and the
+excluded coordinates.
+
+A stability verdict additionally requires the scoped steady assessment
+to pass. Otherwise the eigenvalues, when available, are local
+diagnostics only. Eigenvalues within `stability_tol` of the imaginary
+axis are inconclusive.
 
 Reproduction is a state-dependent rate like any other: the reproduction
 function stored in `params@rates_funcs$RDD` is evaluated at each
@@ -209,9 +257,8 @@ of the physical cone the one-sided derivative is the appropriate object
 anyway, since the dynamics never visit the states a centred step would
 sample. A rate function registered with
 [`setRateFunction()`](https://sizespectrum.org/mizer/reference/setRateFunction.md)
-therefore never has to be defined at negative abundances. Such columns
-are first order in `h` rather than second, so they respond slightly more
-to a change of `h` than the rest.
+therefore never has to be defined at negative abundances. Two forward
+perturbations give a second-order one-sided derivative at the boundary.
 
 ## Requires smooth dynamics
 
@@ -223,8 +270,9 @@ the state sits on the switching threshold, some perturbations straddle
 it and pick up the jump, and the reported eigenvalues then vary wildly
 with `h`. If the state is near but not on the threshold, no perturbation
 crosses it, and the function silently returns the stability of the
-single branch the state happens to lie on — which can read as `stable`
-for a model whose simulations never settle.
+single branch the state happens to lie on. Those local eigenvalues do
+not describe trajectories that cross the discontinuity. A stability
+verdict additionally requires a passing scoped steady assessment.
 
 Re-running with a different `h` is the cheapest check: if the answer
 moves, do not trust it. See [Discontinuous rate

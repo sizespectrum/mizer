@@ -139,11 +139,11 @@ projectToSteady(
   its value at the start of the run. For example the default `1e-6`
   treats a species as extinct once its reproduction has collapsed to a
   millionth of its initial level. Because it is relative to the initial
-  reproduction, a species that starts with zero reproduction is flagged
-  immediately, and (in
+  reproduction, a species that is present but starts with zero
+  reproduction is flagged immediately, and (in
   [`tuneSteadyState()`](https://sizespectrum.org/mizer/reference/tuneSteadyState.md),
   where reproduction is held constant) a healthy species is never
-  flagged.
+  flagged. A species with no fish at the start is not tested.
 
 - return_sim:
 
@@ -154,11 +154,12 @@ projectToSteady(
 
 - preserve:
 
-  **\[experimental\]** Specifies whether the `reproduction_level` should
-  be preserved (default) or the maximum reproduction rate `R_max` or the
-  reproductive efficiency `erepro`. See
-  [`setBevertonHolt()`](https://sizespectrum.org/mizer/reference/setBevertonHolt.md)
-  for an explanation of the `reproduction_level`.
+  **\[experimental\]** An explicit reproduction-preservation choice,
+  such as `"erepro"`, `"R_max"` or `"reproduction_level"` for
+  Beverton-Holt reproduction. Omitting this argument selects the
+  provider's declared default strategy. Other laws support their own
+  controls; unsupported choices error. Do not combine this selector with
+  an explicit reproduction entry in `strategies`.
 
 - progress_bar:
 

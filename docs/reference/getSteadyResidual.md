@@ -41,10 +41,8 @@ getSteadyResidual(
 
   **\[experimental\]** Which rate of change to report. `"biomass"` (the
   default) gives the contribution of each size class to the relative
-  rate of change of its species' biomass, which sums over sizes to the
-  drift that
-  [`isSteady()`](https://sizespectrum.org/mizer/reference/isSteady.md)
-  judges a model by. `"per_capita"` gives the rate of change of each
+  rate of change of its species' biomass, which sums over sizes to its
+  net biomass drift. `"per_capita"` gives the rate of change of each
   size class relative to its own density. See the sections above.
 
 ## Value
@@ -66,10 +64,9 @@ attributes:
 
   A named list with one entry per other component, holding its
   per-capita rate of change, or `NA` for a component whose state is not
-  numeric. These are reported but not folded into the biomass drift that
-  [`isSteady()`](https://sizespectrum.org/mizer/reference/isSteady.md)
-  judges a model by: mizer does not know what a component's state is
-  measured in, so it cannot form a biomass for it.
+  numeric. These remain numerical diagnostics. Components declare their
+  convergence measures separately for
+  [`getSteadyAssessment()`](https://sizespectrum.org/mizer/reference/getSteadyAssessment.md).
 
 ## Details
 
@@ -91,17 +88,13 @@ species' biomass**:
 
     rowSums(getSteadyResidual(params))    # (dB_i/dt) / B_i, one per species
 
-That total is the number
-[`isSteady()`](https://sizespectrum.org/mizer/reference/isSteady.md),
-the [`summary()`](https://sizespectrum.org/mizer/reference/summary.md)
-line of a
-[MizerParams](https://sizespectrum.org/mizer/reference/MizerParams-class.md)
-object and `project(check_steady = TRUE)` all judge a model by, and it
-is the drift that would actually show up in
+That total is the drift that would show up in
 [`plotBiomass()`](https://sizespectrum.org/mizer/reference/plotBiomass.md).
-This array therefore says *where* a model is unsteady in the same
-currency that mizer uses to decide *whether* it is, and a size class can
-only be conspicuous in it if it is moving enough biomass to matter.
+It remains a numerical diagnostic:
+[`getSteadyAssessment()`](https://sizespectrum.org/mizer/reference/getSteadyAssessment.md)
+separately checks convergence across the whole model, using absolute
+state residuals by default. A size class can only be conspicuous here if
+it is moving enough biomass to matter.
 
 That last property is why this is the default. A size class near the egg
 size turns over in hours, and one above the size where growth stops
@@ -140,17 +133,32 @@ The resource and other components have arbitrary user-supplied dynamics
 functions, so their rates are obtained by taking one short step of
 length `dt`, accurate to \\O(dt)\\.
 
+Empty classes above a species' retained size support contribute zero
+when transport holds that tail at zero: with a higher-order flux, or
+when the evaluated diffusion is positive anywhere in the model. This
+removes inflow into excluded empty classes, while retaining outgoing
+losses from the last included class and recruitment into the egg class.
+Empty classes inside the support can still fill and contribute to the
+drift. With upwind transport and no diffusion, the legacy Euler step can
+fill an empty tail, so those contributions are retained.
+
+This correction applies only at exactly zero density. Populated classes
+above the support retain their algebraic rates, including mortality
+decay. A projection that clamps such a populated tail removes its
+abundance immediately; that discontinuous change is not represented by
+this finite instantaneous diagnostic.
+
 Everything is evaluated at the model's own stored state —
 [`initialN()`](https://sizespectrum.org/mizer/reference/initialN-set.md),
 [`initialNResource()`](https://sizespectrum.org/mizer/reference/initialNResource-set.md),
 [`initialNOther()`](https://sizespectrum.org/mizer/reference/initialNOther-set.md)
 — using the model's own reproduction function and its own
-`resource_dynamics`. Nothing is substituted or held fixed. The number
-therefore answers exactly "if I called
+`resource_dynamics`. Nothing is substituted or held fixed. Subject to
+the tail behaviour above, the number answers "if I called
 [`project()`](https://sizespectrum.org/mizer/reference/project.md) now,
-would anything move?", which is why it works for every model rather than
-only for the semichemostat resource that
-`findSteadyState(solver = "newton")` requires.
+would anything move?" for general resource dynamics, including those
+beyond the semichemostat resource required by
+`findSteadyState(solver = "newton")`.
 
 ### Reading the result
 
@@ -186,7 +194,9 @@ is reported like any other.
 Other summary functions:
 [`getBiomass()`](https://sizespectrum.org/mizer/reference/getBiomass.md),
 [`getDiet()`](https://sizespectrum.org/mizer/reference/getDiet.md),
+[`getEncounterByPrey()`](https://sizespectrum.org/mizer/reference/getEncounterByPrey.md),
 [`getGrowthCurves()`](https://sizespectrum.org/mizer/reference/getGrowthCurves.md),
+[`getMortByCause()`](https://sizespectrum.org/mizer/reference/getMortByCause.md),
 [`getN()`](https://sizespectrum.org/mizer/reference/getN.md),
 [`getSSB()`](https://sizespectrum.org/mizer/reference/getSSB.md),
 [`getTrophicLevel()`](https://sizespectrum.org/mizer/reference/getTrophicLevel.md),
@@ -199,8 +209,6 @@ Other summary functions:
 ``` r
 # The relative rate of change of each species' biomass, in 1/year
 rowSums(getSteadyResidual(NS_params))
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 #>        Sprat      Sandeel       N.pout      Herring          Dab      Whiting 
 #> 0.0032783633 0.0013206130 0.0138556255 0.0080776332 0.0050505885 0.0037296515 
 #>         Sole      Gurnard       Plaice      Haddock          Cod       Saithe 
@@ -215,6 +223,13 @@ species_params(params)$biomass_cutoff <- 10
 params <- calibrateBiomass(params)
 params <- matchBiomasses(params)
 #> `matchBiomasses()` has rescaled the model and so moved it off its steady state. Run `tuneSteadyState()` to settle it again. You can check with `getSteadyResidual()`.
+#> Warning: ! The following species require an unrealistic value greater than 1 for `erepro`: Dab
+#> ! The following species require an unrealistic value greater than 1 for `erepro`: Whiting
+#> ! The following species require an unrealistic value greater than 1 for `erepro`: Sole
+#> ! The following species require an unrealistic value greater than 1 for `erepro`: Gurnard
+#> ! The following species require an unrealistic value greater than 1 for `erepro`: Plaice
+#> ! The following species require an unrealistic value greater than 1 for `erepro`: Haddock
+#> ! The following species require an unrealistic value greater than 1 for `erepro`: Saithe
 plot(getSteadyResidual(params))
 
 # }

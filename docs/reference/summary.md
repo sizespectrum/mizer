@@ -91,12 +91,11 @@ species. Pass `all.sizes = TRUE` for the whole grid.
 ``` r
 # \donttest{
 summary(NS_params)
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 #> An object of class "MizerParams" 
-#> mizer version: 3.0.0.9003
-#> Created: 2021-09-03 21:29:38
-#> Modified: 2026-06-24 14:50:03
+#> mizer version: 3.4.0.9010
+#> Defaults edition: 1
+#> Created: 2021-09-03 20:29:38
+#> Modified: 2026-11-16 02:30:12
 #> Consumer size spectrum:
 #>  minimum size:   0.001
 #>  maximum size:   39851.3
@@ -106,7 +105,8 @@ summary(NS_params)
 #>  maximum size:   9.82091
 #>  no. size bins:  179 (226 size bins in total)
 #> Steady state:
-#>  biomass drift:  0.014 /year (at steady state)
+#>  assessment: at steady state (whole scope)
+#>  largest tolerance ratio:    0.279 (consumers/N.pout)
 #> Species details:
 #> An object of class "species_params" containing parameters for 12 species:
 #>  species   w_inf w_mat w_min  f0   beta sigma
@@ -134,9 +134,10 @@ summary(NS_sim)
 #> An object of class "MizerSim" 
 #> Parameters:
 #> An object of class "MizerParams" 
-#> mizer version: 3.0.0.9003
-#> Created: 2021-09-03 21:30:02
-#> Modified: 2026-06-24 14:50:03
+#> mizer version: 3.4.0.9010
+#> Defaults edition: 1
+#> Created: 2021-09-03 20:30:02
+#> Modified: 2026-11-16 02:30:14
 #> Consumer size spectrum:
 #>  minimum size:   0.001
 #>  maximum size:   39851.3
@@ -146,7 +147,8 @@ summary(NS_sim)
 #>  maximum size:   9.82091
 #>  no. size bins:  171 (218 size bins in total)
 #> Steady state:
-#>  biomass drift:  0.91 /year  (not at steady state, largest in Cod - run tuneSteadyState())
+#>  assessment: not at steady state (whole scope)
+#>  largest tolerance ratio:    18.2 (consumers/Cod)
 #> Species details:
 #> An object of class "species_params" containing parameters for 12 species:
 #>  species   w_inf w_mat w_min   beta sigma
@@ -184,14 +186,6 @@ summary(NS_sim)
 #>  Output stored every 1 years
 #>  Time step   Method: 
 summary(getEncounter(NS_params))
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 #> Encounter rate [g/year] 
 #> 12 species x 100 sizes
 #> 
@@ -223,7 +217,7 @@ summary(getFMort(NS_sim))
 #>  Gurnard 0.0000000000 0.00541050 0.1054407
 #>   Plaice 0.0089964121 0.18786555 0.8670560
 #>  Haddock 0.0015854377 0.22672527 1.4275500
-#>      Cod 0.0494762790 0.36512704 1.0721072
+#>      Cod 0.0494762790 0.37063678 1.0721081
 #>   Saithe 0.0009633361 0.15208058 1.2032857
 # }
 ```

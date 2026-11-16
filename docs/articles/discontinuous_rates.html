@@ -32,7 +32,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0.9011</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -203,7 +203,12 @@ the rule’s parameters in <code><a href="../reference/setRateFunction.html">oth
 <span><span class="fu"><a href="../reference/setRateFunction.html">other_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">b_trigger</span> <span class="op">&lt;-</span> <span class="fl">0.7</span> <span class="op">*</span> <span class="va">ssb0</span></span>
 <span></span>
 <span><span class="va">params_hard</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/setRateFunction.html">setRateFunction</a></span><span class="op">(</span><span class="va">params</span>, <span class="st">"FMort"</span>, <span class="st">"hardHCR"</span><span class="op">)</span></span>
-<span><span class="va">params_ramp</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/setRateFunction.html">setRateFunction</a></span><span class="op">(</span><span class="va">params</span>, <span class="st">"FMort"</span>, <span class="st">"rampHCR"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">params_ramp</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/setRateFunction.html">setRateFunction</a></span><span class="op">(</span><span class="va">params</span>, <span class="st">"FMort"</span>, <span class="st">"rampHCR"</span><span class="op">)</span></span>
+<span><span class="co"># These feedback rules depend on abundance, with no explicit time forcing.</span></span>
+<span><span class="va">params_hard</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/setProcess.html">setProcess</a></span><span class="op">(</span><span class="va">params_hard</span>, <span class="st">"consumers"</span>, autonomous <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="va">params_hard</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/setProcess.html">setProcess</a></span><span class="op">(</span><span class="va">params_hard</span>, <span class="st">"resource"</span>, autonomous <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="va">params_ramp</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/setProcess.html">setProcess</a></span><span class="op">(</span><span class="va">params_ramp</span>, <span class="st">"consumers"</span>, autonomous <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="va">params_ramp</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/setProcess.html">setProcess</a></span><span class="op">(</span><span class="va">params_ramp</span>, <span class="st">"resource"</span>, autonomous <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p>Now run each rule at two time steps that differ by a factor of eight,
 and track the cod SSB.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
@@ -417,7 +422,7 @@ and so no root exists:</p>
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>ramp <span class="op">=</span> <span class="fu"><a href="../reference/getSSB.html">getSSB</a></span><span class="op">(</span><span class="va">ramp_ss</span><span class="op">)</span><span class="op">[[</span><span class="st">"Cod"</span><span class="op">]</span><span class="op">]</span> <span class="op">/</span> <span class="fu"><a href="../reference/setRateFunction.html">other_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">b_lim</span>,</span>
 <span>  hard <span class="op">=</span> <span class="fu"><a href="../reference/getSSB.html">getSSB</a></span><span class="op">(</span><span class="va">hard_ss</span><span class="op">)</span><span class="op">[[</span><span class="st">"Cod"</span><span class="op">]</span><span class="op">]</span> <span class="op">/</span> <span class="fu"><a href="../reference/setRateFunction.html">other_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">b_lim</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">#&gt;      ramp      hard </span></span>
-<span><span class="co">#&gt; 1.2611078 0.9999017</span></span></code></pre>
+<span><span class="co">#&gt; 1.2611078 0.9998518</span></span></code></pre>
 </div>
 <div class="section level3">
 <h3 id="getstability-becomes-unreliable">
@@ -437,19 +442,21 @@ mode then depends on <code>h</code>:</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1e-3</span>, <span class="fl">1e-4</span>, <span class="fl">1e-5</span><span class="op">)</span>,</span>
 <span>       <span class="kw">function</span><span class="op">(</span><span class="va">h</span><span class="op">)</span> <span class="fu"><a href="../reference/getStability.html">getStability</a></span><span class="op">(</span><span class="va">hard_ss</span>, h <span class="op">=</span> <span class="va">h</span><span class="op">)</span><span class="op">$</span><span class="va">max_real_part</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">#&gt; [1] 0.6104857 0.3054843 0.3054844</span></span></code></pre>
-<p>The coarsest step is the only one whose perturbations reach across
-the threshold, and the growth rate it reports comes out at 0.61 against
-the 0.305 that the finer steps agree on. Note what those two do: they
-agree to seven figures, because at that size no perturbation crosses the
-threshold at all. That agreement is the second failure mode below, not a
-clean bill of health.</p>
+<pre><code><span><span class="co">#&gt; [1] 0.3054122 0.3054122 0.3054123</span></span></code></pre>
+<p>In this saved run, however, Newton’s best iterate lies just below the
+threshold and the three choices agree closely, at about 0.305 per year.
+Perturbations that stay on one branch can give reproducible local
+eigenvalues even beside a discontinuity. This agreement does not
+establish the existence or stability of an equilibrium: the independent
+state-change assessment still fails. A different iterate or larger
+perturbations can straddle the switch and give a strongly step-dependent
+answer.</p>
 <p>Contrast the ramped model, where the answer is the same to five
 figures whatever <code>h</code> you choose:</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1e-3</span>, <span class="fl">1e-4</span>, <span class="fl">1e-5</span><span class="op">)</span>,</span>
 <span>       <span class="kw">function</span><span class="op">(</span><span class="va">h</span><span class="op">)</span> <span class="fu"><a href="../reference/getStability.html">getStability</a></span><span class="op">(</span><span class="va">ramp_ss</span>, h <span class="op">=</span> <span class="va">h</span><span class="op">)</span><span class="op">$</span><span class="va">max_real_part</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">#&gt; [1] -0.02481145 -0.02481120 -0.02481155</span></span></code></pre>
+<pre><code><span><span class="co">#&gt; [1] -0.02481141 -0.02481141 -0.02481141</span></span></code></pre>
 <p>What matters here is the <em>reproducibility</em> of that number, not
 its value. (It is negative, so the ramped model’s steady state is weakly
 stable. That is not in conflict with the small residual oscillation
@@ -467,15 +474,24 @@ be sitting on. The result is the stability of a smooth system that your
 model is not:</p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">st</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getStability.html">getStability</a></span><span class="op">(</span><span class="va">hard_settled</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>max_real_part <span class="op">=</span> <span class="va">st</span><span class="op">$</span><span class="va">max_real_part</span>, stable <span class="op">=</span> <span class="va">st</span><span class="op">$</span><span class="va">stable</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">#&gt; max_real_part        stable </span></span>
-<span><span class="co">#&gt;    -0.0586569     1.0000000</span></span></code></pre>
-<p>Every eigenvalue in the left half-plane, and a confident verdict of
-<code>stable</code> — for a simulation that we watched chatter for
-thirty years and will chatter for ever. Nothing here is flagged. The
-number is the correct linearisation of the open-fishery branch,
-evaluated at a state that is not an equilibrium of that branch, and it
-answers a question nobody asked.</p>
+<span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>max_real_part <span class="op">=</span> <span class="va">st</span><span class="op">$</span><span class="va">max_real_part</span>, stable <span class="op">=</span> <span class="va">st</span><span class="op">$</span><span class="va">stable</span>,</span>
+<span>     status <span class="op">=</span> <span class="va">st</span><span class="op">$</span><span class="va">status</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">#&gt; $max_real_part</span></span>
+<span><span class="co">#&gt; [1] -0.0586569</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $stable</span></span>
+<span><span class="co">#&gt; [1] NA</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $status</span></span>
+<span><span class="co">#&gt; [1] "inconclusive"</span></span></code></pre>
+<p>The raw eigenvalues describe the open-fishery branch at a state that
+is not its equilibrium. They can all lie in the left half-plane even
+though the trajectory keeps chattering. The current stability report
+therefore returns <code>status = "inconclusive"</code> and
+<code>stable = NA</code>: its independent equilibrium assessment fails.
+A negative <code>max_real_part</code> alone is insufficient. Inspect
+<code>st$assessment</code> as well as the eigenvalues, and check the
+sensitivity to <code>h</code> when the rate law is not smooth.</p>
 </div>
 </div>
 <div class="section level2">

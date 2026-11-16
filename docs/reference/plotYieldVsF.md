@@ -51,7 +51,8 @@ plotYieldVsF(
   log = NULL,
   return_data = FALSE,
   progress_bar = interactive(),
-  ...
+  ...,
+  tol = lifecycle::deprecated()
 )
 ```
 
@@ -126,7 +127,13 @@ plotYieldVsF(
 - ...:
 
   Further arguments are passed on to
-  [`scanModel()`](https://sizespectrum.org/mizer/reference/scanModel.md).
+  [`scanModel()`](https://sizespectrum.org/mizer/reference/scanModel.md),
+  for example `t_max` or `distance_tol`.
+
+- tol:
+
+  **\[deprecated\]** Use `distance_tol` instead. This was the name of
+  the argument when `plotYieldVsF()` was part of mizerExperimental.
 
 ## Value
 
@@ -176,15 +183,11 @@ Other scan functions:
 ``` r
 # \donttest{
 plotYieldVsF(NS_params, "Cod", F_max = 1.5, no_steps = 8)
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 
 
 # The fishing mortality that maximises the yield
 scan <- plotYieldVsF(NS_params, "Cod", F_max = 1.5, no_steps = 8,
                      return_data = TRUE)
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 attr(scan, "at_max")
 #>       Cod 
 #> 0.8571429 

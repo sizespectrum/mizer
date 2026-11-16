@@ -26,6 +26,10 @@ project(
   callback = NULL,
   method = c("euler", "predictor_corrector", "tr_bdf2"),
   check_steady = FALSE,
+  subcycle = FALSE,
+  max_courant = 1,
+  max_substeps = 10000,
+  info_level = default_info_level(),
   ...
 )
 ```
@@ -146,8 +150,41 @@ project(
   the effort stored in the params object rather than at the `effort`
   supplied here, so that running a fishing scenario at a new effort —
   which legitimately starts away from the steady state of that new
-  effort — does not warn. See
-  [`getSteadyResidual()`](https://sizespectrum.org/mizer/reference/getSteadyResidual.md).
+  effort — does not warn. This uses the whole-model assessment at
+  `t_start`, and also warns when required assessment support is missing.
+  See
+  [`getSteadyAssessment()`](https://sizespectrum.org/mizer/reference/getSteadyAssessment.md).
+
+- subcycle:
+
+  If `TRUE`, split each requested `dt` into coupled substeps using the
+  growth Courant target. Consumers, resources and other components
+  advance together and rates are recalculated at each substep. Default
+  `FALSE` keeps the fixed-step calculation. When continuing a
+  `MizerSim`, the stored setting is used unless supplied explicitly.
+
+- max_courant:
+
+  Positive growth Courant target, default 1. With `subcycle = FALSE`,
+  exceeding it produces one advisory report per call for the high-order
+  flux schemes. With subcycling it controls the step selected from the
+  current rates. This is not a guarantee of stability or positivity; it
+  does not bound mortality, diffusion, or changes in rates within a
+  step. See
+  [`getCourant()`](https://sizespectrum.org/mizer/reference/getCourant.md)
+  for the face convention and structural support.
+
+- max_substeps:
+
+  Positive integer cap on substeps within one requested `dt`,
+  default 10000. Exceeding it is an error, not a silent cap. This and
+  `max_courant` are inherited when continuing a `MizerSim` unless
+  overridden.
+
+- info_level:
+
+  Level of information reported; see
+  [`default_info_level()`](https://sizespectrum.org/mizer/reference/default_info_level.md).
 
 - ...:
 
@@ -221,13 +258,16 @@ object and the corresponding arguments to this function will be ignored.
 
 The spatial discretisation of the growth (advection) term is controlled
 by the `flux` entry of the `second_order_w` slot of the params object,
-not by an argument to `project()`. With the default (`"upwind"`) the
-first-order upwind flux is used. Setting it to `"van_leer"` (for example
-with `second_order_w(params) <- TRUE`) switches on a flux-limited (van
-Leer, TVD) deferred correction that removes the leading numerical
-diffusion \\\approx g\\w\\\log\beta\\ of the upwind flux while keeping
-the density update a tridiagonal solve and preserving positivity. The
-correction is most useful on coarse logarithmic grids and pairs
+not by an argument to `project()`. With `"upwind"`, the default for
+models of defaults editions 1 and 2, the first-order upwind flux is
+used. `"van_leer"`, the default from edition 3 and also set by
+`second_order_w(params) <- TRUE`, switches on a flux-limited (van Leer,
+TVD) deferred correction that removes the leading numerical diffusion
+\\\approx g\\w\\\log\beta\\ of the upwind flux while keeping the density
+update a tridiagonal solve. The time step still matters for cell-scale
+oscillations and non-negativity; see
+[`getCourant()`](https://sizespectrum.org/mizer/reference/getCourant.md).
+The correction is most useful on coarse logarithmic grids and pairs
 naturally with the second-order time methods. Because it changes the
 discrete steady state, the choice lives in the params object alongside
 the steady state rather than being a per-run argument. See
@@ -260,13 +300,9 @@ article for the symptoms and the remedy.
 params <- NS_params
 # With constant fishing effort for all gears for 20 time steps
 sim <- project(params, t_max = 20, effort = 0.5)
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 # With constant fishing effort which is different for each gear
 effort <- c(Industrial = 0, Pelagic = 1, Beam = 0.5, Otter = 0.5)
 sim <- project(params, t_max = 20, effort = effort)
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 # With fishing effort that varies through time for each gear
 gear_names <- c("Industrial", "Pelagic", "Beam", "Otter")
 times <- seq(from = 1, to = 10, by = 1)
@@ -279,16 +315,10 @@ effort_array[, "Pelagic"] <- seq(from = 1, to = 2, length = length(times))
 effort_array[, "Beam"] <- seq(from = 1, to = 0, length = length(times))
 effort_array[, "Otter"] <- seq(from = 1, to = 0.5, length = length(times))
 sim <- project(params, effort = effort_array)
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 # Extend a simulation beyond the effort array times
 # Effort values from the final time are used for the extension
 sim <- project(params, effort = effort_array, t_max = 15)
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 # Control save times with an effort array using t_save
 sim <- project(params, effort = effort_array, t_save = 2)
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 # }
 ```

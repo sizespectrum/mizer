@@ -32,7 +32,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0.9011</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -416,9 +416,10 @@ objects which prints a useful summary of the model parameters:</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/summary.html">summary</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## An object of class "MizerParams" </span></span>
-<span><span class="co">## mizer version: 3.4.0</span></span>
-<span><span class="co">## Created: 2026-09-02 10:04:24</span></span>
-<span><span class="co">## Modified: 2026-09-02 10:04:24</span></span>
+<span><span class="co">## mizer version: 3.4.0.9011</span></span>
+<span><span class="co">## Defaults edition: 1</span></span>
+<span><span class="co">## Created: 2026-11-16 08:26:14</span></span>
+<span><span class="co">## Modified: 2026-11-16 08:26:14</span></span>
 <span><span class="co">## Consumer size spectrum:</span></span>
 <span><span class="co">##  minimum size:   0.001</span></span>
 <span><span class="co">##  maximum size:   60066</span></span>
@@ -428,7 +429,8 @@ objects which prints a useful summary of the model parameters:</p>
 <span><span class="co">##  maximum size:   8.48399</span></span>
 <span><span class="co">##  no. size bins:  166 (215 size bins in total)</span></span>
 <span><span class="co">## Steady state:</span></span>
-<span><span class="co">##  biomass drift:  1.4 /year   (not at steady state, largest in Sandeel - run tuneSteadyState())</span></span>
+<span><span class="co">##  assessment: not at steady state (whole scope)</span></span>
+<span><span class="co">##  largest tolerance ratio:    30 (consumers/Sandeel)</span></span>
 <span><span class="co">## Species details:</span></span>
 <span><span class="co">## An object of class "species_params" containing parameters for 12 species:</span></span>
 <span><span class="co">##  species w_inf w_mat w_min   beta sigma</span></span>
@@ -617,9 +619,10 @@ combinations of species. We can achieve that by only changing the
 <div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/summary.html">summary</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## An object of class "MizerParams" </span></span>
-<span><span class="co">## mizer version: 3.4.0</span></span>
-<span><span class="co">## Created: 2026-09-02 10:04:24</span></span>
-<span><span class="co">## Modified: 2026-09-02 10:04:26</span></span>
+<span><span class="co">## mizer version: 3.4.0.9011</span></span>
+<span><span class="co">## Defaults edition: 1</span></span>
+<span><span class="co">## Created: 2026-11-16 08:26:14</span></span>
+<span><span class="co">## Modified: 2026-11-16 08:26:15</span></span>
 <span><span class="co">## Consumer size spectrum:</span></span>
 <span><span class="co">##  minimum size:   0.001</span></span>
 <span><span class="co">##  maximum size:   60066</span></span>
@@ -629,7 +632,8 @@ combinations of species. We can achieve that by only changing the
 <span><span class="co">##  maximum size:   8.48399</span></span>
 <span><span class="co">##  no. size bins:  166 (215 size bins in total)</span></span>
 <span><span class="co">## Steady state:</span></span>
-<span><span class="co">##  biomass drift:  1.4 /year   (not at steady state, largest in Sandeel - run tuneSteadyState())</span></span>
+<span><span class="co">##  assessment: not at steady state (whole scope)</span></span>
+<span><span class="co">##  largest tolerance ratio:    30.1 (consumers/Sandeel)</span></span>
 <span><span class="co">## Species details:</span></span>
 <span><span class="co">## An object of class "species_params" containing parameters for 12 species:</span></span>
 <span><span class="co">##  species w_inf w_mat w_min   beta sigma</span></span>

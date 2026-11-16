@@ -70,4 +70,12 @@ species_params(params)$number_cutoff <- 10
 params <- calibrateNumber(params)
 params <- matchNumbers(params)
 #> `matchNumbers()` has rescaled the model and so moved it off its steady state. Run `tuneSteadyState()` to settle it again. You can check with `getSteadyResidual()`.
+#> Warning: ! The following species require an unrealistic value greater than 1 for `erepro`: Dab
+#> ! The following species require an unrealistic value greater than 1 for `erepro`: Whiting
+#> ! The following species require an unrealistic value greater than 1 for `erepro`: Sole
+#> ! The following species require an unrealistic value greater than 1 for `erepro`: Gurnard
+#> ! The following species require an unrealistic value greater than 1 for `erepro`: Plaice
+#> ! The following species require an unrealistic value greater than 1 for `erepro`: Haddock
+#> ! The following species require an unrealistic value greater than 1 for `erepro`: Cod
+#> ! The following species require an unrealistic value greater than 1 for `erepro`: Saithe
 ```

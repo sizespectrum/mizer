@@ -21,7 +21,7 @@ carrying, in addition, everything that plot() needs to draw it."><meta property=
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0.9011</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -252,11 +252,16 @@ recomputes both attributes from the rows that remain, so they never go stale.</p
 
 
 
-<p>Because the object is a data frame subclass, its attributes survive base R
-subsetting with <code>[</code> but are dropped by functions that rebuild the data frame,
-including <code><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">dplyr::filter()</a></code>, <code><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">dplyr::mutate()</a></code>, <code><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset()</a></code> and <code><a href="https://rdrr.io/r/base/transform.html" class="external-link">transform()</a></code>.
-A scan that has lost its attributes can no longer be plotted. Subset with <code>[</code>,
-or rebuild the object with <code>MizerScan()</code>.</p>
+<p>Row subsetting with <code>[</code> preserves the plotting metadata and recomputes
+<code>at_max</code> and <code>max_value</code>. Base <code><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset()</a></code> also uses this method for row
+selection. If selecting columns, keep the first three in their original
+order to retain the scan class.</p>
+<p>Other data-frame operations can drop metadata or leave derived attributes
+stale. For example, <code><a href="https://rdrr.io/r/base/transform.html" class="external-link">transform()</a></code> drops the scan wrapper, while
+<code><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">dplyr::filter()</a></code> can retain it without recomputing the maxima. Metadata
+preservation alone is therefore not enough to keep a scan consistent. Use
+<code><a href="as.data.frame.html">as.data.frame()</a></code> for ordinary data manipulation, or rebuild the result with
+<code>MizerScan()</code> and its original metadata before plotting it as a scan.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -273,8 +278,6 @@ or rebuild the object with <code>MizerScan()</code>.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
 <span class="r-in"><span><span class="va">scan</span> <span class="op">&lt;-</span> <span class="fu"><a href="scanModel.html">scanModel</a></span><span class="op">(</span><span class="va">NS_params</span>, scan_values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0.5</span>, <span class="fl">1</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>                  set_func <span class="op">=</span> <span class="fu"><a href="scanEffort.html">scanEffort</a></span><span class="op">(</span><span class="op">)</span>, species <span class="op">=</span> <span class="st">"Cod"</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `b` column so using the isometric default b = 3 in w = a l^b.</span>
 <span class="r-in"><span><span class="va">scan</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Biomass [g] vs Fishing effort </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 3 scan values x 1 series</span>
@@ -282,10 +285,14 @@ or rebuild the object with <code>MizerScan()</code>.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>             0.0 1.218582e+12     Cod 1.218582e+12 1.218582e+12</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>             0.5 5.465367e+11     Cod 5.465367e+11 5.465367e+11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>             1.0 3.772163e+11     Cod 3.772163e+11 3.772163e+11</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         termination converged   attractor period     residual</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  residual_tolerance      TRUE fixed_point     NA 0.0001509745</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  residual_tolerance      TRUE fixed_point     NA 0.0003925230</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  residual_tolerance      TRUE fixed_point     NA 0.0004878574</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         termination converged   attractor period     residual scope</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  residual_tolerance      TRUE fixed_point     NA 0.0001509745 whole</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  residual_tolerance      TRUE fixed_point     NA 0.0003925230 whole</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  residual_tolerance      TRUE fixed_point     NA 0.0004878574 whole</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  assessment_complete   assessment</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 TRUE TRUE, wh....</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 TRUE TRUE, wh....</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 TRUE TRUE, wh....</span>
 <span class="r-in"><span><span class="fu"><a href="summary.html">summary</a></span><span class="op">(</span><span class="va">scan</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Biomass [g] vs Fishing effort </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 3 scan values from 0 to 1 </span>

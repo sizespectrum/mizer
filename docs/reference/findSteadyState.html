@@ -19,7 +19,7 @@ settle together at whatever the parameters you already have imply."><meta proper
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0.9011</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -107,6 +107,11 @@ settle together at whatever the parameters you already have imply.</p>
 <span>  solver <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"project"</span>, <span class="st">"newton"</span><span class="op">)</span>,</span>
 <span>  effort <span class="op">=</span> <span class="va">params</span><span class="op">@</span><span class="va">initial_effort</span>,</span>
 <span>  info_level <span class="op">=</span> <span class="fu"><a href="default_info_level.html">default_info_level</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  scope <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"whole"</span>, <span class="st">"conditional"</span><span class="op">)</span>,</span>
+<span>  fixed <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">character</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  criterion <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"state"</span>, <span class="st">"biomass"</span><span class="op">)</span>,</span>
+<span>  tolerances <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  atol <span class="op">=</span> <span class="fl">1e-12</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -137,11 +142,37 @@ default is taken from the <code>mizer_info_level</code> option, see
 <code><a href="default_info_level.html">default_info_level()</a></code>.</p></dd>
 
 
+<dt id="arg-scope">scope<a class="anchor" aria-label="anchor" href="#arg-scope"></a></dt>
+<dd><p><code>"whole"</code> or <code>"conditional"</code>.</p></dd>
+
+
+<dt id="arg-fixed">fixed<a class="anchor" aria-label="anchor" href="#arg-fixed"></a></dt>
+<dd><p>Owners held fixed for a conditional assessment. Use
+<code>"consumers"</code>, <code>"resource"</code>, or <code>"component:name"</code> for a component named
+<code>name</code>. This must be empty for whole-model assessments and nonempty for
+conditional assessments.</p></dd>
+
+
+<dt id="arg-criterion">criterion<a class="anchor" aria-label="anchor" href="#arg-criterion"></a></dt>
+<dd><p><code>"state"</code> for the absolute state residual, or <code>"biomass"</code>
+for net biomass drift in the built-in checks.</p></dd>
+
+
+<dt id="arg-tolerances">tolerances<a class="anchor" aria-label="anchor" href="#arg-tolerances"></a></dt>
+<dd><p>Optional named numeric vector overriding individual
+tolerances. Names are <code>owner/measure</code>, as shown in the <code>measures</code> table.</p></dd>
+
+
+<dt id="arg-atol">atol<a class="anchor" aria-label="anchor" href="#arg-atol"></a></dt>
+<dd><p>Absolute tolerance for built-in checks, in grams per year.</p></dd>
+
+
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
 <dd><p>Arguments for the chosen solver.</p>
 <p>With <code>solver = "project"</code>: <code>distance_func</code>, <code>t_max</code>, <code>t_check</code>, <code>dt</code>,
 <code>distance_tol</code>, <code>residual_tol</code>, <code>amplitude_tol</code>, <code>amp_rel_tol</code>,
-<code>extinction_threshold</code>, <code>progress_bar</code> and <code>method</code>, all as described in
+<code>extinction_threshold</code>, <code>progress_bar</code>, <code>method</code>, <code>subcycle</code>,
+<code>max_courant</code> and <code>max_substeps</code>, all as described in
 <code><a href="projectUntilSettled.html">projectUntilSettled()</a></code>. There is no <code>t_save</code>, because no trajectory is
 returned.</p>
 <p>With <code>solver = "newton"</code>: <code>extinction_floor</code> (default <code>1e-6</code>), the relative
@@ -186,7 +217,9 @@ fish and appends the resource steady-state equation to the system, so the
 resource density and the feeding levels it implies are self-consistent even
 where consumers are satiated. That equation is written for the default
 semichemostat resource dynamics, so <code>solver = "newton"</code> stops with an error
-for any other <code>resource_dynamics</code>; use <code>solver = "project"</code> there.</p>
+for any other dynamic <code>resource_dynamics</code>; use <code>solver = "project"</code> there,
+or explicitly fix the resource in a conditional analysis. Dynamic extension
+components likewise require explicit conditional exclusions for Newton.</p>
 <p>The Newton iteration also needs the residual \(F(N)\) to be continuous. A
 custom rate function registered with <code><a href="setRateFunction.html">setRateFunction()</a></code> that jumps as a
 function of the abundances makes \(F\) discontinuous, and where the
@@ -254,9 +287,7 @@ fixed point that the dynamics themselves would run away from.</p>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
 <span class="r-in"><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu">findSteadyState</span><span class="op">(</span><span class="va">NS_params</span>, solver <span class="op">=</span> <span class="st">"newton"</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `b` column so using the isometric default b = 3 in w = a l^b.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> The biomasses of the solution change at up to 6e-07 per year.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> The biomasses of the solution change at up to 6e-07 per year.</span>
 <span class="r-in"><span><span class="fu"><a href="plotSpectra.html">plotSpectra</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="findSteadyState-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="co"># }</span></span></span>

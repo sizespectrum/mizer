@@ -29,16 +29,16 @@ parts, each consisting of several tutorials with example code and
 exercises:
 
 - **[Part 1:
-  Understand](https://mizer.course.sizespectrum.org/understand/)**  
+  Understand](https://mizer.course.sizespectrum.org/understand/)**\
   You will gain an understanding of size spectra and their dynamics by
   exploring simple example systems hands-on with mizer.
 
-- **[Part 2: Build](https://mizer.course.sizespectrum.org/build/)**  
+- **[Part 2: Build](https://mizer.course.sizespectrum.org/build/)**\
   You will build your own multi-species mizer model for the Celtic sea,
   following our example. You can also create a model for your own area
   of interest.
 
-- **[Part 3: Use](https://mizer.course.sizespectrum.org/use/)**  
+- **[Part 3: Use](https://mizer.course.sizespectrum.org/use/)**\
   You will explore the effects of changes in fishing and changes in
   resource dynamics on the fish community and the fisheries yield. You
   will run your own model scenarios.
@@ -111,7 +111,7 @@ devtools::install_github("sizespectrum/mizer")
 ```
 
 Using the same
-[`devtools::install_github()`](https://devtools.r-lib.org/reference/install-deprecated.html)
+[`devtools::install_github()`](https://rdrr.io/pkg/devtools/man/install-deprecated.html)
 function you can also install code from forked mizer repositories or
 from other branches on the official repository.
 

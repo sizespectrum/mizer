@@ -15,8 +15,10 @@ even where consumers are satiated.
 [`getStability()`](https://sizespectrum.org/mizer/reference/getStability.md)
 and
 [`getDiscreteStability()`](https://sizespectrum.org/mizer/reference/getDiscreteStability.md)
-perturb the resource alongside the fish and so work with any resource
-dynamics.
+include every supported dynamic resource coordinate alongside the fish.
+Continuous analysis needs a resource equation capability; discrete
+analysis uses the supported resource step. Both require an appropriate
+autonomous-model contract for the providers used by the analysis.
 
 Distinct from calibration: the [guide to reaching steady state and
 calibrating](https://sizespectrum.org/mizer/articles/guide-calibrate-model.md)
@@ -37,12 +39,12 @@ the model is a system of ODEs;
 differentiates their right-hand side directly and takes the eigenvalues
 of that Jacobian. **No time step is involved**, so the eigenvalues are a
 property of the model rather than of a solver. The result reports
-whether the state is stable or unstable, the maximum real part of the
-eigenvalues (`max_real_part`; \> 0 means unstable), and the **period**
-at which the model rings (`dominant_period` for the dominant mode,
-`oscillation_period` for the leading *oscillatory* one). A complex pair
-is an oscillatory mode, not a bifurcation: its period is the period of
-an emerging limit cycle only where its real part is zero, which is a
+whether the state is stable, unstable or inconclusive, the maximum real
+part of the eigenvalues (`max_real_part`; \> 0 means unstable), and the
+**period** at which the model rings (`dominant_period` for the dominant
+mode, `oscillation_period` for the leading *oscillatory* one). A complex
+pair is an oscillatory mode, not a bifurcation: its period is the period
+of an emerging limit cycle only where its real part is zero, which is a
 Hopf bifurcation and which a single spectrum cannot show. Watch
 `Re(leading_oscillatory_eigenvalue)` cross zero over a
 [`scanModel()`](https://sizespectrum.org/mizer/reference/scanModel.md)
@@ -69,16 +71,20 @@ stab                                     # stable/unstable, growth rate, cycle p
 [`getStability()`](https://sizespectrum.org/mizer/reference/getStability.md)
 and
 [`getOscillationModeSim()`](https://sizespectrum.org/mizer/reference/getOscillationModeSim.md)
-linearise at the state stored in the object**, so a model that is not on
-a fixed point gets eigenvalues for the neighbourhood of a point it is
-not sitting at. Both now warn when handed one; the fix is to run
+use the state stored in the object.** At a state that fails its scoped
+steady-state assessment, raw Jacobian diagnostics do not establish
+equilibrium stability: the verdict is inconclusive.
+[`getOscillationModeSim()`](https://sizespectrum.org/mizer/reference/getOscillationModeSim.md)
+requires complete, current support and an autonomous equilibrium for its
+recorded scope. Run
 [`findSteadyState()`](https://sizespectrum.org/mizer/reference/findSteadyState.md)
-(or
-[`tuneSteadyState()`](https://sizespectrum.org/mizer/reference/tuneSteadyState.md))
-first, not to ignore the warning.
-[`plot(getSteadyResidual(params))`](https://sizespectrum.org/mizer/reference/plot.md)
-shows how far off it is — see the [guide to reaching steady state and
+or
+[`tuneSteadyState()`](https://sizespectrum.org/mizer/reference/tuneSteadyState.md)
+first, then inspect
+[`getSteadyAssessment()`](https://sizespectrum.org/mizer/reference/getSteadyAssessment.md)
+— see the [guide to reaching steady state and
 calibrating](https://sizespectrum.org/mizer/articles/guide-calibrate-model.md).
+An old stability list without coverage and scope must be recomputed.
 
 [`tuneSteadyState()`](https://sizespectrum.org/mizer/reference/tuneSteadyState.md)
 and
@@ -87,14 +93,15 @@ attach a related `"convergence"` attribute, which answers three
 questions separately: `termination` says why the run stopped,
 `converged` whether the solver met its own criterion, and `attractor`
 what the state reached actually is — `"fixed_point"`, `"limit_cycle"` or
-`NA`. **Read `attractor`**: it is the only one set from the measured
-biomass drift (reported as `residual`), and so the only one that can be
-taken as a claim that the model is at a steady state.
+`NA`. **Read `attractor` together with `assessment`**: a fixed-point
+label requires the measures for its recorded scope to pass. `residual`
+remains a separate biomass-drift diagnostic. An explicitly conditional
+fixed point is not a whole-model equilibrium claim.
 
 Stopping on a fixed point takes both a distance function below
-`distance_tol` and a drift within `residual_tol`; a state that meets the
-first but not the second keeps running. Limit cycles are detected from
-the per-species biomass series sampled at every time step, at every
+`distance_tol` and every required assessment passing; missing assessment
+support stops the operation before the search. Limit cycles are detected
+from the per-species biomass series sampled at every time step, at every
 check rather than only when the distance criterion has failed, because a
 cycle whose period divides `t_check` is sampled at one phase and looks
 converged. The relative-amplitude floor for calling an oscillation a
@@ -102,29 +109,61 @@ cycle is the `amplitude_tol` argument (default `0.01`).
 
 ### What the analysis covers
 
-[`getStability()`](https://sizespectrum.org/mizer/reference/getStability.md),
-[`getDiscreteStability()`](https://sizespectrum.org/mizer/reference/getDiscreteStability.md),
-[`tuneSteadyState()`](https://sizespectrum.org/mizer/reference/tuneSteadyState.md)
-and `findSteadyState(solver = "newton")` all treat components registered
-with
-[`setComponent()`](https://sizespectrum.org/mizer/reference/setComponent.md)
-as fixed inputs: they are held at their stored values and have no rows
-in the Jacobian. The verdict is therefore about the consumer-resource
-subsystem with the components frozen, which is exact when a component is
-a fixed input and a good approximation when it is much faster or much
-slower than the fish. Mizer warns when it meets a component with
-dynamics of its own. `findSteadyState(solver = "project")` is the one
-that advances everything.
+[`getSteadyAssessment()`](https://sizespectrum.org/mizer/reference/getSteadyAssessment.md)
+and [`isSteady()`](https://sizespectrum.org/mizer/reference/isSteady.md)
+cover the whole model by default, including registered component
+assessments. A conditional request names the states held fixed, and its
+scope stays attached to the result. The current Newton solver can solve
+consumers and resource only; dynamic component states must be explicitly
+held fixed when using it. The projection solver can advance components,
+provided their convergence measures are declared.
 
-The reported `residual` measures that same subsystem: a component’s rate
-of change is not folded into it, because mizer does not know what a
-component’s state is measured in and so cannot form a biomass for it. So
-`attractor == "fixed_point"` is a claim about the consumers and the
-resource, not about the whole model. Mizer names any component that is
-moving in the same message, and
-`attr(getSteadyResidual(params), "other")` holds the rates themselves.
-To settle the components too, project the model with
-[`projectUntilSettled()`](https://sizespectrum.org/mizer/reference/projectUntilSettled.md).
+Stability means the whole model by default. Dynamic component Jacobians
+are not available in this release, so a model containing an uncovered
+dynamic component returns an incomplete, inconclusive report. It does
+not silently compute a subsystem and label it as the whole model.
+Request the subsystem explicitly when that is the question you want to
+ask:
+
+``` r
+
+stab <- getStability(params, scope = "conditional", fixed = "component:pool")
+stab$scope
+stab$coverage
+```
+
+The fixed owners remain recorded throughout the result and any generated
+oscillation-mode simulation. A fixed dynamic pool is different from an
+input declared by the model. Explicit prescribed-input declarations,
+including coordinate masks for partially prescribed states, remove those
+coordinates from both continuous and discrete eigenproblems. Built-in
+[`resource_constant`](https://sizespectrum.org/mizer/reference/resource_constant.md)
+declares the resource as prescribed. Excluded coordinates are
+reconstructed as zero perturbations in eigenvectors and stay unchanged
+in mode simulations.
+
+Mizer never decides that a coordinate is prescribed because its
+abundance, derivative or Jacobian row happens to be zero. Entirely
+absent fish species still have invasion modes, and genuine zero
+eigenvalues or unit multipliers remain in the spectrum. This differs
+from the active set used by the Newton solver.
+
+Read `status`, `stable`, `coverage` and `assessment` together:
+
+| Evidence for the requested scope | `status` | `stable` |
+|----|----|----|
+| Complete autonomous equilibrium, all modes strictly decay | `stable` | `TRUE` |
+| Complete autonomous equilibrium, a mode grows | `unstable` | `FALSE` |
+| Marginal modes, missing support, or a non-equilibrium state | `inconclusive` | `NA` |
+| Complete coverage with no dynamic coordinates | `not_applicable` | `NA` |
+
+`stability_tol` sets the numerical margin around zero real part or unit
+modulus. The result records this tolerance, the evaluation time,
+prescribed coordinates, conditional exclusions and reasons for missing
+support. Time-dependent forcing needs its own suitable analysis; a
+stationary state alone does not establish that its Jacobian is
+autonomous. `isTRUE(stab$stable)` safely tests for an established stable
+verdict.
 
 ------------------------------------------------------------------------
 
@@ -141,6 +180,12 @@ perturbations at that `dt`. It is that step and not an approximation to
 it: the same transport coefficients, the same Thomas solver and the
 model’s own
 [`resource_dynamics`](https://sizespectrum.org/mizer/reference/setResource.md).
+
+With excluded coordinates, this is the full step with those inputs reset
+to their reference values between steps, followed by selection of the
+dynamic outputs. It is not a newly derived numerical solver for the
+constrained continuous equations; an implicit step can couple
+coordinates internally.
 
 The two verdicts can differ, and that is the point: the implicit
 transport solve damps oscillations artificially, so an unstable steady
@@ -257,6 +302,92 @@ plot(scan, style = "envelope")
   [`MizerScan`](https://sizespectrum.org/mizer/reference/MizerScan.md)
   object is a data frame, so the numbers behind the diagram are
   available without re-running the scan.
+
+### Reading and subsetting a scan
+
+The first two columns of a `MizerScan` have **dynamic names**: column 1
+is named by `scan_name` (for example, `"Fishing effort"`), and column 2
+by `value_name` (for example, `"Yield"`). Read them by position in
+reusable code, or obtain their names with `names(scan)[1:2]`:
+
+``` r
+
+scanned <- scan[[1]]
+measured <- scan[[2]]
+fixed <- scan[scan$attractor %in% "fixed_point", ]
+plot(fixed)
+```
+
+The other columns have fixed names: `Species` identifies the series;
+`ymin` and `ymax` give its range; `attractor` is `"fixed_point"`,
+`"limit_cycle"` or `NA`; `termination` and `converged` describe how the
+run stopped; and `period` and `residual` report the cycle period and
+remaining biomass drift. Use `attractor`, rather than `converged` alone,
+to identify equilibrium or cycle results.
+
+Use `[` for row subsetting. It preserves the plotting metadata and
+recomputes `at_max` and `max_value` from the remaining rows. Keep the
+first three columns in their original order if you also select columns
+and want the result to remain a `MizerScan`. Base
+[`subset()`](https://rdrr.io/r/base/subset.html) also preserves this
+metadata for row selection. Other data-frame operations can drop it or
+leave derived attributes stale:
+[`transform()`](https://rdrr.io/r/base/transform.html) drops the scan
+wrapper, while
+[`dplyr::filter()`](https://dplyr.tidyverse.org/reference/filter.html)
+can retain it without refreshing the recorded maxima. For arbitrary data
+manipulation, use
+[`as.data.frame(scan)`](https://sizespectrum.org/mizer/reference/as.data.frame.md)
+and make your own plot, or rebuild with
+[`MizerScan()`](https://sizespectrum.org/mizer/reference/MizerScan.md)
+and the original metadata before using
+[`plot()`](https://sizespectrum.org/mizer/reference/plot.md) on the scan
+again.
+
+### Comparing forward and backward sweeps
+
+With `continuation = TRUE` (the default), each value starts from the
+state reached at the preceding value. This can reveal **hysteresis**
+when a model has coexisting attractors: an increasing and a decreasing
+sweep can follow different stable branches at the same parameter values.
+
+Start from models settled near the two ends of the range, with initial
+states in the basins of the branches you want to follow. Set the
+endpoint’s scanned parameter and settle it with
+[`findSteadyState()`](https://sizespectrum.org/mizer/reference/findSteadyState.md),
+which keeps model parameters fixed.
+[`tuneSteadyState()`](https://sizespectrum.org/mizer/reference/tuneSteadyState.md)
+recalibrates reproduction and the resource, so independently tuned
+endpoints may no longer describe the same model. Here `params_low` and
+`params_high` have the same model parameters apart from fishing effort:
+
+``` r
+
+values <- seq(0, 1.5, 0.05)
+up <- scanModel(params_low, scan_values = values,
+                set_func = scanEffort(), value_func = getSSB,
+                continuation = TRUE, current_scan_value = NULL)
+down <- scanModel(params_high, scan_values = rev(values),
+                  set_func = scanEffort(), value_func = getSSB,
+                  continuation = TRUE, current_scan_value = NULL)
+plot(up, style = "envelope")
+plot(down, style = "envelope")
+```
+
+Leaving `current_scan_value = NULL` preserves the supplied scan order.
+Giving it a value, including `"auto"`, instead sweeps outwards from that
+value, restarting from the supplied model in each direction.
+`continuation = FALSE` restarts every point from the supplied initial
+model, so it does not follow the preceding branch.
+
+An abrupt jump between branches can indicate a saddle-node fold. Check
+`attractor`, `termination` and `residual` near the jump, allow enough
+time to settle, and refine `scan_values` there before interpreting it as
+a threshold. These are sweeps of the dynamics: they follow attracting
+states, not the unstable branch between them, and do not locate a fold
+exactly. The `params` attribute of a scan holds its **starting model**,
+not the final state of the sweep; it cannot be used as the settled
+starting state for a reverse sweep.
 
 ------------------------------------------------------------------------
 

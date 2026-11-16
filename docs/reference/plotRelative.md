@@ -78,52 +78,52 @@ plotRelative(
 
   `wlim`
 
-  :   A numeric vector of length two providing lower and upper limits
-      for the weight (x) axis. Use `NA` to refer to the existing minimum
-      or maximum.
+  : A numeric vector of length two providing lower and upper limits for
+    the weight (x) axis. Use `NA` to refer to the existing minimum or
+    maximum.
 
   **For the `ArraySpeciesBySize` and `ArrayTimeBySpeciesBySize`
   methods:**
 
   `all.sizes`
 
-  :   If `FALSE` (default), values outside a species' size range
-      (`w_min` to `w_max`) are removed.
+  : If `FALSE` (default), values outside a species' size range (`w_min`
+    to `w_max`) are removed.
 
   `llim`
 
-  :   A numeric vector of length two providing lower and upper limits
-      for the length (x) axis when `size_axis = "l"`. Use `NA` to refer
-      to the existing minimum or maximum.
+  : A numeric vector of length two providing lower and upper limits for
+    the length (x) axis when `size_axis = "l"`. Use `NA` to refer to the
+    existing minimum or maximum.
 
   `size_axis`
 
-  :   Whether to plot size as weight (`"w"`, default) or length (`"l"`),
-      using the allometric weight-length relationship of each species,
-      or of the resource, see
-      [`resource_params()`](https://sizespectrum.org/mizer/reference/resource_params.md).
+  : Whether to plot size as weight (`"w"`, default) or length (`"l"`),
+    using the allometric weight-length relationship of each species, or
+    of the resource, see
+    [`resource_params()`](https://sizespectrum.org/mizer/reference/resource_params.md).
 
   `per_log_size`
 
-  :   For an array that holds a density, whether to express it per
-      logarithmic size (`TRUE`) rather than per size (`FALSE`). The
-      default, `NULL`, leaves the density as it stands. An error for an
-      array that does not hold a density.
+  : For an array that holds a density, whether to express it per
+    logarithmic size (`TRUE`) rather than per size (`FALSE`). The
+    default, `NULL`, leaves the density as it stands. An error for an
+    array that does not hold a density.
 
   **For `ArrayTimeBySpecies` methods:**
 
   `tlim`
 
-  :   A numeric vector of length two providing lower and upper limits
-      for the time axis, e.g. `c(1980, 2000)`. Use `NA` to apply no
-      limit at that end. Default is `c(NA, NA)`.
+  : A numeric vector of length two providing lower and upper limits for
+    the time axis, e.g. `c(1980, 2000)`. Use `NA` to apply no limit at
+    that end. Default is `c(NA, NA)`.
 
   **For the `ArrayTimeBySpeciesBySize` and `ArrayTimeByResourceBySize`
   methods:**
 
   `time`
 
-  :   The time to display. Default (`NULL`) is the final time step.
+  : The time to display. Default (`NULL`) is the final time step.
 
 ## Value
 
@@ -162,27 +162,11 @@ params <- NS_params
 given_species_params(params)["Cod", "w_mat"] <- 1200
 plotRelative(getEGrowth(NS_params), getEGrowth(params),
              wlim = c(500, 2000), log_x = FALSE, species = "Cod")
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 
 
 # The same works for the resource
 params2 <- setResource(NS_params,
                        resource_capacity = 2 * resource_capacity(NS_params))
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 plotRelative(resource_capacity(NS_params), resource_capacity(params2))
 
 # }

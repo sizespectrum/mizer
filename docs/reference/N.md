@@ -37,7 +37,10 @@ str(N(NS_sim))
 #>  - attr(*, "units")= chr "1/g"
 #>  - attr(*, "type")= chr "density"
 #>  - attr(*, "representation")= chr "point"
-#>  - attr(*, "params")=Formal class 'MizerParams' [package "mizer"] with 48 slots
+#>  - attr(*, "size_grid")=List of 2
+#>   ..$ grid : chr "w"
+#>   ..$ index: int [1:100] 1 2 3 4 5 6 7 8 9 10 ...
+#>  - attr(*, "params")=Formal class 'MizerParams' [package "mizer"] with 50 slots
 str(NResource(NS_sim))
 #>  'ArrayTimeByResourceBySize' num [1:44, 1:218] 4.88e+35 4.88e+35 4.88e+35 4.88e+35 4.88e+35 ...
 #>  - attr(*, "dimnames")=List of 2
@@ -46,5 +49,8 @@ str(NResource(NS_sim))
 #>  - attr(*, "value_name")= chr "Number density"
 #>  - attr(*, "units")= chr "1/g"
 #>  - attr(*, "type")= chr "density"
-#>  - attr(*, "params")=Formal class 'MizerParams' [package "mizer"] with 48 slots
+#>  - attr(*, "size_grid")=List of 2
+#>   ..$ grid : chr "w_full"
+#>   ..$ index: int [1:218] 1 2 3 4 5 6 7 8 9 10 ...
+#>  - attr(*, "params")=Formal class 'MizerParams' [package "mizer"] with 50 slots
 ```

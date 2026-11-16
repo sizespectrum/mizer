@@ -911,7 +911,7 @@ capture_tuning_targets <- function(params, plan, rates = NULL, t = 0,
     # The standard consumer equations always receive an independent invariant,
     # even when an extension supplies its own broader equation-rate adapter.
     list(
-        reference = unserialize(serialize(params, NULL)),
+        reference = clone_params_runtime(params),
         state = unserialize(serialize(tuning_state(params), NULL)),
         rates = rates,
         equations = targets, core = builtin_consumer_equation_rates(

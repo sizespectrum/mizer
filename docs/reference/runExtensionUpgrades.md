@@ -28,4 +28,7 @@ The object with extension migrations applied and stamps refreshed.
 Extension upgrade methods are looked up with
 `getS3method("upgrade", name, optional = TRUE)`, must perform only their
 own migration, must be idempotent, and must not call
-[`NextMethod()`](https://rdrr.io/r/base/UseMethod.html).
+[`NextMethod()`](https://rdrr.io/r/base/UseMethod.html). Validating
+setters called during a migration do not re-enter the upgrade chain for
+that candidate. Version stamps remain unchanged until each method
+returns successfully; independent nested models can still be upgraded.

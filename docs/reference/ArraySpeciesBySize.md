@@ -56,9 +56,8 @@ is.ArraySpeciesBySize(x)
 
 - params:
 
-  A `MizerParams` object. Used for species colours, linetypes, and size
-  ranges in the
-  [`plot()`](https://sizespectrum.org/mizer/reference/plot.md) method.
+  A `MizerParams` object. Used for species colours, linetypes, size
+  ranges, and the original size-grid geometry.
 
 - representation:
 
@@ -88,6 +87,12 @@ attributes:
 
 - `type` – the kind of quantity the values are.
 
+Subsetting size columns preserves their original model coordinates and
+bins, including non-contiguous, reordered and repeated columns. It does
+not redefine the bins using the spacing of the selected columns. Use
+`drop = FALSE` to keep the wrapper when selecting a single row or
+column.
+
 ## See also
 
 [`print()`](https://sizespectrum.org/mizer/reference/print.md),
@@ -100,14 +105,6 @@ attributes:
 ``` r
 # \donttest{
 enc <- getEncounter(NS_params)
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 is.ArraySpeciesBySize(enc)
 #> [1] TRUE
 summary(enc)

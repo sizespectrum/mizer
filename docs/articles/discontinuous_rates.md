@@ -95,6 +95,11 @@ other_params(params)$b_trigger <- 0.7 * ssb0
 
 params_hard <- setRateFunction(params, "FMort", "hardHCR")
 params_ramp <- setRateFunction(params, "FMort", "rampHCR")
+# These feedback rules depend on abundance, with no explicit time forcing.
+params_hard <- setProcess(params_hard, "consumers", autonomous = TRUE)
+params_hard <- setProcess(params_hard, "resource", autonomous = TRUE)
+params_ramp <- setProcess(params_ramp, "consumers", autonomous = TRUE)
+params_ramp <- setProcess(params_ramp, "resource", autonomous = TRUE)
 ```
 
 Now run each rule at two time steps that differ by a factor of eight,
@@ -349,7 +354,7 @@ c(ramp = getSSB(ramp_ss)[["Cod"]] / other_params(params)$b_lim,
 ```
 
     #>      ramp      hard 
-    #> 1.2611078 0.9999017
+    #> 1.2611078 0.9998518
 
 ### `getStability()` becomes unreliable
 
@@ -372,14 +377,16 @@ sapply(c(1e-3, 1e-4, 1e-5),
        function(h) getStability(hard_ss, h = h)$max_real_part)
 ```
 
-    #> [1] 0.6104857 0.3054843 0.3054844
+    #> [1] 0.3054122 0.3054122 0.3054123
 
-The coarsest step is the only one whose perturbations reach across the
-threshold, and the growth rate it reports comes out at 0.61 against the
-0.305 that the finer steps agree on. Note what those two do: they agree
-to seven figures, because at that size no perturbation crosses the
-threshold at all. That agreement is the second failure mode below, not a
-clean bill of health.
+In this saved run, however, Newton’s best iterate lies just below the
+threshold and the three choices agree closely, at about 0.305 per year.
+Perturbations that stay on one branch can give reproducible local
+eigenvalues even beside a discontinuity. This agreement does not
+establish the existence or stability of an equilibrium: the independent
+state-change assessment still fails. A different iterate or larger
+perturbations can straddle the switch and give a strongly step-dependent
+answer.
 
 Contrast the ramped model, where the answer is the same to five figures
 whatever `h` you choose:
@@ -390,7 +397,7 @@ sapply(c(1e-3, 1e-4, 1e-5),
        function(h) getStability(ramp_ss, h = h)$max_real_part)
 ```
 
-    #> [1] -0.02481145 -0.02481120 -0.02481155
+    #> [1] -0.02481141 -0.02481141 -0.02481141
 
 What matters here is the *reproducibility* of that number, not its
 value. (It is negative, so the ramped model’s steady state is weakly
@@ -412,18 +419,26 @@ model is not:
 ``` r
 
 st <- getStability(hard_settled)
-c(max_real_part = st$max_real_part, stable = st$stable)
+list(max_real_part = st$max_real_part, stable = st$stable,
+     status = st$status)
 ```
 
-    #> max_real_part        stable 
-    #>    -0.0586569     1.0000000
+    #> $max_real_part
+    #> [1] -0.0586569
+    #> 
+    #> $stable
+    #> [1] NA
+    #> 
+    #> $status
+    #> [1] "inconclusive"
 
-Every eigenvalue in the left half-plane, and a confident verdict of
-`stable` — for a simulation that we watched chatter for thirty years and
-will chatter for ever. Nothing here is flagged. The number is the
-correct linearisation of the open-fishery branch, evaluated at a state
-that is not an equilibrium of that branch, and it answers a question
-nobody asked.
+The raw eigenvalues describe the open-fishery branch at a state that is
+not its equilibrium. They can all lie in the left half-plane even though
+the trajectory keeps chattering. The current stability report therefore
+returns `status = "inconclusive"` and `stable = NA`: its independent
+equilibrium assessment fails. A negative `max_real_part` alone is
+insufficient. Inspect `st$assessment` as well as the eigenvalues, and
+check the sensitivity to `h` when the rate law is not smooth.
 
 ## Regularise the switch
 

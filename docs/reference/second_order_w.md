@@ -55,9 +55,21 @@ The slot is a named list with entries:
   need it in order to be second-order precise in bin size. When `FALSE`,
   point-sampling at the left bin edge is used.
 
-When `flux` is `"upwind"` and `bin_average` is `FALSE` (the defaults),
-mizer preserves the behaviour of previous mizer versions. Setting both
-to their second-order values gives a consistently second-order model.
+When `flux` is `"upwind"` and `bin_average` is `FALSE`, mizer preserves
+the behaviour of previous mizer versions. Setting both to their
+second-order values gives a consistently second-order model.
+
+The scheme a new model gets depends on the
+[`defaults_edition()`](https://sizespectrum.org/mizer/reference/defaults_edition.md)
+that is active when it is created. From edition 3 on, a new model uses
+the second-order scheme, with `flux = "van_leer"` and
+`bin_average = TRUE`. Models of editions 1 and 2, which include every
+model created with the current default edition and every model saved
+with an earlier version of mizer, use the first-order scheme. Use the
+`second_order_w` argument of the function that creates the model, for
+example
+[`newMultispeciesParams()`](https://sizespectrum.org/mizer/reference/newMultispeciesParams.md),
+to choose another scheme for a new model.
 
 The setter accepts a single logical value (which sets both entries), a
 single scheme name (which sets only `flux`), or a named vector to set

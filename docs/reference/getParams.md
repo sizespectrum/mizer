@@ -59,14 +59,14 @@ The abundances set by `getParams()` are averages over the selected time
 range. By default this is an arithmetic mean; set
 `geometric_mean = TRUE` to use a geometric mean instead (this does not
 affect the effort or other components, which are always averaged
-arithmetically).
+arithmetically). A single selected time preserves any component state.
+Averaging across times requires numeric component states with matching
+dimensions and names.
 
 ## Examples
 
 ``` r
 sim <- project(NS_params, t_max = 20, effort = 0.5)
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 # State at a specific time
 params_10 <- getParams(sim, time_range = 10)
 # State averaged over the last 10 years

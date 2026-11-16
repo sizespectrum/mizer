@@ -19,7 +19,7 @@ The predation rate pred_rate is returned by getPredRate()."><meta property="og:i
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0.9011</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -192,8 +192,6 @@ same arguments.</p>
 <span class="r-in"><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="va">NS_params</span></span></span>
 <span class="r-in"><span><span class="co"># Predation mortality in initial state</span></span></span>
 <span class="r-in"><span><span class="va">M2</span> <span class="op">&lt;-</span> <span class="fu">getPredMort</span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `b` column so using the isometric default b = 3 in w = a l^b.</span>
 <span class="r-in"><span><span class="fu"><a href="str.html">str</a></span><span class="op">(</span><span class="va">M2</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  'ArraySpeciesBySize' num [1:12, 1:100] 3.64 4.43 4.31 4.89 4.8 ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  - attr(*, "dimnames")=List of 2</span>
@@ -203,15 +201,14 @@ same arguments.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  - attr(*, "units")= chr "1/year"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  - attr(*, "type")= chr "value"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  - attr(*, "representation")= chr "average"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  - attr(*, "params")=Formal class 'MizerParams' [package "mizer"] with 48 slots</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  - attr(*, "size_grid")=List of 2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ grid : chr "w"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ index: int [1:100] 1 2 3 4 5 6 7 8 9 10 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  - attr(*, "params")=Formal class 'MizerParams' [package "mizer"] with 50 slots</span>
 <span class="r-in"><span><span class="co"># With constant fishing effort for all gears for 20 time steps</span></span></span>
 <span class="r-in"><span><span class="va">sim</span> <span class="op">&lt;-</span> <span class="fu"><a href="project.html">project</a></span><span class="op">(</span><span class="va">params</span>, t_max <span class="op">=</span> <span class="fl">20</span>, effort <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `b` column so using the isometric default b = 3 in w = a l^b.</span>
 <span class="r-in"><span><span class="co"># Get predation mortality at one time step</span></span></span>
 <span class="r-in"><span><span class="va">M2</span> <span class="op">&lt;-</span> <span class="fu">getPredMort</span><span class="op">(</span><span class="va">params</span>, n <span class="op">=</span> <span class="fu"><a href="N.html">N</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span><span class="op">[</span><span class="fl">15</span>, , <span class="op">]</span>, n_pp <span class="op">=</span> <span class="fu"><a href="N.html">NResource</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span><span class="op">[</span><span class="fl">15</span>, <span class="op">]</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `b` column so using the isometric default b = 3 in w = a l^b.</span>
 <span class="r-in"><span><span class="co"># Get predation mortality at all saved time steps</span></span></span>
 <span class="r-in"><span><span class="va">M2</span> <span class="op">&lt;-</span> <span class="fu">getPredMort</span><span class="op">(</span><span class="va">sim</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="str.html">str</a></span><span class="op">(</span><span class="va">M2</span><span class="op">)</span></span></span>
@@ -224,7 +221,10 @@ same arguments.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  - attr(*, "units")= chr "1/year"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  - attr(*, "type")= chr "value"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  - attr(*, "representation")= chr "average"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  - attr(*, "params")=Formal class 'MizerParams' [package "mizer"] with 48 slots</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  - attr(*, "size_grid")=List of 2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ grid : chr "w"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ index: int [1:100] 1 2 3 4 5 6 7 8 9 10 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  - attr(*, "params")=Formal class 'MizerParams' [package "mizer"] with 50 slots</span>
 <span class="r-in"><span><span class="co"># Get predation mortality over the years 15 - 20</span></span></span>
 <span class="r-in"><span><span class="va">M2</span> <span class="op">&lt;-</span> <span class="fu">getPredMort</span><span class="op">(</span><span class="va">sim</span>, time_range <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">15</span>, <span class="fl">20</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># }</span></span></span>

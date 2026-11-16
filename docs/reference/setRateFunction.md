@@ -167,6 +167,8 @@ Other extension tools:
 [`NOther()`](https://sizespectrum.org/mizer/reference/NOther.md),
 [`coerceToExtensionClass()`](https://sizespectrum.org/mizer/reference/coerceToExtensionClass.md),
 [`initialNOther<-()`](https://sizespectrum.org/mizer/reference/initialNOther-set.md),
+[`mizerReproductionDefinition()`](https://sizespectrum.org/mizer/reference/mizerReproductionDefinition.md),
 [`other_mort()`](https://sizespectrum.org/mizer/reference/other_mort.md),
 [`recordExtension()`](https://sizespectrum.org/mizer/reference/recordExtension.md),
-[`setComponent()`](https://sizespectrum.org/mizer/reference/setComponent.md)
+[`setComponent()`](https://sizespectrum.org/mizer/reference/setComponent.md),
+[`setProcess()`](https://sizespectrum.org/mizer/reference/setProcess.md)

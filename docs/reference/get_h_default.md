@@ -6,7 +6,7 @@ maturity age `age_mat` if it feeds at feeding level `f0`.
 ## Usage
 
 ``` r
-get_h_default(params)
+get_h_default(params, ...)
 ```
 
 ## Arguments
@@ -14,6 +14,10 @@ get_h_default(params)
 - params:
 
   A MizerParams object or a species parameter data frame
+
+- ...:
+
+  Unused.
 
 ## Value
 
@@ -39,4 +43,5 @@ the mathematical derivation.
 Other functions calculating defaults:
 [`get_f0_default()`](https://sizespectrum.org/mizer/reference/get_f0_default.md),
 [`get_gamma_default()`](https://sizespectrum.org/mizer/reference/get_gamma_default.md),
-[`get_ks_default()`](https://sizespectrum.org/mizer/reference/get_ks_default.md)
+[`get_ks_default()`](https://sizespectrum.org/mizer/reference/get_ks_default.md),
+[`measure_avail_energy()`](https://sizespectrum.org/mizer/reference/measure_avail_energy.md)

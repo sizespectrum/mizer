@@ -21,7 +21,7 @@ plotting_functions."><meta property="og:image" content="https://sizespectrum.org
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0.9011</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -119,6 +119,10 @@ The function returns an object of type
 <span>  callback <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"euler"</span>, <span class="st">"predictor_corrector"</span>, <span class="st">"tr_bdf2"</span><span class="op">)</span>,</span>
 <span>  check_steady <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  subcycle <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  max_courant <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  max_substeps <span class="op">=</span> <span class="fl">10000</span>,</span>
+<span>  info_level <span class="op">=</span> <span class="fu"><a href="default_info_level.html">default_info_level</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -228,7 +232,36 @@ to do. It is meant for a <code>MizerParams</code> object; when continuing from a
 ended, so there is nothing to check. The check is made at the effort stored in the params
 object rather than at the <code>effort</code> supplied here, so that running a fishing
 scenario at a new effort — which legitimately starts away from the steady
-state of that new effort — does not warn. See <code><a href="getSteadyResidual.html">getSteadyResidual()</a></code>.</p></dd>
+state of that new effort — does not warn. This uses the whole-model
+assessment at <code>t_start</code>, and also warns when required assessment support
+is missing. See <code><a href="getSteadyAssessment.html">getSteadyAssessment()</a></code>.</p></dd>
+
+
+<dt id="arg-subcycle">subcycle<a class="anchor" aria-label="anchor" href="#arg-subcycle"></a></dt>
+<dd><p>If <code>TRUE</code>, split each requested <code>dt</code> into coupled substeps
+using the growth Courant target. Consumers, resources and other components
+advance together and rates are recalculated at each substep. Default
+<code>FALSE</code> keeps the fixed-step calculation. When continuing a <code>MizerSim</code>,
+the stored setting is used unless supplied explicitly.</p></dd>
+
+
+<dt id="arg-max-courant">max_courant<a class="anchor" aria-label="anchor" href="#arg-max-courant"></a></dt>
+<dd><p>Positive growth Courant target, default 1. With
+<code>subcycle = FALSE</code>, exceeding it produces one advisory report per call for
+the high-order flux schemes. With subcycling it controls the step selected
+from the current rates. This is not a guarantee of stability or positivity;
+it does not bound mortality, diffusion, or changes in rates within a step.
+See <code><a href="getCourant.html">getCourant()</a></code> for the face convention and structural support.</p></dd>
+
+
+<dt id="arg-max-substeps">max_substeps<a class="anchor" aria-label="anchor" href="#arg-max-substeps"></a></dt>
+<dd><p>Positive integer cap on substeps within one requested
+<code>dt</code>, default 10000. Exceeding it is an error, not a silent cap. This and
+<code>max_courant</code> are inherited when continuing a <code>MizerSim</code> unless overridden.</p></dd>
+
+
+<dt id="arg-info-level">info_level<a class="anchor" aria-label="anchor" href="#arg-info-level"></a></dt>
+<dd><p>Level of information reported; see <code><a href="default_info_level.html">default_info_level()</a></code>.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -293,12 +326,14 @@ be ignored.</p>
 
 <p>The spatial discretisation of the growth (advection) term is controlled by
 the <code>flux</code> entry of the <code>second_order_w</code> slot of the params object, not by
-an argument to <code>project()</code>. With the default (<code>"upwind"</code>) the first-order
-upwind flux is used. Setting it to <code>"van_leer"</code> (for example with
-<code>second_order_w(params) &lt;- TRUE</code>) switches on a flux-limited (van Leer, TVD)
+an argument to <code>project()</code>. With <code>"upwind"</code>, the default for models of
+defaults editions 1 and 2, the first-order upwind flux is used.
+<code>"van_leer"</code>, the default from edition 3 and also set by
+<code>second_order_w(params) &lt;- TRUE</code>, switches on a flux-limited (van Leer, TVD)
 deferred correction that removes the leading numerical diffusion
 \(\approx g\,w\,\log\beta\) of the upwind flux while keeping the density
-update a tridiagonal solve and preserving positivity. The correction is most
+update a tridiagonal solve. The time step still matters for cell-scale
+oscillations and non-negativity; see <code><a href="getCourant.html">getCourant()</a></code>. The correction is most
 useful on coarse logarithmic grids and pairs naturally with the second-order
 time methods. Because it changes the discrete steady state, the choice lives
 in the params object alongside the steady state rather than being a per-run
@@ -328,13 +363,9 @@ article for the symptoms and the remedy.</p>
 <span class="r-in"><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="va">NS_params</span></span></span>
 <span class="r-in"><span><span class="co"># With constant fishing effort for all gears for 20 time steps</span></span></span>
 <span class="r-in"><span><span class="va">sim</span> <span class="op">&lt;-</span> <span class="fu">project</span><span class="op">(</span><span class="va">params</span>, t_max <span class="op">=</span> <span class="fl">20</span>, effort <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `b` column so using the isometric default b = 3 in w = a l^b.</span>
 <span class="r-in"><span><span class="co"># With constant fishing effort which is different for each gear</span></span></span>
 <span class="r-in"><span><span class="va">effort</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>Industrial <span class="op">=</span> <span class="fl">0</span>, Pelagic <span class="op">=</span> <span class="fl">1</span>, Beam <span class="op">=</span> <span class="fl">0.5</span>, Otter <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">sim</span> <span class="op">&lt;-</span> <span class="fu">project</span><span class="op">(</span><span class="va">params</span>, t_max <span class="op">=</span> <span class="fl">20</span>, effort <span class="op">=</span> <span class="va">effort</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `b` column so using the isometric default b = 3 in w = a l^b.</span>
 <span class="r-in"><span><span class="co"># With fishing effort that varies through time for each gear</span></span></span>
 <span class="r-in"><span><span class="va">gear_names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Industrial"</span>, <span class="st">"Pelagic"</span>, <span class="st">"Beam"</span>, <span class="st">"Otter"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">times</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span>from <span class="op">=</span> <span class="fl">1</span>, to <span class="op">=</span> <span class="fl">10</span>, by <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
@@ -347,17 +378,11 @@ article for the symptoms and the remedy.</p>
 <span class="r-in"><span><span class="va">effort_array</span><span class="op">[</span>, <span class="st">"Beam"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span>from <span class="op">=</span> <span class="fl">1</span>, to <span class="op">=</span> <span class="fl">0</span>, length <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">times</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">effort_array</span><span class="op">[</span>, <span class="st">"Otter"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span>from <span class="op">=</span> <span class="fl">1</span>, to <span class="op">=</span> <span class="fl">0.5</span>, length <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">times</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">sim</span> <span class="op">&lt;-</span> <span class="fu">project</span><span class="op">(</span><span class="va">params</span>, effort <span class="op">=</span> <span class="va">effort_array</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `b` column so using the isometric default b = 3 in w = a l^b.</span>
 <span class="r-in"><span><span class="co"># Extend a simulation beyond the effort array times</span></span></span>
 <span class="r-in"><span><span class="co"># Effort values from the final time are used for the extension</span></span></span>
 <span class="r-in"><span><span class="va">sim</span> <span class="op">&lt;-</span> <span class="fu">project</span><span class="op">(</span><span class="va">params</span>, effort <span class="op">=</span> <span class="va">effort_array</span>, t_max <span class="op">=</span> <span class="fl">15</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `b` column so using the isometric default b = 3 in w = a l^b.</span>
 <span class="r-in"><span><span class="co"># Control save times with an effort array using t_save</span></span></span>
 <span class="r-in"><span><span class="va">sim</span> <span class="op">&lt;-</span> <span class="fu">project</span><span class="op">(</span><span class="va">params</span>, effort <span class="op">=</span> <span class="va">effort_array</span>, t_save <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `b` column so using the isometric default b = 3 in w = a l^b.</span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>
     </div>

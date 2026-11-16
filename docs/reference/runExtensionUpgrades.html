@@ -21,7 +21,7 @@ core mizer upgrade is not run here; see upgrade.MizerParams()."><meta property="
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0.9011</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -124,7 +124,10 @@ core mizer upgrade is <em>not</em> run here; see <code><a href="upgrade.MizerPar
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>Extension upgrade methods are looked up with
 <code>getS3method("upgrade", name, optional = TRUE)</code>, must perform only their own
-migration, must be idempotent, and must not call <code><a href="https://rdrr.io/r/base/UseMethod.html" class="external-link">NextMethod()</a></code>.</p>
+migration, must be idempotent, and must not call <code><a href="https://rdrr.io/r/base/UseMethod.html" class="external-link">NextMethod()</a></code>.
+Validating setters called during a migration do not re-enter the upgrade
+chain for that candidate. Version stamps remain unchanged until each method
+returns successfully; independent nested models can still be upgraded.</p>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

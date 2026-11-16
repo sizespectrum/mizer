@@ -148,6 +148,48 @@ test_that("readParams repairs extension classes on legacy files", {
     expect_identical(class(params2), c(ext_a, "MizerParams"))
 })
 
+test_that("saved S4 subclasses without definitions regain their families", {
+    params <- NS_params_small
+    params$extensions <- list(stats = c(
+        requirement = NA_character_,
+        version = as.character(utils::packageVersion("stats"))
+    ))
+    params <- coerceToExtensionClass(params)
+    sim <- NS_sim_small
+    sim$params <- params
+    sim <- coerceToExtensionClass(sim)
+
+    # Preserve the S4 bit while reproducing a saved subclass whose old class
+    # definition is no longer supplied by the extension package.
+    old_sim <- readRDS("assets/simc.1.0.rds")
+    old_params <- attributes(old_sim)$params
+    attributes(old_params) <- c(unclass(params), list(class = "stats"))
+    attributes(old_sim) <- c(unclass(sim), list(class = "statsSim"))
+    attr(old_sim, "params") <- old_params
+    expect_true(isS4(old_params))
+    expect_true(isS4(old_sim))
+    path <- tempfile(fileext = ".rds")
+    withr::defer(unlink(path))
+
+    saveRDS(old_params, path)
+    restored <- readParams(path)
+    expect_identical(class(restored), c("stats", "MizerParams"))
+    expect_equal(restored$initial_n, params$initial_n)
+    expect_equal(restored$initial_n_pp, params$initial_n_pp)
+    saveParams(restored, path)
+    expect_equal(readParams(path), restored)
+
+    saveRDS(old_sim, path)
+    restored_sim <- readSim(path)
+    expect_identical(class(restored_sim), c("statsSim", "MizerSim"))
+    expect_identical(class(restored_sim$params), c("stats", "MizerParams"))
+    expect_false(isS4(restored_sim$params))
+    expect_equal(restored_sim$n, sim$n)
+    expect_equal(restored_sim$n_pp, sim$n_pp)
+    saveSim(restored_sim, path)
+    expect_equal(readSim(path), restored_sim)
+})
+
 test_that("saveParams reports missing extension packages by name", {
     params <- NS_params_small
     params@extensions <- c(definitelyMissingPkg = "github::owner/repo")

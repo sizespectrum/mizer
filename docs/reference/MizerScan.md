@@ -178,15 +178,22 @@ remain, so they never go stale.
 
 ## Limitations
 
-Because the object is a data frame subclass, its attributes survive base
-R subsetting with `[` but are dropped by functions that rebuild the data
-frame, including
-[`dplyr::filter()`](https://dplyr.tidyverse.org/reference/filter.html),
-[`dplyr::mutate()`](https://dplyr.tidyverse.org/reference/mutate.html),
-[`subset()`](https://rdrr.io/r/base/subset.html) and
-[`transform()`](https://rdrr.io/r/base/transform.html). A scan that has
-lost its attributes can no longer be plotted. Subset with `[`, or
-rebuild the object with `MizerScan()`.
+Row subsetting with `[` preserves the plotting metadata and recomputes
+`at_max` and `max_value`. Base
+[`subset()`](https://rdrr.io/r/base/subset.html) also uses this method
+for row selection. If selecting columns, keep the first three in their
+original order to retain the scan class.
+
+Other data-frame operations can drop metadata or leave derived
+attributes stale. For example,
+[`transform()`](https://rdrr.io/r/base/transform.html) drops the scan
+wrapper, while
+[`dplyr::filter()`](https://dplyr.tidyverse.org/reference/filter.html)
+can retain it without recomputing the maxima. Metadata preservation
+alone is therefore not enough to keep a scan consistent. Use
+[`as.data.frame()`](https://sizespectrum.org/mizer/reference/as.data.frame.md)
+for ordinary data manipulation, or rebuild the result with `MizerScan()`
+and its original metadata before plotting it as a scan.
 
 ## See also
 
@@ -205,8 +212,6 @@ Other scan functions:
 # \donttest{
 scan <- scanModel(NS_params, scan_values = c(0, 0.5, 1),
                   set_func = scanEffort(), species = "Cod")
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 scan
 #> Biomass [g] vs Fishing effort 
 #> 3 scan values x 1 series
@@ -214,10 +219,14 @@ scan
 #>             0.0 1.218582e+12     Cod 1.218582e+12 1.218582e+12
 #>             0.5 5.465367e+11     Cod 5.465367e+11 5.465367e+11
 #>             1.0 3.772163e+11     Cod 3.772163e+11 3.772163e+11
-#>         termination converged   attractor period     residual
-#>  residual_tolerance      TRUE fixed_point     NA 0.0001509745
-#>  residual_tolerance      TRUE fixed_point     NA 0.0003925230
-#>  residual_tolerance      TRUE fixed_point     NA 0.0004878574
+#>         termination converged   attractor period     residual scope
+#>  residual_tolerance      TRUE fixed_point     NA 0.0001509745 whole
+#>  residual_tolerance      TRUE fixed_point     NA 0.0003925230 whole
+#>  residual_tolerance      TRUE fixed_point     NA 0.0004878574 whole
+#>  assessment_complete   assessment
+#>                 TRUE TRUE, wh....
+#>                 TRUE TRUE, wh....
+#>                 TRUE TRUE, wh....
 summary(scan)
 #> Biomass [g] vs Fishing effort 
 #> 3 scan values from 0 to 1 

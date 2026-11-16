@@ -33,6 +33,7 @@ load saved models with \code{\link[=readParams]{readParams()}} or \code{\link[=r
 Other extension tools:
 \code{\link[=NOther]{NOther()}},
 \code{\link[=initialNOther<-]{initialNOther<-()}},
+\code{\link[=mizerReproductionDefinition]{mizerReproductionDefinition()}},
 \code{\link[=other_mort]{other_mort()}},
 \code{\link[=recordExtension]{recordExtension()}},
 \code{\link[=setComponent]{setComponent()}},

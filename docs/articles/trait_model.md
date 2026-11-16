@@ -67,9 +67,10 @@ summary(params)
 ```
 
     ## An object of class "MizerParams" 
-    ## mizer version: 3.4.0
-    ## Created: 2026-09-02 10:05:39
-    ## Modified: 2026-09-02 10:05:39
+    ## mizer version: 3.4.0.9011
+    ## Defaults edition: 1
+    ## Created: 2026-11-16 08:27:12
+    ## Modified: 2026-11-16 08:27:12
     ## Consumer size spectrum:
     ##  minimum size:   0.001
     ##  maximum size:   1e+05
@@ -79,7 +80,8 @@ summary(params)
     ##  maximum size:   2.23872
     ##  no. size bins:  208 (301 size bins in total)
     ## Steady state:
-    ##  biomass drift:  0.25 /year  (not at steady state, largest in 1 - run tuneSteadyState())
+    ##  assessment: not at steady state (whole scope)
+    ##  largest tolerance ratio:    6.43 (consumers/1)
     ## Species details:
     ## An object of class "species_params" containing parameters for 10 species:
     ##  species        w_inf        w_mat w_min  f0   fc beta
@@ -288,23 +290,34 @@ plotSpectraRelative(sim0, sim1, total = TRUE, resource = FALSE,
 ```
 
 ![The relative difference between the fished and the unfished
-trait-based model at each size. The thick black total line rises above
-zero around 0.1 g, dips below it between 1 and 100 g and collapses above
-1000 g. Several species lie flat at -2 because fishing has driven them
+trait-based model at each size. The thick black total line lies above
+zero up to about 0.5 g, peaking at about 0.1 g, dips below it between
+about 0.5 g and 100 g, rises well above it again between about 150 g and
+600 g and collapses above 1000 g. The lines of the surviving species
+peak at about 0.5 g and have their troughs at about 40 g. Several
+species lie flat at -2 because fishing has driven them
 extinct.](trait_model_files/figure-html/plot_relative_comm_abund2-1.png)
 
 The impact of fishing on individuals larger than 1000 g can be clearly
 seen: the total drops to \\-2\\ there, meaning that those sizes have
-essentially been emptied. This relieves the predation pressure on their
-smaller prey (the preferred predator-prey size ratio is given by the
-\\\beta\\ parameter, which is set to 100 by default), leading to an
-increase in their abundance. This in turn increases the predation
-mortality on *their* smaller prey, which reduces their abundance and so
-on, giving the total line its alternating rises and dips as we move down
-the spectrum. The lines lying flat at \\-2\\ belong to species that have
-been driven to extinction. Not all six of them appear: two have declined
-so far that their densities have underflowed to zero, and a zero cannot
-be shown on the logarithmic scale the spectra are prepared on.
+essentially been emptied. Below 1000 g the total line alternates between
+rises and dips as we move down the spectrum. As in the community model,
+these do not follow the simple story of a cascade that moves down by one
+predator-prey mass ratio \\\beta\\ (100 by default) at a time: the
+biggest rise is just below the fished sizes, and at around \\1000/\beta
+= 10\\ g, where that story would put the fish released from predation,
+there is a dip instead. The reason, explained in the article on [the
+single-species
+model](https://sizespectrum.org/mizer/articles/single_species_size-spectrum_dynamics.html#sec:change_in_mortality)
+and applied in [the section on trophic cascades in the community
+model](https://sizespectrum.org/mizer/articles/community_model.html#sec:trophic_cascade_comm_model),
+is that the abundance at a size reflects what happened to the fish while
+they grew to that size: the mortality they suffered and how fast they
+grew. We look at both below. The lines lying flat at \\-2\\ belong to
+species that have been driven to extinction. Not all six of them appear:
+two have declined so far that their densities have underflowed to zero,
+and a zero cannot be shown on the logarithmic scale the spectra are
+prepared on.
 
 This impact can also be seen by looking at the predation mortality by
 size. The predation mortalities are retrieved using the
@@ -342,8 +355,56 @@ g.](trait_model_files/figure-html/plot_relative_trait_m2-1.png)
 
 The peak of the predation mortality has moved: the small individuals
 that used to be eaten most heavily are now much safer, while individuals
-around 5 g face more than twice the mortality they did before. That
-shift is the mechanism behind the cascade in the abundances above.
+around 5 g face more than twice the mortality they did before. The two
+mortality curves cross at about 0.5 g and again at about 60 g.
+
+That shift is half of the mechanism behind the cascade in the abundances
+above. The other half is growth. The changed abundances also change how
+much food fish find, and in the trait-based model every species has the
+same feeding level at a given size, so again we can look at the first
+species alone:
+
+``` r
+
+plot2(getFeedingLevel(finalParams(sim0)), getFeedingLevel(finalParams(sim1)),
+      name1 = "Unfished", name2 = "Fished", species = 1, all.sizes = TRUE)
+```
+
+![Feeding level against size in the unfished (solid) and fished (dashed)
+trait-based model. Fishing raises the feeding level of individuals up to
+about 100 g, most strongly around 10 g, and lowers it between about 100
+g and 3 kg, most strongly around 1
+kg.](trait_model_files/figure-html/plot_trait_feeding_level-1.png)
+
+Individuals up to about 100 g now feed better, because their prey, about
+\\\beta\\ times smaller, have become more abundant. Individuals between
+about 100 g and 3 kg feed worse, because their prey, around 1 to 30 g,
+have become scarcer. As in [the single-species
+model](https://sizespectrum.org/mizer/articles/single_species_size-spectrum_dynamics.html#sec:steady_state_formula),
+a change in growth acts on the abundance in two ways. Fish that grow
+faster spend less time at each size and so are exposed to its mortality
+for less time. This offsets a large part of the extra mortality between
+1 g and 60 g. Fish that grow faster also thin out, while fish that grow
+more slowly pile up, which adds to the rise in abundance just below 1000
+g.
+
+Look back at the lines of the surviving species in the plot of the
+relative abundances. Each rises across the sizes below 0.5 g, where
+mortality has fallen, and peaks at about 0.5 g. It then falls across the
+sizes where mortality has risen and reaches its trough at around 40 g,
+close to where the mortality curves cross again. The species lines also
+start at different heights at the smallest size, because fishing has
+also changed how many offspring each species produces. So the abundance
+of a species at a size combines three things: how many offspring the
+species produces, how many of them survive the mortality on the way to
+that size, and how much they pile up there. Growth enters both of the
+last two: through how long the fish are exposed to the mortality on the
+way, and through how fast they move on from the size itself.
+
+The total line does not peak at 0.5 g because the total also includes
+the resource, which extends up to about 2 g in this model. The dip in
+the total is made deeper by species 2 and 3, which are too small to be
+caught but have nevertheless disappeared.
 
 ## Setting up an industrial fishing gear
 

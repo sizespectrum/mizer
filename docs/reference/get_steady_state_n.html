@@ -5,11 +5,9 @@
       fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
     }
   };
-</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.1/jquery-3.6.1.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet"><script src="../extra.js"></script><meta property="og:title" content="Calculate steady state abundance — get_steady_state_n"><meta name="description" content="This function calculates the steady state abundance by solving the
-transport equation with given growth and mortality rates. It sets up a
-tri-diagonal system and solves it."><meta property="og:description" content="This function calculates the steady state abundance by solving the
-transport equation with given growth and mortality rates. It sets up a
-tri-diagonal system and solves it."><meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png"><meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R"><meta name="twitter:card" content="summary"><meta name="twitter:creator" content="@mizer_model"><meta name="twitter:site" content="@mizer_model"></head><body>
+</script><script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.1/jquery-3.6.1.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet"><link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet"><script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet"><script src="../extra.js"></script><meta property="og:title" content="Calculate steady state abundance — get_steady_state_n"><meta name="description" content="Solves the steady-state transport equation with growth, mortality and
+diffusion held fixed and the supplied abundance in each egg size class."><meta property="og:description" content="Solves the steady-state transport equation with growth, mortality and
+diffusion held fixed and the supplied abundance in each egg size class."><meta property="og:image" content="https://sizespectrum.org/mizer/reference/figures/logo.png"><meta property="og:image:alt" content="mizer: Multi-Species Size Spectrum Modelling in R"><meta name="twitter:card" content="summary"><meta name="twitter:creator" content="@mizer_model"><meta name="twitter:site" content="@mizer_model"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -17,7 +15,7 @@ tri-diagonal system and solves it."><meta property="og:image" content="https://s
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0.9011</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -92,9 +90,8 @@ tri-diagonal system and solves it."><meta property="og:image" content="https://s
     </div>
 
     <div class="ref-description section level2">
-    <p>This function calculates the steady state abundance by solving the
-transport equation with given growth and mortality rates. It sets up a
-tri-diagonal system and solves it.</p>
+    <p>Solves the steady-state transport equation with growth, mortality and
+diffusion held fixed and the supplied abundance in each egg size class.</p>
     </div>
 
     <div class="section level2">
@@ -107,7 +104,7 @@ tri-diagonal system and solves it.</p>
 <span>  <span class="va">N0</span>,</span>
 <span>  max_iterations <span class="op">=</span> <span class="fl">500</span>,</span>
 <span>  tol <span class="op">=</span> <span class="fl">1e-10</span>,</span>
-<span>  relax <span class="op">=</span> <span class="fl">0.3</span></span>
+<span>  relax <span class="op">=</span> <span class="fl">0.5</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -136,39 +133,40 @@ tri-diagonal system and solves it.</p>
 
 
 <dt id="arg-max-iterations">max_iterations<a class="anchor" aria-label="anchor" href="#arg-max-iterations"></a></dt>
-<dd><p>Maximum number of Picard iterations used when a flux
-limiter is active.</p></dd>
+<dd><p>Maximum number of defect-correction updates for a
+van Leer flux limiter.</p></dd>
 
 
 <dt id="arg-tol">tol<a class="anchor" aria-label="anchor" href="#arg-tol"></a></dt>
-<dd><p>Relative convergence tolerance for the Picard iteration.</p></dd>
+<dd><p>Relative tolerance for both the correction and the transport
+residual, checked separately for every species.</p></dd>
 
 
 <dt id="arg-relax">relax<a class="anchor" aria-label="anchor" href="#arg-relax"></a></dt>
-<dd><p>Under-relaxation factor in (0, 1] for the Picard iteration when a
-flux limiter is active.</p></dd>
+<dd><p>Under-relaxation factor in (0, 1] for defect correction.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A matrix with the steady state abundance</p>
+    <p>A matrix with the steady-state abundance. Stops with an error naming
+the unconverged species if the iteration limit is reached.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>The spatial discretisation of the advective flux is read from the
-<code>flux</code> entry of the <code>second_order_w</code> slot of <code>params</code>. With a second-order
-flux scheme active the steady state must match the one that <code><a href="project.html">project()</a></code> converges
-to. Because the limiter depends on the solution, the steady state is then
-found by an under-relaxed Picard iteration: the limiter is frozen at the
-current iterate, the resulting tridiagonal system is solved, and the iterate
-is updated towards that solution, repeating until it converges. (At <code>dt = 1</code>
-the limited operator is not diagonally dominant, so the plain fixed-point map
-only stalls; under-relaxation makes it converge.)</p>
-<p>The returned abundance is held at zero above each species' <code>w_max</code>, the same
-upper boundary condition that <code><a href="project.html">project()</a></code> imposes (via <code>zero_above_support()</code>
-in <code><a href="project_n.html">project_n()</a></code>) and that the Newton solver solves on. Without this the
-bottom-up solve would carry density above <code>w_max</code> whenever growth is still
-positive there or diffusion pushes density past it.</p>
+    <p>The flux scheme is read from <code><a href="second_order_w.html">second_order_w()</a></code>. The upwind and centred
+systems are linear and are solved directly. With a van Leer limiter, defect
+correction solves the nonlinear equation using an upwind preconditioner with
+the same face placement and diffusion as the second-order scheme. Only the
+preconditioner has its reconstruction weights set to zero: the residual
+retains the model's chosen flux limiter.</p>
+<p>Each present species is solved with unit egg abundance and then rescaled to
+<code>N0</code>, because the limiter is unchanged by multiplying a species' spectrum by
+a positive constant. This prevents species with large egg abundances from
+hiding non-convergence in other species. Convergence requires both a small
+correction and a small residual of the original transport equation, so
+clipping negative iterates cannot turn a stalled iteration into a solution.</p>
+<p>Abundance is held at zero below the egg size and above the support top given
+by <code>support_top_idx()</code>, matching the boundary conditions of <code><a href="project.html">project()</a></code>.</p>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

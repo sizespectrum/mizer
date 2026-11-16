@@ -676,7 +676,14 @@ Mizer's own simulation rate accessors — `getMort(sim)`, `getEncounter(sim)`, `
 
 There are two situations where writing a method for your `...Sim` class is necessary:
 
-1. **Overriding non-rate mizer generics.** Functions like `getBiomass()` or `getN()` are summary accessors rather than step-by-step projection rates. When an extension adds external dynamical components (e.g. `Detritus` and `Carrion` in `mizerShelf`), you define both `getBiomass.mizerShelf` (for `MizerParams`) and `getBiomass.mizerShelfSim` (for `MizerSim`) so that `getBiomass(sim)` and `plotBiomass(sim)` include the component biomasses across time.
+1. **Overriding a summary with semantics outside the shared capabilities.**
+   A component's biomass is normally registered with `biomass_fun`, so core
+   `getBiomass()` handles both parameters and simulations. Callers explicitly
+   select it with `include = "component:name"`; `plotBiomass()` plots the getter's
+   result. A component can return several named series, or have no meaningful
+   biomass at all. Do not infer biomass from scalar state or copy the plotting
+   code. Only a summary that cannot be expressed by the shared contract needs
+   separate params and simulation methods.
 
 2. **Providing new extension-specific `get*` rate accessors.** If your package introduces its own rate diagnostic function (such as `getStarvMort()` in `mizerStarvation`), core mizer does not define that function. To let users evaluate the diagnostic on both parameters and simulations (e.g. `getStarvMort(params)` and `getStarvMort(sim)`), define your function as an S3 generic with methods for both `MizerParams` and `MizerSim`:
 
@@ -794,6 +801,22 @@ When building a dispatching extension package, verify the following:
   [The diet follows `getEncounterByPrey()`].
 - [ ] Store all extension-specific state in `other_params(params)` or in
   new components created with `setComponent()`, never as extra top-level list elements or new slots.
+- [ ] Assemble and register the capabilities the extension actually supports:
+  equations/custom steps, quantitative convergence, tuning strategies, species/
+  grid/scaling transformations, biomass and mortality diagnostics. Projection
+  support alone does not supply the others. Use the `extend-mizer` skill for
+  their contracts and examples.
+- [ ] Register declarations after the final effective providers and extension
+  classes are in place. Update saved objects explicitly in the package's
+  upgrade method; changing a reusable definition does not change older models.
+  Test each provider-bound family independently after replacing a provider.
+- [ ] Keep structural prescribed inputs separate from conditional analysis and
+  temporary tuning constraints. Declare time dependence independently of a
+  stationary tuning strategy. Missing support must remain visible.
+- [ ] Transform owned arrays before dependent rates and initial guesses use
+  them. Test species addition with `steady = FALSE`, removal, reordering,
+  renaming, grid changes and both scaling operations. No late repair should
+  hide a failure earlier in the operation.
 - [ ] Add and remove any species parameter column of your own through
   `species_params(params)$my_col <- value` and
   `species_params(params)$my_col <- NULL`, never by writing into the
@@ -820,8 +843,9 @@ When building a dispatching extension package, verify the following:
   that your overrides do not break core behaviour. See
   [Running mizer's test suite against your subclass].
 
-For metadata-only packages, only the storage item and the reporting item apply,
-and `coerceToExtensionClass()` is not needed. Their setup functions should still
+For metadata-only packages, S3 dispatch items do not apply and
+`coerceToExtensionClass()` is not needed. Capability declarations still apply
+to the components and rate contributions they provide. Their setup functions should still
 call `recordExtension()`, stamping the package version and requirement when
 their component is first created.
 
@@ -955,6 +979,13 @@ mizer registers its core upgrades as methods of the S3 generic
 perform **only** your migration. It must be idempotent, must **not** call
 `NextMethod()`, and must **not** touch the version stamp — mizer's orchestrator
 re-stamps the object after calling your method.
+
+Public setters such as `setComponent()` and `setProcess()` can be used inside
+the upgrade. Their validation does not restart the same candidate's upgrade
+chain. The old version remains visible during your method; mizer stamps the
+new version only after it returns successfully. A failed upgrade leaves the
+caller's original object unchanged and can be retried after correcting the
+failure. Do not pre-stamp the object as a recursion workaround.
 
 ```r
 #' @exportS3Method utils::upgrade

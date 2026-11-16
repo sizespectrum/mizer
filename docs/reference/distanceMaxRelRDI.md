@@ -31,8 +31,10 @@ distanceMaxRelRDI(params, current, previous)
 ## Value
 
 The largest absolute relative change in rdi:
-`max(abs((current_rdi - previous_rdi) / previous_rdi))`. If any entry of
-`previous_rdi` is zero, the result can be infinite.
+`max(abs((current_rdi - previous_rdi) / previous_rdi))`. A species with
+zero rdi in both states, such as one that is absent from the model, has
+not changed and contributes zero. A species whose rdi has risen from
+zero makes the result infinite.
 
 ## See also
 

@@ -34,22 +34,22 @@ getPredRate(object, ...)
 
   `n`
 
-  :   A matrix of species abundances (species x size). Defaults to the
-      initial abundances stored in `object`.
+  : A matrix of species abundances (species x size). Defaults to the
+    initial abundances stored in `object`.
 
   `n_pp`
 
-  :   A vector of the resource abundance by size. Defaults to the
-      initial resource abundance stored in `object`.
+  : A vector of the resource abundance by size. Defaults to the initial
+    resource abundance stored in `object`.
 
   `n_other`
 
-  :   A named list of the abundances of other dynamical components.
-      Defaults to the initial values stored in `object`.
+  : A named list of the abundances of other dynamical components.
+    Defaults to the initial values stored in `object`.
 
   `t`
 
-  :   The time for which to do the calculation. Defaults to 0.
+  : The time for which to do the calculation. Defaults to 0.
 
   **For a
   [MizerSim](https://sizespectrum.org/mizer/reference/MizerSim-class.md)
@@ -57,14 +57,14 @@ getPredRate(object, ...)
 
   `time_range`
 
-  :   The time range over which to return the rates. Either a vector of
-      values, a vector of min and max time, or a single value. Defaults
-      to the whole time range of the simulation.
+  : The time range over which to return the rates. Either a vector of
+    values, a vector of min and max time, or a single value. Defaults to
+    the whole time range of the simulation.
 
   `drop`
 
-  :   If `TRUE` then any dimension of length 1 is removed from the
-      returned array.
+  : If `TRUE` then any dimension of length 1 is removed from the
+    returned array.
 
 ## Value
 
@@ -117,14 +117,6 @@ Other rate functions:
 params <- NS_params
 # Predation rate in initial state
 pred_rate <- getPredRate(params)
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 str(pred_rate)
 #>  'ArraySpeciesBySize' num [1:12, 1:226] 8.35e-17 6.05e-10 9.75e-16 1.19e-05 1.04e-17 ...
 #>  - attr(*, "dimnames")=List of 2
@@ -134,17 +126,14 @@ str(pred_rate)
 #>  - attr(*, "units")= chr "1/year"
 #>  - attr(*, "type")= chr "value"
 #>  - attr(*, "representation")= chr "point"
-#>  - attr(*, "params")=Formal class 'MizerParams' [package "mizer"] with 48 slots
+#>  - attr(*, "size_grid")=List of 2
+#>   ..$ grid : chr "w_full"
+#>   ..$ index: int [1:226] 1 2 3 4 5 6 7 8 9 10 ...
+#>  - attr(*, "params")=Formal class 'MizerParams' [package "mizer"] with 50 slots
 # With constant fishing effort for all gears for 20 time steps
 sim <- project(params, t_max = 20, effort = 0.5)
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 # Get the feeding level at one time step
 pred_rate <- getPredRate(params, n = N(sim)[15, , ],
                          n_pp = NResource(sim)[15, ], t = 15)
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 # }
 ```

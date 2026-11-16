@@ -25,23 +25,23 @@ getN(object, ...)
 
   `min_w`
 
-  :   Smallest weight in size range. Defaults to smallest weight in the
-      model.
+  : Smallest weight in size range. Defaults to smallest weight in the
+    model.
 
   `max_w`
 
-  :   Largest weight in size range. Defaults to largest weight in the
-      model.
+  : Largest weight in size range. Defaults to largest weight in the
+    model.
 
   `min_l`
 
-  :   Smallest length in size range. If supplied, this takes precedence
-      over `min_w`.
+  : Smallest length in size range. If supplied, this takes precedence
+    over `min_w`.
 
   `max_l`
 
-  :   Largest length in size range. If supplied, this takes precedence
-      over `max_w`.
+  : Largest length in size range. If supplied, this takes precedence
+    over `max_w`.
 
 ## Value
 
@@ -55,7 +55,9 @@ each time step for all species.
 Other summary functions:
 [`getBiomass()`](https://sizespectrum.org/mizer/reference/getBiomass.md),
 [`getDiet()`](https://sizespectrum.org/mizer/reference/getDiet.md),
+[`getEncounterByPrey()`](https://sizespectrum.org/mizer/reference/getEncounterByPrey.md),
 [`getGrowthCurves()`](https://sizespectrum.org/mizer/reference/getGrowthCurves.md),
+[`getMortByCause()`](https://sizespectrum.org/mizer/reference/getMortByCause.md),
 [`getSSB()`](https://sizespectrum.org/mizer/reference/getSSB.md),
 [`getSteadyResidual()`](https://sizespectrum.org/mizer/reference/getSteadyResidual.md),
 [`getTrophicLevel()`](https://sizespectrum.org/mizer/reference/getTrophicLevel.md),

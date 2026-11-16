@@ -12,7 +12,8 @@ selected species to this solution.
 steadySingleSpecies(
   params,
   species = NULL,
-  keep = c("egg", "biomass", "number")
+  keep = c("egg", "biomass", "number"),
+  info_level = default_info_level()
 )
 ```
 
@@ -36,6 +37,13 @@ steadySingleSpecies(
   which keeps the total biomass of the species constant and "number"
   which keeps the total number of individuals constant.
 
+- info_level:
+
+  Controls the amount of information messages and warnings that are
+  shown. Higher levels lead to more messages, `info_level = 0` gives
+  silence. The default is taken from the `mizer_info_level` option, see
+  [`default_info_level()`](https://sizespectrum.org/mizer/reference/default_info_level.md).
+
 ## Value
 
 A MizerParams object in which the initial abundances of the selected
@@ -51,33 +59,17 @@ reproduction rates will have changed.
 
 If the `keep` argument is supplied, the solution for the selected
 species are rescaled to keep the specified quantity at the value they
-had before calling this function.
+had before calling this function. The biomass is counted above the
+`biomass_cutoff` species parameter, if there is one. A species that had
+none of the quantity is not rescaled, because there is nothing to keep:
+it is absent, or it lies entirely below its biomass cutoff. If its
+solution does have some of the quantity, a warning says so. The function
+stops with an error if the solution for a species has none of a quantity
+that the species did have.
 
 ## Examples
 
 ``` r
 # Set initial abundance of Cod to its single-species steady state
 params <- steadySingleSpecies(NS_params, species = "Cod")
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 ```

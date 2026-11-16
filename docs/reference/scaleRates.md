@@ -3,8 +3,9 @@
 **\[experimental\]** Multiplies all rates in the model by a given
 factor. Rescaling all rates by a factor \\f\\ is equivalent to rescaling
 time by \\f\\: it speeds up (or slows down) all dynamics without
-affecting the steady state of each species, provided the resource
-spectrum is held at its steady-state value.
+affecting the steady state of each species and resource. Extension
+providers must declare how their dynamics transform under this change of
+time scale.
 
 ## Usage
 
@@ -53,13 +54,22 @@ rescaled:
 - Catchability (`catchability` slot and `catchability` column in
   `gear_params`)
 
-- Maximum reproduction rate (`R_max` species parameter)
+- Reproduction rate parameters (`R_max` and `constant_reproduction`
+  multiply by the factor; `ricker_b` and `sheperd_b` divide by it)
 
-- Resource growth rate (`rr_pp` slot)
+- Resource growth rate (`rr_pp` slot and `r_pp` resource parameter)
 
 Both the rate arrays stored in the MizerParams slots and the associated
 species parameters in `species_params` and `given_species_params` are
 rescaled, so that the parameters remain consistent with the rate arrays.
+Changed scalar coefficients are recorded as given values, including
+those previously calculated by mizer. Existing manually set arrays
+retain their protection from recalculation.
+
+Components and custom providers require declared transformation support.
+Their hooks run after the core fields are scaled and before final
+validation, with the original model available for reference. Component
+states are left to their hooks; there is no automatic state rescaling.
 
 ## See also
 

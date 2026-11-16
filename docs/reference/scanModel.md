@@ -197,7 +197,10 @@ scanModel(
 
 - ...:
 
-  Further arguments are passed on to `distance_func`.
+  Further arguments passed to
+  [`projectUntilSettled()`](https://sizespectrum.org/mizer/reference/projectUntilSettled.md)
+  and its `distance_func`, including `scope` and `fixed` for conditional
+  analysis.
 
 ## Value
 
@@ -206,6 +209,10 @@ An object of class
 which is a data frame with one row per scan value and series, carrying
 the metadata that
 [`plot()`](https://sizespectrum.org/mizer/reference/plot.md) needs.
+`scope` and `assessment_complete` describe the settling assessment; the
+`assessment` list-column retains its full measures, fixed and prescribed
+inputs, and unavailable capabilities. Conditional fixed inputs remain
+fixed during the sampling projection too.
 
 ## Details
 
@@ -293,7 +300,10 @@ not work there. Set `sample_all = TRUE` to force the sampling projection
 at every scan value.
 
 Neither function can be given extra arguments through `...`, which is
-reserved for `distance_func`. Use a closure instead, for example
+forwarded to
+[`projectUntilSettled()`](https://sizespectrum.org/mizer/reference/projectUntilSettled.md),
+including `scope` and `fixed` for conditional analysis, and then to
+`distance_func`. Use a closure instead, for example
 `value_func = function(sim) getBiomass(sim, min_w = 10)`.
 
 ## See also
@@ -318,8 +328,6 @@ Other scan functions:
 # A bifurcation diagram over fishing effort
 scan <- scanModel(NS_params, scan_values = seq(0, 2, 0.25),
                   set_func = scanEffort(), value_func = getYield)
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 #> The model settled onto a limit cycle at Fishing effort = 1.5, 1.75, 2. The value there is the average over one period of the cycle.
 plot(scan, style = "envelope")
 
@@ -328,8 +336,6 @@ plot(scan, style = "envelope")
 cod <- scanModel(NS_params, scan_values = seq(0, 1.2, 0.2),
                  set_func = scanFishingMortality("Cod"),
                  value_func = getYield, species = "Cod")
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 plot(cod, mark_max = TRUE, log_y = FALSE)
 
 attr(cod, "at_max")
@@ -345,8 +351,6 @@ plot(scanModel(NS_params, scan_values = kappa * c(0.5, 1, 2),
                },
                scan_name = "Resource capacity", scan_units = "g"),
      log_x = TRUE)
-#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
-#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
 #> Warning: Gurnard are going extinct.
 #> A species was on its way to extinction at Resource capacity = 5e+10, which stopped the projection early. The value there is only the average over the 10 years following that point.
 

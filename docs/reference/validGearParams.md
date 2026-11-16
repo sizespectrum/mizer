@@ -8,7 +8,7 @@ or it gives an error message.
 ## Usage
 
 ``` r
-validGearParams(gear_params, species_params)
+validGearParams(gear_params, species_params, edition = defaults_edition())
 ```
 
 ## Arguments
@@ -20,6 +20,14 @@ validGearParams(gear_params, species_params)
 - species_params:
 
   Species parameter data frame
+
+- edition:
+
+  The defaults edition that determines the default `catchability`, see
+  [`defaults_edition()`](https://sizespectrum.org/mizer/reference/defaults_edition.md).
+  When the gear parameters are for an existing model, this should be the
+  edition of that model, `defaults_edition(params)`. Defaults to the
+  currently active edition.
 
 ## Value
 
@@ -38,7 +46,8 @@ rows, then the following requirements apply:
   supplied, it will be set to "knife_edge".
 
 - There must be a `catchability` column. If a catchability is not
-  supplied, it will be set to 1.
+  supplied, it will be set to 1, or to 0.3 under defaults edition 2 or
+  later.
 
 - All the parameters required by the selectivity functions must be
   provided.
@@ -55,7 +64,7 @@ that can not be found in the species_params dataframe, as follows:
   used.
 
 - If there is no `catchability` column or it is NA then this is set to
-  1.
+  1, or to 0.3 under defaults edition 2 or later.
 
 - If the selectivity function is `knife_edge` and no `knife_edge_size`
   is provided, it is set to `w_mat`.
@@ -66,7 +75,8 @@ gear".
 When `gear_params` is `NULL` and there is no gear information in
 `species_params`, then a gear called `knife_edge_gear` is set up with a
 `knife_edge` selectivity for each species and a `knive_edge_size` equal
-to `w_mat`. Catchability is set to 0.3 for all species.
+to `w_mat`. Catchability is set to the default described above for all
+species.
 
 ## See also
 

@@ -6,7 +6,13 @@
 \alias{getMortByCause.MizerSim}
 \title{Diagnose mortality by cause}
 \usage{
-getMortByCause(object, rtol = 1e-08, atol = 1e-12, ...)
+getMortByCause(
+  object,
+  rtol = 1e-08,
+  atol = 1e-12,
+  ...,
+  predation_by_species = FALSE
+)
 }
 \arguments{
 \item{object}{A MizerParams or MizerSim object.}
@@ -21,6 +27,15 @@ the model's initial values and \code{t} defaults to zero. For MizerSim,
 \code{time_range}, and \code{drop = TRUE} drops dimensions of length one, as in
 \code{\link[=getMort]{getMort()}}. Simulation states and effort are taken from each saved time.
 Other arguments are passed to rate and diagnostic callbacks.}
+
+\item{predation_by_species}{Whether to refine built-in predation into one
+cause per predator species. The refinement is used only when its sum
+agrees with the effective predation mortality at every species and size;
+otherwise the aggregate predation cause is retained. For the built-in
+callback and its public alias, any selected simulation time requiring
+aggregate predation makes every selected time use that grouping. Custom
+callbacks are responsible for stable grouping across times.
+Default \code{FALSE}.}
 }
 \value{
 A \code{MizerMortalityBreakdown} list with \code{total}, a named list of

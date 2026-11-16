@@ -330,7 +330,7 @@ prepare_transformation <- function(before, operation, details = list()) {
         selected[[id]] <- node
     }
     list(
-        before = unserialize(serialize(before, NULL)), operation = operation,
+        before = clone_params_runtime(before), operation = operation,
         details = unserialize(serialize(details, NULL)), selected = selected,
         binding = binding
     )
@@ -388,7 +388,7 @@ restore_transformation_updates <- function(candidate, updates) {
 }
 
 apply_transformation_hooks <- function(candidate, plan) {
-    candidate <- unserialize(serialize(candidate, NULL))
+    candidate <- clone_params_runtime(candidate)
     if (!identical(transformation_provider_binding(candidate), plan$binding) ||
             !isTRUE(all.equal(candidate$capabilities,
                 plan$before$capabilities,
@@ -403,7 +403,7 @@ apply_transformation_hooks <- function(candidate, plan) {
     for (id in names(plan$selected)) {
         node <- plan$selected[[id]]
         if (node$specification$action == "none") next
-        expected <- unserialize(serialize(candidate, NULL))
+        expected <- clone_params_runtime(candidate)
         owner <- if (length(node$owners) == 1L) node$owners else NULL
         component <- if (!is.null(owner) && startsWith(owner, "component:")) {
             substring(owner, 11L)
@@ -412,7 +412,7 @@ apply_transformation_hooks <- function(candidate, plan) {
         }
         process <- if (is.null(component)) owner else NULL
         args <- list(
-            before = unserialize(serialize(plan$before, NULL)),
+            before = clone_params_runtime(plan$before),
             operation = plan$operation,
             details = unserialize(serialize(plan$details, NULL)),
             owners = node$owners, owner = owner, component = component,

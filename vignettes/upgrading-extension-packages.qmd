@@ -886,6 +886,34 @@ against the shared getter.
 
 ---
 
+## Reusing built-in capability definitions
+
+The migration preview (3.4.0.9011) adds [`mizerMortalityBreakdown()`](../reference/mizerMortalityBreakdown.html) for an author
+callback to reuse the built-in terms before appending extension causes. The
+same full effective rates are used, and `getMortByCause()` checks the combined
+sum afterwards. Prefer this to a copied decomposition or a separate call to
+[`getRates()`](../reference/getRates.html). Predator-specific refinement is optional and must agree with the
+effective aggregate; incomplete attribution never licenses inventing a cause
+or renormalising known terms to the total.
+
+For a known built-in reproduction law whose semantics your extension preserves,
+[`mizerReproductionDefinition()`](../reference/mizerReproductionDefinition.html) supplies the corresponding strategies and level
+definition. This is an explicit reuse tool, not automatic approval of a custom
+RDI, RDD or complete-rate wrapper. Supply transformation declarations separately
+and test preserved effective recruitment after balancing.
+
+---
+
+## Registering capabilities during an upgrade
+
+Extension upgrade methods can now register capabilities through validating
+public setters without restarting their own migration. Remove workarounds that
+stamp the extension as current before the upgrade has finished. Mizer retains
+the old stamp during the callback, processes the chain from inside out and
+records success afterwards.
+
+---
+
 ## Finishing
 
 Run the checklist for package authors in the [guide to creating a mizer extension package](guide-create-extension-package.html)

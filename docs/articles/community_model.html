@@ -32,7 +32,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0.9011</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -185,9 +185,10 @@ it:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/summary.html">summary</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## An object of class "MizerParams" </span></span>
-<span><span class="co">## mizer version: 3.4.0</span></span>
-<span><span class="co">## Created: 2026-09-02 10:02:30</span></span>
-<span><span class="co">## Modified: 2026-09-02 10:02:30</span></span>
+<span><span class="co">## mizer version: 3.4.0.9011</span></span>
+<span><span class="co">## Defaults edition: 1</span></span>
+<span><span class="co">## Created: 2026-11-16 08:24:28</span></span>
+<span><span class="co">## Modified: 2026-11-16 08:24:28</span></span>
 <span><span class="co">## Consumer size spectrum:</span></span>
 <span><span class="co">##  minimum size:   0.001</span></span>
 <span><span class="co">##  maximum size:   1e+06</span></span>
@@ -197,7 +198,8 @@ it:</p>
 <span><span class="co">##  maximum size:   0.000811131</span></span>
 <span><span class="co">##  no. size bins:  78  (178 size bins in total)</span></span>
 <span><span class="co">## Steady state:</span></span>
-<span><span class="co">##  biomass drift:  4.2 /year   (not at steady state, largest in the resource - run tuneSteadyState())</span></span>
+<span><span class="co">##  assessment: not at steady state (whole scope)</span></span>
+<span><span class="co">##  largest tolerance ratio:    85.3 (resource/resource)</span></span>
 <span><span class="co">## Species details:</span></span>
 <span><span class="co">## An object of class "species_params" containing parameters for 1 species:</span></span>
 <span><span class="co">##    species w_inf  w_mat w_min  f0 beta sigma</span></span>
@@ -433,11 +435,69 @@ the plot readable:</p>
 <p><img src="community_model_files/figure-html/plot_spectra2_comm-1.png" class="r-plt" alt="The biomass density spectra of the unfished and the fished community overlaid, showing the collapse of the fished spectrum above 1000 g and the alternating bumps and dips it develops at smaller sizes." width="700"></p>
 <p>The impact of fishing on individuals larger than 1000 g can be
 clearly seen. The fishing pressure lowers the abundance of large fish.
-This then relieves the predation pressure on their smaller prey (the
-preferred predator-prey size ratio is given by the <span class="math inline">\(\beta\)</span> parameter, which is set to 100 by
-default), leading to an increase in their abundance. This in turn
-increases the predation mortality on <em>their</em> smaller prey, which
-reduces their abundance and so on down the spectrum.</p>
+Below 1000 g the spectrum alternates between sizes that have become more
+abundant and sizes that have become less abundant, with the changes
+getting weaker towards smaller sizes. This alternation is the trophic
+cascade.</p>
+<p>It is tempting to explain it one predator-prey step at a time: fewer
+large fish means less predation on their prey, which are about <span class="math inline">\(\beta\)</span> times smaller (the preferred
+predator-prey mass ratio <span class="math inline">\(\beta\)</span> is
+set to 100 by default). Those prey therefore become more abundant and
+eat more of <em>their</em> prey, another factor of <span class="math inline">\(\beta\)</span> further down, and so on. That story
+would put the peaks and troughs a factor of <span class="math inline">\(\beta = 100\)</span> apart. In the plot they are
+only about a factor of 30 apart, and the fish of around <span class="math inline">\(1000/\beta = 10\)</span> g, which the story says
+should benefit, have in fact become <em>less</em> abundant. To see what
+is really going on we compare the predation mortality in the two
+simulations, using <code><a href="../reference/plotRelative.html">plotRelative()</a></code>, which does for any two
+mizer arrays what <code><a href="../reference/plotSpectraRelative.html">plotSpectraRelative()</a></code> does for the
+spectra:</p>
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plotRelative.html">plotRelative</a></span><span class="op">(</span><span class="fu"><a href="../reference/getPredMort.html">getPredMort</a></span><span class="op">(</span><span class="fu"><a href="../reference/getParams.html">finalParams</a></span><span class="op">(</span><span class="va">sim0</span><span class="op">)</span><span class="op">)</span>, <span class="fu"><a href="../reference/getPredMort.html">getPredMort</a></span><span class="op">(</span><span class="fu"><a href="../reference/getParams.html">finalParams</a></span><span class="op">(</span><span class="va">sim1</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p><img src="community_model_files/figure-html/plot_relative_comm_m2-1.png" class="r-plt" alt="The relative difference between the predation mortality in the fished and the unfished community at each size. The mortality has fallen strongly for sizes above about 30 g, has risen between about 1 g and 30 g, and has fallen slightly between about 0.03 g and 1 g." width="700"></p>
+<p>The pattern in the predation mortality is the pattern in the
+abundance moved down by the factor <span class="math inline">\(\beta\)</span>: the extra fish at around 700 g
+raise the mortality at around 7 g, and the missing fish at around 20 g
+lower the mortality at around 0.2 g. The step that the simple story gets
+wrong is the one from the mortality back to the abundance. As explained
+in the article on <a href="single_species_size-spectrum_dynamics.html#sec:change_in_mortality">the
+single-species model</a>, the abundance at a size depends on the
+mortality and growth rates at all smaller sizes, because every fish had
+to grow through those first. A band of raised mortality lowers the
+abundance at all larger sizes, so the abundance keeps falling across the
+whole band and reaches its minimum where the change in mortality
+switches from an increase to a decrease. A change in growth has an
+effect too, both through how long fish are exposed to mortality and
+through fish piling up where growth slows down. In this example, though,
+the growth rates in the two simulations hardly differ. Below 1000 g the
+ratio of the growth rates of the fished to the unfished community stays
+within a few percent of 1:</p>
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">growth_ratio</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getEGrowth.html">getEGrowth</a></span><span class="op">(</span><span class="fu"><a href="../reference/getParams.html">finalParams</a></span><span class="op">(</span><span class="va">sim1</span><span class="op">)</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="../reference/getEGrowth.html">getEGrowth</a></span><span class="op">(</span><span class="fu"><a href="../reference/getParams.html">finalParams</a></span><span class="op">(</span><span class="va">sim0</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="va">growth_ratio</span><span class="op">[</span>, <span class="fu"><a href="../reference/w.html">w</a></span><span class="op">(</span><span class="va">params_knife</span><span class="op">)</span> <span class="op">&lt;</span> <span class="fl">1000</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## [1] 0.9850527 1.0032003</span></span></code></pre>
+<p>So here the cascade is driven almost entirely by the changes in
+mortality. The mortality is raised between about 1 g and 30 g, and the
+trough in the abundance lies at about 20 g, near the upper end of that
+band, not at 7 g where the mortality has risen most.</p>
+<p>This also explains why the fish that benefit most from fishing are
+those just below the 1000 g knife edge rather than those <span class="math inline">\(\beta\)</span> times smaller. Their predators are
+nearly all large enough to be fished, so their mortality falls the most,
+and they have enjoyed the lowered mortality over the longest stretch of
+their growth.</p>
+<p>So each step down the cascade goes down by a factor of <span class="math inline">\(\beta\)</span> from the abundance to the
+mortality, but then partway back up again from the mortality to the
+abundance. That is why the spacing between peaks and troughs is not
+<span class="math inline">\(\beta\)</span>. How far apart they are
+depends also on the width <span class="math inline">\(\sigma\)</span> of
+the feeding kernel, because that sets how wide the bands of changed
+mortality are. With the wide default kernel the spacing hardly responds
+to <span class="math inline">\(\beta\)</span> at all: if you rerun this
+example with <code>newCommunityParams(beta = 10)</code>, the peaks and
+troughs are still about a factor of 20 apart, which is now <em>more</em>
+than <span class="math inline">\(\beta\)</span>.</p>
+<p>In <a href="trait_model.html#sec:trophic_cascade_trait_model">the
+trait-based model</a> the growth rates do change with fishing, and they
+shape the cascade as much as the mortality does.</p>
 </div>
 <div class="section level2">
 <h2 id="sec:comm_model_change_sigma">The impact of changing <span class="math inline">\(\sigma\)</span><a class="anchor" aria-label="anchor" href="#sec:comm_model_change_sigma"></a>
@@ -451,7 +511,7 @@ set in the <code><a href="../reference/newCommunityParams.html">newCommunityPara
 value of <span class="math inline">\(2\)</span>. We can see this by
 looking at the <code>sigma</code> column of the species parameter data
 frame that is contained in the MizerParams object:</p>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/species_params.html">species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">sigma</span></span></code></pre></div>
 <pre><code><span><span class="co">## Community </span></span>
 <span><span class="co">##         2</span></span></code></pre>
@@ -459,13 +519,13 @@ frame that is contained in the MizerParams object:</p>
 stable equilibrium. What happens if we reduce the value of <span class="math inline">\(\sigma\)</span>, for example by setting it to 1.0?
 We can do this by passing in the new value of <span class="math inline">\(\sigma\)</span> into
 <code><a href="../reference/newCommunityParams.html">newCommunityParams()</a></code>.</p>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">params_sigma1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/newCommunityParams.html">newCommunityParams</a></span><span class="op">(</span>sigma <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
 <p>We want to project this new model through time using the
 <code><a href="../reference/project.html">project()</a></code> function. Here we project the new parameter
 object for 50 time steps without fishing and save at intervals of 0.1
 years (<code>t_save = 0.1</code>):</p>
-<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sim_sigma1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/project.html">project</a></span><span class="op">(</span><span class="va">params_sigma1</span>, effort <span class="op">=</span> <span class="fl">0</span>, t_max <span class="op">=</span> <span class="fl">50</span>, </span>
 <span>                      dt <span class="op">=</span> <span class="fl">0.01</span>, t_save <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span></span></code></pre></div>
 <p>Note that we have introduced a new argument: <span class="math inline">\(dt\)</span>. This is the step size of the solver.
@@ -482,7 +542,7 @@ values. Decreasing <span class="math inline">\(dt\)</span> increases the
 time it takes to run a projection.</p>
 <p>Let’s take a look at how the abundances change through time. We can
 do this with the <code><a href="../reference/plotBiomass.html">plotBiomass()</a></code> function:</p>
-<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plotBiomass.html">plotBiomass</a></span><span class="op">(</span><span class="va">sim_sigma1</span><span class="op">)</span></span></code></pre></div>
 <p><img src="community_model_files/figure-html/plot_comm_biomass_sigma1-1.png" class="r-plt" alt="The plot shows the biomass of the community through time when the value of sigma is set to 1.0. The abundances no longer converge to a stable equilibrium and the dynamics appear to be chaotic." width="700"></p>
 <p>The plot above shows that abundances of the community no longer

@@ -1,6 +1,708 @@
 # Changelog
 
+## mizer (development version)
+
+### Defaults editions
+
+- A model now records the defaults edition that was active when it was
+  created, and whenever mizer later fills in a default for that model it
+  uses the model’s own edition rather than the one that is active at the
+  time ([\#451](https://github.com/sizespectrum/mizer/issues/451)). This
+  covers the `gamma` that mizer recalculates after a species parameter
+  has changed, `psi` above `w_repro_max` in
+  [`setReproduction()`](https://sizespectrum.org/mizer/reference/setReproduction.md),
+  a missing `catchability` in `gear_params<-()`, missing or `NA` fishing
+  effort in
+  [`project()`](https://sizespectrum.org/mizer/reference/project.md) and
+  `initial_effort<-()`, the initial abundances from
+  [`get_initial_n()`](https://sizespectrum.org/mizer/reference/get_initial_n.md),
+  and the new species and gears that
+  [`addSpecies()`](https://sizespectrum.org/mizer/reference/addSpecies.md)
+  adds. Changing the active edition with
+  [`defaults_edition()`](https://sizespectrum.org/mizer/reference/defaults_edition.md)
+  therefore affects only models created afterwards, and an existing
+  model keeps the defaults it was created with. Models saved with an
+  earlier version are of edition 1.
+- `defaults_edition(params)` returns the edition of a model, and
+  `defaults_edition(params) <- value` changes it without recalculating
+  anything. Saved legacy S4 models without a recorded edition also
+  return edition 1 before they are upgraded.
+  [`summary()`](https://sizespectrum.org/mizer/reference/summary.md) of
+  a model reports its edition.
+- [`validGearParams()`](https://sizespectrum.org/mizer/reference/validGearParams.md)
+  gains an `edition` argument, which defaults to the active edition.
+- The new defaults edition 3 removes contributions that wrap around the
+  size grid from the encounter rate, the predation rate, the predation
+  diffusion and
+  [`getDiet()`](https://sizespectrum.org/mizer/reference/getDiet.md)
+  ([\#618](https://github.com/sizespectrum/mizer/issues/618)). These are
+  convolutions over the predation kernel, evaluated by fast Fourier
+  transform, and that convolution was circular: the part of a small
+  fish’s feeding kernel that reached below the smallest resource size
+  `min_w_pp` wrapped around to the top of the grid, so that larvae were
+  fed by the largest fish and the predation rate recorded them as eating
+  those fish. The `ft_mask` removed this only from the predation rate on
+  prey larger than the predator species’ maximum size. The error grows
+  with the biomass of the largest fish and with how far the larval
+  kernels reach below `min_w_pp`. In the model reported in
+  [\#618](https://github.com/sizespectrum/mizer/issues/618), with
+  `min_w_pp` three orders of magnitude below the egg size, it made the
+  encounter rate of 1 mg larvae 9% too high, and with
+  `use_predation_diffusion` switched on it made the predation diffusion
+  of the smallest fish several orders of magnitude too large. In a model
+  of edition 3 the convolutions are evaluated on a zero-padded grid, so
+  they agree with the direct sums over the kernel. Models of editions 1
+  and 2, which include every model created with the default edition and
+  every model saved with an earlier version of mizer, keep the circular
+  convolutions, so their results do not change. To switch an existing
+  model to the zero-padded convolutions, record the new edition in it
+  with `defaults_edition(params) <- 3` and recalculate its kernel with
+  `params <- setPredKernel(params)`. Bear in mind that the model then
+  also gets the defaults of edition 2 whenever mizer next fills them in.
+- For extension packages: the new
+  [`convolve_pred_kernel()`](https://sizespectrum.org/mizer/reference/convolve_pred_kernel.md)
+  evaluates these convolutions for a prey or predator density of your
+  own. Use it instead of multiplying the `ft_pred_kernel_e`,
+  `ft_pred_kernel_p` or `ft_pred_kernel_d` slots by Fourier transforms
+  of your own. In a model of edition 3 those slots are stored on the
+  zero-padded grid and can be longer than `w_full`, so such code fails
+  with “non-conformable arrays”.
+- The new defaults edition 3 makes the second-order numerical scheme in
+  size the default for new models
+  ([\#503](https://github.com/sizespectrum/mizer/issues/503)): a model
+  created while edition 3 is active gets `second_order_w = TRUE`, that
+  is the van Leer flux limiter and bin-averaged integrals over the size
+  grid. The first-order upwind flux carries enough numerical diffusion
+  to smear out cohorts and damp real oscillations, and code that
+  integrates over the size grid without honouring `bin_average` was only
+  caught by tests that switched the second-order scheme on. The
+  `second_order_w` argument of
+  [`newMultispeciesParams()`](https://sizespectrum.org/mizer/reference/newMultispeciesParams.md),
+  [`newSingleSpeciesParams()`](https://sizespectrum.org/mizer/reference/newSingleSpeciesParams.md),
+  [`newTraitParams()`](https://sizespectrum.org/mizer/reference/newTraitParams.md)
+  and
+  [`newCommunityParams()`](https://sizespectrum.org/mizer/reference/newCommunityParams.md)
+  now defaults to `NULL`, which means the scheme of the edition; set it
+  to `FALSE` to get the first-order scheme in edition 3, or to
+  `c(bin_average = FALSE)` to keep the left-edge integrals, and with
+  them the unnormalised summaries of edition 2, while using the van Leer
+  flux. Models of editions 1 and 2, which include every model created
+  with the default edition and every model saved with an earlier version
+  of mizer, keep the first-order scheme, so their results do not change.
+
+### New features
+
+- Extension authors can reuse built-in reproduction strategies through
+  [`mizerReproductionDefinition()`](https://sizespectrum.org/mizer/reference/mizerReproductionDefinition.md)
+  and extend the standard diagnostic callback through
+  [`mizerMortalityBreakdown()`](https://sizespectrum.org/mizer/reference/mizerMortalityBreakdown.md),
+  without copying their implementations.
+  `getMortByCause(predation_by_species = TRUE)` supplies a checked
+  predator breakdown when it agrees with the effective predation rate;
+  otherwise it retains aggregate predation
+  ([\#670](https://github.com/sizespectrum/mizer/issues/670)).
+
+- Stability reports now state their scope, coverage and autonomy, and
+  use `stable = NA` when a conclusion is unsupported or a mode is
+  marginal. Whole-model analysis is the default; holding extension
+  states fixed requires an explicit conditional request. Structural
+  prescribed-input masks are independent of these exclusions, and
+  extinct species retain their invasion modes. Continuous resource
+  equations are explicit capabilities
+  ([\#670](https://github.com/sizespectrum/mizer/issues/670),
+  [\#606](https://github.com/sizespectrum/mizer/issues/606)).
+
+- [`getOscillationModeSim()`](https://sizespectrum.org/mizer/reference/getOscillationModeSim.md)
+  checks the current model’s scoped equilibrium and support before
+  reconstructing a mode.
+  [`scanModel()`](https://sizespectrum.org/mizer/reference/scanModel.md)
+  retains the assessment behind each result and holds conditional inputs
+  fixed while sampling an attractor.
+
+- [`getBiomass()`](https://sizespectrum.org/mizer/reference/getBiomass.md)
+  can explicitly include the resource and extension components,
+  including several named biomass series from one component
+  ([\#670](https://github.com/sizespectrum/mizer/issues/670),
+  [\#589](https://github.com/sizespectrum/mizer/issues/589)). Default
+  species-only results retain their existing values and shapes.
+  Measurements carry labels, colours and coverage into plotting;
+  unavailable measurements have reasons, and an incomplete collection
+  cannot be plotted as a complete total.
+  [`plotBiomass()`](https://sizespectrum.org/mizer/reference/plotBiomass.md)
+  and
+  [`plotlyBiomass()`](https://sizespectrum.org/mizer/reference/plotBiomass.md)
+  forward inclusion and requested filters to the getter.
+
+- [`getMortByCause()`](https://sizespectrum.org/mizer/reference/getMortByCause.md)
+  supplies a separate mortality diagnostic, including registered
+  additive contributions. Its complete decompositions are checked
+  against the effective total at every species, size and saved time. A
+  custom total provider needs explicitly registered diagnostic support;
+  missing support returns an incomplete report without inventing causes.
+
+- Species, grid and scaling operations now use declared transformation
+  hooks for extension-owned data
+  ([\#670](https://github.com/sizespectrum/mizer/issues/670),
+  [\#592](https://github.com/sizespectrum/mizer/issues/592),
+  [\#609](https://github.com/sizespectrum/mizer/issues/609)). Missing
+  support stops before changes; an explicit no-action declaration is
+  distinct from missing support. Hooks run after core structural
+  bookkeeping and before dependent rate construction or steady-state
+  calculations.
+  [`reorderSpecies()`](https://sizespectrum.org/mizer/reference/reorderSpecies.md)
+  changes model order consistently, and
+  [`setTransformation()`](https://sizespectrum.org/mizer/reference/setTransformation.md)
+  registers joint ownership.
+
+- Model scaling no longer multiplies arbitrary component states.
+  Extensions declare how stocks, intensive quantities and non-numeric
+  states transform. Built-in Ricker, Shepherd and constant recruitment
+  parameters now scale with their laws, and scaled resource and species
+  coefficients survive later recalculation.
+
+- Tuning now selects stored, named strategies for each process or
+  explicitly selected joint strategies
+  ([\#670](https://github.com/sizespectrum/mizer/issues/670),
+  [\#534](https://github.com/sizespectrum/mizer/issues/534)). Strategies
+  declare fixed inputs, evolving states, adjustable parameters, bounds
+  and preserved quantities. Missing stationary support stops before
+  solving. Final balancing is checked independently against the target
+  state and every effective equation rate; there is no generic numerical
+  fallback or follow-up solve.
+
+- [`balanceRDD()`](https://sizespectrum.org/mizer/reference/balanceRDD.md)
+  balances the current reproduction law. Built-in strategies support
+  Beverton-Holt, Ricker, Shepherd, constant recruitment and no density
+  dependence, with law-specific
+  [`reproduction_level()`](https://sizespectrum.org/mizer/reference/setBevertonHolt.md)
+  meanings and explicit branch selection. Calibration callers retain
+  that law.
+  [`setBevertonHolt()`](https://sizespectrum.org/mizer/reference/setBevertonHolt.md)
+  deliberately switches laws while retaining effective recruitment, and
+  rejects infeasible explicit controls. Tuning pins final assembled
+  recruitment, so extension additions to recruitment are included in the
+  held rate.
+
+- [`getSteadyAssessment()`](https://sizespectrum.org/mizer/reference/getSteadyAssessment.md)
+  reports named quantitative measures, tolerances, units and coverage
+  for the whole model, with explicitly conditional subsystem scope
+  available ([\#670](https://github.com/sizespectrum/mizer/issues/670),
+  [\#589](https://github.com/sizespectrum/mizer/issues/589)). Components
+  can register `convergence_fun` independently of their equations and
+  biomass measurements.
+  [`setProcess()`](https://sizespectrum.org/mizer/reference/setProcess.md)
+  declares the equivalent support for consumers or resource; prescribed
+  inputs are recorded separately from dynamic states held fixed for
+  analysis.
+
+- [`isSteady()`](https://sizespectrum.org/mizer/reference/isSteady.md)
+  now returns `TRUE` for complete passing coverage, `FALSE` for a
+  demonstrated failure, and `NA` for incomplete coverage without a
+  failure. The default built-in measures integrate residual magnitudes
+  before summing; net biomass drift is an explicit alternative.
+  Summaries, projection checks and settling use the common assessment,
+  and callback errors propagate. Required support is checked before a
+  solve, and convergence results preserve the scope and the final
+  restored model’s assessment.
+
+- Components can now supply `rate_fun` for Euler/Heun integration,
+  either alone or alongside a custom step
+  ([\#670](https://github.com/sizespectrum/mizer/issues/670),
+  [\#600](https://github.com/sizespectrum/mizer/issues/600)). Custom
+  steps take precedence when both are supplied. Component methods and
+  declared/inferred orders are recorded in simulation metadata, and
+  custom steps can receive optional predicted states and endpoint rates.
+  Correctors now average all standard rate fields for component and
+  resource callbacks.
+
+- Component callbacks support exported `package::function` identifiers.
+  The stored capability schema and saved models are upgraded without
+  resolving functions merely to validate their structure.
+
+- [`setComponent()`](https://sizespectrum.org/mizer/reference/setComponent.md)
+  accepts a reusable `definition` list containing its existing callbacks
+  and plotting styles
+  ([\#670](https://github.com/sizespectrum/mizer/issues/670)). Explicit
+  arguments override the list; supplying a new definition replaces the
+  previous one, while calls without a definition patch only supplied
+  fields. Initial state and component parameters remain separate. The
+  assembled definition is stored in the model and returned by
+  [`getComponent()`](https://sizespectrum.org/mizer/reference/setComponent.md),
+  and survives model reconstruction and save/read upgrades.
+  Equation-based stepping is available in this preview; assessment is
+  now available; measurement and tuning capabilities remain under
+  development.
+
+- Updating a component without specifying its colour or line type now
+  retains its existing style. Separate calls to
+  [`setColours()`](https://sizespectrum.org/mizer/reference/setColours.md)
+  and
+  [`setLinetypes()`](https://sizespectrum.org/mizer/reference/setColours.md)
+  also update the stored definition.
+
+- [`getCourant()`](https://sizespectrum.org/mizer/reference/getCourant.md)
+  reports the growth Courant numbers on the model’s active size support.
+  Projections with high-order flux now report large Courant numbers, and
+  optional `subcycle = TRUE` advances consumers, resources and other
+  components together with smaller internal steps, recalculating rates
+  at each step
+  ([\#571](https://github.com/sizespectrum/mizer/issues/571)). The
+  requested output times and the spatial scheme stay the same.
+  Fixed-step numerical behaviour remains the default. The Courant target
+  is an advection guideline, not a guarantee of stability, positivity or
+  accuracy for all rates and component dynamics.
+
+- [`removeSpecies()`](https://sizespectrum.org/mizer/reference/removeSpecies.md)
+  gains a `compensate` argument
+  ([\#547](https://github.com/sizespectrum/mizer/issues/547)). Removing
+  species lowers the encounter rate of their predators and the predation
+  mortality of their prey, so a model at steady state leaves it. With
+  `compensate = TRUE` the external encounter rate, external mortality
+  and external diffusion of the remaining species take over what the
+  removed species contributed, and the resource capacity is rebalanced
+  because the removed species no longer eat the resource. At the initial
+  state the remaining species then have the rates they had before and
+  the resource is at steady state, so a steady state stays a steady
+  state. mizer checks that the rates are restored and warns if a custom
+  rate function prevents that. The default `compensate = FALSE` keeps
+  the previous behaviour.
+  [`removeSpecies()`](https://sizespectrum.org/mizer/reference/removeSpecies.md)
+  also gains an `info_level` argument.
+
+- The functions that calculate species parameter defaults from the model
+  —
+  [`get_gamma_default()`](https://sizespectrum.org/mizer/reference/get_gamma_default.md),
+  [`get_f0_default()`](https://sizespectrum.org/mizer/reference/get_f0_default.md),
+  [`get_h_default()`](https://sizespectrum.org/mizer/reference/get_h_default.md)
+  and
+  [`get_ks_default()`](https://sizespectrum.org/mizer/reference/get_ks_default.md)
+  — are now S3 generics, so an extension package can register its own
+  methods for them instead of reimplementing the calculation. The
+  measurement of the energy available in the power-law reference state,
+  which is where those defaults look at the prey in the model, is
+  exported as the generic
+  [`measure_avail_energy()`](https://sizespectrum.org/mizer/reference/measure_avail_energy.md).
+  An extension that replaces mizer’s resource by a resource system of
+  its own only needs a method for that one function to have the `gamma`
+  and `f0` defaults derived against its resources. The guide to creating
+  an extension package explains when this is needed
+  ([\#598](https://github.com/sizespectrum/mizer/issues/598)).
+
+### Bug fixes
+
+- Extension upgrades can use validating public setters without
+  recursively restarting their own upgrade chain. Mizer keeps
+  inner-to-outer ordering, stamps each extension after success and
+  clears the runtime guard on failure.
+
+- Saved S4 extension models recover their core model family when the
+  original S4 class definition is no longer available, allowing
+  [`readParams()`](https://sizespectrum.org/mizer/reference/saveParams.md)
+  and
+  [`readSim()`](https://sizespectrum.org/mizer/reference/saveParams.md)
+  to run the normal upgrade chain.
+
+- Steady-state and stability diagnostics now share a complete effective
+  rate evaluation with resource and component callbacks, including final
+  recruitment
+  ([\#592](https://github.com/sizespectrum/mizer/issues/592),
+  [\#670](https://github.com/sizespectrum/mizer/issues/670)). Callbacks
+  using rates such as fishing mortality no longer fail because the
+  diagnostic supplied only a subset. Declared component equations are
+  used directly where available.
+
+- Euler projection and steady-state drift diagnostics now share the rule
+  for selecting the upper size boundary. The rule uses the current
+  evaluated diffusion across all species, including custom rates, and
+  the flux scheme. This internal refactor preserves numerical behaviour
+  and the legacy upwind Euler path without positive diffusion.
+
+- Steady-state drift diagnostics no longer count transport into empty
+  size classes above the retained support when projection holds those
+  classes at zero
+  ([\#658](https://github.com/sizespectrum/mizer/issues/658)). Losses
+  from the last retained class still contribute, as does inflow into
+  empty classes inside the support. Populated tails and the legacy
+  upwind Euler path without diffusion retain their previous diagnostic
+  behaviour; the numerical details explain these limits.
+
+- Size-resolved array wrappers now retain the exact original size-grid
+  mapping when subsetted
+  ([\#650](https://github.com/sizespectrum/mizer/issues/650)). Printing,
+  summaries, data-frame conversion and plots work for sparse selections,
+  and reordered or repeated columns keep the correct coordinates and bin
+  centres. The mapping also survives time slicing and resource-array
+  subsetting; a resource-grid subset is no longer mistaken for the
+  consumer grid merely because their lengths match.
+
+- The stability-analysis guide now explains how to read `MizerScan`
+  columns with dynamic names, subset scans while preserving metadata,
+  and compare forward and backward continuation sweeps for hysteresis
+  ([\#651](https://github.com/sizespectrum/mizer/issues/651)). The
+  `MizerScan` help also corrects its advice on data-frame operations:
+  base [`subset()`](https://rdrr.io/r/base/subset.html) preserves
+  row-subset metadata, while other operations may drop metadata or
+  retain stale maxima.
+
+- The Newton steady-state solver now rejects overflowing or underflowing
+  trial densities before evaluating rates and bounds its log-density
+  steps ([\#653](https://github.com/sizespectrum/mizer/issues/653)). If
+  its residual tolerance is not met, it retries from a frozen-rate
+  steady spectrum within the remaining iteration budget and keeps the
+  better result. This fixes the reported NA-subscript error and nearly
+  growth-free tail failures while retaining the size support needed by
+  diffusion and custom growth functions.
+
+- [`steadySingleSpecies()`](https://sizespectrum.org/mizer/reference/steadySingleSpecies.md)
+  and
+  [`matchGrowth()`](https://sizespectrum.org/mizer/reference/matchGrowth.md)
+  now solve the van Leer steady-state transport equation with
+  upwind-preconditioned defect correction
+  ([\#652](https://github.com/sizespectrum/mizer/issues/652)). The
+  previous iteration could oscillate, introduce interior zeros and
+  change an already steady spectrum substantially. Convergence is
+  checked for every species, including the transport residual, and
+  failure now stops with an error naming the unconverged species instead
+  of returning an inaccurate spectrum silently. The first-order upwind
+  calculation is unchanged.
+
+- [`newTraitParams()`](https://sizespectrum.org/mizer/reference/newTraitParams.md)
+  no longer marks the resource capacity it constructs as set manually
+  ([\#607](https://github.com/sizespectrum/mizer/issues/607)). That
+  capacity is exactly the one
+  [`setResource()`](https://sizespectrum.org/mizer/reference/setResource.md)
+  balances to, so the mark protected nothing, but it stopped
+  [`setResource()`](https://sizespectrum.org/mizer/reference/setResource.md)
+  from rebalancing the resource and `resource_params<-()` from
+  recalculating the capacity after a change of `kappa`, `lambda` or
+  `w_pp_cutoff`. So that such a recalculation keeps the resource below
+  the cutoff the constructor applied, that cutoff is now recorded in
+  [`resource_params()`](https://sizespectrum.org/mizer/reference/resource_params.md)
+  instead of the maximum size `max_w`. The external mortality rate stays
+  marked as set manually, because the species parameters can not
+  reproduce it. The help page of
+  [`newTraitParams()`](https://sizespectrum.org/mizer/reference/newTraitParams.md)
+  now explains how that rate is set, and so why changing `z0`, `z_ext`
+  or `d` afterwards has no effect.
+
+- [`addSpecies()`](https://sizespectrum.org/mizer/reference/addSpecies.md)
+  and
+  [`adjustSizeGrid()`](https://sizespectrum.org/mizer/reference/adjustSizeGrid.md)
+  (and with it
+  [`expandSizeGrid()`](https://sizespectrum.org/mizer/reference/expandSizeGrid.md))
+  now build the new model with the numerical scheme of the model they
+  are given. They used to build it with the first-order scheme and copy
+  the `second_order_w` setting across afterwards, so that on a model
+  with bin-averaging switched on the predation kernels and the fishing
+  selectivity they recalculated were point-sampled at the left bin edges
+  although the model reported `bin_average = TRUE`.
+
+- [`plotYieldVsF()`](https://sizespectrum.org/mizer/reference/plotYieldVsF.md)
+  accepts the `tol` argument it had in mizerExperimental again, with a
+  deprecation warning, and uses it as `distance_tol`. Since the function
+  moved to mizer in 3.3.0, a call that passed `tol` stopped with an
+  error. The upgrade notes for mizer 3.3 now describe the move
+  ([\#640](https://github.com/sizespectrum/mizer/issues/640)).
+
+- With `second_order_w(params) <- c(flux = "van_leer")` a projection
+  could suddenly turn all abundances of a species into `NaN`
+  ([\#630](https://github.com/sizespectrum/mizer/issues/630)). Above
+  `w_max` a spectrum can decay to subnormal numbers, and the ratio of
+  successive density jumps that the van Leer limiter takes then
+  overflowed to `Inf`. The limiter is now evaluated from the two jumps
+  without forming their ratio, so it stays between 0 and 2. Results of
+  other van Leer projections change only by rounding.
+
+- [`steadySingleSpecies()`](https://sizespectrum.org/mizer/reference/steadySingleSpecies.md)
+  with `keep = "biomass"` or `keep = "number"` no longer fills a species
+  with zero abundance with `NaN`, which made the returned model fail
+  validation
+  ([\#615](https://github.com/sizespectrum/mizer/issues/615)). The same
+  happened with `keep = "biomass"` to a species that is present but has
+  no biomass above its `biomass_cutoff`, for example because the cutoff
+  lies above its `w_max`
+  ([\#621](https://github.com/sizespectrum/mizer/issues/621)). A species
+  that had none of the quantity to keep is now not rescaled, with a
+  warning if its steady state has some. When the rescaling cannot be
+  done — the steady state of a selected species has none of the quantity
+  that the species had before, or rescaling it overflows — the function
+  now stops with an error instead of returning non-finite abundances. A
+  species listed twice in `species` is no longer emptied.
+  [`steadySingleSpecies()`](https://sizespectrum.org/mizer/reference/steadySingleSpecies.md)
+  gains an `info_level` argument.
+
+- [`matchGrowth()`](https://sizespectrum.org/mizer/reference/matchGrowth.md)
+  with `keep = "biomass"` on a model with a `biomass_cutoff` species
+  parameter rescaled the abundances of every species, including those
+  not selected, because it measured the biomass before the change
+  without the cutoff and after it with the cutoff. It now leaves the
+  rescaling to
+  [`steadySingleSpecies()`](https://sizespectrum.org/mizer/reference/steadySingleSpecies.md),
+  which also fixes the `NaN` of
+  [\#615](https://github.com/sizespectrum/mizer/issues/615) for
+  [`matchGrowth()`](https://sizespectrum.org/mizer/reference/matchGrowth.md).
+
+- A species that is absent from the initial state, with
+  `initialN(params)[species, ] <- 0`, no longer breaks the steady-state
+  searches ([\#614](https://github.com/sizespectrum/mizer/issues/614)).
+  [`projectUntilSettled()`](https://sizespectrum.org/mizer/reference/projectUntilSettled.md),
+  [`findSteadyState()`](https://sizespectrum.org/mizer/reference/findSteadyState.md)
+  and
+  [`scanModel()`](https://sizespectrum.org/mizer/reference/scanModel.md)
+  used to stop at the first check, reporting that the species was going
+  extinct, because its reproduction, zero throughout, had fallen to zero
+  times its starting value. They now leave it absent while the other
+  species settle, as the Newton solver already did.
+  [`tuneSteadyState()`](https://sizespectrum.org/mizer/reference/tuneSteadyState.md)
+  failed with “Some species have no reproduction.” under either solver.
+  It now leaves that species’ reproduction parameters alone.
+  [`distanceMaxRelRDI()`](https://sizespectrum.org/mizer/reference/distanceMaxRelRDI.md)
+  now counts a species with no egg production in either state as
+  unchanged, rather than returning `Inf`, which would have kept such a
+  run from ever converging. A species that is present but has no
+  reproduction is still reported as going extinct immediately.
+
+- `setPredKernel(reset = TRUE)` now removes a predation kernel that had
+  been set by hand, rather than only removing the comment that protected
+  it ([\#608](https://github.com/sizespectrum/mizer/issues/608)). The
+  rate functions already used the recalculated kernel, but the discarded
+  array stayed in the model, so
+  [`pred_kernel()`](https://sizespectrum.org/mizer/reference/setPredKernel.md)
+  went on returning it and
+  [`getTrophicLevel()`](https://sizespectrum.org/mizer/reference/getTrophicLevel.md)
+  paired it with the encounter rate from the new kernel, reporting
+  trophic levels that could be far off without any warning.
+
+- [`setBevertonHolt()`](https://sizespectrum.org/mizer/reference/setBevertonHolt.md)
+  no longer stops with “Some species have no reproduction.” on a model
+  with a species that is absent, with `initialN(params)[species, ] <- 0`
+  ([\#620](https://github.com/sizespectrum/mizer/issues/620)).
+  [`matchGrowth()`](https://sizespectrum.org/mizer/reference/matchGrowth.md),
+  [`matchBiomasses()`](https://sizespectrum.org/mizer/reference/matchBiomasses.md)
+  and
+  [`matchNumbers()`](https://sizespectrum.org/mizer/reference/matchNumbers.md)
+  end with a call to it, so they failed too, even when the absent
+  species was not among those selected. An absent species has no
+  reproduction whatever its Beverton-Holt parameters, so they are now
+  left unchanged, except that an `erepro` or `R_max` given for it
+  explicitly is used as it is. A non-zero `reproduction_level` cannot be
+  given to an absent species, and asking for one now gives a warning. A
+  species that is present but has no reproduction still stops
+  [`setBevertonHolt()`](https://sizespectrum.org/mizer/reference/setBevertonHolt.md),
+  now with an error that names it. When it switches a model to
+  Beverton-Holt reproduction,
+  [`setBevertonHolt()`](https://sizespectrum.org/mizer/reference/setBevertonHolt.md)
+  also now gives a species without an `R_max` the default `Inf`, where
+  it used to leave it `NA` or, depending on which species were named,
+  stop with a “replacement has … rows” error.
+
+- A species whose egg size `w_min` does not sit exactly on a grid point
+  is no longer emptied by
+  [`steadySingleSpecies()`](https://sizespectrum.org/mizer/reference/steadySingleSpecies.md),
+  and
+  [`addSpecies()`](https://sizespectrum.org/mizer/reference/addSpecies.md)
+  no longer fails for such a species with “Candidate steady state holds
+  non-numeric values.”
+  ([\#610](https://github.com/sizespectrum/mizer/issues/610)). Under
+  defaults edition 1 the initial abundances were set to zero in every
+  size class below `w_min`, which included the class that *contains*
+  `w_min` — the class that `w_min_idx` points to and from which the
+  steady state is grown upwards. The cutoff is now the start of that
+  class, so it keeps a positive abundance.
+  [`steadySingleSpecies()`](https://sizespectrum.org/mizer/reference/steadySingleSpecies.md)
+  also now reports which species has an empty egg size class instead of
+  silently returning a spectrum that is zero at every size.
+
+- With the `bin_average` entry of
+  [`second_order_w()`](https://sizespectrum.org/mizer/reference/second_order_w.md)
+  switched on, predation mortality, resource mortality and the
+  predation-diffusion coefficient are now second-order accurate in the
+  bin width, as the encounter rate and feeding level already were
+  ([\#619](https://github.com/sizespectrum/mizer/issues/619)). All three
+  need the predator’s `(1 - feeding level) * search volume` averaged
+  over the predator bin, since predation integrates over predator size
+  and the diffusion coefficient is a bin average. But
+  [`mizerPredRate()`](https://sizespectrum.org/mizer/reference/mizerPredRate.md)
+  and
+  [`mizerDiffusion()`](https://sizespectrum.org/mizer/reference/mizerDiffusion.md)
+  took its value at the lower edge of the bin. This underestimated both:
+  in `NS_params` the predation rates go up by a median of 7.6% and by up
+  to 9.7%, and the predation-diffusion coefficient by a median of 7.7%
+  and by up to 11%. The error was first order, so it did not go away
+  quickly on finer grids. Models on the default scheme are unaffected.
+
+- When a species is given an egg size `w_min` below the size grid, mizer
+  raises it to the start of the grid with a warning. It now also raises
+  the value stored among the given species parameters
+  ([\#642](https://github.com/sizespectrum/mizer/issues/642)). Before,
+  the rejected value stayed there, so every later change of an unrelated
+  species parameter gave the same warning again. Once the grid had been
+  widened with
+  [`adjustSizeGrid()`](https://sizespectrum.org/mizer/reference/adjustSizeGrid.md),
+  the next such change put the rejected `w_min` back without any
+  warning, and the default `h`, `ks` and `gamma` of that species changed
+  with it.
+
+- When an egg size below the size grid is raised to the grid minimum,
+  its supplied length `l_min` is now updated in both species parameter
+  tables too. Later validation or an unrelated parameter edit no longer
+  warns that the egg length and weight disagree.
+
+- The warning that an egg size `w_min` was raised to the size-grid
+  minimum now follows `info_level`: it is reported at level 1 and
+  silenced at level 0, including with `options(mizer_info_level = 0)`.
+  The adjustment still takes effect at every level.
+
+- [`getDiet()`](https://sizespectrum.org/mizer/reference/getDiet.md),
+  [`getTrophicLevel()`](https://sizespectrum.org/mizer/reference/getTrophicLevel.md)
+  and
+  [`getTrophicLevelBySpecies()`](https://sizespectrum.org/mizer/reference/getTrophicLevelBySpecies.md)
+  now agree with the model’s own encounter rate, feeding level and
+  growth rate in three cases where they did not
+  ([\#613](https://github.com/sizespectrum/mizer/issues/613)). Summed
+  over prey, `getDiet(proportion = FALSE)` reproduces
+  `getEncounter() * (1 - getFeedingLevel())` in all of them.
+
+  - **The encounter rate has been changed**, by a function registered
+    with `setRateFunction("Encounter", ...)` or by an extension
+    package’s
+    [`projectEncounter()`](https://sizespectrum.org/mizer/reference/mizerEncounter.md)
+    method. The diet used to be rebuilt from the search volume and the
+    predation kernel and so ignored the change, and
+    [`getTrophicLevel()`](https://sizespectrum.org/mizer/reference/getTrophicLevel.md)
+    divided a numerator built that way by the changed encounter rate. A
+    model whose encounter rate was halved had twice the diet it consumed
+    and a cod trophic level of 25.8 instead of 5.8. The diet is now
+    scaled to the model’s encounter rate, with a message saying so, and
+    the numerator of the trophic level is built from the scaled diet.
+    Where the predator encounters food although none of the food sources
+    contributes, the diet shows that food as “External”.
+  - **`n_other` differs from the initial values.** The feeding level by
+    which
+    [`getDiet()`](https://sizespectrum.org/mizer/reference/getDiet.md)
+    multiplies the encounter rate was calculated with the initial
+    abundances of the other components rather than the `n_other` passed
+    in.
+  - **The rates depend on time.**
+    [`getDiet()`](https://sizespectrum.org/mizer/reference/getDiet.md),
+    [`getTrophicLevel()`](https://sizespectrum.org/mizer/reference/getTrophicLevel.md)
+    and
+    [`getTrophicLevelBySpecies()`](https://sizespectrum.org/mizer/reference/getTrophicLevelBySpecies.md)
+    gain a `t` argument, defaulting to 0, and pass it to the encounter
+    rate, the feeding level, the growth rate and the encounter functions
+    of components.
+    [`getDiet()`](https://sizespectrum.org/mizer/reference/getDiet.md)
+    on a `MizerSim` evaluates the diet at each saved time with that
+    time. Previously the encounter functions of components were called
+    without a time, so
+    [`getDiet()`](https://sizespectrum.org/mizer/reference/getDiet.md)
+    failed on a model whose component encounter function had no default
+    for `t`, and otherwise evaluated everything at `t = 0`.
+
+- The new
+  [`getEncounterByPrey()`](https://sizespectrum.org/mizer/reference/getEncounterByPrey.md)
+  returns the encounter rate resolved by food source, which
+  [`getDiet()`](https://sizespectrum.org/mizer/reference/getDiet.md)
+  multiplies by `1 - getFeedingLevel()`. It is an S3 generic, so that an
+  extension package that changes the encounter rate can say how the
+  change is shared between food sources. For extension packages: if your
+  package has a
+  [`projectEncounter()`](https://sizespectrum.org/mizer/reference/mizerEncounter.md)
+  method, give
+  [`getEncounterByPrey()`](https://sizespectrum.org/mizer/reference/getEncounterByPrey.md)
+  a method that makes the same change and calls
+  [`NextMethod()`](https://rdrr.io/r/base/UseMethod.html).
+  [`getDiet()`](https://sizespectrum.org/mizer/reference/getDiet.md) and
+  [`getTrophicLevel()`](https://sizespectrum.org/mizer/reference/getTrophicLevel.md)
+  then split the encounter rate between food sources exactly and say
+  nothing. Without it they scale all food sources in proportion, which
+  is exact only if the change affects them all equally, as a change of
+  the search volume does in a model without external encounter or
+  components with an encounter function.
+  [`getTrophicLevel()`](https://sizespectrum.org/mizer/reference/getTrophicLevel.md)
+  takes from
+  [`getEncounterByPrey()`](https://sizespectrum.org/mizer/reference/getEncounterByPrey.md)
+  how much food each prey species and the resource provide, and averages
+  their trophic levels over prey sizes with the predation kernel stored
+  in the model. A food source that an extension switches on, for example
+  by setting a zero interaction to a positive value, therefore gets its
+  proper trophic level. An extension that changes which prey sizes are
+  eaten without storing its kernel with
+  [`setPredKernel()`](https://sizespectrum.org/mizer/reference/setPredKernel.md)
+  needs a
+  [`getTrophicLevel()`](https://sizespectrum.org/mizer/reference/getTrophicLevel.md)
+  method of its own. \## Documentation
+
+- The help page of
+  [`getDiffusion()`](https://sizespectrum.org/mizer/reference/getDiffusion.md)
+  gave the predation-diffusion rate with a factor
+  \\(\alpha_i(1-\psi_i(w)))^2\\. The correct factor, and the one mizer
+  has always used, is \\\alpha_i^2\\, as in the model description
+  ([\#624](https://github.com/sizespectrum/mizer/issues/624)).
+
+- The guide to changing parameters listed the egg size `w_min` and the
+  assimilation efficiency `alpha` among the parameters that change only
+  themselves. Both feed the default for `h`: when `h` is derived from
+  growth information, lowering `w_min` raises `h` and any calculated
+  `ks` and `gamma`. Without usable growth information, the fallback
+  `h = 30` stays unchanged. The guide now says so, and shows how to
+  change only the egg size: pin `h` first, and extend the size grid with
+  [`adjustSizeGrid()`](https://sizespectrum.org/mizer/reference/adjustSizeGrid.md)
+  before lowering `w_min` below it (sizespectrum/mizerAgents#13).
+
+- The help page of
+  [`tuneSteadyState()`](https://sizespectrum.org/mizer/reference/tuneSteadyState.md)
+  now says when not to use it: because it holds the reproduction rate at
+  its current value and re-derives `erepro`/`R_max` and `cc_pp`, it
+  cannot find a steady state with a very different reproduction rate,
+  such as an alternative stable state, and two states found with it do
+  not share parameters. Its section on checking the result now also
+  tells you to check the re-derived `erepro`: a value greater than 1
+  means the state found cannot be sustained, even when the
+  `"convergence"` attribute reports a fixed point
+  ([\#631](https://github.com/sizespectrum/mizer/issues/631)). The
+  `calibrate-model` skill and its guide give the same advice and add the
+  `erepro` warning to their list of calibration problems, and the
+  diagnostic table of the `understand-size-spectrum-dynamics` skill and
+  guide gains a row for it (sizespectrum/mizerAgents#12).
+
+- The “Community Model” and “Trait-Based Model” articles no longer
+  explain a trophic cascade as moving down the spectrum one
+  predator-prey mass ratio \\\beta\\ at a time, which would put its
+  peaks and troughs a factor of \\\beta\\ apart. They are not, and they
+  do not move closer together when \\\beta\\ is reduced
+  ([\#3](https://github.com/sizespectrum/mizer/issues/3)). The
+  “Single-Species Model” article now gives the steady-state spectrum in
+  terms of the growth and mortality rates and shows, with new
+  experiments, that a change in mortality or growth changes the
+  abundance at all larger sizes, so that the abundance has its extremes
+  where the change switches sign, while a change in growth also piles
+  fish up or thins them out locally. Its prey-reduction example now
+  explains that the slow-down in growth costs far more fish than it
+  piles up. The cascade sections build on this: the community model one
+  compares the change in predation mortality with the change in
+  abundance, and the trait-based model one also looks at the change in
+  feeding level and recruitment. The “Understanding size-spectrum
+  dynamics” guide says the same.
+
+- The detritus example in the “Extending mizer” guide and the
+  `extend-mizer` skill counted the encounter of the fish prey and
+  [`ext_encounter()`](https://sizespectrum.org/mizer/reference/setExtEncounter.md)
+  a second time. Its `encounter_fun` delegated to
+  [`mizerEncounter()`](https://sizespectrum.org/mizer/reference/mizerEncounter.md)
+  with the detritus as `n_pp`, but
+  [`mizerEncounter()`](https://sizespectrum.org/mizer/reference/mizerEncounter.md)
+  returns the whole encounter rate, so an empty detritus pool raised the
+  encounter rate by up to a factor of 2 and the detritus made up about
+  half of the diet of cod. The example now evaluates the encounter of
+  the detritus alone with
+  [`convolve_pred_kernel()`](https://sizespectrum.org/mizer/reference/convolve_pred_kernel.md),
+  and the guide explains that an `encounter_fun` returns only its
+  component’s contribution.
+
 ## mizer 3.4.0
+
+CRAN release: 2026-08-31
 
 The headline change is one you should not be able to feel: `MizerParams`
 and `MizerSim` are now ordinary S3 objects rather than S4 objects. Slot
@@ -3583,16 +4285,16 @@ There is now a three-part mizer course at
 <https://mizer.course.sizespectrum.org> with each part consisting of
 several tutorials, including code and exercises:
 
-- **Part 1: Understand**  
+- **Part 1: Understand**\
   You will gain an understanding of size spectra and their dynamics by
   exploring simple example systems hands-on with mizer.
 
-- **Part 2: Build**  
+- **Part 2: Build**\
   You will build your own multi-species mizer model for the Celtic sea,
   following our example. You can also create a model for your own area
   of interest.
 
-- **Part 3: Use**  
+- **Part 3: Use**\
   You will explore the effects of changes in fishing and changes in
   resource dynamics on the fish community and the fisheries yield. You
   will run your own model scenarios.
@@ -4171,7 +4873,7 @@ CRAN release: 2021-03-21
 - By default, the functions
   [`plotPredMort()`](https://sizespectrum.org/mizer/reference/plotPredMort.md)
   and `plotFMort` will stop displaying mortality values past the
-  species’ asymptotic size. The argument  
+  species’ asymptotic size. The argument\
   `all.sizes` allows you to continue to show these values.
 
 ### Bug fixes

@@ -274,3 +274,38 @@ test_that("Qualified built-in reproduction retains declared balancing", {
     expect_equal(tuning_rate_context(q)$rdd, tuning_rate_context(p)$rdd)
     expect_equal(unname(reproduction_level(q)), rep(0.4, 3))
 })
+
+
+test_that("Built-in reproduction definitions are reusable serialisable data", {
+    for (law in c("BevertonHoltRDD", "RickerRDD", "SheperdRDD",
+                  "constantRDD", "noRDD")) {
+        p <- setReproduction(NS_params_small, RDD = law, info_level = 0)
+        definition <- mizerReproductionDefinition(p)
+        expect_named(definition, c("stationary", "equation_rates_fun",
+                                    "tuning", "level_fun"))
+        expect_true(tuning_data_valid(definition))
+        expect_equal(definition$tuning, builtin_reproduction_tuning(p))
+        q <- setProcess(p, "reproduction", definition = definition)
+        expect_true(tuning_binding_current(
+            q, q$capabilities$processes$reproduction, "reproduction"))
+        expect_true(level_binding_current(
+            q, q$capabilities$processes$reproduction))
+    }
+})
+
+test_that("Definition reuse does not automatically endorse custom routes", {
+    p <- NS_params_small
+    p$rates_funcs$Mort <- "author_mortality"
+    before <- p
+    definition <- mizerReproductionDefinition(p)
+    expect_identical(p, before)
+    expect_null(default_provider_tuning(p, "reproduction")$tuning)
+    expect_type(definition$tuning, "list")
+    expect_false(tuning_binding_current(
+        p, p$capabilities$processes$reproduction, "reproduction"))
+    p$rates_funcs$RDD <- "mizer::BevertonHoltRDD"
+    expect_identical(mizerReproductionDefinition(p)$level_fun,
+                     "reproduction_level_BevertonHoltRDD")
+    p$rates_funcs$RDD <- "author_recruitment"
+    expect_error(mizerReproductionDefinition(p), "No built-in reproduction")
+})
