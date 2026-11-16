@@ -225,7 +225,9 @@ setResource.MizerParams <- function(params,
         if (!is.function(get0(resource_dynamics))) {
             stop('The resource dynamics function "', resource_dynamics, '" is not defined.')
         }
+        previous_resource_dynamics <- params@resource_dynamics
         params@resource_dynamics <- resource_dynamics
+        params <- refresh_resource_assessment(params, previous_resource_dynamics)
     }
 
     w_full <- w_full(params)

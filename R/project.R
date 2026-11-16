@@ -75,7 +75,9 @@ NULL
 #'   ended, so there is nothing to check. The check is made at the effort stored in the params
 #'   object rather than at the `effort` supplied here, so that running a fishing
 #'   scenario at a new effort — which legitimately starts away from the steady
-#'   state of that new effort — does not warn. See [getSteadyResidual()].
+#'   state of that new effort — does not warn. This uses the whole-model
+#'   assessment at `t_start`, and also warns when required assessment support
+#'   is missing. See [getSteadyAssessment()].
 #' @param method The numerical method to use for the consumer density update.
 #'
 #'   `"euler"` uses the first-order semi-implicit Euler update.
@@ -280,7 +282,7 @@ project.MizerParams <- function(object, effort,
         warn_if_not_steady(
             params,
             paste("Projecting from a state that is not a fixed point means",
-                  "the results include that drift."))
+                  "the results include that drift."), t = t_start)
     }
     # The advective-flux scheme is a property of the model, held in the
     # second_order_w slot, not a per-run choice.

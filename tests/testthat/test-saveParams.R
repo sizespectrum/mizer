@@ -202,3 +202,26 @@ test_that("Saving reports custom component equations", {
     expect_warning(saveParams(p, tmp),
                    "Your model is using the functions saved_component_equation")
 })
+
+test_that("Saving accounts for component and process assessments", {
+    rlang::local_bindings(
+        saved_assessment = function(...) {
+            data.frame(measure = "change", value = 0,
+                       tolerance = 1e-6, units = "1/year")
+        }, .env = .GlobalEnv
+    )
+    p <- setComponent(NS_params_small, "pool", initial_value = 2,
+                      dynamics_fun = "constant_other",
+                      convergence_fun = "saved_assessment")
+    expect_warning(checkCustomFunctions(p), "saved_assessment")
+    p <- removeComponent(p, "pool")
+    p <- setProcess(p, "resource", convergence_fun = "saved_assessment")
+    expect_warning(checkCustomFunctions(p), "saved_assessment")
+
+    p <- setProcess(p, "resource", convergence_fun = "base::identity")
+    tmp <- tempfile(fileext = ".rds")
+    withr::defer(unlink(tmp))
+    expect_silent(saveParams(p, tmp))
+    restored <- readParams(tmp)
+    expect_identical(getProcess(restored), getProcess(p))
+})

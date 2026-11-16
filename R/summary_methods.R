@@ -1200,39 +1200,42 @@ summary.MizerParams <- function(object, ...) {
         "\n", sep = "")
     cat("\tno. size bins:\t", length(params@w_full[params@initial_n_pp > 0]),
         "\t(", length(params@w_full), " size bins in total)\n", sep = "")
-    # Whether the model is at its steady state is not visible from any of the
-    # parameters above, and getting it wrong is the most common way a
-    # calibration goes quietly wrong, so it is reported here.
-    report <- tryCatch(steady_drift_report(params), error = function(e) NULL)
-    residual <- if (is.null(report)) NA_real_ else report$drift
-    header_shown <- FALSE
-    if (is.finite(residual)) {
-        cat("Steady state:\n")
-        header_shown <- TRUE
-        cat("\tbiomass drift:\t", signif(residual, 2), " /year\t",
-            if (residual <= steady_residual_tol()) {
-                "(at steady state)"
-            } else {
-                paste0("(not at steady state, largest in ",
-                       steady_variable_txt(report, quote = FALSE),
-                       " - run tuneSteadyState())")
-            }, "\n", sep = "")
+    assessment <- getSteadyAssessment(params, ...)
+    status <- if (isTRUE(assessment$verdict)) {
+        "at steady state"
+    } else if (identical(assessment$verdict, FALSE)) {
+        "not at steady state"
+    } else {
+        "incomplete assessment"
     }
-    # The components are not in the drift above, so a model with a drifting
-    # component reads as steady on that line alone. Listing them here is what
-    # stops this block being misleading for exactly the models that need it.
-    if (!is.null(report) && length(report$other) > 0) {
-        if (!header_shown) cat("Steady state:\n")
-        for (component in names(report$other)) {
-            drift <- report$other[[component]]
-            cat("\t", component, " drift:\t",
-                if (is.finite(drift)) {
-                    paste0(signif(drift, 2), " /year")
-                } else {
-                    "not measurable"
-                },
-                "\t(not included in the biomass drift)\n", sep = "")
-        }
+    cat("Steady state:\n")
+    cat("\tassessment:\t", status, " (", assessment$scope, " scope)\n",
+        sep = "")
+    if (length(assessment$fixed)) {
+        cat("\theld fixed:\t", paste(assessment$fixed, collapse = ", "), "\n",
+            sep = "")
+    }
+    if (length(assessment$prescribed)) {
+        cat("\tprescribed inputs:\t",
+            paste(assessment$prescribed, collapse = ", "), "\n", sep = "")
+    }
+    if (length(assessment$missing)) {
+        cat("\tmissing assessment:\t",
+            paste(assessment$missing, collapse = ", "), "\n", sep = "")
+    }
+    measures <- assessment$measures
+    if (nrow(measures)) {
+        ratios <- abs(measures$value) / measures$tolerance
+        ratios[measures$value == 0 & measures$tolerance == 0] <- 0
+        worst <- which.max(ratios)
+        cat("\tlargest tolerance ratio:\t", signif(ratios[[worst]], 3),
+            " (", measures$owner[[worst]], "/", measures$measure[[worst]],
+            ")\n", sep = "")
+    }
+    previous <- attr(params, "convergence")$assessment
+    if (!is.null(previous) && identical(previous$scope, "conditional")) {
+        cat("\tlast solve scope:\tconditional; held fixed: ",
+            paste(previous$fixed, collapse = ", "), "\n", sep = "")
     }
     cat("Species details:\n")
     sel_params <- intersect(c("species", "w_inf", "w_mat", "w_min", "f0", "fc",

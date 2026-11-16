@@ -36,6 +36,7 @@ Other extension tools:
 \code{\link[=other_mort]{other_mort()}},
 \code{\link[=recordExtension]{recordExtension()}},
 \code{\link[=setComponent]{setComponent()}},
+\code{\link[=setProcess]{setProcess()}},
 \code{\link[=setRateFunction]{setRateFunction()}}
 }
 \concept{extension tools}

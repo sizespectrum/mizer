@@ -196,6 +196,7 @@ reference:
   - tuneSteadyState
   - findSteadyState
   - isSteady
+  - getSteadyAssessment
   - getSteadyResidual
   - getStability
   - getDiscreteStability
@@ -354,6 +355,8 @@ reference:
   - setRateFunction
   - other_mort
   - setComponent
+  - setProcess
+  - getProcess
   - convolve_pred_kernel
   - initialNOther<-
   - NOther

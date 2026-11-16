@@ -41,6 +41,7 @@ Other extension tools:
 \code{\link[=initialNOther<-]{initialNOther<-()}},
 \code{\link[=other_mort]{other_mort()}},
 \code{\link[=setComponent]{setComponent()}},
+\code{\link[=setProcess]{setProcess()}},
 \code{\link[=setRateFunction]{setRateFunction()}}
 }
 \concept{extension tools}

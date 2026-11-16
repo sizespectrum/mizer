@@ -789,14 +789,46 @@ test_that("str works", {
 
 test_that("summary of MizerParams reports the steady-state verdict", {
     p <- NS_params_steady_small
-    line <- grep("biomass drift", capture.output(summary(p)), value = TRUE)
+    line <- grep("assessment:", capture.output(summary(p)), value = TRUE)
     expect_length(line, 1)
-    expect_match(line, "/year")
-    expect_match(line, "\\(at steady state\\)")
+    expect_match(line, "whole scope")
+    expect_match(line, "at steady state")
+    expect_no_match(line, "not at steady state")
 
     # Knocking it off its steady state flips the verdict.
     initialN(p)[1, ] <- initialN(p)[1, ] * 3
-    line <- grep("biomass drift", capture.output(summary(p)), value = TRUE)
+    line <- grep("assessment:", capture.output(summary(p)), value = TRUE)
     expect_match(line, "not at steady state")
 })
 
+test_that("summary reports missing coverage and conditional scope", {
+    p <- setComponent(NS_params_small, "pool", initial_value = 1,
+                      dynamics_fun = "constant_other")
+    whole <- capture.output(summary(p, tol = 1e12))
+    expect_match(whole, "incomplete assessment", all = FALSE)
+    expect_match(whole, "missing assessment:.*component:pool", all = FALSE)
+
+    conditional <- getSteadyAssessment(p, tol = 1e12, scope = "conditional",
+                                       fixed = "component:pool")
+    attr(p, "convergence") <- list(assessment = conditional)
+    out <- capture.output(summary(p, tol = 1e12, scope = "conditional",
+                                  fixed = "component:pool"))
+    expect_match(out, "at steady state \\(conditional scope\\)", all = FALSE)
+    expect_match(out, "held fixed:.*component:pool", all = FALSE)
+    expect_match(out, "last solve scope:.*conditional", all = FALSE)
+    # A new whole-model assessment does not erase the previous solve's scope.
+    out <- capture.output(summary(p, tol = 1e12))
+    expect_match(out, "incomplete assessment \\(whole scope\\)", all = FALSE)
+    expect_match(out, "last solve scope:.*conditional", all = FALSE)
+})
+
+test_that("summary propagates convergence callback errors", {
+    rlang::local_bindings(
+        broken_summary_measure = function(...) stop("broken measure"),
+        .env = .GlobalEnv
+    )
+    p <- setComponent(NS_params_small, "pool", initial_value = 1,
+                      dynamics_fun = "constant_other",
+                      convergence_fun = "broken_summary_measure")
+    expect_error(capture.output(summary(p)), "broken measure")
+})

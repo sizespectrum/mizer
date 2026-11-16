@@ -6,37 +6,14 @@
 # instruction "re-run steady() after any match.../calibrate... step" can be
 # checked rather than remembered.
 
-#' Default tolerance for calling a model steady
+#' Default relative tolerance for built-in steady-state assessments
 #'
-#' The relative rate of biomass change, in units of 1/year, below which mizer
-#' treats a model as being at its steady state. It has to sit above what a
-#' converged [tuneSteadyState()] actually leaves behind and below the drift that
-#' the
-#' mistake it is meant to catch produces. Measured on the North Sea model with
-#' `steady_biomass_drift()`:
+#' The built-in convergence checks compare an absolute state residual against
+#' this fraction of the state's mass per year, plus an absolute tolerance.
+#' Biomass drift remains an explicit alternative criterion. Extension measures
+#' supply their own units and tolerances.
 #'
-#' | State | Drift (1/year) |
-#' |---|---|
-#' | `findSteadyState(solver = "newton")` | 4e-7 |
-#' | `steady(tol = 1e-4)` | 2e-5 |
-#' | `steady()` at its default `tol` | 3e-3 |
-#' | as shipped in `NS_params` | 1e-2 |
-#' | `newTraitParams()`, freshly built | 0.14 |
-#' | after `matchBiomasses()` | 2 |
-#' | after `matchGrowth()` | 4 |
-#'
-#' `0.05` therefore sits more than an order of magnitude above a default
-#' `tuneSteadyState()` run and one to three orders below a model knocked off its
-#' steady
-#' state. Note that [tuneSteadyState()] stops on the relative change in egg
-#' production rather than on this drift, so how close it gets is governed by its
-#' own `tol` argument; tighten that if you need to settle further.
-#'
-#' Everything that judges steadiness — the `summary()` line, the [project()]
-#' check, the guards in [getStability()] and [getOscillationModeSim()] — goes through
-#' this function, so the tolerance has a single definition.
-#'
-#' @return The tolerance, a single number.
+#' @return The tolerance, a single number in 1/year.
 #' @noRd
 steady_residual_tol <- function() {
     0.05
@@ -162,12 +139,10 @@ negligible_cells <- function(params, n, cutoff = steady_share_cutoff()) {
 #' rowSums(getSteadyResidual(params))    # (dB_i/dt) / B_i, one per species
 #' ```
 #'
-#' That total is the number [isSteady()], the `summary()` line of a
-#' \linkS4class{MizerParams} object and `project(check_steady = TRUE)` all judge
-#' a model by, and it is the drift that would actually show up in
-#' [plotBiomass()]. This array therefore says *where* a model is unsteady in the
-#' same currency that mizer uses to decide *whether* it is, and a size class can
-#' only be conspicuous in it if it is moving enough biomass to matter.
+#' That total is the drift that would show up in [plotBiomass()]. It remains a
+#' numerical diagnostic: [getSteadyAssessment()] separately checks convergence
+#' across the whole model, using absolute state residuals by default. A size
+#' class can only be conspicuous here if it is moving enough biomass to matter.
 #'
 #' That last property is why this is the default. A size class near the egg size
 #' turns over in hours, and one above the size where growth stops decays
@@ -263,8 +238,8 @@ negligible_cells <- function(params, n, cutoff = steady_share_cutoff()) {
 #' @param measure `r lifecycle::badge("experimental")`
 #'   Which rate of change to report. `"biomass"` (the default) gives the
 #'   contribution of each size class to the relative rate of change of its
-#'   species' biomass, which sums over sizes to the drift that [isSteady()]
-#'   judges a model by. `"per_capita"` gives the rate of change of each size
+#'   species' biomass, which sums over sizes to its net biomass drift.
+#'   `"per_capita"` gives the rate of change of each size
 #'   class relative to its own density. See the sections above.
 #' @return An [ArraySpeciesBySize] object (species x size) of rates in 1/year:
 #'   with `measure = "biomass"`, contributions to each species' relative rate of
@@ -277,9 +252,8 @@ negligible_cells <- function(params, n, cutoff = steady_share_cutoff()) {
 #'       over `w_full`.}
 #'     \item{`other`}{A named list with one entry per other component, holding
 #'       its per-capita rate of change, or `NA` for a component whose state is
-#'       not numeric. These are reported but not folded into the biomass drift
-#'       that [isSteady()] judges a model by: mizer does not know what a
-#'       component's state is measured in, so it cannot form a biomass for it.}
+#'       not numeric. These remain numerical diagnostics. Components declare
+#'       their convergence measures separately for [getSteadyAssessment()].}
 #'   }
 #' @seealso [isSteady()], [tuneSteadyState()], [findSteadyState()],
 #'   [getStability()]
@@ -354,51 +328,41 @@ getSteadyResidual <- function(params, effort = params@initial_effort,
 #' Check whether a model is at steady state
 #'
 #' `r lifecycle::badge("experimental")`
-#' Returns `TRUE` if the model is at its steady state (within a specified
-#' tolerance), `FALSE` otherwise.
+#' Returns the verdict from [getSteadyAssessment()]: `TRUE` if all required
+#' owners pass, `FALSE` if any measure fails, or `NA` if no measure fails but
+#' required convergence support is missing. The default assesses the whole
+#' model, including extension components. Callback errors propagate.
 #'
-#' Steadiness is judged by computing the relative rate of change of biomass
-#' across all consumer species and the resource (see [getSteadyResidual()]). If
-#' the largest biomass drift is less than or equal to `tol`, the model is
-#' considered to be at steady state.
+#' The default state-residual criterion prevents changes at different sizes
+#' from cancelling. Net biomass drift remains available explicitly with
+#' `criterion = "biomass"`. A conditional assessment requires an explicit
+#' list of owners held fixed; its scalar verdict retains `scope` and `fixed`
+#' attributes so that it cannot be mistaken for a whole-model judgement.
 #'
-#' # Components are not included
-#'
-#' Components registered with [setComponent()] are deliberately left out of this
-#' judgement. Their state can be any object at all, so mizer does not know what
-#' currency its entries are in and cannot form a biomass for them; and
-#' [tuneSteadyState()], [findSteadyState()] and [getStability()] all hold them
-#' fixed, so a criterion that included them could be one that no mizer function
-#' is able to satisfy.
-#'
-#' A model can therefore be `isSteady()` while a component of it is still
-#' changing. If your model has components with dynamics of their own, check them
-#' as well: `attr(getSteadyResidual(params), "other")` holds their rates of
-#' change, and mizer names any that are moving whenever it reports on the
-#' model's steady state. To settle them along with everything else, project the
-#' model with [projectUntilSettled()], which advances the components like every
-#' other state variable.
-#'
-#' @param params A \linkS4class{MizerParams} object or an extension thereof.
-#' @param tol Tolerance for the relative rate of biomass change in 1/year.
-#'   Defaults to `0.05` (5% change per year).
-#' @param effort The fishing effort at which to evaluate steadiness. By default
-#'   the initial effort stored in `params`.
-#' @param ... Additional arguments passed to methods.
-#' @return `TRUE` if the model's biomass drift is within `tol`, `FALSE`
-#'   otherwise.
-#' @seealso [getSteadyResidual()], [tuneSteadyState()], [findSteadyState()]
+#' @param params A MizerParams object or an extension thereof.
+#' @param tol Relative tolerance for built-in checks, in 1/year.
+#' @param effort Fishing effort at which to evaluate steadiness.
+#' @param scope `"whole"` or `"conditional"`.
+#' @param fixed Canonical owner IDs held fixed under conditional analysis:
+#'   `"consumers"`, `"resource"`, or `"component:name"`.
+#' @param criterion `"state"` for absolute state residuals, or `"biomass"` for
+#'   net biomass drift in built-in checks.
+#' @param tolerances Optional named vector of owner/measure tolerance overrides.
+#' @param atol Absolute tolerance for built-in checks, in grams per year.
+#' @param t Time at which to evaluate the model, in years.
+#' @param dt Step length for resource dynamics supplied as a step map.
+#' @param ... Additional arguments made available to convergence callbacks.
+#' @return A single logical value, possibly `NA`. Conditional verdicts carry
+#'   `scope` and `fixed` attributes.
+#' @seealso [getSteadyAssessment()], [getSteadyResidual()], [tuneSteadyState()],
+#'   [findSteadyState()]
 #' @export
 #' @examples
 #' isSteady(NS_params)
-#'
-#' \donttest{
-#' # Moving a species abundance off its steady state makes isSteady() FALSE
-#' params <- NS_params
-#' initialN(params)[1, ] <- initialN(params)[1, ] * 2
-#' isSteady(params)
-#' }
-isSteady <- function(params, tol = 0.05, effort = params@initial_effort, ...) {
+isSteady <- function(params, tol = 0.05, effort = params@initial_effort,
+                     scope = c("whole", "conditional"), fixed = character(),
+                     criterion = c("state", "biomass"), tolerances = NULL,
+                     atol = 1e-12, t = 0, dt = 1e-4, ...) {
     UseMethod("isSteady")
 }
 
@@ -406,11 +370,23 @@ isSteady <- function(params, tol = 0.05, effort = params@initial_effort, ...) {
 #' @usage NULL
 #' @export
 isSteady.MizerParams <- function(params, tol = 0.05,
-                                 effort = params@initial_effort, ...) {
-    params <- validParams(params)
-    drift <- tryCatch(steady_biomass_drift(params, effort = effort, ...),
-                      error = function(e) NA_real_)
-    is.finite(drift) && drift <= tol
+                                 effort = params@initial_effort,
+                                 scope = c("whole", "conditional"),
+                                 fixed = character(),
+                                 criterion = c("state", "biomass"),
+                                 tolerances = NULL, atol = 1e-12,
+                                 t = 0, dt = 1e-4, ...) {
+    assessment <- getSteadyAssessment(
+        params, tol = tol, effort = effort, scope = scope, fixed = fixed,
+        criterion = criterion, tolerances = tolerances, atol = atol,
+        t = t, dt = dt, ...
+    )
+    verdict <- assessment$verdict
+    if (assessment$scope == "conditional") {
+        attr(verdict, "scope") <- assessment$scope
+        attr(verdict, "fixed") <- assessment$fixed
+    }
+    verdict
 }
 
 #' The absolute rates of change of every state variable
@@ -441,7 +417,9 @@ isSteady.MizerParams <- function(params, tol = 0.05,
 steady_rates <- function(params, effort = params@initial_effort, dt = 1e-4,
                          n = params@initial_n,
                          n_pp = params@initial_n_pp,
-                         n_other = params@initial_n_other) {
+                         n_other = params@initial_n_other, t = 0,
+                         evaluate_other = TRUE, evaluate_consumers = TRUE,
+                         evaluate_resource = TRUE) {
     params <- validParams(params)
     effort <- validEffortVector(effort, params = params)
     assert_that(is.number(dt), dt > 0)
@@ -451,44 +429,78 @@ steady_rates <- function(params, effort = params@initial_effort, dt = 1e-4,
     # too, so custom Rates providers and S3 dispatch agree with projection.
     rates_fns <- projectRateFunctions(params)
     r <- rates_fns$Rates(params, n = n, n_pp = n_pp, n_other = n_other,
-                         t = 0, effort = effort, rates_fns = rates_fns)
+                         t = t, effort = effort, rates_fns = rates_fns)
+
+    fields <- c("encounter", "feeding_level", "pred_rate", "pred_mort",
+                "f_mort", "mort", "resource_mort", "e", "e_repro",
+                "e_growth", "diffusion", "rdi", "rdd")
+    provider <- params@rates_funcs$Rates
+    if (!is.list(r) || anyDuplicated(names(r)) ||
+            !all(fields %in% names(r))) {
+        stop("Rates provider '", provider,
+             "' must return a named list with every standard rate field.",
+             call. = FALSE)
+    }
+    for (field in fields) {
+        value <- r[[field]]
+        if (!is.numeric(value) || is.complex(value) || !length(value)) {
+            stop("Rates provider '", provider, "' returned a non-numeric ",
+                 "or empty rate field '", field, "'.", call. = FALSE)
+        }
+        if (any(!is.finite(value))) {
+            stop("Rates provider '", provider, "' returned non-finite values ",
+                 "in rate field '", field, "'.", call. = FALSE)
+        }
+    }
 
     # `consumer_residual()` returns A N - S, which is -dt dN/dt at dt = 1, so
     # the sign is flipped to give the rate of change itself.
-    dNdt <- -consumer_residual(params, n = n, n_pp = n_pp, n_other = n_other,
-                               effort = effort, rdd = r$rdd, rates = r)
+    dNdt <- if (evaluate_consumers) {
+        -consumer_residual(params, n = n, n_pp = n_pp, n_other = n_other,
+                           effort = effort, rdd = r$rdd, rates = r)
+    } else {
+        NULL
+    }
 
     # Share Euler's boundary policy, using the already evaluated custom rates.
     # Preserve populated tails and every retained equation, including top loss.
-    if (euler_uses_hard_boundary(r$diffusion,
-                                 flux_limiter_scheme(params))) {
+    if (evaluate_consumers && euler_uses_hard_boundary(
+        r$diffusion, flux_limiter_scheme(params)
+    )) {
         empty_tail <- n == 0 & col(n) > support_top_idx(params)
         dNdt[empty_tail] <- 0
     }
 
     # Resource. Its dynamics function is a one-step map, so difference it.
-    resource_dynamics_fn <- resolve_model_callback(params@resource_dynamics,
-                                                   "resource dynamics")
-    resource_args <- list(params = params, n = n, n_pp = n_pp,
-                          n_other = n_other, rates = r, t = 0, dt = dt,
-                          resource_rate = params@rr_pp,
-                          resource_capacity = params@cc_pp)
-    n_pp_new <- invoke_model_step(resource_dynamics_fn, resource_args)
-    dn_pp_dt <- (n_pp_new - n_pp) / dt
+    dn_pp_dt <- NULL
+    if (evaluate_resource) {
+        resource_dynamics_fn <- resolve_model_callback(params@resource_dynamics,
+                                                       "resource dynamics")
+        resource_args <- list(params = params, n = n, n_pp = n_pp,
+                              n_other = n_other, rates = r, t = t, dt = dt,
+                              resource_rate = params@rr_pp,
+                              resource_capacity = params@cc_pp)
+        n_pp_new <- invoke_model_step(resource_dynamics_fn, resource_args)
+        dn_pp_dt <- (n_pp_new - n_pp) / dt
+    }
 
     # Prefer declared equations to a finite difference of the custom step.
     # Step-only non-numeric states remain unmeasurable by this legacy per-cell
     # diagnostic; an extension-owned assessment is a separate capability.
-    component_rates <- prepare_component_rates(params)
+    component_rates <- if (evaluate_other) {
+        prepare_component_rates(params)
+    } else {
+        list()
+    }
     other <- list()
-    for (component in names(params@other_dynamics)) {
+    for (component in names(component_rates)) {
         current <- n_other[[component]]
         rate_fun <- component_rates[[component]]
         if (!is.null(rate_fun)) {
             derivative <- checked_component_rate(rate_fun, params,
                                                  n = n, n_pp = n_pp,
                                                  n_other = n_other, rates = r,
-                                                 t = 0, component = component)
+                                                 t = t, component = component)
             rate <- derivative / current
         } else {
             if (!is.numeric(current)) {
@@ -499,7 +511,7 @@ steady_rates <- function(params, effort = params@initial_effort, dt = 1e-4,
             step_context <- paste0("Step for component '", component, "'")
             step_fun <- resolve_model_callback(step_name, step_context)
             step_args <- list(params = params, n = n, n_pp = n_pp,
-                              n_other = n_other, rates = r, t = 0, dt = dt,
+                              n_other = n_other, rates = r, t = t, dt = dt,
                               component = component)
             new <- invoke_model_step(step_fun, step_args)
             rate <- (new - current) / (dt * current)
@@ -508,98 +520,34 @@ steady_rates <- function(params, effort = params@initial_effort, dt = 1e-4,
         other[[component]] <- rate
     }
 
-    list(params = params, n = n, n_pp = n_pp,
-         dNdt = dNdt, dn_pp_dt = dn_pp_dt, other = other)
+    list(params = params, n = n, n_pp = n_pp, n_other = n_other,
+         dNdt = dNdt, dn_pp_dt = dn_pp_dt, other = other, rates = r, time = t)
 }
 
-#' How fast the biomasses in a model are drifting, and where
+#' Numerical biomass drift, retained as a diagnostic alongside assessment
 #'
-#' The scalar that every steady-state check in mizer is phrased in terms of --
-#' the largest relative rate of change of any species' biomass or of the
-#' resource biomass -- together with the name of the state variable that
-#' achieves it and the drift of each other component. Having one function
-#' compute it means `summary()`, [project()], [tuneSteadyState()] and the guards
-#' in [getStability()] all report the same number for the same model, and name
-#' the same variable as responsible for it.
+#' This consumer-resource scalar does not itself assert convergence. It keeps
+#' the historical drift/variable/is_resource/other shape for numerical reports.
+#' An already evaluated state can be supplied to reuse one complete rate
+#' evaluation. Blocks not evaluated are omitted, not treated as zero drift.
 #'
-#' ## Why the other components are not in the scalar
-#'
-#' A component registered with [setComponent()] holds any object at all: mizer
-#' knows neither what currency its entries are in nor which of its dimensions,
-#' if any, is size. It therefore cannot form a biomass for it, and the only
-#' reduction of the per-cell relative rates that needs no such knowledge is
-#' `max(abs(...))` -- which is the reduction the section below exists to argue
-#' against. Rather than fold a number in the wrong currency into a scalar
-#' compared against a tolerance stated in the right one, the components are
-#' reported separately, in `other`.
-#'
-#' The exclusion is also what makes the scalar reachable. `tuneSteadyState()`,
-#' the Newton solver and the stability analyses all hold the components fixed
-#' (see `warn_other_components_fixed()`), so a criterion that included them
-#' could be permanently unsatisfiable by the very functions whose job it is to
-#' satisfy it. What the scalar now measures is exactly the subsystem those
-#' functions act on.
-#'
-#' Only a component with dynamics of its own can drift, so `other` covers those
-#' and not the ones pinned with `constant_other()`, which by construction do not
-#' move. This is the same set that `warn_other_components_fixed()` names.
-#'
-#' See issue #589 for the discussion, and for `steady_fun`, the route by which a
-#' component could eventually declare its own reduction and so opt back in.
-#'
-#' ## Why biomass rather than the largest cell
-#'
-#' The obvious scalar is
-#' `max(abs(getSteadyResidual(params, measure = "per_capita")))`, and it is the
-#' wrong one. The per-capita rate of change of a *single size class* is
-#' dominated by the fastest-relaxing cells, whose residence time near the egg
-#' size is hours; a model settled for every practical purpose can carry a cell
-#' rate of \eqn{10^4}/year there while nothing observable moves. Under the
-#' second-order scheme this is severe enough to invert the ordering: a converged
-#' `tuneSteadyState()` run scores *worse* on the cell maximum than a model that
-#' has just
-#' been knocked off its steady state by `matchGrowth()`.
-#'
-#' Weighting by biomass removes that: fast cells holding no mass contribute
-#' nothing, and the number that comes out is the one the user would actually see
-#' drift in [plotBiomass()]. Measured on the North Sea model, it separates the
-#' settled models (\eqn{10^{-7}} to \eqn{10^{-3}}) from a model that has been
-#' knocked off its steady state (2 to 4) by three orders of magnitude.
-#'
-#' This is the same weighting that [getSteadyResidual()] applies by default, and
-#' the same number: `max(abs(rowSums(getSteadyResidual(params))))` is the
-#' consumer part of what this function returns. The difference is only that this
-#' function also takes in the resource, and reduces the two to the single number
-#' that the tolerances are stated against.
-#'
-#' The integrals go through [sizeIntegral()], so they use whichever quadrature
-#' scheme the model is on.
-#'
-#' @param params A \linkS4class{MizerParams} object.
-#' @param ... Passed on to `steady_rates()`.
-#' @return A list with entries
-#'   \describe{
-#'     \item{`drift`}{The largest absolute relative rate of change of a consumer
-#'       or resource biomass, in 1/year. `NA` if the model has no biomass at
-#'       all.}
-#'     \item{`variable`}{The name of the state variable achieving it: a species
-#'       name, or `"resource"`. `NA` where `drift` is.}
-#'     \item{`is_resource`}{Whether `variable` names the resource rather than a
-#'       species. Carried explicitly because a species may be called
-#'       "resource".}
-#'     \item{`other`}{A named numeric vector of the drift of each other
-#'       component with dynamics of its own, in 1/year, reduced by
-#'       `max(abs(...))` over its cells. `NA` for a component whose state cannot
-#'       be differenced. Empty when the model has no such component.}
-#'   }
+#' @param params A MizerParams object.
+#' @param ... Passed to steady_rates(), including explicit state and time.
+#' @param evaluated An optional result of steady_rates() to reuse.
+#' @return A list with drift, variable, is_resource, and component drift values.
 #' @noRd
-steady_drift_report <- function(params, ...) {
-    rates <- steady_rates(params, ...)
+steady_drift_report <- function(params, ..., evaluated = NULL) {
+    rates <- if (is.null(evaluated)) steady_rates(params, ...) else evaluated
     params <- rates$params
 
     # Consumers: (dB_i/dt) / B_i, with both integrals taken the same way.
-    biomass <- as.numeric(sizeIntegral(params, weighting = params@w, n = rates$n))
-    dBdt <- as.numeric(sizeIntegral(params, weighting = params@w, n = rates$dNdt))
+    biomass <- as.numeric(sizeIntegral(params, weighting = params@w,
+                                       n = rates$n))
+    dBdt <- if (is.null(rates$dNdt)) {
+        rep(NA_real_, length(biomass))
+    } else {
+        as.numeric(sizeIntegral(params, weighting = params@w, n = rates$dNdt))
+    }
     keep <- biomass > 0
     consumers <- dBdt[keep] / biomass[keep]
     names(consumers) <- as.character(params@species_params$species)[keep]
@@ -607,7 +555,7 @@ steady_drift_report <- function(params, ...) {
     # Resource: the same, over the full grid it lives on.
     wdw <- params@w_full * params@dw_full
     resource_biomass <- sum(rates$n_pp * wdw)
-    resource <- if (resource_biomass > 0) {
+    resource <- if (resource_biomass > 0 && !is.null(rates$dn_pp_dt)) {
         c(resource = sum(rates$dn_pp_dt * wdw) / resource_biomass)
     } else {
         numeric(0)
@@ -663,7 +611,8 @@ steady_drift_report <- function(params, ...) {
 component_drift <- function(params, other) {
     dynamic <- names(params@other_dynamics)[
         !vapply(params@other_dynamics,
-                function(f) identical(f, "constant_other"), logical(1))]
+                function(f) identical(f, "constant_other"), logical(1))
+    ]
     dynamic <- intersect(dynamic, names(other))
     vapply(dynamic, function(component) {
         rate <- as.numeric(other[[component]])
@@ -828,9 +777,9 @@ component_unmeasured_txt <- function(report, tol = steady_residual_tol()) {
 #' exact symmetry, and leave the residual unchanged to the last digit.
 #'
 #' `severity = "info"` because mizer did exactly what it was asked to do and is
-#' reporting a consequence, which is the rule in
+#' reporting a consequence, following the rule in
 #' `.claude/skills/info-signals.md`; and `level = 3` because in the calibration
-#' loop this is expected and the user is about to run [tuneSteadyState()] anyway.
+#' loop this is expected before the next [tuneSteadyState()] call.
 #'
 #' @param fname The name of the calling function, without brackets.
 #' @return `NULL` invisibly.
@@ -840,79 +789,59 @@ signal_off_steady <- function(fname) {
         "`", fname, "()` has rescaled the model and so moved it off its ",
         "steady state. Run `tuneSteadyState()` to settle it again. You can ",
         "check with ",
-        "`getSteadyResidual()`."),
-        level = 3, unhandled = "show")
+        "`getSteadyResidual()`."
+    ), level = 3, unhandled = "show")
 }
 
-#' Report a model that is not at its steady state
+#' Report an unsteady or incompletely assessed model
 #'
-#' The shared body of the steady-state checks. Computes the drift report, and if
-#' anything in it is above tolerance raises the report through the info-signal
-#' mechanism, so `info_level` governs it like every other thing mizer says.
+#' The diagnostic does not turn unavailable support into a positive or negative
+#' verdict. Programming errors propagate, and warnings name either the failing
+#' measure or the missing capability. All callers share getSteadyAssessment().
 #'
-#' The report names the state variable responsible. It used to say only that "a
-#' biomass" was changing and then point the user at "which species are moving",
-#' which is actively misleading when the species are at 1e-11 and the drift
-#' belongs to something else -- the confusion that issue #589 came from.
-#'
-#' A drifting component no longer counts towards the drift itself, so it gets
-#' its own report here rather than none: the case where the consumers have
-#' settled and a component has not is exactly the one that taking the components
-#' out of the scalar newly admits, and it must not be the quiet one.
-#'
-#' A component whose drift could not be measured is a third case, and is kept
-#' apart from the second. A non-numeric state yields `NA` whether or not it is
-#' moving, so treating that as drift would call every model holding such a
-#' component unsteady for ever, on no evidence. The report says what could not
-#' be checked instead of claiming the model is off its steady state.
-#'
-#' `severity = "warning"` because the user is being told that something they
-#' probably assumed is not true, and `level = 1` because it survives
-#' `info_level = 1`; both follow the rule that a report about an assumption that
-#' does not hold has to be hard to miss.
-#'
-#' @param params A \linkS4class{MizerParams} object.
-#' @param context A sentence naming what the caller was about to do with the
-#'   model, appended to the report.
-#' @param tol The tolerance to judge against.
-#' @return `TRUE` if a report was raised, `FALSE` otherwise, invisibly.
+#' @param params A MizerParams object.
+#' @param context Sentence describing what the caller will do with the model.
+#' @param tol Relative tolerance for built-in checks.
+#' @param t Time at which to assess the model.
+#' @param ... Passed to getSteadyAssessment(), including scope.
+#' @return Whether a report was raised, invisibly.
 #' @noRd
 warn_if_not_steady <- function(params, context,
-                               tol = steady_residual_tol()) {
-    # `info_level = 0` means silence, and there is no point paying for the rate
-    # evaluation only to say nothing about it.
+                               tol = steady_residual_tol(), t = 0, ...) {
+    assessment <- getSteadyAssessment(params, tol = tol, t = t, ...)
+    # Silence controls reporting, never whether an explicitly requested check
+    # runs or whether a callback programming error propagates.
     if (isTRUE(default_info_level() == 0)) return(invisible(FALSE))
-    report <- tryCatch(steady_drift_report(params), error = function(e) NULL)
-    if (is.null(report)) return(invisible(FALSE))
-    moving <- component_drift_txt(report, tol = tol)
-    unmeasured <- component_unmeasured_txt(report, tol = tol)
-    if (is.finite(report$drift) && report$drift > tol) {
-        signal_info("steady", paste0(
-            "This model is not at its steady state: the biomass of ",
-            steady_variable_txt(report), " is changing at ",
-            signif(report$drift, 2), " per year. ", context,
-            " Run `tuneSteadyState(params)` if that was not intended, or ",
-            "check `getSteadyResidual(params)` to see where the drift is.",
-            moving, unmeasured),
-            level = 1, severity = "warning", unhandled = "show")
-        return(invisible(TRUE))
+    if (isTRUE(assessment$verdict)) return(invisible(FALSE))
+    subject <- if (assessment$scope == "whole") {
+        "This model"
+    } else {
+        paste0("This conditional subsystem (fixed: ",
+               paste(assessment$fixed, collapse = ", "), ")")
     }
-    if (nzchar(moving)) {
-        signal_info("steady", paste0(
-            "The consumers and the resource in this model are at their ",
-            "steady state, but the model as a whole is not.",
-            moving, unmeasured, " ", context),
-            level = 1, severity = "warning", unhandled = "show")
-        return(invisible(TRUE))
+    text <- if (isFALSE(assessment$verdict)) {
+        failed <- assessment$measures[!assessment$measures$passed,
+                                      , drop = FALSE]
+        ratio <- abs(failed$value) / failed$tolerance
+        worst <- failed[which.max(ratio), , drop = FALSE]
+        paste0(subject, " is not at its steady state: measure `", worst$owner,
+               "/", worst$measure, "` is ", signif(worst$value, 3), " ",
+               worst$units, " (tolerance ", signif(worst$tolerance, 3), ").")
+    } else {
+        paste0("Whether ", tolower(subject),
+               " is at steady state could not be determined.")
     }
-    # An unmeasurable component is not evidence that the model is moving, so
-    # this says what could not be checked and claims nothing beyond it.
-    if (nzchar(unmeasured)) {
-        signal_info("steady", paste0(
-            "The consumers and the resource in this model are at their ",
-            "steady state.", unmeasured, " ", context),
-            level = 1, severity = "warning", unhandled = "show")
-        return(invisible(TRUE))
+    if (nrow(assessment$unavailable)) {
+        unavailable <- assessment$unavailable
+        text <- paste0(text, " Missing convergence support: ",
+                       paste0("`", unavailable$owner, "` (", unavailable$reason,
+                              ")", collapse = "; "), ".")
     }
-    invisible(FALSE)
+    signal_info(
+        "steady", paste0(text, " ", context,
+                         " Check `getSteadyAssessment(params)` for the full ",
+                         "assessment."),
+        level = 1, severity = "warning", unhandled = "show"
+    )
+    invisible(TRUE)
 }

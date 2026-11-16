@@ -10,6 +10,11 @@ tuneSteadyState(
   effort = params@initial_effort,
   preserve = c("reproduction_level", "erepro", "R_max"),
   info_level = default_info_level(),
+  scope = c("whole", "conditional"),
+  fixed = character(),
+  criterion = c("state", "biomass"),
+  tolerances = NULL,
+  atol = 1e-12,
   ...
 )
 }
@@ -34,6 +39,21 @@ Higher levels lead to more messages, \code{info_level = 0} gives silence. The
 default is taken from the \code{mizer_info_level} option, see
 \code{\link[=default_info_level]{default_info_level()}}.}
 
+\item{scope}{\code{"whole"} or \code{"conditional"}.}
+
+\item{fixed}{Owners held fixed for a conditional assessment. Use
+\code{"consumers"}, \code{"resource"}, or \code{"component:name"} for a component named
+\code{name}. This must be empty for whole-model assessments and nonempty for
+conditional assessments.}
+
+\item{criterion}{\code{"state"} for the absolute state residual, or \code{"biomass"}
+for net biomass drift in the built-in checks.}
+
+\item{tolerances}{Optional named numeric vector overriding individual
+tolerances. Names are \code{owner/measure}, as shown in the \code{measures} table.}
+
+\item{atol}{Absolute tolerance for built-in checks, in grams per year.}
+
 \item{...}{Arguments for the chosen solver.
 
 With \code{solver = "project"}: \code{t_max}, \code{t_check}, \code{dt},
@@ -51,8 +71,8 @@ actually returned.
 
 With \code{solver = "newton"}: \code{solver_tol} (default \code{1e-6}), a tolerance on
 the per-capita rate of change passed to \code{\link[nleqslv:nleqslv]{nleqslv::nleqslv()}}. It was called
-\code{residual_tol} before mizer 3.3, a name that now belongs to the biomass
-drift criterion above; \code{maxit}
+\code{residual_tol} before mizer 3.3, a name now used by the assessment
+criterion above; \code{maxit}
 (default \code{200}); \code{jacobian}, either \code{"update"} (default, the Jacobian is
 computed once and then updated cheaply each iteration — \code{nleqslv}'s
 \code{"Broyden"}) or \code{"recompute"} (a numerical Jacobian at every iteration —
@@ -72,8 +92,9 @@ guaranteed.
 
 Solves for the consumer size spectra while holding the reproduction rate
 (RDD), the resource and any other components at the values stored in
-\code{params}, and then adjusts the parameters that generate those held values so
-that they are steady too. This is the function to use while setting up and
+\code{params}, and then adjusts the reproduction parameters and resource capacity
+to make those inputs steady. Other components are assessed after their
+dynamics are restored. This is the function to use while setting up and
 calibrating a model: holding the inputs to the fish dynamics fixed is what
 makes the search reliable.
 
@@ -101,11 +122,14 @@ been set by hand (frozen), it is rebalanced and thereby unfrozen.
 \item Other components are held constant throughout and are not adjusted.
 }
 
-So the model you get back is at a fixed point of the \emph{full} dynamics, with
-reproduction and the resource free, and \code{\link[=getStability]{getStability()}} can be applied to it
-directly. Contrast \code{\link[=findSteadyState]{findSteadyState()}}, which changes no parameter and
-instead lets the reproduction rate and the resource move to wherever the
-parameters you already have put them.
+The restored model is assessed in full by default. Dynamic components need
+their own convergence capability, even though this constrained search holds
+them fixed. Their values are not adjusted, so the final assessment may fail
+while the consumer search succeeds. Inspect \code{convergence$assessment} rather
+than assuming the returned model is steady. For the projection solver,
+\code{convergence$search_assessment} separately records the conditional search.
+Select \code{scope = "conditional"} with explicit \code{fixed} owners when the desired
+result concerns a subsystem. See \code{\link[=getSteadyAssessment]{getSteadyAssessment()}}.
 
 Holding those inputs fixed is what makes the search reliable, but it does not
 make the result certain: the state that is stored is only as close to a fixed
@@ -116,7 +140,8 @@ Check the result rather than assuming it; see the section below.
 \section{Choosing a solver}{
 \code{solver = "project"} (the default) runs the dynamics until they settle, via
 \code{\link[=projectUntilSettled]{projectUntilSettled()}}, using \code{\link[=distanceMaxRelRDI]{distanceMaxRelRDI()}} as its distance
-function. It needs no extra packages and works with any resource dynamics.
+function. It needs no extra packages. Every required dynamic state must
+provide convergence support.
 
 \code{solver = "newton"} solves the steady-state equation directly with a
 Newton-type root finder from the \code{nleqslv} package. It converges even when
@@ -128,7 +153,9 @@ parameterisation, or the (diverging) output of \code{solver = "project"}.
 
 Because the resource is held fixed either way, \code{solver = "newton"} here does
 not need the resource to be a semichemostat, unlike in \code{\link[=findSteadyState]{findSteadyState()}}
-where the resource is one of the unknowns.
+where the resource is one of the unknowns. The Newton solver does not solve
+extension component states; dynamic components require explicit conditional
+exclusions with \code{fixed}, or use the projection solver.
 }
 
 \section{What you get back may not be a steady state}{

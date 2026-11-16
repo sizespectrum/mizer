@@ -126,7 +126,8 @@ test_that("tuneSteadyState() attaches a 'convergence' attribute", {
     conv <- attr(p, "convergence")
     expect_type(conv, "list")
     expect_named(conv, c("termination", "converged", "attractor", "distance",
-                         "residual", "years", "period", "amplitude", "extinct"))
+                         "residual", "years", "period", "amplitude", "extinct",
+                         "assessment", "scope", "search_assessment"))
     expect_identical(conv$termination, "residual_tolerance")
     expect_true(conv$converged)
     expect_identical(conv$attractor, "fixed_point")
@@ -330,7 +331,7 @@ test_that("the Newton solvers attach a well-formed 'convergence' attribute", {
         conv <- attr(p, "convergence")
         expect_named(conv, c("termination", "converged", "attractor",
                              "distance", "residual", "years", "period",
-                             "amplitude", "extinct"))
+                             "amplitude", "extinct", "assessment", "scope"))
         expect_identical(conv$termination, "solver_converged")
         expect_true(conv$converged)
         expect_identical(conv$attractor, "fixed_point")
@@ -460,35 +461,34 @@ test_that("an unknown solver is rejected", {
 
 # What the analysis actually covers ------------------------------------------
 
-test_that("tuneSteadyState() says when it has held a component fixed", {
-    assign("mizer_test_growing_component", function(params, n_other, component,
-                                                    dt, ...) {
+test_that("tuning distinguishes the constrained and restored assessments", {
+    assign("tuning_growing_component", function(params, n_other, component,
+                                                dt, ...) {
         n_other[[component]] * (1 + dt)
     }, envir = .GlobalEnv)
-    withr::defer(rm("mizer_test_growing_component", envir = .GlobalEnv))
-
+    assign("tuning_component_assessment", function(...) {
+        data.frame(measure = "growth", value = 1, tolerance = 0.05,
+                   units = "1/year")
+    }, envir = .GlobalEnv)
+    withr::defer(rm("tuning_growing_component", "tuning_component_assessment",
+                    envir = .GlobalEnv))
     p <- setComponent(NS_params_small, "grower", initial_value = 1,
-                      dynamics_fun = "mizer_test_growing_component")
-
-    # The search holds it fixed and never rebalances it, so the model that comes
-    # back is at a fixed point of the fish and the resource only. That has to be
-    # said, not assumed — but it is not a refusal: extension models are built
-    # this way and still need to be tuned.
-    expect_warning(
-        p_tuned <- suppressMessages(
-            tuneSteadyState(p, t_check = 1, t_max = 1, dt = 1,
-                            distance_tol = 10, progress_bar = FALSE)),
-        "has dynamics of their own|has\n?\\s*dynamics"
-    )
-    expect_s3_class(p_tuned, "MizerParams")
-
-    # And the residual it reports does cover the component, so the number the
-    # warning points at is one that would notice.
-    conv <- attr(p_tuned, "convergence")
-    expect_true(is.finite(conv$residual))
-    # The component grows at 1/year, and the residual is the largest drift of
-    # anything in the model, so it cannot be below that.
-    expect_gt(conv$residual, 0.9)
+                      dynamics_fun = "tuning_growing_component",
+                      convergence_fun = "tuning_component_assessment")
+    tuned <- tuneSteadyState(p, t_check = 0.1, t_max = 0.1, dt = 0.1,
+                             distance_tol = 10, progress_bar = FALSE,
+                             info_level = 0)
+    conv <- attr(tuned, "convergence")
+    expect_identical(conv$search_assessment$scope, "conditional")
+    expect_setequal(conv$search_assessment$fixed,
+                    c("resource", "component:grower"))
+    expect_identical(conv$scope, "whole")
+    expect_false(conv$assessment$verdict)
+    expect_true(is.na(conv$attractor))
+    expect_equal(conv$assessment$time, conv$years)
+    expect_equal(tuned$initial_n_other$grower, 1)
+    expect_identical(tuned$other_dynamics$grower, "tuning_growing_component")
+    expect_equal(conv$residual, steady_biomass_drift(tuned, t = conv$years))
 })
 
 test_that("a constant component is nothing to report", {
@@ -501,7 +501,7 @@ test_that("a constant component is nothing to report", {
         suppressWarnings())
 })
 
-test_that("tuneSteadyState() says when the resource could not be rebalanced", {
+test_that("tuning preflights unsupported custom resource convergence", {
     assign("mizer_test_resource_dyn", function(params, n_pp, ...) n_pp,
            envir = .GlobalEnv)
     withr::defer(rm("mizer_test_resource_dyn", envir = .GlobalEnv))
@@ -509,14 +509,10 @@ test_that("tuneSteadyState() says when the resource could not be rebalanced", {
     p <- NS_params_small
     p@resource_dynamics <- "mizer_test_resource_dyn"
 
-    # There is no `balance_mizer_test_resource_dyn()`, so setResource() cannot
-    # derive a capacity that makes the preserved abundance steady. It used to
-    # skip the balancing without a word.
-    expect_warning(
-        suppressMessages(tuneSteadyState(p, t_check = 1, t_max = 1, dt = 1,
-                                         distance_tol = 10,
-                                         progress_bar = FALSE)),
-        "could not be rebalanced"
+    expect_error(
+        tuneSteadyState(p, t_check = 1, t_max = 1, dt = 1,
+                        distance_tol = 10, progress_bar = FALSE),
+        "Missing convergence support for resource"
     )
 })
 
@@ -525,7 +521,7 @@ test_that("tuneSteadyState() does not complain about a constant resource", {
     # preserved abundance is steady whatever the capacity is and there is
     # nothing to rebalance and nothing to report.
     p <- NS_params_small
-    p@resource_dynamics <- "resource_constant"
+    p <- setResource(p, resource_dynamics = "resource_constant")
     expect_no_warning(
         suppressMessages(tuneSteadyState(p, t_check = 1, t_max = 1, dt = 1,
                                          distance_tol = 10,
@@ -540,4 +536,41 @@ test_that("projection calibration forwards Courant subcycling controls", {
                                  subcycle = TRUE, max_courant = 0.001,
                                  max_substeps = 1, progress_bar = FALSE,
                                  info_level = 0), "max_substeps")
+})
+
+test_that("tuning preflights final convergence support", {
+    p <- setComponent(NS_params_small, "unmeasured", initial_value = 1,
+                      dynamics_fun = "constant_other")
+    for (solver in c("project", "newton")) {
+        expect_error(tuneSteadyState(p, solver = solver, info_level = 0),
+                     "Missing convergence support for component:unmeasured")
+    }
+})
+
+test_that("Newton requires explicit exclusions for dynamic components", {
+    assign("newton_component_check", function(...) {
+        data.frame(measure = "change", value = 0, tolerance = 0,
+                   units = "1/year")
+    }, envir = .GlobalEnv)
+    withr::defer(rm("newton_component_check", envir = .GlobalEnv))
+    p <- setComponent(NS_params_small, "input", initial_value = 1,
+                      dynamics_fun = "constant_other",
+                      convergence_fun = "newton_component_check")
+    for (finder in list(findSteadyState, tuneSteadyState)) {
+        expect_error(finder(p, solver = "newton", info_level = 0),
+                     "Newton solver cannot solve dynamic components")
+        expect_error(finder(p, solver = "newton", scope = "conditional",
+                            fixed = "consumers", info_level = 0),
+                     "cannot hold consumers fixed")
+    }
+    skip_unless_experimental()
+    p <- setComponent(p_steady, "input", initial_value = 1,
+                      dynamics_fun = "constant_other",
+                      convergence_fun = "newton_component_check")
+    out <- findSteadyState(p, solver = "newton", scope = "conditional",
+                           fixed = "component:input", info_level = 0)
+    conv <- attr(out, "convergence")
+    expect_identical(conv$scope, "conditional")
+    expect_identical(conv$assessment$fixed, "component:input")
+    expect_equal(out$initial_n_other$input, 1)
 })

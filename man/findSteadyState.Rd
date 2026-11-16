@@ -9,6 +9,11 @@ findSteadyState(
   solver = c("project", "newton"),
   effort = params@initial_effort,
   info_level = default_info_level(),
+  scope = c("whole", "conditional"),
+  fixed = character(),
+  criterion = c("state", "biomass"),
+  tolerances = NULL,
+  atol = 1e-12,
   ...
 )
 }
@@ -26,6 +31,21 @@ effort stored in \code{params}.}
 Higher levels lead to more messages, \code{info_level = 0} gives silence. The
 default is taken from the \code{mizer_info_level} option, see
 \code{\link[=default_info_level]{default_info_level()}}.}
+
+\item{scope}{\code{"whole"} or \code{"conditional"}.}
+
+\item{fixed}{Owners held fixed for a conditional assessment. Use
+\code{"consumers"}, \code{"resource"}, or \code{"component:name"} for a component named
+\code{name}. This must be empty for whole-model assessments and nonempty for
+conditional assessments.}
+
+\item{criterion}{\code{"state"} for the absolute state residual, or \code{"biomass"}
+for net biomass drift in the built-in checks.}
+
+\item{tolerances}{Optional named numeric vector overriding individual
+tolerances. Names are \code{owner/measure}, as shown in the \code{measures} table.}
+
+\item{atol}{Absolute tolerance for built-in checks, in grams per year.}
 
 \item{...}{Arguments for the chosen solver.
 
@@ -84,7 +104,9 @@ fish and appends the resource steady-state equation to the system, so the
 resource density and the feeding levels it implies are self-consistent even
 where consumers are satiated. That equation is written for the default
 semichemostat resource dynamics, so \code{solver = "newton"} stops with an error
-for any other \code{resource_dynamics}; use \code{solver = "project"} there.
+for any other dynamic \code{resource_dynamics}; use \code{solver = "project"} there,
+or explicitly fix the resource in a conditional analysis. Dynamic extension
+components likewise require explicit conditional exclusions for Newton.
 
 The Newton iteration also needs the residual \eqn{F(N)} to be continuous. A
 custom rate function registered with \code{\link[=setRateFunction]{setRateFunction()}} that jumps as a

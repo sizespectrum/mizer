@@ -1,9 +1,14 @@
 # emptyParams ----
-test_that("new models have an empty versioned capability registry", {
+test_that("new models snapshot their built-in assessment capabilities", {
     p <- emptyParams(NS_species_params_small, no_w = 20)
-    expect_identical(p$capabilities,
-                     list(schema_version = 1L, components = list(),
-                          processes = list()))
+    expect_identical(p$capabilities$schema_version, 3L)
+    expect_length(p$capabilities$components, 0L)
+    expect_named(p$capabilities$processes, c("consumers", "resource"))
+    expect_identical(p$capabilities$processes$consumers$convergence_fun,
+                     "builtin_consumer_assessment")
+    expect_identical(p$capabilities$processes$resource$convergence_fun,
+                     "builtin_resource_assessment")
+    expect_true(assessment_capability(p, "consumers")$current)
 })
 
 # * test dimensions ----

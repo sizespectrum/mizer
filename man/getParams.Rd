@@ -50,7 +50,9 @@ convenience wrapper around \code{getParams()} with no \code{time_range} argument
 The abundances set by \code{getParams()} are averages over the selected time
 range. By default this is an arithmetic mean; set \code{geometric_mean = TRUE} to
 use a geometric mean instead (this does not affect the effort or other
-components, which are always averaged arithmetically).
+components, which are always averaged arithmetically). A single selected
+time preserves any component state. Averaging across times requires numeric
+component states with matching dimensions and names.
 }
 \examples{
 sim <- project(NS_params, t_max = 20, effort = 0.5)

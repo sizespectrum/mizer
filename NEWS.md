@@ -67,6 +67,20 @@
 
 ## New features
 
+- `getSteadyAssessment()` reports named quantitative measures, tolerances,
+  units and coverage for the whole model, with explicitly conditional subsystem
+  scope available (#670, #589). Components can register `convergence_fun`
+  independently of their equations and biomass measurements. `setProcess()`
+  declares the equivalent support for consumers or resource; prescribed inputs
+  are recorded separately from dynamic states held fixed for analysis.
+- `isSteady()` now returns `TRUE` for complete passing coverage, `FALSE` for
+  a demonstrated failure, and `NA` for incomplete coverage without a failure.
+  The default built-in measures integrate residual magnitudes before summing;
+  net biomass drift is an explicit alternative. Summaries, projection checks
+  and settling use the common assessment, and callback errors propagate.
+  Required support is checked before a solve, and convergence results preserve
+  the scope and the final restored model's assessment.
+
 - Components can now supply `rate_fun` for Euler/Heun integration, either alone
   or alongside a custom step (#670, #600). Custom steps take precedence when
   both are supplied. Component methods and declared/inferred orders are recorded
@@ -84,7 +98,8 @@
   remain separate. The assembled definition is stored in the model and returned
   by `getComponent()`, and survives model reconstruction and save/read upgrades.
   Equation-based stepping is available in this preview;
-  measurement, assessment and tuning capabilities remain under development.
+  assessment is now available; measurement and tuning capabilities remain under
+  development.
 - Updating a component without specifying its colour or line type now retains
   its existing style. Separate calls to `setColours()` and `setLinetypes()` also
   update the stored definition.

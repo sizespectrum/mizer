@@ -44,7 +44,8 @@ params <- tuneSteadyState(params)
 | [`steadySingleSpecies(params)`](../reference/steadySingleSpecies.html) | set each species to its single-species steady form, births held fixed, without changing the resource — a fast way to get a sensible starting spectrum before [`tuneSteadyState()`](../reference/tuneSteadyState.html) |
 | [`findSteadyState(params)`](../reference/findSteadyState.html) | change **no parameter**: births, resource and spectra settle together wherever the parameters you already have put them |
 | [`projectUntilSettled(params)`](../reference/projectUntilSettled.html) | the same run as [`findSteadyState(params)`](../reference/findSteadyState.html) but returning the [`MizerSim`](../reference/MizerSim.html), when you want to watch the approach |
-| [`isSteady(params)`](../reference/isSteady.html) | *(experimental)* ask whether a model **is** at its steady state (boolean) |
+| [`isSteady(params)`](../reference/isSteady.html) | *(experimental)* `TRUE` if every required measure passes, `FALSE` if any fails, `NA` if coverage is incomplete without a demonstrated failure |
+| [`getSteadyAssessment(params)`](../reference/getSteadyAssessment.html) | *(experimental)* measures, tolerances, scope and missing support behind that verdict |
 | [`getSteadyResidual(params)`](../reference/getSteadyResidual.html) | *(experimental)* each size class's contribution to its species' biomass drift, showing where it is not; `rowSums()` gives the per-species drift |
 
 The two finders differ in **what they keep**. `tuneSteadyState()` keeps the
@@ -96,19 +97,20 @@ and the checks in [Verifying the result](#verifying-the-result):
 params <- tuneSteadyState(params)
 attr(params, "convergence")$attractor    # "fixed_point", "limit_cycle" or NA
 attr(params, "convergence")$termination  # why the run stopped
-attr(params, "convergence")$residual     # largest biomass drift, in 1/year
-                                         # (consumers and resource only)
+attr(params, "convergence")$assessment   # measures, coverage and scope
+attr(params, "convergence")$residual     # separate biomass-drift diagnostic
 plot(getSteadyResidual(params))          # which species, and at which sizes
 ```
 
-**`attractor` is the field to read.** It is set from the measured biomass drift
-of the model that is returned, so `"fixed_point"` means the drift is within
-`residual_tol` (default `0.05`/year) and nothing else does. `termination` says
-how the run ended and `converged` whether the solver was happy, neither of which
-is a claim about the state.
+**Read `attractor` together with `assessment`.** A `"fixed_point"` requires all
+required assessments to pass. With `scope = "conditional"` that claim applies
+only with the named states fixed; the report retains those names. `termination`
+says how the run ended and `converged` whether the solver was happy. Neither
+alone establishes a whole-model steady state, and the legacy `residual` biomass
+number is no longer the verdict.
 
 A `termination` of `"residual_tolerance"` is the ordinary success: the distance
-function dropped below `distance_tol` *and* the drift was within `residual_tol`.
+function dropped below `distance_tol` *and* every required assessment passed.
 `"cycle_detected"` means the search ran into a limit cycle — see the
 [guide to analysing dynamic stability](guide-analyse-stability.html). `"time_limit"` means the run ran out of time: raise
 `t_max`, or get a better starting spectrum from `steadySingleSpecies()` first,
@@ -153,7 +155,7 @@ You do not have to remember this. `getSteadyResidual()` answers it, and
 [`summary(params)`](../reference/summary.html) shows the verdict:
 
 ```{r eval=FALSE}
-summary(params)                        # "biomass drift: 3.2e-05 /year (at steady state)"
+summary(params)                        # verdict, coverage and tolerance ratios
 plot(getSteadyResidual(params))        # which species, and at which sizes
 ```
 
@@ -231,14 +233,32 @@ plotBiomassObservedVsModel(params)     # points near the 1:1 line?
 plotYieldObservedVsModel(params)
 ```
 
-**A model with components registered by [`setComponent()`](../reference/setComponent.html) needs the extra line.**
-`isSteady()` and the `summary()` drift cover the consumers and the resource
-only: a component's state can be any object at all, so mizer cannot form a
-biomass for it, and the functions that find steady states hold it fixed anyway.
-Mizer names any component that is moving whenever it reports on the drift, and
-`summary()` lists them on their own lines, but the number in front of you is not
-about them. `projectUntilSettled()` is what settles them along with everything
-else.
+Whole-model coverage is the default. For built-in abundance states, the default
+measure integrates the magnitude of each size-class derivative, weighted by
+body mass. Each species and the resource is checked separately against
+`atol + tol * integral(w * abs(N))`, with `atol = 1e-12` g/year and `tol = 0.05`
+per year by default. The model's size quadrature is respected. At zero abundance,
+zero change passes and positive inflow must fit the absolute tolerance. Taking
+magnitudes before summing prevents changes at different sizes from cancelling.
+
+For the previous net-biomass criterion, explicitly request
+`getSteadyAssessment(params, criterion = "biomass")`. This can pass while the
+shape of a spectrum is changing, so it is a deliberate weaker criterion.
+Extension measures have their own units and tolerances; `tol` applies to the
+built-in measures. Use named `tolerances` overrides keyed by `owner/measure` to
+adjust an individual reported measure.
+
+A component needs its own convergence capability even if it supplies an equation
+or a biomass measurement. Missing support appears in `assessment$missing` and
+`assessment$unavailable`; it cannot be treated as passing. Callback errors are
+errors. Solvers stop before starting if required support is missing.
+
+Use `scope = "conditional", fixed = "component:pool"` to analyse a subsystem
+with a particular dynamic component held fixed. Other IDs are `consumers` and
+`resource`; several can be supplied together. The current solvers cannot hold
+consumers fixed, and Newton cannot evolve arbitrary extension states. A
+conditional result remains labelled conditional. A structurally prescribed input
+is recorded separately from a dynamic state fixed for this analysis.
 
 When projection holds the size classes above a species' retained support at
 zero, the drift diagnostic excludes inflow into those classes if they are
@@ -280,8 +300,8 @@ and analyse the results with the [guide to analysing and plotting mizer results]
   `matchGrowth()` and `matchBiomasses()`, re-running `tuneSteadyState()`
   between them.
 - **`tuneSteadyState()` said it converged but the results still drift.** Check
-  `attr(params, "convergence")$residual`, or `summary(params)`, for how far the
-  state actually is from a fixed point, and reduce `tuneSteadyState()`'s
+  `attr(params, "convergence")$assessment`, or `summary(params)`, for which
+  measures still fail, and reduce `tuneSteadyState()`'s
   `distance_tol` if it is too large. It warns when the two disagree.
 - **`tuneSteadyState()` warns that a species requires "an unrealistic value
   greater than 1 for `erepro`".** The recruitment held during the search needs

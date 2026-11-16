@@ -424,7 +424,8 @@ test_that("getStability returns a well-formed list including the resource", {
 test_that("getStability works with non-semichemostat resource dynamics", {
     skip_unless_experimental()
     pn <- findSteadyState(p_steady, solver = "newton")
-    pn@resource_dynamics <- "resource_constant"
+    pn <- setResource(pn, resource_dynamics = "resource_constant",
+                      balance = FALSE)
     # A constant resource contributes only zero rows, but the call must work:
     # the quasi-static substitution used to restrict this to the semichemostat.
     stab <- expect_no_error(getStability(pn))
@@ -666,8 +667,8 @@ test_that("getStability says a dynamic component is not in its Jacobian", {
     skip_unless_experimental()
     # A component that happens not to move, but whose dynamics function is not
     # `constant_other`: the check is on what the model declares, because that is
-    # all it can know. Keeping it still also keeps the model at its steady
-    # state, so this is the only warning the call has to raise.
+    # all it can know. Without a convergence declaration its steady-state
+    # assessment is also incomplete, even though the callback returns its input.
     assign("mizer_test_stability_component", function(params, n_other,
                                                       component, ...) {
         n_other[[component]]
@@ -679,8 +680,11 @@ test_that("getStability says a dynamic component is not in its Jacobian", {
 
     # The Jacobian has rows for the fish and the resource and none for the
     # component, so the spectrum is that of a subsystem. That has to be said.
-    expect_warning(suppressMessages(getStability(p)),
-                   "covers the consumers and the resource only")
+    expect_warning(
+        expect_warning(suppressMessages(getStability(p)),
+                       "Missing convergence support"),
+        "covers the consumers and the resource only"
+    )
 })
 
 test_that("stability maps give custom resources the complete effective rates", {

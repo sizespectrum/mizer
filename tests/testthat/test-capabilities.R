@@ -2,9 +2,9 @@ test_that("Stored capability schemas reject ambiguous or executable data", {
     registry <- new_capability_registry()
     expect_true(capability_registry_errors(registry))
 
-    registry$schema_version <- 3L
+    registry$schema_version <- 99L
     expect_match(capability_registry_errors(registry), "Unsupported")
-    registry$schema_version <- 2L
+    registry$schema_version <- 3L
     registry$components <- list(pool = list(dynamics_fun = function() 1))
     expect_match(capability_registry_errors(registry), "function name")
     registry$components <- list(pool = list(dynamics_fun = "unloaded_callback"))
@@ -19,7 +19,7 @@ test_that("Stored capability schemas reject ambiguous or executable data", {
     expect_match(capability_registry_errors(registry), "uniquely named")
     registry$components <- list()
     registry$processes <- list(resource = list())
-    expect_match(capability_registry_errors(registry), "not supported yet")
+    expect_match(capability_registry_errors(registry), "Invalid specification")
 })
 
 test_that("Definitions fail early on misspellings and unnamed callbacks", {
@@ -61,7 +61,9 @@ test_that("Legacy snapshots preserve only known component registrations", {
     expect_false(any(c("initial_value", "component_params") %in%
                          names(definition)))
     expect_true(capability_registry_errors(registry))
-    expect_length(registry$processes, 0)
+    expect_named(registry$processes, c("consumers", "resource"))
+    expect_identical(definition$role, "dynamic")
+    expect_null(definition$convergence_fun)
 })
 
 test_that("Equations and custom steps are separate capabilities", {
@@ -134,6 +136,35 @@ test_that("Changing a custom step clears its inherited order", {
     expect_null(removed$dynamics_fun)
 })
 
+test_that("Dynamics replacements require new assessment declarations", {
+    original <- assemble_component_definition(
+        definition = list(dynamics_fun = "constant_other",
+                          convergence_fun = "stats::median",
+                          role = "prescribed"), replace = TRUE
+    )
+    changed <- assemble_component_definition(
+        existing = original, overrides = list(dynamics_fun = "stats::median")
+    )
+    expect_null(changed$convergence_fun)
+    expect_identical(changed$role, "dynamic")
+    rate_changed <- assemble_component_definition(
+        existing = original, overrides = list(rate_fun = "stats::median")
+    )
+    expect_null(rate_changed$convergence_fun)
+    expect_identical(rate_changed$role, "dynamic")
+    unchanged <- assemble_component_definition(
+        existing = original, overrides = list(dynamics_fun = "constant_other")
+    )
+    expect_identical(unchanged, original)
+    explicit <- assemble_component_definition(
+        existing = original,
+        overrides = list(dynamics_fun = "stats::median",
+                         convergence_fun = "stats::median", role = "prescribed")
+    )
+    expect_identical(explicit$convergence_fun, "stats::median")
+    expect_identical(explicit$role, "prescribed")
+})
+
 test_that("Schema one upgrades keep stored choices without resolving code", {
     legacy <- list(
         schema_version = 1L,
@@ -144,11 +175,12 @@ test_that("Schema one upgrades keep stored choices without resolving code", {
         processes = list()
     )
     upgraded <- upgrade_capability_registry(legacy)
-    expect_identical(upgraded$schema_version, 2L)
+    expect_identical(upgraded$schema_version, 3L)
     expect_identical(legacy$schema_version, 1L)
     expect_named(upgraded$components$pool,
                  c("dynamics_fun", "rate_fun", "encounter_fun", "mort_fun",
-                   "colour", "linetype", "integration_order"))
+                   "colour", "linetype", "integration_order",
+                   "convergence_fun", "role"))
     expect_identical(upgraded$components$pool$dynamics_fun, "unloaded_step")
     expect_identical(upgraded$components$pool$mort_fun, "unloaded_mortality")
     expect_identical(upgraded$components$pool$colour, "orange")

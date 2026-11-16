@@ -549,7 +549,9 @@ getEffort.MizerSim <- function(sim) {
 #' The abundances set by `getParams()` are averages over the selected time
 #' range. By default this is an arithmetic mean; set `geometric_mean = TRUE` to
 #' use a geometric mean instead (this does not affect the effort or other
-#' components, which are always averaged arithmetically).
+#' components, which are always averaged arithmetically). A single selected
+#' time preserves any component state. Averaging across times requires numeric
+#' component states with matching dimensions and names.
 #'
 #' @param sim A `MizerSim` object.
 #' @param time_range The time range to average the abundances over. Can be a
@@ -594,13 +596,25 @@ getParams.MizerSim <- function(sim, time_range, geometric_mean = FALSE) {
         apply(sim@n[time_elements, , , drop = FALSE], c(2, 3), mean_fn)
     params@initial_n_pp[] <-
         apply(sim@n_pp[time_elements, , drop = FALSE], 2, mean_fn)
-    mizer_add <- function(l1, l2) {
-        ifelse(is.list(l1), Map("+", l1, l2), l1 + l2)
-    }
-    params@initial_n_other[] <-
-        apply(sim@n_other[time_elements, , drop = FALSE], 2,
-              function(l) Reduce(mizer_add, l) / length(l),
-              simplify = FALSE)
+    components <- colnames(sim@n_other)
+    params@initial_n_other <- setNames(lapply(components, function(component) {
+        states <- sim@n_other[time_elements, component]
+        if (length(states) == 1L) return(states[[1L]])
+        reference <- states[[1L]]
+        compatible <- vapply(states, function(state) {
+            is.numeric(state) && !is.complex(state) &&
+                length(state) == length(reference) &&
+                identical(dim(state), dim(reference)) &&
+                identical(dimnames(state), dimnames(reference)) &&
+                identical(names(state), names(reference))
+        }, logical(1))
+        if (!all(compatible)) {
+            stop("Cannot average component '", component,
+                 "': states must be numeric with matching dimensions and ",
+                 "names. Select a single time instead.", call. = FALSE)
+        }
+        Reduce(`+`, states) / length(states)
+    }), components)
     params@initial_effort[] <-
         apply(sim@effort[time_elements, , drop = FALSE], 2, mean)
     params@time_modified <- lubridate::now()

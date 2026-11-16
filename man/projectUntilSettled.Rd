@@ -23,6 +23,11 @@ projectUntilSettled(
   subcycle = FALSE,
   max_courant = 1,
   max_substeps = 10000,
+  scope = c("whole", "conditional"),
+  fixed = character(),
+  criterion = c("state", "biomass"),
+  tolerances = NULL,
+  atol = 1e-12,
   ...
 )
 }
@@ -58,21 +63,15 @@ between two saves.}
 
 \item{distance_tol}{The run stops when the number returned by \code{distance_func}
 for two states \code{t_check} years apart drops below \code{distance_tol}, provided
-the drift criterion below is also met. Its meaning therefore depends on the
+the steady-state assessment below also passes. Its meaning depends on the
 distance function you supply. It was called \code{tol} before mizer 3.3.}
 
 \item{residual_tol}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
-The largest relative rate of biomass change, in 1/year, that a state may
-have and still be called a fixed point. This is the criterion of
-\code{\link[=isSteady]{isSteady()}} and is measured with \code{\link[=getSteadyResidual]{getSteadyResidual()}}, so it has the same
-meaning for every model and every distance function. Default \code{0.05}.
-
-It is a backstop against a distance function that has gone quiet while the
-model is still moving, not the main line of defence against a cycle: an
-oscillation of relative amplitude \eqn{A} and period \eqn{T} drifts at up
-to \eqn{2\pi A/T} per year, which for a small \code{amplitude_tol} can be below
-any sensible \code{residual_tol}. Cycles that small are caught by the cycle
-detection above, which is why that runs unconditionally.}
+The relative tolerance for built-in state-change measures, in 1/year.
+Default \code{0.05}; see \code{\link[=getSteadyAssessment]{getSteadyAssessment()}}. Component callbacks provide
+their own tolerances, which can be overridden with \code{tolerances}.
+\code{Inf} disables the assessment stopping gate; the reported assessment still
+uses the usual finite tolerance, so this does not declare a fixed point.}
 
 \item{amplitude_tol}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 The minimum relative biomass amplitude for a persistent oscillation to be
@@ -116,6 +115,21 @@ See \code{\link[=project]{project()}}.}
 \item{max_substeps}{Positive integer cap on substeps per requested \code{dt},
 default 10000; see \code{\link[=project]{project()}}.}
 
+\item{scope}{\code{"whole"} or \code{"conditional"}.}
+
+\item{fixed}{Owners held fixed for a conditional assessment. Use
+\code{"consumers"}, \code{"resource"}, or \code{"component:name"} for a component named
+\code{name}. This must be empty for whole-model assessments and nonempty for
+conditional assessments.}
+
+\item{criterion}{\code{"state"} for the absolute state residual, or \code{"biomass"}
+for net biomass drift in the built-in checks.}
+
+\item{tolerances}{Optional named numeric vector overriding individual
+tolerances. Names are \code{owner/measure}, as shown in the \code{measures} table.}
+
+\item{atol}{Absolute tolerance for built-in checks, in grams per year.}
+
 \item{...}{Further arguments will be passed on to your distance function.}
 }
 \value{
@@ -133,7 +147,7 @@ answer three different questions and should not be read as one:
 \item{\code{termination}}{Why the run stopped: \code{"residual_tolerance"} (both
 convergence criteria were met), \code{"distance_tolerance"} (the distance
 function was satisfied but the state is still drifting — reachable with
-a loose \code{residual_tol}, and from the superseded \code{\link[=steady]{steady()}}, which stops
+\code{residual_tol = Inf}, and from the superseded \code{\link[=steady]{steady()}}, which stops
 on the distance criterion alone), \code{"cycle_detected"} (a limit cycle),
 \code{"time_limit"} (still changing at \code{t_max}) or \code{"extinction"} (a species
 died out). The steady-state finders can also return
@@ -142,19 +156,18 @@ died out). The steady-state finders can also return
 its own rather than running out of time or losing a species. This is a
 statement about the numerics, not about the state.}
 \item{\code{attractor}}{What the state that was reached actually is:
-\code{"fixed_point"} when the biomass drift is within \code{residual_tol},
-\code{"limit_cycle"} when a cycle was detected, and \code{NA} when it is neither
+\code{"fixed_point"} when the assessment passes in its recorded scope,
+\code{"limit_cycle"} when a cycle was detected and no required extension
+state lies outside the cycle diagnostic, and \code{NA} otherwise
 — a run stopped in mid-flight, or a species on its way out. This is the
 entry to test before treating a result as a steady state.}
 \item{\code{distance}}{The final value returned by \code{distance_func}.}
-\item{\code{residual}}{The largest absolute relative rate of biomass change,
-in 1/year, at the state that was reached. For each consumer species
-this is \eqn{(dB_i/dt) / B_i}, a biomass-weighted aggregate over its
-size classes; the resource is treated the same way and the other
-components contribute their own relative rates. Unlike
-\code{distance}, which compares two states \code{t_check} apart on whatever scale
-the distance function uses, this measures how far the state actually is
-from being a fixed point.}
+\item{\code{residual}}{The largest absolute relative rate of net biomass
+change among assessed consumer species and resource states, in 1/year.
+This compatibility diagnostic can hide compensating changes within a
+size spectrum and does not include extension-defined measures.}
+\item{\code{assessment}, \code{scope}}{The full \code{\link[=getSteadyAssessment]{getSteadyAssessment()}} result and
+its scope. Inspect these before interpreting a fixed-point claim.}
 \item{\code{years}}{The number of years simulated. \code{NA} for a direct solve.}
 \item{\code{period}}{For a limit cycle, its period in years; otherwise \code{NA}.}
 \item{\code{amplitude}}{For a limit cycle, the largest per-species relative
@@ -240,18 +253,23 @@ state at the current one, i.e. with two states
 \code{\link[=tuneSteadyState]{tuneSteadyState()}} instead passes \code{\link[=distanceMaxRelRDI]{distanceMaxRelRDI()}}, which uses the
 largest relative change in egg production.
 
-Second, the state actually reached must be a fixed point: the largest
-relative rate of biomass change there, as measured by \code{\link[=getSteadyResidual]{getSteadyResidual()}},
-must be at most \code{residual_tol}. The distance criterion on its own says only
-that the state stopped moving on the scale of the distance function, which is
-a different question — a distance function can be insensitive to the very
-motion that is left. When the distance criterion is met but the drift is not,
-the run carries on rather than declaring a fixed point.
+Second, \code{\link[=getSteadyAssessment]{getSteadyAssessment()}} must confirm that every required dynamic
+state has settled. The default \code{criterion = "state"} measures state change
+without cancellation between size classes; \code{criterion = "biomass"} explicitly
+selects net biomass drift for the built-in states. Extension components
+supply their own named measures and tolerances. Missing required convergence
+support stops the search before projection begins.
 
-When both hold the run stops with \code{termination = "residual_tolerance"}. That
-is deliberately not called \code{"steady"}: \code{residual_tol} is a working tolerance
-rather than a proof, and the \code{residual} entry of the \code{"convergence"}
-attribute reports the drift that was actually reached.
+Whole-model assessment is the default. With \code{scope = "conditional"}, the
+states named by \code{fixed} are held fixed throughout the search and excluded
+from the assessment. The returned model retains its original dynamics and
+records the conditional scope. Holding consumers fixed is not supported by
+this solver.
+
+When both criteria hold, the run stops with
+\code{termination = "residual_tolerance"}. The \code{assessment} entry of the
+\code{"convergence"} attribute records the measures, tolerances and coverage.
+The separate \code{residual} entry retains its biomass-drift meaning.
 
 Even so, \code{t_check} should be an \emph{odd} multiple of \code{dt}, which is why it
 defaults to \code{15 * dt}. A period-2 cycle (period \code{2 * dt}), the most common

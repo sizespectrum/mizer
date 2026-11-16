@@ -22,7 +22,8 @@ test_that("legacy component registrations become stored specifications", {
         expect_identical(up$initial_n_other, p$initial_n_other)
         expect_identical(up$other_params, p$other_params)
         expect_identical(upgradeParams(up), up)
-        expect_length(up$capabilities$processes, 0L)
+        expect_named(up$capabilities$processes, c("consumers", "resource"))
+        expect_identical(up$capabilities$components$pool$role, "dynamic")
     }
 })
 
@@ -41,7 +42,10 @@ test_that("validSim upgrades its embedded capability registry", {
     old$params$capabilities <- NULL
     old$params$mizer_version <- "3.4.0.9003"
     up <- suppressWarnings(validSim(old))
-    expect_identical(up$params$capabilities, new_capability_registry())
+    expect_identical(up$params$capabilities$schema_version, 3L)
+    expect_length(up$params$capabilities$components, 0L)
+    expect_identical(up$params$capabilities$processes,
+                     default_process_registry(up$params))
     expect_equal(up$n, old$n)
     expect_equal(up$n_pp, old$n_pp)
     expect_identical(upgradeSim(up), up)
@@ -268,10 +272,37 @@ test_that("schema-one definitions upgrade without live resolution", {
     p$initial_n_other <- list(pool = 1)
     p$mizer_version <- "3.4.0.9004"
     upgraded <- upgradeParams(p)
-    expect_identical(upgraded$capabilities$schema_version, 2L)
+    expect_identical(upgraded$capabilities$schema_version, 3L)
     expect_identical(upgraded$capabilities$components$pool$dynamics_fun,
                      "unloaded_legacy_step")
     expect_null(upgraded$capabilities$components$pool$rate_fun)
     expect_null(upgraded$capabilities$components$pool$integration_order)
+    expect_null(upgraded$capabilities$components$pool$convergence_fun)
+    expect_identical(upgraded$capabilities$components$pool$role, "dynamic")
+    expect_named(upgraded$capabilities$processes, c("consumers", "resource"))
     expect_identical(upgradeParams(upgraded), upgraded)
+})
+
+test_that("schema-two upgrades distinguish known and unspecified fixed states", {
+    p <- NS_params_small
+    p$resource_dynamics <- "resource_constant"
+    p$other_dynamics <- list(pool = "constant_other")
+    p$initial_n_other <- list(pool = 1)
+    p$capabilities <- list(
+        schema_version = 2L,
+        components = list(pool = list(dynamics_fun = "constant_other",
+                                      rate_fun = NULL, encounter_fun = NULL,
+                                      mort_fun = NULL, colour = "grey",
+                                      linetype = "solid", integration_order = 1L)),
+        processes = list()
+    )
+    p$mizer_version <- "3.4.0.9005"
+    upgraded <- upgradeParams(p)
+    expect_identical(upgraded$capabilities$schema_version, 3L)
+    expect_identical(upgraded$capabilities$components$pool$integration_order, 1L)
+    expect_identical(upgraded$capabilities$components$pool$role, "dynamic")
+    expect_null(upgraded$capabilities$components$pool$convergence_fun)
+    expect_identical(assessment_capability(upgraded, "resource")$role,
+                     "prescribed")
+    expect_identical(p$capabilities$schema_version, 2L)
 })

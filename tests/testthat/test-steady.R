@@ -11,6 +11,10 @@ e <- globalenv()
 e$settled_drifting_component <- function(params, n_other, component, dt, ...) {
     n_other[[component]] * exp(2 * dt)
 }
+e$settled_component_convergence <- function(...) {
+    data.frame(measure = "relative_change", value = 2, tolerance = 0.05,
+               units = "1/year")
+}
 
 test_that("projectUntilSettled() waits for a component that is still moving", {
     # The projection advances the other components along with everything else,
@@ -19,7 +23,8 @@ test_that("projectUntilSettled() waits for a component that is still moving", {
     # stopping short of something it could have settled. See #589.
     params <- setComponent(small_steady_params, "drifter",
                            initial_value = c(1, 2),
-                           dynamics_fun = "settled_drifting_component")
+                           dynamics_fun = "settled_drifting_component",
+                           convergence_fun = "settled_component_convergence")
     expect_message(
         sim <- projectUntilSettled(params, t_max = 2, t_check = 1, dt = 0.1,
                                    distance_tol = 1000),
@@ -56,26 +61,26 @@ test_that("a run held open by a component is diagnosed as such", {
     # opposite of what happened.
     params <- setComponent(small_steady_params, "drifter",
                            initial_value = c(1, 2),
-                           dynamics_fun = "settled_drifting_component")
+                           dynamics_fun = "settled_drifting_component",
+                           convergence_fun = "settled_component_convergence")
     msg <- capture_messages(
         sim <- projectUntilSettled(params, t_max = 2, t_check = 1, dt = 0.1,
                                    distance_tol = 1000))
     msg <- paste(msg, collapse = " ")
     expect_match(msg, "below the distance tolerance")
-    expect_match(msg, "consumers and the resource have settled")
-    expect_match(msg, "a component of the model had not settled")
+    expect_match(msg, "steady-state assessment did not pass")
+    expect_match(msg, "component:drifter")
     expect_no_match(msg, "above the distance tolerance")
     expect_no_match(msg, "Loosen `distance_tol`")
     # And the message does not tell the user that mizer will not settle the
     # components, in a message from the one function that does advance them.
-    expect_match(msg, "this run does advance them")
     expect_no_match(msg, "does not settle them")
 })
 
 test_that("projectUntilSettled() is unaffected by a component that has settled", {
     params <- setComponent(small_steady_params, "still",
                            initial_value = c(1, 2),
-                           dynamics_fun = "constant_other")
+                           dynamics_fun = "constant_other", role = "prescribed")
     expect_message(projectUntilSettled(params, t_check = 1, dt = 1,
                                        distance_tol = 1000, residual_tol = Inf),
                    "Reached the convergence tolerance")
@@ -602,7 +607,8 @@ test_that("projectUntilSettled() passes absolute time to the dynamics", {
                     envir = .GlobalEnv))
 
     p <- setComponent(cd_params, "recorder", initial_value = 1,
-                      dynamics_fun = "mizer_test_record_time")
+                      dynamics_fun = "mizer_test_record_time",
+                      role = "prescribed")
 
     suppressMessages(
         project(p, t_max = 4.5, dt = 0.1, t_save = 1.5, progress_bar = FALSE)
@@ -645,12 +651,11 @@ test_that("a state that is still drifting is not called a fixed point", {
                             t_max = 3, t_check = 1.5, dt = 0.1,
                             progress_bar = FALSE, info_level = 0)
     ), "convergence")
-    expect_identical(conv$termination, "residual_tolerance")
+    expect_identical(conv$termination, "distance_tolerance")
     expect_true(conv$converged)
-    # `residual_tol = Inf` says that any drift counts as steady, so the verdict
-    # follows the tolerance it was given. That is the user's call to make, and
-    # the reported `residual` still says what the drift actually was.
-    expect_identical(conv$attractor, "fixed_point")
+    # Disabling the stopping gate does not manufacture a fixed-point claim.
+    expect_true(is.na(conv$attractor))
+    expect_false(conv$assessment$verdict)
     expect_gt(conv$residual, steady_residual_tol())
 })
 
@@ -661,7 +666,7 @@ test_that("the report says when the drift is what stopped convergence", {
     expect_message(
         projectUntilSettled(p, distance_func = blind, t_max = 3, t_check = 1.5,
                             dt = 0.1, progress_bar = FALSE, info_level = 3),
-        "which is below the distance tolerance, but the biomasses are"
+        "which is below the distance tolerance, but the steady-state"
     )
 })
 
@@ -691,7 +696,8 @@ test_that("settling keeps Courant and distance controls separate", {
     }, envir = globalenv())
     withr::defer(rm(list = name, envir = globalenv()))
     p <- setComponent(NS_params_small, "tracked", initial_value = 1,
-                      dynamics_fun = name)
+                      dynamics_fun = name,
+                      convergence_fun = "settled_component_convergence")
     second_order_w(p) <- c(flux = "van_leer")
     received <- NULL
     distance <- function(params, current, previous, distance_only) {
@@ -731,4 +737,120 @@ test_that("settling projections prepare equation components and record Heun", {
     expect_equal(sim$n_other, ordinary$n_other)
     expect_identical(sim$sim_params$component_integration$method, "heun")
     expect_identical(sim$sim_params$component_integration$order, 2L)
+})
+
+# Capability-aware steady-state assessments ----
+
+test_that("settling preflights missing support before stepping", {
+    observation <- new.env(parent = emptyenv())
+    observation$calls <- 0L
+    assign("assessment_uncovered_step", function(...) {
+        observation$calls <- observation$calls + 1L
+        stop("the step should not run")
+    }, envir = .GlobalEnv)
+    withr::defer(rm("assessment_uncovered_step", envir = .GlobalEnv))
+    p <- setComponent(NS_params_small, "uncovered", initial_value = 1,
+                      dynamics_fun = "assessment_uncovered_step")
+    expect_error(projectUntilSettled(p, t_max = 0.1, t_check = 0.1,
+                                     info_level = 0),
+                 "Missing convergence support for component:uncovered")
+    expect_equal(observation$calls, 0L)
+    expect_error(projectUntilSettled(p, scope = "conditional",
+                                     fixed = "consumers", info_level = 0),
+                 "cannot hold consumers fixed")
+})
+
+test_that("conditional settling freezes inputs and restores their dynamics", {
+    assign("assessment_fixed_step", function(...) {
+        stop("a fixed input must not be stepped")
+    }, envir = .GlobalEnv)
+    withr::defer(rm("assessment_fixed_step", envir = .GlobalEnv))
+    p <- setComponent(NS_params_small, "input",
+                      initial_value = list(code = "x"),
+                      dynamics_fun = "assessment_fixed_step")
+    sim <- projectUntilSettled(
+        p, t_max = 0.2, t_check = 0.1, dt = 0.1, t_save = 0.1,
+        distance_tol = 1e10, residual_tol = 1e10,
+        scope = "conditional", fixed = c("resource", "component:input"),
+        progress_bar = FALSE, info_level = 0
+    )
+    final <- finalParams(sim)
+    expect_equal(finalNOther(sim)$input, p$initial_n_other$input)
+    expect_equal(finalNResource(sim), p$initial_n_pp, ignore_attr = TRUE)
+    expect_identical(final$resource_dynamics, p$resource_dynamics)
+    expect_identical(final$other_dynamics, p$other_dynamics)
+    conv <- attr(sim, "convergence")
+    expect_identical(conv$scope, "conditional")
+    expect_true(conv$assessment$verdict)
+    expect_identical(conv$assessment$required, "consumers")
+    expect_identical(conv$attractor, "fixed_point")
+    expect_equal(conv$assessment$time, conv$years)
+})
+
+test_that("settling combines named component measures at the actual time", {
+    assign("assessment_state_step", function(n_other, component, dt, ...) {
+        list(ready = TRUE)
+    }, envir = .GlobalEnv)
+    assign("assessment_state_check", function(params, n_other, component, t) {
+        data.frame(measure = c("ready", "clock"),
+                   value = c(if (n_other[[component]]$ready) 0 else 1,
+                             0.2 - t),
+                   tolerance = c(0, 1e-10), units = c("flag", "years"))
+    }, envir = .GlobalEnv)
+    withr::defer(rm("assessment_state_step", "assessment_state_check",
+                    envir = .GlobalEnv))
+    p <- setComponent(NS_params_small, "status",
+                      initial_value = list(ready = FALSE),
+                      dynamics_fun = "assessment_state_step",
+                      convergence_fun = "assessment_state_check")
+    sim <- projectUntilSettled(
+        p, t_max = 0.3, t_check = 0.1, dt = 0.1, t_save = 0.1,
+        distance_func = function(...) 0, residual_tol = 1e10,
+        progress_bar = FALSE, info_level = 0
+    )
+    conv <- attr(sim, "convergence")
+    expect_equal(conv$years, 0.2)
+    expect_equal(conv$assessment$time, 0.2)
+    expect_true(conv$assessment$verdict)
+    measures <- conv$assessment$measures
+    component <- measures[measures$owner == "component:status", ]
+    expect_identical(component$measure, c("ready", "clock"))
+    expect_identical(component$units, c("flag", "years"))
+    expect_true(all(component$passed))
+    loose <- projectUntilSettled(
+        p, t_max = 0.3, t_check = 0.1, dt = 0.1, t_save = 0.1,
+        distance_func = function(...) 0, residual_tol = 1e10,
+        tolerances = c("component:status/clock" = 0.2),
+        progress_bar = FALSE, info_level = 0
+    )
+    expect_equal(attr(loose, "convergence")$years, 0.1)
+})
+
+test_that("assessment callback failures propagate from settling", {
+    assign("assessment_broken_check", function(...) {
+        stop("broken convergence callback")
+    }, envir = .GlobalEnv)
+    withr::defer(rm("assessment_broken_check", envir = .GlobalEnv))
+    p <- setComponent(NS_params_small, "broken", initial_value = 1,
+                      dynamics_fun = "constant_other",
+                      convergence_fun = "assessment_broken_check")
+    expect_error(projectUntilSettled(p, t_max = 0.1, t_check = 0.1,
+                                     progress_bar = FALSE, info_level = 0),
+                 "broken convergence callback")
+})
+
+test_that("legacy distance-only stopping records incomplete coverage", {
+    p <- setComponent(NS_params_small, "unmeasured", initial_value = 1,
+                      dynamics_fun = "constant_other")
+    out <- project_until_settled(
+        p, t_max = 0.1, t_check = 0.1, dt = 0.1,
+        distance_func = function(...) 0, require_steady = FALSE,
+        residual_tol = 1e10, progress_bar = FALSE, info_level = 0
+    )
+    conv <- attr(out, "convergence")
+    expect_true(conv$converged)
+    expect_true(is.na(conv$attractor))
+    expect_true(is.na(conv$assessment$verdict))
+    expect_identical(conv$assessment$missing, "component:unmeasured")
+    expect_identical(conv$termination, "distance_tolerance")
 })
