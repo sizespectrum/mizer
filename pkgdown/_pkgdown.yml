@@ -357,6 +357,7 @@ reference:
   - setComponent
   - setProcess
   - getProcess
+  - setTuningStrategy
   - convolve_pred_kernel
   - initialNOther<-
   - NOther
@@ -394,6 +395,7 @@ reference:
   contents:
   - has_concept("functions calculating density-dependent reproduction rate")
   - reproduction_level
+  - balanceRDD
   - getRequiredRDD
 - title: Internal rate functions
   description: These functions are used by `project()` to calculate

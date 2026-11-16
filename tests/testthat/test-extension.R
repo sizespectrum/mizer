@@ -238,15 +238,18 @@ test_that("We can set, get and remove components", {
                                role = "dynamic",
                                mort_fun = "test_dyn",
                                component_params = list(a = 2),
-                               definition = list(dynamics_fun = "test_dyn",
-                                                 rate_fun = NULL,
-                                                 encounter_fun = "test_dyn",
-                                                 mort_fun = "test_dyn",
-                                                 colour = "grey",
-                                                 linetype = "solid",
-                                                 integration_order = NULL,
-                                                 convergence_fun = NULL,
-                                                 role = "dynamic")))
+                               definition = list(
+                                   dynamics_fun = "test_dyn",
+                                   rate_fun = NULL,
+                                   encounter_fun = "test_dyn",
+                                   mort_fun = "test_dyn",
+                                   colour = "grey", linetype = "solid",
+                                   integration_order = NULL,
+                                   convergence_fun = NULL, role = "dynamic",
+                                   stationary = NULL,
+                                   equation_rates_fun = NULL, tuning = NULL,
+                                   tuning_binding = tuning_provider_binding(p)
+                               )))
     all <- getComponent(p)
     expect_type(all, "list")
     expect_identical(all$test, comp)
@@ -315,7 +318,9 @@ test_that("Component definitions are stored as assembled snapshots", {
                      encounter_fun = "test_dyn", mort_fun = NULL,
                      colour = "blue", linetype = "dashed",
                      integration_order = NULL, convergence_fun = NULL,
-                     role = "dynamic")
+                     role = "dynamic", stationary = NULL,
+                     equation_rates_fun = NULL, tuning = NULL,
+                     tuning_binding = tuning_provider_binding(p))
     expect_identical(p@capabilities$components$pool, expected)
     expect_identical(getComponent(p, "pool")$definition, expected)
     expect_null(p@other_mort$pool)

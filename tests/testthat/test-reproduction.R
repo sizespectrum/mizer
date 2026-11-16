@@ -182,3 +182,13 @@ test_that("noRDD returns rdi unchanged", {
     rdd <- noRDD(rdi, sp)
     expect_identical(rdd, rdi)
 })
+
+test_that("Named reproduction providers support qualified exported callbacks", {
+    p <- NS_params_small
+    p$rates_funcs$RDD <- "mizer::BevertonHoltRDD"
+    expect_equal(projectRDD(p, rdi = getRDI(p)),
+                 projectRDD(NS_params_small, rdi = getRDI(NS_params_small)))
+    expect_equal(getRDD(p), getRDD(NS_params_small))
+    expect_equal(tuning_rate_context(p)$rdd,
+                 tuning_rate_context(NS_params_small)$rdd)
+})

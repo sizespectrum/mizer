@@ -701,8 +701,8 @@ the optional capabilities it is to retain.
 Use `role = "prescribed"` only when the state block is an input of the model.
 Freezing a dynamic state for one analysis instead uses explicit conditional
 scope. Temporary frozen callbacks do not alter the stored structural role.
-Partial prescribed-coordinate masks and joint tuning ownership are later
-previews. The built-in constant resource is recognised as a prescribed input.
+Partial prescribed-coordinate masks are a later preview. The built-in constant
+resource is recognised as a prescribed input.
 
 Update saved models through the package's upgrade method to install these
 declarations. Test passing, failing and missing coverage; signed and zero-state
@@ -710,6 +710,47 @@ measures; callback failures; provider replacement; and both quadrature schemes
 for any size integrals. The current Newton solver requires unsupported dynamic
 components to be explicitly fixed. A convergence callback alone does not add
 their states to that solver.
+
+---
+
+## Registering tuning and reproduction support
+
+The tuning preview (3.4.0.9007) adds `stationary`, `equation_rates_fun` and named
+`tuning` strategies to component and process definitions. Upgrade legacy models
+by explicitly installing your package's declarations; the core upgrade does not
+infer them from a projecting or constant-looking callback. The complete contract
+and field examples are in the [guide to extending mizer](guide-extend-mizer.html)'s "Declaring tuning
+strategies" section.
+
+Each strategy partitions its owned states into held and evolving states,
+declares permitted parameter paths and bounds, and supplies any preserved
+quantities and author-written balancer. Declare a no-action strategy explicitly
+when no parameters need adjustment. Coupled responsibilities or shared adjustable
+parameters require a joint strategy registered with [`setTuningStrategy()`](../reference/setTuningStrategy.html).
+
+Balancing must preserve the target state and every effective equation rate.
+Report source and loss terms independently, rather than hiding their changes
+inside a cancelling residual. Mizer constructs targets before invoking the
+balancer and verifies the returned model independently. It rejects undeclared
+parameter changes and has no generic optimisation fallback or repair solve.
+Test infeasible targets and parameter bounds, unselected species, zero states,
+and a deliberately invalid balancer that preserves only the net residual.
+
+Reproduction is a process without a separate state. Register its support with
+`setProcess(params, "reproduction", ...)`, including a law-specific `level_fun`
+when meaningful. The built-in law adapters apply only to their actual effective
+providers; a named replacement or S3 wrapper needs explicit support. In
+particular, a nonlinear or coupled RDI cannot inherit an assumption that RDI is
+proportional to `erepro`. A custom full-rates provider must expose the effective
+recruitment it supplies to projection.
+
+[`balanceRDD()`](../reference/balanceRDD.html) wraps the method chain in one verification transaction. Methods
+can call `NextMethod()` and then apply their own declared adjustments, but the
+final result must reproduce the effective target including additions such as
+immigration. Tuning pins that final assembled recruitment after the complete
+rate pipeline; intermediate RDI may change during balancing. Incidental
+calibration now calls `balanceRDD()` and retains the current reproduction law;
+reserve [`setBevertonHolt()`](../reference/setBevertonHolt.html) for an intentional law switch.
 
 ---
 

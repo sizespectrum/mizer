@@ -209,3 +209,52 @@ test_that("fft rates have no wrap-around when the kernel extends below min_w_pp 
     expected <- linear_kernel_sum(params, Q, "predation") * params@ft_mask
     expect_lt(max_rel_diff(getPredRate(params), expected), 1e-8)
 })
+
+test_that("pinned recruitment bypasses reproduction and full Rates wrappers", {
+    assign("pinning_forbidden_rdd", function(...) {
+        stop("the underlying reproduction must not run")
+    }, envir = .GlobalEnv)
+    rdd_method <- "projectRDD.pinningTest"
+    rates_method <- "projectRates.pinningTest"
+    assign(rdd_method, function(params, ...) {
+        stop("the reproduction wrapper must not run")
+    }, envir = .GlobalEnv)
+    assign(rates_method, function(params, ...) {
+        rates <- NextMethod()
+        rates$rdd <- rates$rdd + 17
+        rates$mort <- rates$mort + 0.25
+        rates
+    }, envir = .GlobalEnv)
+    withr::defer(rm("pinning_forbidden_rdd", "projectRDD.pinningTest",
+                    "projectRates.pinningTest", envir = .GlobalEnv))
+    p <- NS_params_small
+    target <- getRates(p)$rdd
+    reference <- getRates(p)
+    class(p) <- c("pinningTest", class(p))
+    p$rates_funcs$RDD <- "pinning_forbidden_rdd"
+    functions <- pin_recruitment_rates(projectRateFunctions(p), target)
+    rates <- functions$Rates(p, n = p$initial_n, n_pp = p$initial_n_pp,
+                             n_other = p$initial_n_other, t = 0,
+                             effort = p$initial_effort, rates_fns = functions)
+    expect_equal(rates$rdd, target)
+    expect_equal(rates$mort, reference$mort + 0.25, ignore_attr = TRUE)
+    expect_identical(p$rates_funcs$RDD, "pinning_forbidden_rdd")
+})
+
+test_that("pinned recruitment overrides a named complete Rates provider", {
+    assign("pinning_named_rates", function(params, ...) {
+        rates <- mizerRates(params, ...)
+        rates$rdd[] <- 123
+        rates
+    }, envir = .GlobalEnv)
+    withr::defer(rm("pinning_named_rates", envir = .GlobalEnv))
+    p <- NS_params_small
+    target <- getRates(p)$rdd
+    p$rates_funcs$Rates <- "pinning_named_rates"
+    functions <- pin_recruitment_rates(projectRateFunctions(p), target)
+    out <- project_simple(p, dt = 0.1, steps = 1, rates_fns = functions,
+                          info_level = 0)
+    expect_equal(out$rates$rdd, target)
+    expect_error(pin_recruitment_rates(functions, c(1, NA)),
+                 "finite nonnegative")
+})

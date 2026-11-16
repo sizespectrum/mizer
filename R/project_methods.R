@@ -204,7 +204,7 @@ projectEncounter <- function(params, n, n_pp, n_other, t = 0, ...) {
 
 # Resolve rate functions for projection.
 projectRateFunctions <- function(params) {
-    rates_fns <- lapply(params@rates_funcs, get)
+    rates_fns <- lapply(params@rates_funcs, resolve_model_callback)
     rf <- params@rates_funcs
 
     # For rates still at their defaults, swap in the S3 generics so that
@@ -227,6 +227,31 @@ projectRateFunctions <- function(params) {
     # via params@rates_funcs$RDD, so always use the S3 generic here.
     rates_fns$RDD   <- projectRDD
 
+    rates_fns
+}
+
+# Freeze the recruitment entering the equations after every effective Rates
+# provider has run. Replacing the resolved RDD callback also bypasses the usual
+# named/S3 reproduction route; the outer override catches a Rates wrapper that
+# modifies recruitment after delegating. The closures are runtime only.
+pin_recruitment_rates <- function(rates_fns, recruitment) {
+    if (!is.numeric(recruitment) || is.complex(recruitment) ||
+            !length(recruitment) || any(!is.finite(recruitment)) ||
+            any(recruitment < 0)) {
+        stop("Pinned recruitment must be a finite nonnegative numeric vector.",
+             call. = FALSE)
+    }
+    force(recruitment)
+    effective_rates <- rates_fns$Rates
+    rates_fns$RDD <- function(...) recruitment
+    rates_fns$Rates <- function(params, n, n_pp, n_other, t = 0,
+                                effort, rates_fns, ...) {
+        rates <- effective_rates(params, n = n, n_pp = n_pp,
+                                 n_other = n_other, t = t, effort = effort,
+                                 rates_fns = rates_fns, ...)
+        rates$rdd <- recruitment
+        rates
+    }
     rates_fns
 }
 

@@ -104,6 +104,19 @@ test_that("matchGrowth works on a model with an absent species", {
     initialN(params)["Sprat", ] <- 0
     p <- matchGrowth(params, species = "Cod")
     expect_true(all(p@initial_n["Sprat", ] == 0))
-    expect_identical(p@species_params$erepro, params@species_params$erepro)
+    expect_equal(p@species_params$erepro[1:2],
+                 params@species_params$erepro[1:2])
+    expect_equal(getRDD(p)[[3]], getRequiredRDD(p)[[3]], ignore_attr = TRUE)
     expect_identical(p@species_params$R_max[1], params@species_params$R_max[1])
+})
+
+test_that("matchGrowth balances the selected species with its current law", {
+    p <- setReproduction(NS_params_small, RDD = "constantRDD")
+    species_params(p)$constant_reproduction <- as.numeric(getRequiredRDD(p))
+    before <- p$species_params$constant_reproduction
+    matched <- matchGrowth(p, species = "Cod", info_level = 0)
+    expect_identical(matched$rates_funcs$RDD, "constantRDD")
+    expect_equal(matched$species_params$constant_reproduction[1:2], before[1:2])
+    expect_equal(getRDD(matched)[[3]], getRequiredRDD(matched)[[3]],
+                 ignore_attr = TRUE)
 })

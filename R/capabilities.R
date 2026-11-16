@@ -3,52 +3,60 @@
 # support and distinguish dynamic state from prescribed inputs.
 
 new_capability_registry <- function() {
-    list(schema_version = 3L, components = list(), processes = list())
+    list(schema_version = 4L, components = list(), processes = list(),
+         tuning = list())
 }
 
 # Upgrade data only: extension callbacks may not be available until the model's
 # required packages have been loaded. Leave malformed fields for the structural
 # validator, rather than silently dropping them while adding the new defaults.
 upgrade_capability_registry <- function(registry, params = NULL) {
-    fields <- c("schema_version", "components", "processes")
     if (!is.list(registry) || is.object(registry) ||
             !capability_names_valid(registry) ||
-            !setequal(names(registry), fields)) {
-        return(registry)
-    }
-    version <- registry$schema_version
-    if (!is.numeric(version) || is.complex(version) || length(version) != 1L ||
-            is.na(version) || !version %in% c(1L, 2L)) {
-        return(registry)
-    }
-    registry$schema_version <- 3L
-    components <- registry$components
-    if (!is.list(components) || is.object(components) ||
-            !capability_names_valid(components)) {
-        return(registry)
-    }
-    for (component in names(components)) {
-        definition <- components[[component]]
-        if (!is.list(definition) || is.object(definition) ||
-                !capability_names_valid(definition)) {
-            next
-        }
-        upgraded <- list(dynamics_fun = NULL, rate_fun = NULL,
-                         encounter_fun = NULL, mort_fun = NULL, colour = NULL,
-                         linetype = NULL, integration_order = NULL,
-                         convergence_fun = NULL, role = "dynamic")
-        upgraded[names(definition)] <- definition
+            !setequal(names(registry), c("schema_version", "components",
+                                         "processes")) ||
+            !is.numeric(registry$schema_version) ||
+            length(registry$schema_version) != 1L ||
+            is.na(registry$schema_version) ||
+            !registry$schema_version %in% 1:3) return(registry)
+    registry$schema_version <- 4L
+    registry$tuning <- list()
+    if (!is.list(registry$components) ||
+            !capability_names_valid(registry$components)) return(registry)
+    for (component in names(registry$components)) {
+        old <- registry$components[[component]]
+        if (!is.list(old) || !capability_names_valid(old)) next
+        upgraded <- component_definition_defaults()
+        upgraded[c("colour", "linetype")] <- list(NULL, NULL)
+        upgraded[names(old)] <- old
         registry$components[[component]] <- upgraded
     }
-    if (!is.null(params) && identical(registry$processes, list())) {
-        registry$processes <- default_process_registry(params)
+    if (!is.null(params) && is.list(registry$processes)) {
+        defaults <- default_process_registry(params)
+        for (owner in names(defaults)) {
+            old <- registry$processes[[owner]]
+            if (is.null(old)) {
+                registry$processes[[owner]] <- defaults[[owner]]
+            } else {
+                missing <- setdiff(names(defaults[[owner]]), names(old))
+                old[missing] <- defaults[[owner]][missing]
+                registry$processes[[owner]] <- old
+            }
+        }
     }
     registry
 }
 
+component_definition_defaults <- function() {
+    list(dynamics_fun = NULL, rate_fun = NULL, encounter_fun = NULL,
+         mort_fun = NULL, colour = "grey", linetype = "solid",
+         integration_order = NULL, convergence_fun = NULL, role = "dynamic",
+         stationary = NULL, equation_rates_fun = NULL, tuning = NULL,
+         tuning_binding = NULL)
+}
+
 component_definition_fields <- function() {
-    c("dynamics_fun", "rate_fun", "encounter_fun", "mort_fun", "colour",
-      "linetype", "integration_order", "convergence_fun", "role")
+    c(names(component_definition_defaults()), "level_fun")
 }
 
 capability_names_valid <- function(x) {
@@ -78,7 +86,7 @@ component_definition_errors <- function(definition, required = TRUE) {
         errors <- c(errors, "Component requires `dynamics_fun` or `rate_fun`.")
     }
     callbacks <- c("dynamics_fun", "rate_fun", "encounter_fun", "mort_fun",
-                   "convergence_fun")
+                   "convergence_fun", "equation_rates_fun", "level_fun")
     for (field in intersect(fields, callbacks)) {
         value <- definition[[field]]
         valid_name <- is.character(value) && length(value) == 1L &&
@@ -95,6 +103,17 @@ component_definition_errors <- function(definition, required = TRUE) {
         if (!valid_role) {
             errors <- c(errors, "`role` must be 'dynamic' or 'prescribed'.")
         }
+    }
+    if (!is.null(definition$stationary) &&
+            (!is.logical(definition$stationary) ||
+                 length(definition$stationary) != 1L ||
+                 is.na(definition$stationary))) {
+        errors <- c(errors, "stationary must be TRUE, FALSE or NULL.")
+    }
+    tuning_errors <- tuning_block_errors(definition$tuning)
+    if (!isTRUE(tuning_errors)) errors <- c(errors, tuning_errors)
+    if (!tuning_data_valid(definition$tuning_binding)) {
+        errors <- c(errors, "Invalid stored tuning binding.")
     }
     for (field in intersect(fields, c("colour", "linetype"))) {
         value <- definition[[field]]
@@ -124,7 +143,7 @@ component_definition_errors <- function(definition, required = TRUE) {
 }
 
 capability_registry_errors <- function(registry) {
-    fields <- c("schema_version", "components", "processes")
+    fields <- c("schema_version", "components", "processes", "tuning")
     if (!is.list(registry) || is.object(registry) ||
             length(registry) != length(fields) ||
             !setequal(names(registry), fields)) {
@@ -133,7 +152,7 @@ capability_registry_errors <- function(registry) {
     }
     version <- registry$schema_version
     if (!is.numeric(version) || length(version) != 1L ||
-            is.na(version) || version != 3L) {
+            is.na(version) || version != 4L) {
         return("Unsupported capabilities schema_version; update mizer.")
     }
     components <- registry$components
@@ -143,6 +162,8 @@ capability_registry_errors <- function(registry) {
     }
     process_errors <- process_registry_errors(registry$processes)
     errors <- if (isTRUE(process_errors)) character() else process_errors
+    joint_errors <- joint_tuning_errors(registry$tuning)
+    if (!isTRUE(joint_errors)) errors <- c(errors, joint_errors)
     for (component in names(components)) {
         result <- component_definition_errors(components[[component]])
         if (!isTRUE(result)) {
@@ -168,7 +189,9 @@ legacy_component_definition <- function(params, component) {
          mort_fun = params$other_mort[[component]],
          colour = style(params$linecolour),
          linetype = style(params$linetype),
-         integration_order = NULL, convergence_fun = NULL, role = "dynamic")
+         integration_order = NULL, convergence_fun = NULL, role = "dynamic",
+         stationary = NULL, equation_rates_fun = NULL, tuning = NULL,
+         tuning_binding = NULL)
 }
 
 legacy_capability_registry <- function(params) {
@@ -200,10 +223,7 @@ assemble_component_definition <- function(existing = NULL, definition = NULL,
     }
     check(overrides)
     if (replace) check(definition)
-    result <- list(dynamics_fun = NULL, rate_fun = NULL, encounter_fun = NULL,
-                   mort_fun = NULL, colour = "grey", linetype = "solid",
-                   integration_order = NULL, convergence_fun = NULL,
-                   role = "dynamic")
+    result <- component_definition_defaults()
     if (!replace && !is.null(existing)) {
         check(existing, required = TRUE)
         result[names(existing)] <- existing
@@ -227,16 +247,21 @@ assemble_component_definition <- function(existing = NULL, definition = NULL,
     if (provider_changed && !"convergence_fun" %in% names(overrides)) {
         result["convergence_fun"] <- list(NULL)
     }
+    for (field in c("stationary", "equation_rates_fun", "tuning",
+                    "tuning_binding")) {
+        if (provider_changed && !field %in% names(overrides)) result[field] <-
+            list(NULL)
+    }
     check(result, required = TRUE)
     for (field in c("dynamics_fun", "rate_fun", "encounter_fun", "mort_fun",
-                    "convergence_fun")) {
+                    "convergence_fun", "equation_rates_fun", "level_fun")) {
         fun <- result[[field]]
         if (!is.null(fun)) {
             context <- paste0("component `", field, "`")
             resolve_model_callback(fun, context = context)
         }
     }
-    result[component_definition_fields()]
+    result[names(component_definition_defaults())]
 }
 
 # Plot setters are explicit updates too. Keep their accepted values in the

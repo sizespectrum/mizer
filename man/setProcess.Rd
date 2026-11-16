@@ -5,21 +5,40 @@
 \alias{getProcess}
 \title{Declare assessment support for a built-in model process}
 \usage{
-setProcess(params, process, definition, convergence_fun, role)
+setProcess(
+  params,
+  process,
+  definition,
+  convergence_fun,
+  role,
+  stationary,
+  equation_rates_fun,
+  tuning,
+  level_fun
+)
 
 getProcess(params, process)
 }
 \arguments{
 \item{params}{A MizerParams object.}
 
-\item{process}{Either \code{"consumers"} or \code{"resource"}.}
+\item{process}{\code{"consumers"}, \code{"resource"} or \code{"reproduction"}. The latter
+has no state role or convergence callback.}
 
-\item{definition}{A named list with \code{convergence_fun} and/or \code{role}.}
+\item{definition}{A named list of assessment and tuning capabilities.}
 
 \item{convergence_fun}{Name of an assessment callback, optionally qualified
 as \code{package::exported_function}, or \code{NULL}.}
 
-\item{role}{Either \code{"dynamic"} or \code{"prescribed"}.}
+\item{role}{Either \code{"dynamic"} or \code{"prescribed"} for a state process.}
+
+\item{stationary}{Explicit TRUE/FALSE stationary-tuning declaration.}
+
+\item{equation_rates_fun}{Callback exposing effective equation quantities.}
+
+\item{tuning}{Named strategies and their default, or NULL to remove support.}
+
+\item{level_fun}{Law-specific reproduction-level callback, or NULL.}
 }
 \value{
 \code{setProcess()} returns the updated model. \code{getProcess()} returns

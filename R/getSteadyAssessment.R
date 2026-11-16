@@ -88,7 +88,8 @@ prepare_steady_assessment <- function(params, tol = 0.05,
                                       fixed = character(),
                                       criterion = c("state", "biomass"),
                                       tolerances = NULL, atol = 1e-12,
-                                      dt = 1e-4) {
+                                      dt = 1e-4,
+                                      rate_constraints = character()) {
     params <- validParams(params)
     scope <- match.arg(scope)
     criterion <- match.arg(criterion)
@@ -107,8 +108,14 @@ prepare_steady_assessment <- function(params, tol = 0.05,
         stop("`fixed` must contain unique canonical owner IDs: ",
              paste(owners, collapse = ", "), ".", call. = FALSE)
     }
-    if ((scope == "whole" && length(fixed)) ||
-            (scope == "conditional" && !length(fixed))) {
+    if (!is.character(rate_constraints) || anyNA(rate_constraints) ||
+            anyDuplicated(rate_constraints) ||
+            any(!rate_constraints %in% "consumers/recruitment")) {
+        stop("Unsupported internal rate constraints.", call. = FALSE)
+    }
+    if ((scope == "whole" && (length(fixed) || length(rate_constraints))) ||
+            (scope == "conditional" && !length(fixed) &&
+                 !length(rate_constraints))) {
         stop("Use `scope = \"conditional\"` with an explicit nonempty ",
              "`fixed` list; whole-model assessments require an empty list.",
              call. = FALSE)
@@ -157,7 +164,8 @@ prepare_steady_assessment <- function(params, tol = 0.05,
             }
         }
     }
-    list(scope = scope, fixed = fixed, prescribed = prescribed,
+    list(scope = scope, fixed = fixed, rate_constraints = rate_constraints,
+         prescribed = prescribed,
          required = required,
          covered = if (length(callbacks)) names(callbacks) else character(),
          missing = unavailable$owner, unavailable = unavailable,
@@ -226,7 +234,8 @@ steady_assessment <- function(params, prepared = NULL,
                               n = params@initial_n,
                               n_pp = params@initial_n_pp,
                               n_other = params@initial_n_other,
-                              effort = params@initial_effort, t = 0, ...) {
+                              effort = params@initial_effort, t = 0,
+                              rates_fns = projectRateFunctions(params), ...) {
     params <- validParams(params)
     if (is.null(prepared)) prepared <- prepare_steady_assessment(params)
     if (!identical(prepared$model_key, assessment_model_key(params))) {
@@ -247,7 +256,7 @@ steady_assessment <- function(params, prepared = NULL,
             n_other = n_other, t = t, evaluate_other = FALSE,
             evaluate_consumers = prepared$builtin_projection &&
                 "consumers" %in% covered,
-            evaluate_resource = evaluate_resource
+            evaluate_resource = evaluate_resource, rates_fns = rates_fns
         )
     } else {
         list(params = params, n = n, n_pp = n_pp, n_other = n_other,
@@ -327,6 +336,9 @@ steady_assessment <- function(params, prepared = NULL,
         unavailable = prepared$unavailable, measures = measures,
         time = t, criterion = prepared$criterion
     ), class = "MizerSteadyAssessment")
+    if (length(prepared$rate_constraints)) {
+        report$rate_constraints <- prepared$rate_constraints
+    }
     attr(report, "drift_report") <- steady_drift_report(params,
                                                         evaluated = evaluated)
     report

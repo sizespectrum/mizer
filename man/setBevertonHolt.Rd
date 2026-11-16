@@ -52,10 +52,9 @@ for each species.
 \description{
 Takes a MizerParams object \code{params} with arbitrary density dependence in
 reproduction and
-returns a MizerParams object with Beverton-Holt density-dependence in such a
-way that the energy invested into reproduction by the mature individuals
-leads to the reproduction rate that is required to maintain the given egg
-abundance. Hence if you have tuned your \code{params} object to describe a
+returns a MizerParams object with Beverton-Holt density dependence while
+preserving the current effective recruitment at the initial state. Hence if
+you have tuned your \code{params} object to describe a
 particular steady state, then setting the Beverton-Holt density dependence
 with this function will leave you with the exact same steady state. By
 specifying one of the parameters \code{erepro}, \code{R_max} or \code{reproduction_level}
@@ -72,7 +71,8 @@ If no maximum is imposed on the reproduction rate
 (\eqn{R_{max} = \infty}{R_max = Inf}) then the resulting density-independent
 reproduction rate \eqn{R_{di}}{R_di} is proportional
 to the total rate \eqn{E_R} at which energy is invested into reproduction,
-\deqn{R_{di} = \frac{\rm{erepro}}{2 w_{min}} E_R,}{R_di = (erepro/(2 w_min)) E_R,}
+\deqn{R_{di} = \frac{\rm{erepro}}{2 w_{min}} E_R,}{
+  R_di = (erepro/(2 w_min)) E_R,}
 where the proportionality factor is given by the reproductive efficiency
 \code{erepro} divided by the egg size \code{w_min} to convert energy to egg number and
 divided by 2 to account for the two sexes.
@@ -98,9 +98,8 @@ lower \code{erepro} (black curves) can give the same value as a lower \code{R_ma
 coupled with a higher \code{erepro} (blue curves).
 
 For the given initial state in the MizerParams object \code{params} one can
-calculate the energy \eqn{E_R} that is invested into reproduction by the
-mature individuals and the reproduction rate \eqn{R_{dd}}{R_dd} that is
-required to keep the egg abundance constant. These two values determine the
+calculate the energy \eqn{E_R} invested into reproduction and the current
+effective recruitment \eqn{R_{dd}}{R_dd}. These two values determine the
 location of the black dot in the above graph. You then only need one
 parameter to select one curve from the family of Beverton-Holt curves going
 through that point. This parameter can be \code{erepro} or \code{R_max}. Instead of
@@ -117,13 +116,11 @@ affected, or a single unnamed value that is then used for all species. Any
 species for which the given value is \code{NA} will remain unaffected.
 
 The values for \code{R_max} must be larger than \eqn{R_{dd}}{R_dd} and can range
-up to \code{Inf}. If a smaller value is requested a warning is issued and the
-value is increased to the value required for a reproduction level of 0.99.
+up to \code{Inf}. An infeasible requested value is an error.
 
 The values for the \code{reproduction_level} must be non-negative and
 less than 1. The values for \code{erepro} must be large enough to allow the
-required reproduction rate. If a smaller value is requested a warning is
-issued and the value is increased to the smallest possible value. The values
+preserved recruitment rate. A smaller requested value is an error. The values
 for \code{erepro} should also be smaller than 1 to be physiologically sensible,
 but this is not enforced by the function.
 
@@ -132,8 +129,7 @@ sizes, has no reproduction whatever its parameters, so every Beverton-Holt
 curve keeps it at its steady state. For such a species a given \code{erepro} or
 \code{R_max} is used as it is and the other parameter is left unchanged. Its
 reproduction level is zero whatever its \code{R_max}, so a non-zero
-\code{reproduction_level} cannot be set for it: its parameters are then left
-unchanged and a warning is issued.
+\code{reproduction_level} cannot be set for it and is rejected.
 
 As can be seen in the graph above, choosing a lower value for \code{R_max} or a
 higher value for \code{erepro} means that near the steady state the reproduction
@@ -145,14 +141,16 @@ fishing, leading to a higher F_MSY.
 \examples{
 params <- NS_params
 species_params(params)$erepro
-# Attempting to set the same erepro for all species
-params <- setBevertonHolt(params, erepro = 0.1)
+# Increase efficiency while preserving recruitment
+params <- setBevertonHolt(params,
+    erepro = 2 * species_params(params)$erepro
+)
 t(species_params(params)[, c("erepro", "R_max")])
 # Setting erepro for some species
-params <- setBevertonHolt(params, erepro = c("Gurnard" = 0.6, "Plaice" = 0.95))
+params <- setBevertonHolt(params, reproduction_level = c(Gurnard = 0.6))
 t(species_params(params)[, c("erepro", "R_max")])
 # Setting R_max
-R_max <- 1e17 * species_params(params)$w_max^-1
+R_max <- 2 * getRDD(params)
 params <- setBevertonHolt(NS_params, R_max = R_max)
 t(species_params(params)[, c("erepro", "R_max")])
 # Setting reproduction_level

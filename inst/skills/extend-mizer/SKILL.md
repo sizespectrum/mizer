@@ -281,13 +281,13 @@ getComponent(params, "detritus")$definition
 ```
 
 The supported definition fields are `dynamics_fun`, `rate_fun`, `encounter_fun`,
-`mort_fun`, `colour`, `linetype`, `integration_order`, `convergence_fun` and
-`role`. Supply a step, an
+`mort_fun`, `colour`, `linetype`, `integration_order`, `convergence_fun`,
+`role`, `stationary`, `equation_rates_fun` and `tuning`. Supply a step, an
 equation, or both; a supplied custom step takes precedence during projection.
 Callback identifiers may be ordinary function names or `package::exported_name`.
 Mizer resolves them when preparing an operation. Initial state and component
-parameters are supplied separately. Measurement and tuning hooks remain under
-development; assessment support is described below.
+parameters are supplied separately. Assessment and tuning support are described
+below; measurement hooks remain under development.
 
 Explicit arguments override the definition. A supplied definition replaces the
 old one: omitted encounter/mortality callbacks are removed and omitted styles
@@ -490,8 +490,76 @@ can evolve components when they have stepping support, while the current
 Newton solver requires unsupported dynamic components to be held fixed through
 an explicit conditional request. Every returned convergence report retains its
 scope; tuning reassesses restored dynamics before claiming a fixed point.
-Named tuning strategies and complete stability coverage remain later stages of
+Complete stability coverage remains a later stage of
 [the extension design](https://github.com/sizespectrum/mizer/issues/670).
+
+### Declaring tuning strategies
+
+Projection, convergence assessment and tuning are separate capabilities. To
+support stationary tuning, declare `stationary = TRUE` explicitly, provide an
+`equation_rates_fun`, and register named strategies. A prescribed state alone
+does not establish stationarity: its effects on other processes could still
+depend on time. Time-dependent processes must provide an appropriate stationary
+formulation; mizer does not infer one by probing a few times.
+
+For example, a pool that should evolve during tuning and needs no parameter
+adjustment can declare:
+
+```r
+poolEquationRates <- function(params, n_other, component, ...) {
+    pool <- params@other_params[[component]]
+    list(source = pool$source, loss = pool$loss * n_other[[component]])
+}
+params <- setComponent(params, "pool", stationary = TRUE,
+    equation_rates_fun = "poolEquationRates",
+    tuning = list(default = "evolve", strategies = list(
+        evolve = list(action = "none", evolve = "component:pool"))))
+```
+
+The equation callback returns a named list of finite numeric effective rates
+or equation terms, retaining their dimensions and names. Report independently
+adjustable inputs separately: reporting only `source - loss` would hide changes
+that cancel. It receives the shared `rates`, state, time and effort context;
+component callbacks also receive `component`. Core growth, diffusion, total
+mortality and final recruitment always get independent checks.
+
+Each local strategy owns its process. Its `hold$states` and `evolve` partition
+the owned state blocks. Reproduction owns a rate, not a fictitious state, and
+can hold `hold$rates = "consumers/recruitment"`. A balancing strategy supplies
+`action = "balance"`, a named `balance_fun`, and `adjust` entries describing
+parameter paths, bounds and whether they are species vectors. For example:
+
+```r
+adjust = list(source = list(path = c("other_params", "pool", "source"),
+                            lower = 0, upper = Inf, species = FALSE))
+```
+
+Optional `preserve` entries select parameter paths or named callbacks returning
+quantities to retain. `target_fun` derives released equation targets from the
+constrained state before balancing; it must describe the constraints, not report
+targets chosen by the balancer. `solvers` lists supported operations
+(`"project"`, `"newton"`, `"balance"`), and `partial_species = FALSE` rejects
+partial requests. `settings` holds serialisable callback settings.
+
+The balancer returns a candidate model. Mizer independently checks the target
+state, declared parameter changes and bounds, preserved quantities and all
+effective equation rates. It refreshes affected dependencies and reassesses the
+released model. There is no numerical fallback, silent clamp or second search
+to repair a failed balance.
+
+Use `setProcess()` for the same declarations on `"consumers"`, `"resource"`
+or `"reproduction"`. Reproduction can also provide `level_fun` for its own
+level definition; it has no state role or convergence callback. Shared
+parameters require one joint strategy, registered with `setTuningStrategy()`
+and its explicit `owners`. A joint equation callback returns a named list of
+rate lists, one per owner. A selected joint strategy suppresses those owners'
+local defaults; overlapping responsibilities or adjustable paths are errors.
+
+Users can select alternatives with `tuneSteadyState(params, strategies =
+c("component:pool" = "evolve"))` or `joint = "coupled"`. Declarations are
+stored with the model and bound to their effective named/S3 providers. Changing
+a provider requires explicit adoption of the corresponding support, not merely
+leaving an old function name in the registry.
 
 <!-- article-only -->
 

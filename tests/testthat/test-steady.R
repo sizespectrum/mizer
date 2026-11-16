@@ -1,10 +1,11 @@
 # projectUntilSettled ----
 # Built once here; tests get a fresh copy via R's copy-on-modify semantics.
-small_steady_params <- suppressMessages(
+small_steady_params <- suppressMessages(tuneSteadyState(
     newTraitParams(no_sp = 2, no_w = 20, max_w_max = 100,
                    min_w = 1e-3, w_pp_cutoff = 5, ks = 4,
-                   reproduction_level = 0.25, info_level = 0)
-)
+                   reproduction_level = 0.25, info_level = 0),
+    progress_bar = FALSE, info_level = 0
+))
 # A component that never settles, for the tests of what the stopping gate
 # covers. Its relative rate of change is 2 per year, whatever `dt` is.
 e <- globalenv()

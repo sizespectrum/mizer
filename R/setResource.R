@@ -222,12 +222,15 @@ setResource.MizerParams <- function(params,
     # Check and set dynamics function ----
     if (!is.null(resource_dynamics)) {
         assert_that(is.character(resource_dynamics))
-        if (!is.function(get0(resource_dynamics))) {
+        if (grepl("::", resource_dynamics, fixed = TRUE)) {
+            resolve_model_callback(resource_dynamics, "Resource dynamics")
+        } else if (!is.function(get0(resource_dynamics))) {
             stop('The resource dynamics function "', resource_dynamics, '" is not defined.')
         }
         previous_resource_dynamics <- params@resource_dynamics
         params@resource_dynamics <- resource_dynamics
         params <- refresh_resource_assessment(params, previous_resource_dynamics)
+        params <- refresh_builtin_tuning(params)
     }
 
     w_full <- w_full(params)

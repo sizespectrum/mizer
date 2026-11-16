@@ -10,11 +10,11 @@ test_that("matchBiomasses works", {
     species_params(params)$biomass_cutoff <- 1e-4
     biomass_actual <- getBiomass(params, use_cutoff = TRUE)
     species_params(params)$biomass_observed <- biomass_actual
-    expect_unchanged(matchBiomasses(params), params)
+    expect_identical(matchBiomasses(params), params)
 
     # Even if only partially observed
     species_params(params)$biomass_observed[1] <- NA
-    expect_unchanged(matchBiomasses(params), params)
+    expect_identical(matchBiomasses(params), params)
 
     # If we double the observations, we get twice the abundance
     species <- 1:2
@@ -40,10 +40,10 @@ test_that("matchNumbers works", {
     number_actual <-
         rowSums(sweep(params@initial_n, 2, params@dw, "*"))
     species_params(params)$number_observed <- number_actual
-    expect_unchanged(matchNumbers(params), params)
+    expect_identical(matchNumbers(params), params)
     # Even if only partially observed
     species_params(params)$number_observed[1] <- NA
-    expect_unchanged(matchNumbers(params), params)
+    expect_identical(matchNumbers(params), params)
 
     # If we double the observations, we get twice the abundance
     species <- 1:2
@@ -104,4 +104,30 @@ test_that("the calibrate functions do not claim to break the steady state", {
                  before, tolerance = 1e-6)
     expect_equal(steady_biomass_drift(suppressMessages(scaleModel(p, 2))),
                  before, tolerance = 1e-6)
+})
+
+test_that("matching retains the reproduction law and unselected parameters", {
+    p <- setReproduction(NS_params_small, RDD = "constantRDD")
+    species_params(p)$constant_reproduction <- as.numeric(getRequiredRDD(p))
+    species_params(p)$biomass_observed <- as.numeric(getBiomass(p)) * 1.2
+    before <- p$species_params$constant_reproduction
+    matched <- matchBiomasses(p, species = "Cod", info_level = 0)
+    expect_identical(matched$rates_funcs$RDD, "constantRDD")
+    expect_equal(matched$species_params$constant_reproduction[1:2], before[1:2])
+    expect_equal(getRDD(matched)[[3]], getRequiredRDD(matched)[[3]],
+                 ignore_attr = TRUE)
+})
+
+test_that("matching preflights reproduction only for real changes", {
+    rlang::local_bindings(
+        unsupported_matching_rdd = function(rdi, ...) rdi,
+        .env = globalenv()
+    )
+    p <- setReproduction(NS_params_small, RDD = "unsupported_matching_rdd")
+    species_params(p)$biomass_observed <- as.numeric(getBiomass(p))
+    expect_identical(matchBiomasses(p), p)
+    species_params(p)$biomass_observed <- p$species_params$biomass_observed * 2
+    before <- p
+    expect_error(matchBiomasses(p), "stationary|strategy")
+    expect_equal(p, before)
 })

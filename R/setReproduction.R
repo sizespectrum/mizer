@@ -162,9 +162,9 @@ setReproduction.MizerParams <- function(params, maturity = NULL,
     # check arguments ----
     assert_that(is.flag(reset))
     if (is.null(RDD)) RDD <- params@rates_funcs[["RDD"]]
-    assert_that(is.string(RDD),
-                exists(RDD),
-                is.function(get(RDD)))
+    assert_that(is.string(RDD))
+    rdd_function <- resolve_model_callback(RDD, "Reproduction rate callback")
+    rdd_name <- sub("^mizer::", "", RDD)
     species_params <- params@species_params
 
     if (reset) {
@@ -348,16 +348,18 @@ setReproduction.MizerParams <- function(params, maturity = NULL,
 
     # If no erepro (reproductive efficiency), then set to 1
     params <- set_species_param_default(params, "erepro", 1)
-    if (!all(params@species_params$erepro > 0)) {
+    if (!all(params@species_params$erepro >= 0)) {
         stop("Some species have negative reproductive efficiency.")
     }
 
     # RDD function is currently called only with three arguments
-    if (!all(names(formals(RDD)) %in%  c("rdi", "species_params", "params", "t", "..."))) {
+    if (!all(names(formals(rdd_function)) %in%  c("rdi", "species_params",
+                                                  "params", "t", "..."))) {
         stop("Arguments of RDD function can only contain 'rdi', 'species_params' and `t`.")
     }
+    previous_rdd <- params@rates_funcs$RDD
     params@rates_funcs$RDD <- RDD
-    if (identical(params@rates_funcs$RDD, "BevertonHoltRDD")) {
+    if (identical(rdd_name, "BevertonHoltRDD")) {
 
         # for legacy reasons (R_max used to be called r_max):
         if ("r_max" %in% names(params@species_params)) {
@@ -371,6 +373,17 @@ setReproduction.MizerParams <- function(params, maturity = NULL,
         params <- set_species_param_default(params, "R_max", Inf)
     }
 
+    if (rdd_name %in% c("RickerRDD", "SheperdRDD", "constantRDD")) {
+        if (rdd_name == "RickerRDD") params <-
+            set_species_param_default(params, "ricker_b", 0)
+        if (rdd_name == "SheperdRDD") {
+            params <- set_species_param_default(params, "sheperd_b", 0)
+            params <- set_species_param_default(params, "sheperd_c", 1)
+        }
+        if (rdd_name == "constantRDD") params <-
+            set_species_param_default(params, "constant_reproduction", 0)
+    }
+    if (!identical(previous_rdd, RDD)) params <- refresh_builtin_tuning(params)
     params@time_modified <- lubridate::now()
     return(params)
 }

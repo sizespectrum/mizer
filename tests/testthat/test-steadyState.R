@@ -34,9 +34,11 @@ test_that("tuneSteadyState works", {
     params <- tss_params
     params@species_params$gamma[2] <- 2000
     params <- setSearchVolume(params)
+    target <- getRates(params)$rdd
     p <- tuneSteadyState(params, t_check = 1, t_max = 1, dt = 1, distance_tol = 10) |>
         suppressMessages()
     expect_s3_class(p, "MizerParams")
+    expect_equal(getRates(p)$rdd, target, ignore_attr = TRUE)
     expect_snapshot_value(getRDD(p), style = "deparse")
 })
 
@@ -57,8 +59,7 @@ test_that("tuneSteadyState accepts consumer update method", {
 test_that("tuneSteadyState() preserves parameters", {
     params <- tss_params
 
-    params_rdd <- params
-    params_rdd@rates_funcs$RDD <- "noRDD"
+    params_rdd <- setReproduction(params, RDD = "noRDD")
     p_rdd <- tuneSteadyState(params_rdd, t_check = 1, t_max = 1, dt = 1) |>
         suppressMessages()
     expect_equal(p_rdd@rates_funcs$RDD, "noRDD")
@@ -159,8 +160,8 @@ test_that("tuneSteadyState() leaves an initially absent species alone", {
         expect_equal(p@species_params$R_max[1],
                      params@species_params$R_max[1])
         # The species that is present is still tuned to its steady state.
-        expect_equal(getRDD(p)[[2]], getRequiredRDD(p)[[2]],
-                     tolerance = 1e-6)
+        expect_equal(getRates(p)$rdd[[2]], getRates(params)$rdd[[2]])
+        expect_true(attr(p, "convergence")$assessment$verdict)
     }
 })
 
@@ -295,10 +296,11 @@ test_that("tuneSteadyState(solver = 'newton') holds the resource and honours pre
     expect_equal(pn_rmax@species_params$R_max,
                  p_steady@species_params$R_max, tolerance = 1e-5)
 
-    pn_erepro <- suppressWarnings(tuneSteadyState(p_steady, solver = "newton",
-                                                  preserve = "erepro"))
+    feasible <- setBevertonHolt(p_steady, reproduction_level = 0.25)
+    pn_erepro <- tuneSteadyState(feasible, solver = "newton",
+                                 preserve = "erepro")
     expect_equal(pn_erepro@species_params$erepro,
-                 p_steady@species_params$erepro, tolerance = 1e-5)
+                 feasible@species_params$erepro, tolerance = 1e-5)
 })
 
 test_that("tuneSteadyState(solver = 'newton') leaves an absent species alone", {
@@ -329,9 +331,10 @@ test_that("the Newton solvers attach a well-formed 'convergence' attribute", {
     for (p in list(tuneSteadyState(p_steady, solver = "newton"),
                    findSteadyState(p_steady, solver = "newton"))) {
         conv <- attr(p, "convergence")
-        expect_named(conv, c("termination", "converged", "attractor",
-                             "distance", "residual", "years", "period",
-                             "amplitude", "extinct", "assessment", "scope"))
+        expect_named(conv[names(conv) != "search_assessment"],
+                     c("termination", "converged", "attractor", "distance",
+                       "residual", "years", "period", "amplitude", "extinct",
+                       "assessment", "scope"))
         expect_identical(conv$termination, "solver_converged")
         expect_true(conv$converged)
         expect_identical(conv$attractor, "fixed_point")
@@ -461,7 +464,7 @@ test_that("an unknown solver is rejected", {
 
 # What the analysis actually covers ------------------------------------------
 
-test_that("tuning distinguishes the constrained and restored assessments", {
+test_that("convergence support alone does not authorise tuning", {
     assign("tuning_growing_component", function(params, n_other, component,
                                                 dt, ...) {
         n_other[[component]] * (1 + dt)
@@ -475,20 +478,10 @@ test_that("tuning distinguishes the constrained and restored assessments", {
     p <- setComponent(NS_params_small, "grower", initial_value = 1,
                       dynamics_fun = "tuning_growing_component",
                       convergence_fun = "tuning_component_assessment")
-    tuned <- tuneSteadyState(p, t_check = 0.1, t_max = 0.1, dt = 0.1,
-                             distance_tol = 10, progress_bar = FALSE,
-                             info_level = 0)
-    conv <- attr(tuned, "convergence")
-    expect_identical(conv$search_assessment$scope, "conditional")
-    expect_setequal(conv$search_assessment$fixed,
-                    c("resource", "component:grower"))
-    expect_identical(conv$scope, "whole")
-    expect_false(conv$assessment$verdict)
-    expect_true(is.na(conv$attractor))
-    expect_equal(conv$assessment$time, conv$years)
-    expect_equal(tuned$initial_n_other$grower, 1)
-    expect_identical(tuned$other_dynamics$grower, "tuning_growing_component")
-    expect_equal(conv$residual, steady_biomass_drift(tuned, t = conv$years))
+    expect_error(tuneSteadyState(p, t_check = 0.1, t_max = 0.1, dt = 0.1,
+                                 distance_tol = 10, progress_bar = FALSE,
+                                 info_level = 0),
+                 "stationary tuning support for component:grower")
 })
 
 test_that("a constant component is nothing to report", {
@@ -556,7 +549,7 @@ test_that("Newton requires explicit exclusions for dynamic components", {
     p <- setComponent(NS_params_small, "input", initial_value = 1,
                       dynamics_fun = "constant_other",
                       convergence_fun = "newton_component_check")
-    for (finder in list(findSteadyState, tuneSteadyState)) {
+    for (finder in list(findSteadyState)) {
         expect_error(finder(p, solver = "newton", info_level = 0),
                      "Newton solver cannot solve dynamic components")
         expect_error(finder(p, solver = "newton", scope = "conditional",
@@ -573,4 +566,149 @@ test_that("Newton requires explicit exclusions for dynamic components", {
     expect_identical(conv$scope, "conditional")
     expect_identical(conv$assessment$fixed, "component:input")
     expect_equal(out$initial_n_other$input, 1)
+})
+
+# Declared tuning strategies and constrained effective rates ----
+
+test_that("tuning balances held components and evolves selected alternatives", {
+    assign("strategy_pool_rate", function(params, n_other, component, ...) {
+        params$other_params$supply - n_other[[component]]
+    }, envir = .GlobalEnv)
+    assign("strategy_pool_check", function(params, derivative, ...) {
+        data.frame(measure = "change", value = derivative, tolerance = 1e-8,
+                   units = "pool/year")
+    }, envir = .GlobalEnv)
+    assign("strategy_pool_equations", function(params, n_other, ...) {
+        list(input = params$other_params$supply, loss = n_other$pool)
+    }, envir = .GlobalEnv)
+    assign("strategy_pool_targets", function(params, n_other, ...) {
+        list(input = n_other$pool, loss = n_other$pool)
+    }, envir = .GlobalEnv)
+    assign("strategy_pool_balance", function(params, n_other, ...) {
+        params$other_params$supply <- n_other$pool
+        params
+    }, envir = .GlobalEnv)
+    withr::defer(rm("strategy_pool_rate", "strategy_pool_check",
+                    "strategy_pool_equations", "strategy_pool_targets",
+                    "strategy_pool_balance", envir = .GlobalEnv))
+    p <- p_steady
+    p$other_params$supply <- 0
+    hold <- list(action = "balance",
+                 hold = list(states = "component:pool", rates = character()),
+                 adjust = list(supply = list(path = c("other_params", "supply"),
+                                             lower = 0)),
+                 target_fun = "strategy_pool_targets",
+                 balance_fun = "strategy_pool_balance")
+    evolve <- list(action = "none", evolve = "component:pool",
+                   solvers = "project")
+    p <- setComponent(
+        p, "pool", initial_value = 2, rate_fun = "strategy_pool_rate",
+        convergence_fun = "strategy_pool_check", stationary = TRUE,
+        equation_rates_fun = "strategy_pool_equations",
+        tuning = list(default = "hold", strategies = list(hold = hold,
+                                                          evolve = evolve))
+    )
+    solvers <- if (testing_experimental()) c("project", "newton") else "project"
+    for (solver in solvers) {
+        out <- tuneSteadyState(p, solver = solver, info_level = 0)
+        expect_equal(out$initial_n_other$pool, 2)
+        expect_equal(out$other_params$supply, 2)
+        conv <- attr(out, "convergence")
+        expect_identical(conv$search_assessment$scope, "conditional")
+        expect_true("component:pool" %in% conv$search_assessment$fixed)
+        expect_identical(conv$search_assessment$rate_constraints,
+                         "consumers/recruitment")
+        measures <- conv$assessment$measures
+        expect_true(all(measures$passed[measures$owner == "component:pool"]))
+        expect_identical(out$other_dynamics, p$other_dynamics)
+    }
+    evolved <- tuneSteadyState(p, strategies = c("component:pool" = "evolve"),
+                               t_max = 0.1, t_check = 0.1, dt = 0.1,
+                               residual_tol = Inf, distance_tol = 1e10,
+                               info_level = 0)
+    expect_lt(evolved$initial_n_other$pool, 2)
+    expect_equal(evolved$other_params$supply, 0)
+    expect_false("component:pool" %in%
+                     attr(evolved, "convergence")$search_assessment$fixed)
+    expect_error(tuneSteadyState(p, solver = "newton",
+                                 strategies = c("component:pool" = "evolve"),
+                                 info_level = 0), "[Nn]ewton|solver")
+    expect_error(tuneSteadyState(p, scope = "conditional",
+                                 fixed = "component:pool",
+                                 strategies = c("component:pool" = "evolve"),
+                                 info_level = 0), "compatible strategy")
+})
+
+test_that("recruitment-only search constraints are reported as conditional", {
+    p <- p_steady
+    p$capabilities$processes$resource$tuning$strategies$evolve <-
+        list(action = "none", evolve = "resource")
+    out <- tuneSteadyState(p, strategies = c(resource = "evolve"),
+                           t_max = 0.1, t_check = 0.1, dt = 0.1,
+                           residual_tol = Inf, distance_tol = 1e10,
+                           info_level = 0)
+    conv <- attr(out, "convergence")
+    expect_identical(conv$search_assessment$scope, "conditional")
+    expect_identical(conv$search_assessment$fixed, character())
+    expect_identical(conv$search_assessment$rate_constraints,
+                     "consumers/recruitment")
+    expect_identical(conv$scope, "whole")
+    expect_equal(out$cc_pp, p$cc_pp, ignore_attr = TRUE)
+})
+
+test_that("tuning freezes recruitment after an immigration Rates wrapper", {
+    assign("tuning_immigration_rates", function(params, ...) {
+        rates <- mizerRates(params, ...)
+        rates$rdd <- rates$rdd + params$other_params$immigration
+        rates
+    }, envir = .GlobalEnv)
+    assign("tuning_immigration_balance", function(params, rates, rdd_target,
+                                                  preserved, ...) {
+        balance_BevertonHoltRDD(
+            params, rates = rates,
+            rdd_target = rdd_target - params$other_params$immigration,
+            preserve = "erepro", preserved = preserved
+        )
+    }, envir = .GlobalEnv)
+    withr::defer(rm("tuning_immigration_rates", "tuning_immigration_balance",
+                    envir = .GlobalEnv))
+    p <- p_steady
+    declarations <- p$capabilities$processes
+    p$other_params$immigration <- 0.2 * getRates(p)$rdd
+    p$rates_funcs$Rates <- "tuning_immigration_rates"
+    # This provider explicitly declares that immigration only changes the
+    # final recruitment, and supplies the matching inverse target transform.
+    binding <- tuning_provider_binding(p)
+    for (owner in names(declarations)) {
+        declarations[[owner]]$tuning_binding <- binding
+    }
+    strategy <- declarations$reproduction$tuning$strategies$preserve_erepro
+    strategy$balance_fun <- "tuning_immigration_balance"
+    declarations$reproduction$tuning <- list(
+        default = "immigration", strategies = list(immigration = strategy)
+    )
+    p$capabilities$processes <- declarations
+    target <- getRates(p)$rdd
+    reference <- p
+    reference$rates_funcs$Rates <- "mizerRates"
+    reference$rates_funcs$RDD <- "constantRDD"
+    reference$species_params$constant_reproduction <- target
+    reference$resource_dynamics <- "resource_constant"
+    expected <- project_simple(reference, dt = 0.1, steps = 1, info_level = 0)
+    out <- tuneSteadyState(p, t_max = 0.1, t_check = 0.1, dt = 0.1,
+                           residual_tol = Inf, distance_tol = 1e10,
+                           info_level = 0)
+    expect_equal(out$initial_n, expected$n, ignore_attr = TRUE)
+    expect_equal(getRates(out)$rdd, target, ignore_attr = TRUE)
+    expect_identical(out$rates_funcs, p$rates_funcs)
+    search <- attr(out, "convergence")$search_assessment
+    expect_identical(search$rate_constraints, "consumers/recruitment")
+    skip_unless_experimental()
+    expected <- newton_steady_state(reference, effort = p$initial_effort,
+                                    rdd_const = target, resource = "fixed")
+    out <- tuneSteadyState(p, solver = "newton", info_level = 0)
+    expect_equal(out$initial_n, expected$n, ignore_attr = TRUE)
+    expect_equal(getRates(out)$rdd, target, ignore_attr = TRUE)
+    expect_identical(attr(out, "convergence")$search_assessment$scope,
+                     "conditional")
 })

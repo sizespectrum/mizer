@@ -1046,7 +1046,8 @@ setter_owned_species_params <- function() {
       # setPredKernel()
       "pred_kernel_type", "beta", "sigma",
       # setReproduction()
-      "w_mat25", "m", "erepro", "R_max")
+      "w_mat25", "m", "erepro", "R_max", "ricker_b", "sheperd_b",
+      "sheperd_c", "constant_reproduction")
 }
 
 # Familiar abbreviations / capitalisation mistakes that should always be flagged

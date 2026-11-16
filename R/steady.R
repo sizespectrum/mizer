@@ -490,7 +490,8 @@ steady_attractor <- function(assessment) {
 #' @noRd
 prepare_solver_assessment <- function(params, residual_tol, scope, fixed,
                                       criterion, tolerances, atol,
-                                      require_steady = TRUE, newton = FALSE) {
+                                      require_steady = TRUE, newton = FALSE,
+                                      rate_constraints = character()) {
     prepared <- prepare_steady_assessment(
         params, tol = if (is.finite(residual_tol)) {
             residual_tol
@@ -498,7 +499,8 @@ prepare_solver_assessment <- function(params, residual_tol, scope, fixed,
             steady_residual_tol()
         },
         scope = scope, fixed = fixed, criterion = criterion,
-        tolerances = tolerances, atol = atol, dt = 1e-4
+        tolerances = tolerances, atol = atol, dt = 1e-4,
+        rate_constraints = rate_constraints
     )
     if ("consumers" %in% prepared$fixed) {
         stop("Steady-state solvers cannot hold consumers fixed. ",
@@ -539,7 +541,9 @@ steady_assessment_details <- function(assessment) {
     }
     if (assessment$scope == "conditional") {
         details <- c(details, paste0(" This is a conditional assessment with ",
-                                     paste(assessment$fixed, collapse = ", "),
+                                     paste(c(assessment$fixed,
+                                             assessment$rate_constraints),
+                                           collapse = ", "),
                                      " held fixed."))
     }
     paste0(details, collapse = "")
@@ -587,7 +591,9 @@ project_until_settled <- function(params,
                                   scope = c("whole", "conditional"),
                                   fixed = character(),
                                   criterion = c("state", "biomass"),
-                                  tolerances = NULL, atol = 1e-12) {
+                                  tolerances = NULL, atol = 1e-12,
+                                  .rates_fns = NULL,
+                                  .rate_constraints = character()) {
     with_info_level(info_level = info_level, {
     # `tol` used to be the name of `distance_tol`. It would otherwise be passed
     # on to the distance function and silently ignored, which is the one way
@@ -605,7 +611,8 @@ project_until_settled <- function(params,
     params@initial_effort <- effort
         assessment_plan <- prepare_solver_assessment(
             params, residual_tol, scope, fixed, criterion, tolerances, atol,
-            require_steady = require_steady
+            require_steady = require_steady,
+            rate_constraints = .rate_constraints
         )
         original_resource_dynamics <- params@resource_dynamics
         original_other_dynamics <- params@other_dynamics
@@ -621,7 +628,8 @@ project_until_settled <- function(params,
         }
         assessment_plan <- prepare_solver_assessment(
             params, residual_tol, scope, fixed, criterion, tolerances, atol,
-            require_steady = require_steady
+            require_steady = require_steady,
+            rate_constraints = .rate_constraints
         )
     assert_that(t_max >= t_check,
                 distance_tol > 0,
@@ -678,7 +686,11 @@ project_until_settled <- function(params,
     # get functions
     resource_dynamics_fn <- resolve_model_callback(params@resource_dynamics)
     other_dynamics_fns <- prepare_component_dynamics(params)
-    rates_fns <- projectRateFunctions(params)
+    rates_fns <- if (is.null(.rates_fns)) {
+        projectRateFunctions(params)
+    } else {
+        .rates_fns
+    }
     r <- rates_fns$Rates(
         params, n = params@initial_n,
         n_pp = params@initial_n_pp,
@@ -793,7 +805,8 @@ project_until_settled <- function(params,
             assessment <- steady_assessment(
                 params, prepared = assessment_plan,
                 n = current$n, n_pp = current$n_pp,
-                n_other = current$n_other, effort = effort, t = k * dt
+                n_other = current$n_other, effort = effort, t = k * dt,
+                rates_fns = rates_fns
             )
             if (!require_steady || is.infinite(residual_tol) ||
                 isTRUE(assessment$verdict)) {
@@ -816,10 +829,12 @@ project_until_settled <- function(params,
         params@other_dynamics <- original_other_dynamics
         assessment_plan <- prepare_solver_assessment(
             params, residual_tol, scope, fixed, criterion, tolerances, atol,
-            require_steady = require_steady
+            require_steady = require_steady,
+            rate_constraints = .rate_constraints
         )
         assessment <- steady_assessment(params, prepared = assessment_plan,
-                                        effort = effort, t = years)
+                                        effort = effort, t = years,
+                                        rates_fns = rates_fns)
         residual <- attr(assessment, "drift_report")$drift
         details <- steady_assessment_details(assessment)
         residual_txt <- if (is.finite(residual)) {

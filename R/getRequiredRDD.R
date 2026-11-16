@@ -1,15 +1,20 @@
 #' Determine reproduction rate needed for initial egg abundance
 #'
 #' @param params A MizerParams object
-#' @param ... Unused.
+#' @param ... Arguments passed to methods.
+#' @param rates Optional already evaluated rate list for this model's initial
+#'   state and effort, used to share an effective evaluation with a caller.
+#'   Must contain growth, total mortality and diffusion. Usually omitted.
 #' @return A vector of reproduction rates for all species
 #' @export
-getRequiredRDD <- function(params, ...) {
+getRequiredRDD <- function(params, ..., rates = NULL) {
     UseMethod("getRequiredRDD")
 }
 
+#' @rdname getRequiredRDD
+#' @usage NULL
 #' @export
-getRequiredRDD.MizerParams <- function(params, ...) {
+getRequiredRDD.MizerParams <- function(params, ..., rates = NULL) {
     # The advective-flux scheme is read from the model's second_order_w slot, so
     # that the egg-cell balance uses the same flux as project() will. The
     # flux-limited correction changes the flux leaving the egg size class and
@@ -22,14 +27,48 @@ getRequiredRDD.MizerParams <- function(params, ...) {
     dt <- 1
     # Compute EGrowth, Mort, and Diffusion together so each upstream rate
     # (Encounter, FeedingLevel, PredMort, ...) is computed only once.
-    rates_fns <- projectRateFunctions(params)
-    r <- mizer_rates_subset(params,
-                             n = params@initial_n,
-                             n_pp = params@initial_n_pp,
-                             n_other = params@initial_n_other,
-                             t = 0, effort = params@initial_effort,
-                             rates_fns = rates_fns,
-                             targets = c("EGrowth", "Mort", "Diffusion"))
+    r <- rates
+    if (is.null(r)) {
+        rates_fns <- projectRateFunctions(params)
+        method <- NULL
+        for (class_name in c(class(params), "default")) {
+            method <- getS3method("projectRates", class_name, optional = TRUE)
+            if (!is.null(method)) break
+        }
+        standard <- identical(rates_fns$Rates, mizerRates) ||
+            (identical(rates_fns$Rates, projectRates) &&
+                 identical(method, projectRates.MizerParams))
+        args <- list(params, n = params@initial_n,
+                     n_pp = params@initial_n_pp,
+                     n_other = params@initial_n_other, t = 0,
+                     effort = params@initial_effort, rates_fns = rates_fns)
+        if (standard) {
+            # The default dependency graph can avoid reproduction itself:
+            # a custom RDI may legitimately use this egg-balance diagnostic.
+            args$targets <- c("EGrowth", "Mort", "Diffusion")
+            r <- do.call(mizer_rates_subset, args)
+        } else {
+            # A full-rate replacement may change these final rates after their
+            # individual providers have run. Its effective output is decisive.
+            reentered <- sum(vapply(seq_len(sys.nframe()), function(frame) {
+                identical(sys.function(frame), getRequiredRDD.MizerParams)
+            }, logical(1))) > 1L
+            if (reentered) {
+                stop("Recursive full-rate evaluation in getRequiredRDD(); ",
+                     "supply the already evaluated growth, mortality and ",
+                     "diffusion through `rates`.", call. = FALSE)
+            }
+            r <- do.call(rates_fns$Rates, args)
+        }
+    }
+    for (field in c("e_growth", "mort", "diffusion")) {
+        value <- r[[field]]
+        if (!is.numeric(value) || is.complex(value) || any(!is.finite(value)) ||
+                !identical(dim(value), dim(params@initial_n))) {
+            stop("Required recruitment needs a finite species-by-size `",
+                 field, "` rate.", call. = FALSE)
+        }
+    }
     # We pass a dummy recruitment flux of 0 to trigger the boundary condition
     # corrections for a and b in get_transport_coefs
     coefs <- get_transport_coefs(params, n = params@initial_n,

@@ -15,6 +15,8 @@ tuneSteadyState(
   criterion = c("state", "biomass"),
   tolerances = NULL,
   atol = 1e-12,
+  strategies = NULL,
+  joint = NULL,
   ...
 )
 }
@@ -29,10 +31,11 @@ settle, \code{"newton"} to solve the steady-state equation directly. See
 effort stored in \code{params}.}
 
 \item{preserve}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
-Specifies whether the \code{reproduction_level} should be preserved (default)
-or the maximum reproduction rate \code{R_max} or the reproductive
-efficiency \code{erepro}. See \code{\link[=setBevertonHolt]{setBevertonHolt()}} for an explanation
-of the \code{reproduction_level}.}
+An explicit reproduction-preservation choice, such as \code{"erepro"},
+\code{"R_max"} or \code{"reproduction_level"} for Beverton-Holt reproduction.
+Omitting this argument selects the provider's declared default strategy.
+Other laws support their own controls; unsupported choices error. Do not
+combine this selector with an explicit reproduction entry in \code{strategies}.}
 
 \item{info_level}{Controls the amount of information messages that are shown.
 Higher levels lead to more messages, \code{info_level = 0} gives silence. The
@@ -53,6 +56,15 @@ for net biomass drift in the built-in checks.}
 tolerances. Names are \code{owner/measure}, as shown in the \code{measures} table.}
 
 \item{atol}{Absolute tolerance for built-in checks, in grams per year.}
+
+\item{strategies}{Optional named character vector selecting a strategy for
+each specified owner, such as \code{c(resource = "evolve")} or
+\code{c("component:pool" = "hold")}. Omitted owners use their declared defaults.}
+
+\item{joint}{Names of joint strategies registered with \code{\link[=setTuningStrategy]{setTuningStrategy()}}.
+\code{NULL} selects declared joint defaults; \code{character()} selects none. A joint
+strategy replaces the local defaults of its owners. Conflicting explicit
+local selections or overlapping joint ownership error.}
 
 \item{...}{Arguments for the chosen solver.
 
@@ -90,13 +102,12 @@ guaranteed.
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 
-Solves for the consumer size spectra while holding the reproduction rate
-(RDD), the resource and any other components at the values stored in
-\code{params}, and then adjusts the reproduction parameters and resource capacity
-to make those inputs steady. Other components are assessed after their
-dynamics are restored. This is the function to use while setting up and
-calibrating a model: holding the inputs to the fish dynamics fixed is what
-makes the search reliable.
+Solves for a model's steady state using declared tuning strategies. The
+built-in defaults hold final recruitment and the resource abundance fixed,
+then adjust reproduction parameters and resource capacity. Extensions declare
+which states their strategies hold or evolve, what parameters may change,
+and how the held targets are balanced. The restored candidate is checked
+against every effective equation rate before its final steady assessment.
 
 It is not the function for asking where a model with given parameters
 settles. Because the reproduction rate is held at its current value, it
@@ -107,29 +118,28 @@ re-derives \code{erepro}/\code{R_max} and \code{cc_pp}, two states found with it
 share parameters. Use \code{\link[=findSteadyState]{findSteadyState()}} for those questions.
 }
 \details{
-Concretely, three things are held fixed during the search and two parameters
-are re-derived afterwards:
-\itemize{
-\item The reproduction rate is pinned at \code{getRDD(params)}. Afterwards, if the
-model uses Beverton-Holt reproduction, \code{\link[=setBevertonHolt]{setBevertonHolt()}} restores the
-density dependence so that it reproduces exactly that rate at the new
-spectra. Use \code{preserve} to say which of the reproduction parameters should
-be kept as it was.
-\item The resource abundance is held at \code{initialNResource(params)}. Afterwards
-the resource capacity \code{cc_pp} is recomputed so that this abundance is a
-steady state of the resource under the new spectra. If the capacity had
-been set by hand (frozen), it is rebalanced and thereby unfrozen.
-\item Other components are held constant throughout and are not adjusted.
-}
+Each provider supplies named strategies and a default. Use \code{strategies} to
+choose alternatives, and \code{joint} for declared strategies owning coupled
+processes. The selected strategies must cover the whole tuning operation
+without overlapping parameter ownership. Missing support, unknown stationary
+behaviour and unsupported solver combinations stop before the search.
 
-The restored model is assessed in full by default. Dynamic components need
-their own convergence capability, even though this constrained search holds
-them fixed. Their values are not adjusted, so the final assessment may fail
-while the consumer search succeeds. Inspect \code{convergence$assessment} rather
-than assuming the returned model is steady. For the projection solver,
-\code{convergence$search_assessment} separately records the conditional search.
-Select \code{scope = "conditional"} with explicit \code{fixed} owners when the desired
-result concerns a subsystem. See \code{\link[=getSteadyAssessment]{getSteadyAssessment()}}.
+Recruitment targets come from the complete effective rate pipeline,
+including named replacements and extension wrappers. A held target replaces
+the final recruitment entering the equations, so wrappers are not applied a
+second time to a total that already includes their contribution.
+
+Balancers run once after the constrained search. They must preserve the
+candidate state and all effective target equation rates, including growth,
+diffusion, total mortality and final recruitment. Mizer independently checks
+the released model; it does not repair changed rates by solving the consumers
+again or by choosing an undeclared numerical balancing method.
+
+The \code{"convergence"} attribute separates \code{search_assessment}, measured with
+the selected state and rate constraints, from \code{assessment}, measured after
+restoring and balancing the model. Whole-model assessment is the default.
+Select \code{scope = "conditional"} with explicit \code{fixed} owners for a subsystem;
+those inputs must also be held by the selected tuning strategies.
 
 Holding those inputs fixed is what makes the search reliable, but it does not
 make the result certain: the state that is stored is only as close to a fixed

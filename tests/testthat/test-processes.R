@@ -9,14 +9,14 @@ assign("process_test_resource", process_test_resource, envir = globalenv())
 test_that("Built-in processes have bound assessment declarations", {
     p <- NS_params_small
     expect_identical(assessment_owners(p), c("consumers", "resource"))
-    expect_named(getProcess(p), c("consumers", "resource"))
+    expect_named(getProcess(p), c("consumers", "resource", "reproduction"))
     for (owner in c("consumers", "resource")) {
         capability <- assessment_capability(p, owner)
         expect_true(capability$current)
         expect_identical(capability$role, "dynamic")
         expect_type(capability$convergence_fun, "character")
     }
-    expect_error(getProcess(p, "reproduction"), "process")
+    expect_error(getProcess(p, "recruitment"), "process")
 })
 
 test_that("Custom resources need explicit assessment adoption", {
@@ -152,13 +152,13 @@ test_that("Component roles stay distinct from temporary overrides", {
 
 test_that("Process registry validation rejects malformed bindings", {
     registry <- new_capability_registry()
-    registry$processes <- list(resource = list(convergence_fun = NULL,
-                                               role = "dynamic",
-                                               binding = NULL))
+    registry$processes <-
+        list(resource = default_process_registry(NS_params_small)$resource)
+    registry$processes$resource["binding"] <- list(NULL)
     expect_match(capability_registry_errors(registry), "provider binding")
     registry$processes$resource$binding <- new.env(parent = emptyenv())
     expect_match(capability_registry_errors(registry), "provider binding")
     registry$processes <- list(joint = list())
     expect_match(capability_registry_errors(registry),
-                 "consumers and/or resource")
+                 "consumers, resource and/or reproduction")
 })

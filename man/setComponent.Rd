@@ -20,7 +20,10 @@ setComponent(
   rate_fun,
   integration_order,
   convergence_fun,
-  role
+  role,
+  stationary,
+  equation_rates_fun,
+  tuning
 )
 
 removeComponent(params, component)
@@ -71,6 +74,12 @@ to remove it. A dynamic component without this support makes a whole-model
 assessment incomplete.}
 
 \item{role}{Either \code{"dynamic"} (the default) or \code{"prescribed"}.}
+
+\item{stationary}{Explicit TRUE/FALSE stationary-tuning declaration.}
+
+\item{equation_rates_fun}{Callback exposing effective equation quantities.}
+
+\item{tuning}{Named strategies and their default, or NULL to remove support.}
 }
 \value{
 The updated MizerParams object
@@ -102,7 +111,8 @@ with \code{removeComponent()}.
 
 A \code{definition} is a reusable named list containing \code{dynamics_fun},
 \code{rate_fun}, \code{encounter_fun}, \code{mort_fun}, \code{colour}, \code{linetype} and/or
-\code{integration_order}, \code{convergence_fun} and/or \code{role}.
+\code{integration_order}, \code{convergence_fun}, \code{role}, \code{stationary},
+\code{equation_rates_fun} and/or \code{tuning}.
 Explicit arguments
 override its entries. Supplying a definition replaces the component's
 previous definition: omitted optional callbacks are removed and omitted

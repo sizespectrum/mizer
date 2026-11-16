@@ -10,6 +10,28 @@ test_that("saveParams/readParams round-trip", {
     expect_identical(params2@species_params$species, params@species_params$species)
 })
 
+test_that("saving checks callbacks nested in tuning declarations", {
+    rlang::local_bindings(
+        saved_equation_rates = function(params, ...) list(),
+        saved_balance = function(params, ...) params,
+        saved_preserved = function(params, ...) 1,
+        .env = globalenv()
+    )
+    strategy <- list(action = "balance", balance_fun = "saved_balance",
+                     preserve = list(quantity = list(fun = "saved_preserved")))
+    p <- setProcess(
+        NS_params_small, "reproduction", stationary = TRUE,
+        equation_rates_fun = "saved_equation_rates",
+        tuning = list(default = "custom", strategies = list(custom = strategy))
+    )
+    tmp <- tempfile(fileext = ".rds")
+    withr::defer(unlink(tmp))
+    expect_warning(saveParams(p, tmp),
+                   "saved_equation_rates.*saved_balance.*saved_preserved")
+    restored <- readRDS(tmp)
+    expect_equal(restored$capabilities, p$capabilities)
+})
+
 test_that("stored component definitions survive params and sim round trips", {
     definition <- list(dynamics_fun = "constant_other", colour = "red",
                        linetype = "dashed")

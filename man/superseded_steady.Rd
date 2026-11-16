@@ -89,10 +89,11 @@ the result of the simulation run, saved at intervals of \code{t_per}. If FALSE
 slots set to the steady state.}
 
 \item{preserve}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
-Specifies whether the \code{reproduction_level} should be preserved (default)
-or the maximum reproduction rate \code{R_max} or the reproductive
-efficiency \code{erepro}. See \code{\link[=setBevertonHolt]{setBevertonHolt()}} for an explanation
-of the \code{reproduction_level}.}
+An explicit reproduction-preservation choice, such as \code{"erepro"},
+\code{"R_max"} or \code{"reproduction_level"} for Beverton-Holt reproduction.
+Omitting this argument selects the provider's declared default strategy.
+Other laws support their own controls; unsupported choices error. Do not
+combine this selector with an explicit reproduction entry in \code{strategies}.}
 
 \item{progress_bar}{A shiny progress object to implement a progress bar in a
 shiny app. Default FALSE.}

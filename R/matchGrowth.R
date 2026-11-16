@@ -64,6 +64,8 @@ matchGrowth.MizerParams <- function(params, species = NULL,
 
     # Don't affect species where no age at maturity is available
     sel <- sel & !is.na(sp$age_mat)
+    if (!any(sel)) return(params)
+    require_reproduction_balance_support(params, partial = any(!sel))
 
     factor <- age_mat(params)[sel] / sp$age_mat[sel]
 
@@ -90,6 +92,6 @@ matchGrowth.MizerParams <- function(params, species = NULL,
     params <- steadySingleSpecies(params, species = sel, keep = keep)
 
     signal_off_steady("matchGrowth")
-    setBevertonHolt(params)
+    balanceRDD(params, rdd_target = getRequiredRDD(params)[sel])
     })
 }

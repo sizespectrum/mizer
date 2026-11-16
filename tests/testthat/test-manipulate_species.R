@@ -291,7 +291,7 @@ test_that("addSpecies preserves slots recently added to upgradeParams", {
 
     sp <- data.frame(species = "new", w_max = 10, k_vb = 1)
     p <- suppressWarnings(suppressMessages(
-        addSpecies(params, sp, info_level = 0)
+        addSpecies(params, sp, steady = FALSE, info_level = 0)
     ))
     old_sp <- seq_len(nrow(params@species_params))
     old_w <- seq_along(params@w)

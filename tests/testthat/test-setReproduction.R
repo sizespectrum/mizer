@@ -19,11 +19,10 @@ test_that("setReproduction works", {
     p2 <- setReproduction(params, RDD = "SheperdRDD")
     expect_equal(p2@species_params$erepro[1], 1, ignore_attr = TRUE)
     p2@species_params$sheperd_b <- 0
-    expect_error(getRDD(p2),
-                 "The species_params dataframe must contain columns sheperd_b and sheperd_c.")
+    expect_equal(unname(p2$species_params$sheperd_c), rep(1, no_sp))
+    expect_equal(getRDI(p2), getRDD(p2))
     p2 <- setReproduction(params, RDD = "RickerRDD")
-    expect_error(getRDD(p2),
-                 "The ricker_b column is missing in species_params")
+    expect_equal(unname(p2$species_params$ricker_b), rep(0, no_sp))
     p2@species_params$ricker_b <- 0
     expect_equal(getRDI(p2), getRDD(p2))
 })
@@ -174,4 +173,14 @@ test_that("Can get and set maturity", {
     expect_equal(maturity(params), new, ignore_attr = TRUE)
     expect_equal(maturity(params), new, ignore_attr = TRUE)
     expect_identical(comment(params@maturity), "test")
+})
+
+
+test_that("Zero reproductive efficiency is a valid balanced boundary", {
+    p <- NS_params_small
+    p$species_params$erepro[1] <- 0
+    expect_no_error(p <- setReproduction(p))
+    expect_equal(getRDI(p)[1], 0, ignore_attr = TRUE)
+    p$species_params$erepro[1] <- -0.1
+    expect_error(setReproduction(p), "negative reproductive efficiency")
 })
