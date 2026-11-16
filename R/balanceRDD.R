@@ -963,3 +963,42 @@ builtin_reproduction_tuning <- function(params) {
     }
     list(default = default, strategies = strategies)
 }
+
+#' Reuse the built-in reproduction capability definition
+#'
+#' Returns the data-only balancing and reproduction-level capabilities for the
+#' built-in law named in `params$rates_funcs$RDD`. This helper does not register
+#' support or change the model. An extension author can explicitly adopt the
+#' definition with [setProcess()] after verifying that its effective reproduction
+#' route still implements that law and that density-independent reproduction
+#' remains proportional to `erepro`.
+#'
+#' The recognised laws are Beverton-Holt, Ricker, Shepherd, constant recruitment
+#' and density-independent recruitment. Custom mortality or encounter providers
+#' may leave these reproduction relationships unchanged. A custom RDI, RDD or
+#' complete-rate wrapper needs its own analysis: merely naming a built-in RDD
+#' does not establish that the effective route preserves those relationships.
+#' Unknown law names are rejected. Transformation support must be declared
+#' separately by the extension author.
+#'
+#' @param params A MizerParams object.
+#' @return A named list containing stationary, equation_rates_fun, tuning and
+#'   level_fun, suitable as the definition argument for the reproduction
+#'   process. The strategies reuse mizer's law-specific implementations.
+#' @seealso [setProcess()], [balanceRDD()]
+#' @family extension tools
+#' @export
+mizerReproductionDefinition <- function(params) {
+    params <- validParams(params)
+    law <- reproduction_law_name(params)
+    if (length(law) != 1L || is.na(law) ||
+            !law %in% c("BevertonHoltRDD", "RickerRDD", "SheperdRDD",
+                         "constantRDD", "noRDD")) {
+        stop("No built-in reproduction definition for the stored RDD law.",
+             call. = FALSE)
+    }
+    list(stationary = TRUE,
+         equation_rates_fun = "builtin_reproduction_equation_rates",
+         tuning = builtin_reproduction_tuning(params),
+         level_fun = paste0("reproduction_level_", law))
+}

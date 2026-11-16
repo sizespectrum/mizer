@@ -397,6 +397,21 @@ non-numeric states. Supplying both capabilities uses the custom step for
 projection and makes the derivative available to diagnostics; the author is
 responsible for their consistency.
 
+For the linear decay above, an exact custom step also works for a decay rate
+that is too stiff for explicit integration:
+
+```r
+poolStep <- function(params, n_other, component, dt, ...) {
+    n_other[[component]] * exp(-params@other_params[[component]]$decay * dt)
+}
+params <- setComponent(params, "pool", rate_fun = "poolRate",
+                       dynamics_fun = "poolStep", integration_order = 2,
+                       component_params = list(decay = 1000))
+```
+
+This step is exact for that independent linear equation. A more general custom
+step needs its own accuracy checks, including any coupling to other states.
+
 A custom `dynamics_fun` still receives the **start** state, start time `t` and
 step length `dt` and must return the updated state. Under a second-order method
 it is called twice, once for the predictor and once for the corrector. Only the
@@ -510,6 +525,27 @@ owner. Apply the dynamic mask before forming quantitative measures; mizer
 cannot remove excluded coordinates from an already aggregated custom measure.
 The built-in consumer and resource assessments do this before integration.
 
+A non-biomass state needs no artificial biomass measurement. For example,
+temperature can be assessed in degrees per year:
+
+```r
+temperatureRate <- function(params, n_other, component, ...) {
+    settings <- params@other_params[[component]]
+    (settings$target - n_other[[component]]) / settings$tau
+}
+temperatureConvergence <- function(params, n_other, component, ...) {
+    data.frame(measure = "temperature_change",
+               value = temperatureRate(params, n_other, component),
+               tolerance = 0.01, units = "degrees/year")
+}
+params <- setComponent(params, "temperature", initial_value = 15,
+    rate_fun = "temperatureRate", convergence_fun = "temperatureConvergence",
+    autonomous = TRUE, component_params = list(target = 15, tau = 1))
+```
+
+That declaration supports projection and assessment. Tuning or transforming
+the component still requires the corresponding declarations.
+
 The independent `autonomous` declaration states whether the effective providers
 have explicit time dependence. Use `TRUE` only for time-independent providers,
 `FALSE` for forcing, and `NULL` for unknown support. Reproduction has no state
@@ -595,6 +631,14 @@ stored with the model and bound to their effective named/S3 providers. Changing
 a provider requires explicit adoption of the corresponding support, not merely
 leaving an old function name in the registry.
 
+When an extension changes mortality or encounter while preserving a built-in
+reproduction law, `mizerReproductionDefinition(params)` supplies its reusable
+strategy and level definitions. Explicitly adopt this through `setProcess()`
+only after checking the effective RDI/RDD route and its proportional dependence
+on `erepro`. The helper does not register support, validate an unknown wrapper
+or supply transformation declarations. A custom reproduction law needs its own
+specification.
+
 ### Measuring component biomass
 
 A component's `biomass_fun` measures its stocks without defining convergence or
@@ -650,6 +694,18 @@ species-by-size matrix. Optional `metadata` supplies `id`, `label`, `owner`,
 an incomplete report. Mizer checks complete causes against the actual total,
 cell by cell and time by time. Do not manufacture an attribution for unexplained
 mortality or use proportional rescaling to force agreement.
+
+If the extension retains mizer's ordinary mortality terms, its callback can
+start with `mizerMortalityBreakdown()` using the supplied context, append its
+own causes and metadata, and return the complete specification. This helper
+does not evaluate the rates again or validate the final sum; `getMortByCause()`
+performs that check after the author's callback returns.
+
+`predation_by_species = TRUE` requests a refinement into predator species.
+Mizer uses it only when those terms sum to the effective predation mortality;
+otherwise predation remains aggregated. The built-in callback uses one
+consistent grouping across selected simulation times. An author callback
+using the helper is responsible for keeping its returned series stable too.
 
 ### Transforming extension data with the model
 

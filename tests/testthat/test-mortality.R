@@ -347,3 +347,113 @@ test_that("Mortality diagnostics upgrade saved S4 states before defaults", {
     expect_true(result$complete)
     expect_equal(as.numeric(result$total), as.numeric(expected$total))
 })
+
+test_that("Predator refinement preserves effective total mortality", {
+    for (second in c(FALSE, TRUE)) {
+        p <- NS_params_small
+        p$second_order_w[["bin_average"]] <- second
+        aggregate <- getMortByCause(p)
+        refined <- getMortByCause(p, predation_by_species = TRUE)
+        ids <- paste0("predator:", p$species_params$species)
+        expect_true(refined$complete)
+        expect_true(all(ids %in% names(refined$causes)))
+        expect_false("predation" %in% names(refined$causes))
+        expect_equal(Reduce(`+`, refined$causes[ids]),
+                     aggregate$causes$predation, ignore_attr = TRUE)
+        expect_equal(refined$total, aggregate$total)
+        rows <- match(ids, refined$metadata$id)
+        expect_identical(refined$metadata$label[rows],
+                         as.character(p$species_params$species))
+        expect_identical(refined$metadata$colour[rows],
+                         unname(getColours(p)[p$species_params$species]))
+    }
+    sim <- getMortByCause(NS_sim_small, predation_by_species = TRUE,
+                          drop = FALSE)
+    expect_true(sim$complete)
+    ids <- paste0("predator:", NS_params_small$species_params$species)
+    expect_true(all(ids %in% names(sim$causes)))
+    expect_error(getMortByCause(NS_params_small, predation_by_species = NA),
+                 "must be TRUE or FALSE")
+})
+
+test_that("Changed predation stays aggregate when refinement disagrees", {
+    rlang::local_bindings(
+        refined_changed_predation = function(params, ...) {
+            2 * mizerPredMort(params, ...)
+        }, .env = .GlobalEnv
+    )
+    p <- setRateFunction(NS_params_small, "PredMort",
+                         "refined_changed_predation")
+    report <- getMortByCause(p, predation_by_species = TRUE)
+    expect_true(report$complete)
+    expect_true("predation" %in% names(report$causes))
+    expect_false(any(startsWith(names(report$causes), "predator:")))
+    expect_equal(report$causes$predation, getPredMort(p), ignore_attr = TRUE)
+})
+
+test_that("Author helper shares rates and supports outer assemblers", {
+    calls <- 0L
+    rlang::local_bindings(
+        refined_outer_rates = function(params, n, n_pp, n_other, t,
+                                       effort, rates_fns) {
+            calls <<- calls + 1L
+            rates <- mizerRates(params, n = n, n_pp = n_pp, n_other = n_other,
+                                t = t, effort = effort, rates_fns = rates_fns)
+            rates$mort <- rates$mort + 0.2
+            rates
+        },
+        refined_author = function(params, ...) {
+            result <- mizerMortalityBreakdown(params, ...)
+            result$causes$authored <- params$initial_n * 0 + 0.2
+            result$metadata <- rbind(result$metadata, data.frame(
+                id = "authored", label = "Authored", owner = "consumers",
+                colour = "red", linetype = "solid"
+            ))
+            result
+        }, .env = .GlobalEnv
+    )
+    p <- setRateFunction(NS_params_small, "Rates", "refined_outer_rates")
+    p <- setProcess(p, "consumers", mortality_fun = "refined_author")
+    calls <- 0L
+    report <- getMortByCause(p, predation_by_species = TRUE)
+    expect_identical(calls, 1L)
+    expect_true(report$complete)
+    expect_true("authored" %in% names(report$causes))
+    expect_true(any(startsWith(names(report$causes), "predator:")))
+    p <- setProcess(p, "consumers", mortality_fun = "mizerMortalityBreakdown")
+    expect_error(getMortByCause(p, predation_by_species = TRUE),
+                 "Complete mortality decomposition disagrees")
+})
+
+test_that("Simulation refinement falls back without reevaluating rates", {
+    calls <- 0L
+    initial_time <- getTimes(NS_sim_small)[1]
+    rlang::local_bindings(
+        refined_time_predation = function(params, t, ...) {
+            mizerPredMort(params, t = t, ...) * if (t == initial_time) 1 else 2
+        },
+        refined_counted_rates = function(params, ...) {
+            calls <<- calls + 1L
+            mizerRates(params, ...)
+        }, .env = .GlobalEnv
+    )
+    p <- setRateFunction(NS_sim_small$params, "PredMort",
+                         "refined_time_predation")
+    p <- setRateFunction(p, "Rates", "refined_counted_rates")
+    p <- setProcess(p, "consumers", mortality_fun = "mizerMortalityBreakdown")
+    sim <- NS_sim_small
+    sim$params <- p
+    calls <- 0L
+    report <- getMortByCause(sim, predation_by_species = TRUE, drop = FALSE)
+    expect_identical(calls, length(getTimes(sim)))
+    expect_true(report$complete)
+    expect_true("predation" %in% names(report$causes))
+    expect_false(any(startsWith(names(report$causes), "predator:")))
+    aggregate <- getMortByCause(sim, drop = FALSE)
+    expect_equal(as.numeric(report$causes$predation),
+                 as.numeric(aggregate$causes$predation), tolerance = 0)
+    expect_null(attr(report, "predation_aggregate"))
+    first <- getMortByCause(sim, time_range = initial_time,
+                            predation_by_species = TRUE)
+    expect_true(any(startsWith(names(first$causes), "predator:")))
+})

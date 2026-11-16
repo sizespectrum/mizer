@@ -68,6 +68,7 @@ package.
 | A component needs its own derivative or predicted endpoint, or corrector results change when it uses `pred_rate` or `f_mort` | equations and custom steps are separate capabilities, and correctors now provide complete midpoint rates | Component equations and prediction context |
 | A model using the package has incomplete steady-state coverage, or a solver refuses missing convergence support | a component or custom resource needs a quantitative convergence declaration; an equation or biomass alone does not provide it | Registering convergence support |
 | Stability reports missing state, equation or autonomy support, or prescribed inputs acquire spurious modes | structural input masks and temporal declarations are independent capabilities | Declaring structural inputs and temporal support |
+| An extension upgrade recursively re-enters when it calls `setComponent()` or `setProcess()`, or it stamps itself early to avoid that | upgrade validation now has a candidate-specific runtime guard | Registering capabilities during an upgrade |
 | `is()` / `setClass()` / `expect_s4_class()` in the package, or `.onLoad()` calling `registerExtension()` / `getRegisteredExtensions()` | written against the S4 mizer | Part 1 |
 | After `rm(list = ls())`, or in the second and later examples of `R CMD check`, mizer reports the extension's class is not a defined class | the dynamic S4 marker classes lived in `.GlobalEnv` | Part 1 — the mechanism is gone, migrate rather than repair |
 | After `devtools::load_all()`, `coerceToExtensionClass()` reports no method or default for coercing `MizerParams` | same obsolete marker-class machinery | Part 1 |
@@ -892,6 +893,30 @@ its missing-support reasons. Adopting this diagnostic does not re-adopt stale
 tuning, convergence or transformation declarations. Remove copied mortality
 plot logic only after checking the extension's intended causes and presentation
 against the shared getter.
+
+## Reusing built-in capability definitions
+
+The migration preview (3.4.0.9011) adds `mizerMortalityBreakdown()` for an author
+callback to reuse the built-in terms before appending extension causes. The
+same full effective rates are used, and `getMortByCause()` checks the combined
+sum afterwards. Prefer this to a copied decomposition or a separate call to
+`getRates()`. Predator-specific refinement is optional and must agree with the
+effective aggregate; incomplete attribution never licenses inventing a cause
+or renormalising known terms to the total.
+
+For a known built-in reproduction law whose semantics your extension preserves,
+`mizerReproductionDefinition()` supplies the corresponding strategies and level
+definition. This is an explicit reuse tool, not automatic approval of a custom
+RDI, RDD or complete-rate wrapper. Supply transformation declarations separately
+and test preserved effective recruitment after balancing.
+
+## Registering capabilities during an upgrade
+
+Extension upgrade methods can now register capabilities through validating
+public setters without restarting their own migration. Remove workarounds that
+stamp the extension as current before the upgrade has finished. Mizer retains
+the old stamp during the callback, processes the chain from inside out and
+records success afterwards.
 
 ## Finishing
 

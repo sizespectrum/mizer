@@ -1,3 +1,58 @@
+test_that("S4 conversion retains an available model ancestry", {
+    class_env <- new.env(parent = globalenv())
+    methods::setClass("MizerParams", slots = c(marker = "logical"),
+                      where = class_env)
+    withr::defer(methods::removeClass("MizerParams", where = class_env))
+    constructor <- methods::setClass("mizerLegacyAncestry",
+        contains = "MizerParams", where = class_env
+    )
+    withr::defer(methods::removeClass("mizerLegacyAncestry", where = class_env))
+    old <- constructor(marker = TRUE)
+    converted <- upgrade_s4_to_s3(old)
+    expect_false(isS4(converted))
+    expect_identical(class(converted), c("mizerLegacyAncestry", "MizerParams"))
+    expect_true(converted$marker)
+})
+
+test_that("S4 conversion recognises missing extension class definitions", {
+    old_sim <- readRDS("assets/simc.1.0.rds")
+    old_params <- attributes(old_sim)$params
+    attr(old_params, "class") <- "mizerMissingParamsDefinition"
+    attr(old_sim, "class") <- "mizerMissingSimDefinition"
+    attr(old_sim, "params") <- old_params
+    comment(old_params) <- "saved model"
+    converted <- upgrade_s4_to_s3(old_params)
+    expect_identical(class(converted),
+                     c("mizerMissingParamsDefinition", "MizerParams"))
+    expect_identical(comment(converted), "saved model")
+    expect_equal(converted$initial_n, attributes(old_params)$initial_n)
+    sim <- upgrade_s4_to_s3(old_sim)
+    expect_identical(class(sim), c("mizerMissingSimDefinition", "MizerSim"))
+    expect_identical(class(sim$params),
+                     c("mizerMissingParamsDefinition", "MizerParams"))
+    expect_false(isS4(sim$params))
+    expect_equal(sim$n, attributes(old_sim)$n)
+})
+
+test_that("S4 conversion does not infer ambiguous or unrelated models", {
+    old_sim <- readRDS("assets/simc.1.0.rds")
+    old <- attributes(old_sim)$params
+    attr(old, "class") <- "mizerUnrelatedLegacyClass"
+    attr(old, "initial_n") <- "not a numeric model state"
+    expect_identical(class(upgrade_s4_to_s3(old)), "mizerUnrelatedLegacyClass")
+    attr(old, "initial_n") <- NULL
+    expect_identical(class(upgrade_s4_to_s3(old)), "mizerUnrelatedLegacyClass")
+
+    ambiguous <- attributes(old_sim)$params
+    attr(ambiguous, "class") <- "mizerAmbiguousLegacyClass"
+    for (name in c("params", "n", "n_pp", "effort")) {
+        attr(ambiguous, name) <- attributes(old_sim)[[name]]
+    }
+    expect_identical(class(upgrade_s4_to_s3(ambiguous)),
+                     "mizerAmbiguousLegacyClass")
+    expect_identical(upgrade_s4_to_s3(NS_params_small), NS_params_small)
+})
+
 test_that("l2w works", {
     sp <- validSpeciesParams(NS_species_params_small)
     no_sp <- nrow(sp)

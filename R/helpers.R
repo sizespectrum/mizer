@@ -470,6 +470,36 @@ upgrade_s4_to_s3 <- function(object) {
     names(obj_list) <- sl_names
     cl <- class(object)
     attr(cl, "package") <- NULL
+    families <- c("MizerParams", "MizerSim")
+    ancestry <- unique(unlist(lapply(cl, function(name) {
+        definition <- methods::getClassDef(name)
+        if (is.null(definition)) return(name)
+        methods::extends(definition, maybe = FALSE)
+    }), use.names = FALSE))
+    family <- intersect(families, ancestry)
+    if (length(family) == 0L) {
+        # Saved extension subclasses can outlive their S4 definitions. Infer
+        # their family only from a complete, unambiguous model structure.
+        params_slots <- c("species_params", "w", "w_full", "initial_n",
+                          "initial_n_pp")
+        sim_slots <- c("params", "n", "n_pp", "effort")
+        matches <- c(
+            MizerParams = all(params_slots %in% sl_names) &&
+                is.data.frame(obj_list$species_params) &&
+                is.numeric(obj_list$w) && is.numeric(obj_list$w_full) &&
+                is.numeric(obj_list$initial_n) &&
+                is.matrix(obj_list$initial_n) &&
+                is.numeric(obj_list$initial_n_pp),
+            MizerSim = all(sim_slots %in% sl_names) &&
+                (is.list(obj_list$params) || isS4(obj_list$params)) &&
+                is.numeric(obj_list$n) && length(dim(obj_list$n)) == 3L &&
+                is.numeric(obj_list$n_pp) &&
+                length(dim(obj_list$n_pp)) >= 2L &&
+                is.numeric(obj_list$effort) && is.matrix(obj_list$effort)
+        )
+        if (sum(matches) == 1L) family <- names(matches)[matches]
+    }
+    if (length(family) == 1L) cl <- unique(c(cl, family))
     class(obj_list) <- cl
     if ("comment" %in% names(attrs)) {
         comment(obj_list) <- attrs[["comment"]]

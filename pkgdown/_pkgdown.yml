@@ -281,6 +281,7 @@ reference:
   contents:
   - getRates
   - getMortByCause
+  - mizerMortalityBreakdown
   - has_concept("rate functions")
 - title: Calculating indicators
   description: Calculate ecological indicators from a `MizerSim` object, such as
@@ -358,6 +359,7 @@ reference:
   - other_mort
   - setComponent
   - setProcess
+  - mizerReproductionDefinition
   - getProcess
   - setTuningStrategy
   - setTransformation

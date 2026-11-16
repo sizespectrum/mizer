@@ -539,6 +539,32 @@ upgradeParams <- function(params) {
     upgrade.MizerParams(params)
 }
 
+# Active tokens are runtime-only. A copied candidate retains its token through
+# validating setters, but a token deserialised from a file is never active.
+extension_upgrade_runtime <- new.env(parent = emptyenv())
+extension_upgrade_runtime$active <- list()
+
+extension_upgrade_active <- function(params) {
+    token <- attr(params, "mizer_extension_upgrade", exact = TRUE)
+    is.environment(token) && any(vapply(extension_upgrade_runtime$active,
+                                        identical, logical(1), y = token))
+}
+
+# Internal model copies remain part of the same migration. Only transfer an
+# active token from the source object, never accept a deserialised token as
+# evidence that an upgrade is already running.
+preserve_upgrade_guard <- function(candidate, original) {
+    if (extension_upgrade_active(original)) {
+        attr(candidate, "mizer_extension_upgrade") <-
+            attr(original, "mizer_extension_upgrade", exact = TRUE)
+    }
+    candidate
+}
+
+clone_params_runtime <- function(params) {
+    preserve_upgrade_guard(unserialize(serialize(params, NULL)), params)
+}
+
 #' Run the registered extension upgrade methods on an object
 #'
 #' For each extension recorded on the object (processed
@@ -550,13 +576,27 @@ upgradeParams <- function(params) {
 #' Extension upgrade methods are looked up with
 #' `getS3method("upgrade", name, optional = TRUE)`, must perform only their own
 #' migration, must be idempotent, and must not call `NextMethod()`.
+#' Validating setters called during a migration do not re-enter the upgrade
+#' chain for that candidate. Version stamps remain unchanged until each method
+#' returns successfully; independent nested models can still be upgraded.
 #'
 #' @param params A MizerParams object.
 #' @return The object with extension migrations applied and stamps refreshed.
 #' @keywords internal
 runExtensionUpgrades <- function(params) {
+    if (extension_upgrade_active(params)) return(params)
     reqs <- extensionRequirements(params@extensions)
     if (length(reqs) == 0) return(params)
+    token <- new.env(parent = emptyenv())
+    extension_upgrade_runtime$active <-
+        c(extension_upgrade_runtime$active, list(token))
+    on.exit({
+        keep <- !vapply(extension_upgrade_runtime$active,
+                        identical, logical(1), y = token)
+        extension_upgrade_runtime$active <-
+            extension_upgrade_runtime$active[keep]
+    }, add = TRUE)
+    attr(params, "mizer_extension_upgrade") <- token
     vers <- extensionVersions(params@extensions)
     # innermost extension first (the chain is stored outermost-first)
     for (name in rev(names(reqs))) {
@@ -568,10 +608,15 @@ runExtensionUpgrades <- function(params) {
         method <- getS3method("upgrade", name, optional = TRUE)
         if (!is.null(method)) {
             params <- method(params)
+            if (!inherits(params, "MizerParams")) {
+                stop("The upgrade method for '", name,
+                     "' must return a MizerParams object.", call. = FALSE)
+            }
         }
         params <- recordExtension(params, name,
                                   version = as.character(installed))
     }
+    attr(params, "mizer_extension_upgrade") <- NULL
     params
 }
 
