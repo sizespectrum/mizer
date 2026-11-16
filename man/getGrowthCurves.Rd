@@ -43,6 +43,7 @@ Other summary functions:
 \code{\link[=getBiomass]{getBiomass()}},
 \code{\link[=getDiet]{getDiet()}},
 \code{\link[=getEncounterByPrey]{getEncounterByPrey()}},
+\code{\link[=getMortByCause]{getMortByCause()}},
 \code{\link[=getN]{getN()}},
 \code{\link[=getSSB]{getSSB()}},
 \code{\link[=getSteadyResidual]{getSteadyResidual()}},

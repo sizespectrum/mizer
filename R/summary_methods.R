@@ -791,31 +791,53 @@ getSSB.MizerParams <- function(object) {
 #' step.
 #'
 #' Calculates the total biomass through time within user defined size limits.
-#' The default option is to use the size range starting at the size specified
-#' by the `biomass_cutoff` species parameter, if it is set, or else the full
-#' size range of each species. You can specify minimum
+#' By default the full size range of each species is included. With
+#' `use_cutoff = TRUE`, the size range starts at the `biomass_cutoff` species
+#' parameter, if it is set. You can specify minimum
 #' and maximum weight or length range for the species. Lengths take precedence
 #' over weights (i.e. if both min_l and min_w are supplied, only min_l will be
 #' used).
 #'
 #' @details
-#' When no size range arguments are provided, the function checks if the
-#' `biomass_cutoff` column exists in the species parameters. If it does,
+#' When `use_cutoff = TRUE`, the function checks if the `biomass_cutoff`
+#' column exists in the species parameters. If it does,
 #' those values are used as the minimum weight for each species. For species
 #' with NA values in `biomass_cutoff`, the default minimum weight (smallest
 #' weight in the model) is used.
+#'
+#' Biomass measurement is independent of convergence assessment. The resource
+#' is integrated over its full size grid, using the model's quadrature scheme.
+#' Component biomass comes from the component's registered `biomass_fun`, which
+#' receives the complete state at each saved time. A component may return
+#' several named biomass series. Missing measurement support or unsupported
+#' explicit filters produce NA values with reasons in the `unavailable`
+#' attribute. Callback errors and invalid results are reported as errors.
+#' Extended results carry `series` metadata and a `coverage` table with
+#' `time`, `id`, `available` and `reason` columns. Different selected series
+#' must represent different physical sources, to avoid counting biomass twice.
 #'
 #' @param object An object of class `MizerParams` or `MizerSim`.
 #' @param use_cutoff If TRUE, the `biomass_cutoff` column in the
 #'   species parameters is used as the minimum weight for each species (ignoring any
 #'   size range arguments in `...`). If FALSE (default), the specified size range
 #'   arguments are used, if provided, or the full size range of the species is used.
-#' @inheritDotParams get_size_range_array -params
+#' @param include Character vector selecting `"species"` (the default),
+#'   `"resource"`, `"components"`, a particular `"component:name"`, or an
+#'   exact `"component:name/series"` identifier. Overlapping selections are
+#'   included only once. Resource length limits use [resource_params()];
+#'   resource size limits must be scalar. Components must explicitly declare
+#'   which filters their biomass callback supports.
+#' @param ... Size filters `min_w`, `max_w`, `min_l` and `max_l` as described
+#'   in [get_size_range_array()]. With a `MizerParams` object, `n`, `n_pp`,
+#'   `n_other` and `t` can specify the state and time to measure, defaulting
+#'   to the initial state and time zero.
 #'
 #' @return If called with a MizerParams object, a named vector with the biomass
 #'   in grams for each species in the model. If called with a MizerSim object,
 #'   an `ArrayTimeBySpecies` object (time x species) containing the biomass in
-#'   grams at each time step for all species.
+#'   grams at each time step for all species. Selecting resource or component
+#'   series returns a `MizerBiomass` numeric vector for `MizerParams`, or an
+#'   `ArrayTimeBySpecies` with additional named columns for `MizerSim`.
 #' @export
 #' @family summary functions
 #' @concept summary_function
@@ -830,12 +852,40 @@ getSSB.MizerParams <- function(object) {
 #' species_params(NS_sim@params)$biomass_cutoff <- 10
 #' biomass <- getBiomass(NS_sim, use_cutoff = TRUE)  # Uses biomass_cutoff as min_w
 #' biomass["1972", "Herring"]
-getBiomass <- function(object, use_cutoff = FALSE, ...) {
+getBiomass <- function(object, use_cutoff = FALSE, ..., include = "species") {
     UseMethod("getBiomass")
 }
+#' @rdname getBiomass
+#' @usage NULL
 #' @export
-getBiomass.MizerSim <- function(object, use_cutoff = FALSE, ...) {
+getBiomass.MizerSim <- function(object, use_cutoff = FALSE, ...,
+                                include = "species") {
+    object <- upgrade_s4_to_s3(object)
     params <- object@params
+    if (!identical(include, "species")) {
+        params <- validParams(params)
+        object$params <- params
+        filters <- biomass_requested_filters(list(...), use_cutoff)
+        plan <- prepare_biomass(params, include, filters)
+        species_biomass <- if ("species" %in% plan$owners) {
+            getBiomass(object, use_cutoff = use_cutoff, ...)
+        } else {
+            NULL
+        }
+        rows <- lapply(seq_len(dim(object$n)[[1L]]), function(i) {
+            slice <- get_sim_rate_slice(object, i)
+            biomass <- if (!is.null(species_biomass)) {
+                setNames(as.numeric(species_biomass[i, , drop = FALSE]),
+                         colnames(species_biomass))
+            } else {
+                NULL
+            }
+            evaluate_biomass(params, plan, slice$n, slice$n_pp, slice$n_other,
+                             slice$t, biomass)
+        })
+        return(assemble_biomass(rows, getTimes(object), params,
+                                simulation = TRUE))
+    }
     if (use_cutoff && "biomass_cutoff" %in% names(params@species_params)) {
         sizeIntegral(object, weighting = params@w,
                      min_w = cutoff_min_w(params),
@@ -845,14 +895,31 @@ getBiomass.MizerSim <- function(object, use_cutoff = FALSE, ...) {
                      value_name = "Biomass", units = "g")
     }
 }
+#' @rdname getBiomass
+#' @usage NULL
 #' @export
-getBiomass.MizerParams <- function(object, use_cutoff = FALSE, ...) {
+getBiomass.MizerParams <- function(object, use_cutoff = FALSE, ...,
+                                   include = "species", n = object$initial_n,
+                                   n_pp = object$initial_n_pp,
+                                   n_other = object$initial_n_other, t = 0) {
+    object <- upgrade_s4_to_s3(object)
     params <- object
+    if (!identical(include, "species")) {
+        params <- validParams(params)
+        object <- params
+        if (!is.numeric(t) || length(t) != 1L || !is.finite(t)) {
+            stop("`t` must be a finite numeric time.")
+        }
+        filters <- biomass_requested_filters(list(...), use_cutoff)
+        plan <- prepare_biomass(params, include, filters)
+        rows <- evaluate_biomass(params, plan, n, n_pp, n_other, t)
+        return(assemble_biomass(list(rows), t, params))
+    }
     if (use_cutoff && "biomass_cutoff" %in% names(params@species_params)) {
-        sizeIntegral(params, weighting = params@w,
+        sizeIntegral(params, weighting = params@w, n = n,
                      min_w = cutoff_min_w(params))
     } else {
-        sizeIntegral(params, weighting = params@w, ...)
+        sizeIntegral(params, weighting = params@w, n = n, ...)
     }
 }
 

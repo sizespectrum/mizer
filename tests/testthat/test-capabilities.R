@@ -4,7 +4,7 @@ test_that("Stored capability schemas reject ambiguous or executable data", {
 
     registry$schema_version <- 99L
     expect_match(capability_registry_errors(registry), "Unsupported")
-    registry$schema_version <- 5L
+    registry$schema_version <- 6L
     registry$components <- list(pool = list(dynamics_fun = function() 1))
     expect_match(capability_registry_errors(registry), "function name")
     registry$components <- list(pool = list(dynamics_fun = "unloaded_callback"))
@@ -37,6 +37,9 @@ test_that("Definitions fail early on misspellings and unnamed callbacks", {
                  "function name")
     expect_error(assemble(NULL), "plain named list")
     expect_error(assemble(list(dynamics_fun = NULL)), "requires `dynamics_fun`")
+    expect_error(assemble(list(dynamics_fun = "constant_other",
+                               level_fun = "stats::median")),
+                 "Unknown component definition fields.*level_fun")
 })
 
 test_that("Legacy snapshots preserve only known component registrations", {
@@ -175,7 +178,7 @@ test_that("Schema one upgrades keep stored choices without resolving code", {
         processes = list()
     )
     upgraded <- upgrade_capability_registry(legacy)
-    expect_identical(upgraded$schema_version, 5L)
+    expect_identical(upgraded$schema_version, 6L)
     expect_identical(legacy$schema_version, 1L)
     expect_named(upgraded$components$pool,
                  c("dynamics_fun", "rate_fun", "encounter_fun", "mort_fun",
@@ -183,7 +186,7 @@ test_that("Schema one upgrades keep stored choices without resolving code", {
                    "convergence_fun", "role", "stationary",
                    "equation_rates_fun",
                    "tuning", "tuning_binding", "transformations",
-                   "transformation_binding"))
+                   "transformation_binding", "biomass_fun", "biomass_filters"))
     expect_identical(upgraded$components$pool$dynamics_fun, "unloaded_step")
     expect_identical(upgraded$components$pool$mort_fun, "unloaded_mortality")
     expect_identical(upgraded$components$pool$colour, "orange")
@@ -229,7 +232,7 @@ test_that("Schema four upgrades add transformation support without inference", {
         definition[setdiff(names(definition), fields)]
     })
     upgraded <- upgrade_capability_registry(old, params = p)
-    expect_identical(upgraded$schema_version, 5L)
+    expect_identical(upgraded$schema_version, 6L)
     expect_identical(upgraded$tuning, old$tuning)
     expect_identical(upgraded$components$pool[names(old$components$pool)],
                      old$components$pool)
@@ -241,4 +244,52 @@ test_that("Schema four upgrades add transformation support without inference", {
     changed <- setReproduction(p, RDD = "RickerRDD")
     expect_identical(changed$capabilities$processes$reproduction$level_fun,
                      "reproduction_level_RickerRDD")
+})
+
+test_that("Measurement fields validate without executing callbacks", {
+    definition <- component_definition_defaults()
+    definition$dynamics_fun <- "unloaded_step"
+    definition$biomass_fun <- "unloaded_measurement"
+    definition$biomass_filters <- c("min_w", "use_cutoff")
+    expect_true(component_definition_errors(definition))
+    for (filters in list("unknown", c("min_w", "min_w"), NA_character_, 1)) {
+        definition$biomass_filters <- filters
+        expect_match(component_definition_errors(definition), "biomass_filters")
+    }
+    definition$biomass_filters <- character()
+    definition$biomass_fun <- function() 1
+    expect_match(component_definition_errors(definition), "function name")
+})
+
+test_that("Schema five upgrades preserve declared measurement support", {
+    p <- setComponent(NS_params_small, "pool", 1,
+                      dynamics_fun = "constant_other")
+    old <- p$capabilities
+    old$schema_version <- 5L
+    old$components <- lapply(old$components, function(definition) {
+        definition[setdiff(names(definition),
+                           c("biomass_fun", "biomass_filters"))]
+    })
+    old$processes <- lapply(old$processes, function(definition) {
+        definition[setdiff(names(definition),
+                           c("mortality_fun", "mortality_binding"))]
+    })
+    p$capabilities <- old
+    upgraded <- upgrade_capability_registry(old, params = p)
+    expect_identical(upgraded$schema_version, 6L)
+    expect_identical(upgraded$tuning, old$tuning)
+    expect_identical(upgraded$transformations, old$transformations)
+    expect_identical(upgraded$components$pool[names(old$components$pool)],
+                     old$components$pool)
+    expect_null(upgraded$components$pool$biomass_fun)
+    expect_identical(upgraded$components$pool$biomass_filters, character())
+    expect_identical(upgraded$processes$consumers$mortality_fun,
+                     "builtin_mortality_breakdown")
+    expect_true(capability_registry_errors(upgraded))
+    p$rates_funcs$Mort <- "unloaded_custom_mortality"
+    unsupported <- upgrade_capability_registry(old, params = p)
+    expect_null(unsupported$processes$consumers$mortality_fun)
+    expect_identical(
+        upgrade_capability_registry(upgraded, params = p), upgraded
+    )
 })

@@ -251,7 +251,9 @@ test_that("We can set, get and remove components", {
                                    tuning_binding = tuning_provider_binding(p),
                                    transformations = NULL,
                                    transformation_binding =
-                                       transformation_provider_binding(p)
+                                       transformation_provider_binding(p),
+                                   biomass_fun = NULL,
+                                   biomass_filters = character()
                                )))
     all <- getComponent(p)
     expect_type(all, "list")
@@ -325,7 +327,8 @@ test_that("Component definitions are stored as assembled snapshots", {
                      equation_rates_fun = NULL, tuning = NULL,
                      tuning_binding = tuning_provider_binding(p),
                      transformations = NULL, transformation_binding =
-                         transformation_provider_binding(p))
+                         transformation_provider_binding(p),
+                     biomass_fun = NULL, biomass_filters = character())
     expect_identical(p@capabilities$components$pool, expected)
     expect_identical(getComponent(p, "pool")$definition, expected)
     expect_null(p@other_mort$pool)
@@ -390,11 +393,11 @@ test_that("Component definitions reject unsupported inputs without changes", {
     expect_error(setComponent(p, "pool", definition = NULL), "definition")
     expect_error(setComponent(p, "pool", dynamics_fun = NULL), "dynamics_fun")
     missing_fun <- list(dynamics_fun = "not_a_function")
-    unsupported <- list(dynamics_fun = "test_dyn", biomass_fun = "test_dyn")
+    unsupported <- list(dynamics_fun = "test_dyn", unknown_fun = "test_dyn")
     expect_error(setComponent(p, "pool", definition = missing_fun),
                  "not_a_function")
     expect_error(setComponent(p, "pool", definition = unsupported),
-                 "biomass_fun")
+                 "unknown_fun")
     expect_error(setComponent(p, "new", dynamics_fun = "test_dyn"),
                  "initial_value")
     expect_identical(p, before)
@@ -764,4 +767,55 @@ test_that("Instance-only component patches retain stale capability bindings", {
     expect_false(tuning_binding_current(patched, after, "component:pool"))
     expect_false(transformation_binding_current(patched, after,
                                                 "component:pool"))
+})
+
+test_that("Biomass declarations patch independently of dynamics", {
+    rlang::local_bindings(
+        declared_pool_biomass = function(params, n_other, component, ...) {
+            c(stock = n_other[[component]])
+        }, alternate_pool_step = function(params, n_other, component, ...) {
+            n_other[[component]]
+        }, .env = globalenv()
+    )
+    p <- setComponent(
+        NS_params_small, "pool", 1,
+        definition = list(dynamics_fun = "constant_other",
+                          biomass_fun = "declared_pool_biomass",
+                          biomass_filters = "min_w"),
+        biomass_filters = c("min_w", "max_w")
+    )
+    definition <- getComponent(p, "pool")$definition
+    expect_identical(definition$biomass_fun, "declared_pool_biomass")
+    expect_identical(definition$biomass_filters, c("min_w", "max_w"))
+    changed <- setComponent(p, "pool", dynamics_fun = "alternate_pool_step")
+    expect_identical(getComponent(changed, "pool")$definition$biomass_fun,
+                     "declared_pool_biomass")
+    removed <- setComponent(p, "pool", biomass_fun = NULL)
+    expect_null(getComponent(removed, "pool")$definition$biomass_fun)
+    replaced <- setComponent(p, "pool",
+                             definition = list(dynamics_fun = "constant_other"))
+    expect_null(getComponent(replaced, "pool")$definition$biomass_fun)
+    expect_identical(getComponent(replaced, "pool")$definition$biomass_filters,
+                     character())
+    expect_true("declared_pool_biomass" %in% capability_callback_names(p))
+    expect_error(setComponent(p, "pool", biomass_filters = "unknown"),
+                 "biomass_filters")
+    expect_error(setComponent(p, "pool", biomass_fun = "missing_biomass"),
+                 "missing_biomass")
+})
+
+test_that("Biomass-only component patches do not adopt stale capabilities", {
+    p <- setComponent(NS_params_small, "pool", 1,
+                      dynamics_fun = "constant_other")
+    process_before <- p$capabilities$processes
+    component_before <- p$capabilities$components$pool
+    p$rates_funcs$RDD <- "noRDD"
+    patched <- setComponent(p, "pool", biomass_fun = "stats::median")
+    expect_identical(patched$capabilities$processes, process_before)
+    expect_identical(patched$capabilities$components$pool$tuning_binding,
+                     component_before$tuning_binding)
+    expect_identical(
+        patched$capabilities$components$pool$transformation_binding,
+        component_before$transformation_binding
+    )
 })

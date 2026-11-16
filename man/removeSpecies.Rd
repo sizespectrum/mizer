@@ -69,8 +69,8 @@ external diffusion rate, see \code{\link[=setExtDiffusion]{setExtDiffusion()}}. 
 Compensation is evaluated through the complete effective rate pipeline at
 the initial state. After trimming species and running all declared hooks,
 mizer checks growth, diffusion, total mortality and final recruitment of
-every remaining species. A failed check stops the operation. These quantities are
-preserved at this state; their responses to later changes may differ.
+every remaining species. A failed check stops the operation. These quantities
+are preserved at this state; their responses to later changes may differ.
 
 For the built-in semichemostat and logistic resource, reduced predation is
 balanced analytically by changing capacity, using the effective resource

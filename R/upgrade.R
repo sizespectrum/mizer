@@ -26,7 +26,7 @@ needs_upgrading <- function(object) {
 #' @keywords internal
 mizer_needs_upgrading <- function(params) {
     !.hasSlot(params, "mizer_version") ||
-        params@mizer_version < "3.4.0.9008"
+        params@mizer_version < "3.4.0.9009"
 }
 
 #' Whether any extension recorded on an object needs upgrading

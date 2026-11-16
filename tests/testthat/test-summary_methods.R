@@ -702,6 +702,197 @@ test_that("getBiomass works with biomass_cutoff", {
     expect_equal(biomass_params_no_cutoff, biomass_params_default)
 })
 
+test_that("extended biomass preserves the species measurement", {
+    p <- NS_params_small
+    s <- NS_sim_small
+    for (averaged in c(FALSE, TRUE)) {
+        p$second_order_w[["bin_average"]] <- averaged
+        s$params$second_order_w[["bin_average"]] <- averaged
+        before <- p
+        expect_identical(getBiomass(p), sizeIntegral(p, weighting = p$w))
+        expected <- sizeIntegral(s, weighting = s$params$w,
+                                 value_name = "Biomass", units = "g")
+        expect_identical(getBiomass(s), expected)
+        extended <- getBiomass(p, include = c("species", "resource"))
+        expect_s3_class(extended, "MizerBiomass")
+        expect_equal(as.numeric(extended[names(getBiomass(p))]),
+                     as.numeric(getBiomass(p)))
+        expect_identical(p, before)
+        extended_sim <- getBiomass(s, include = c("species", "resource"))
+        expect_s3_class(extended_sim, "ArrayTimeBySpecies")
+        expect_equal(as.numeric(extended_sim[, 1:3]), as.numeric(getBiomass(s)))
+        expect_equal(attr(extended_sim, "series")$id, colnames(extended_sim))
+        expect_equal(nrow(attr(extended_sim, "coverage")), 16)
+    }
+})
+
+test_that("component biomass sees the saved state and actual time", {
+    callback <- function(params, n, n_pp, n_other, t, component, filters) {
+        stopifnot(identical(filters, list()), component == "stock")
+        values <- c(pool = n_other[[component]]$amount + t,
+                    coupled = sum(n) + sum(n_pp))
+        data.frame(series = names(values), value = as.numeric(values),
+                   label = c("Stored pool", "Coupled quantity"),
+                   colour = c("purple", "orange"),
+                   linetype = c("solid", "dashed"))
+    }
+    rlang::local_bindings(measured_stock = callback, .env = globalenv())
+    p <- setComponent(NS_params_small, "stock", list(amount = 5),
+                      dynamics_fun = "constant_other",
+                      biomass_fun = "measured_stock")
+    s <- project(p, t_max = 0.2, t_save = 0.1, dt = 0.1,
+                 progress_bar = FALSE)
+    measured <- getBiomass(s, include = "components")
+    expect_equal(colnames(measured),
+                 c("component:stock/pool", "component:stock/coupled"))
+    expect_equal(as.numeric(measured[, 1]), 5 + getTimes(s))
+    expect_equal(attr(measured, "series")$label,
+                 c("Stored pool", "Coupled quantity"))
+    for (i in seq_len(nrow(measured))) {
+        slice <- get_sim_rate_slice(s, i)
+        single <- getBiomass(p, include = "component:stock", n = slice$n,
+                             n_pp = slice$n_pp, n_other = slice$n_other,
+                             t = slice$t)
+        expect_equal(as.numeric(single), as.numeric(measured[i, ]))
+    }
+    one <- getBiomass(p, include = "component:stock/pool")
+    expect_equal(names(one), "component:stock/pool")
+    expect_equal(as.numeric(one), 5)
+    overlap <- getBiomass(p, include = c("components", "component:stock/pool"))
+    expect_length(overlap, 2)
+    expect_error(getBiomass(p, include = "component:stock/unknown"),
+                 "Unknown biomass series")
+    expect_error(getBiomass(p, include = "components", t = NA), "finite")
+})
+
+test_that("missing biomass support stays visible with its reason", {
+    p <- setComponent(NS_params_small, "unmeasured", list(amount = 5),
+                      dynamics_fun = "constant_other")
+    result <- getBiomass(p, include = c("species", "components"))
+    expect_true(is.na(as.numeric(result["component:unmeasured"])))
+    unavailable <- attr(result, "unavailable")
+    expect_equal(unavailable$id, "component:unmeasured")
+    expect_match(unavailable$reason, "No biomass callback")
+    expect_equal(attr(result, "series")$id, names(result))
+    p$capabilities$components$unmeasured$biomass_fun <-
+        "absent_biomass_callback"
+    expect_error(getBiomass(p, include = "components"),
+                 "Cannot resolve biomass callback for component:unmeasured")
+})
+
+test_that("biomass callbacks receive only supported explicit filters", {
+    seen <- new.env(parent = emptyenv())
+    seen$filters <- NULL
+    callback <- function(params, n, n_pp, n_other, t, component, filters) {
+        seen$filters <- filters
+        c(pool = 5)
+    }
+    rlang::local_bindings(filtered_stock = callback, .env = globalenv())
+    p <- setComponent(NS_params_small, "stock", 5,
+                      dynamics_fun = "constant_other",
+                      biomass_fun = "filtered_stock", biomass_filters = "min_w")
+    measured <- getBiomass(p, include = "components", min_w = 10)
+    expect_equal(as.numeric(measured), 5)
+    expect_equal(seen$filters, list(min_w = 10))
+    seen$filters <- NULL
+    unavailable <- getBiomass(p, include = c("resource", "components"),
+                              max_w = 100)
+    expect_null(seen$filters)
+    expect_match(attr(unavailable, "unavailable")$reason, "max_w")
+    exact <- getBiomass(p, include = "component:stock/pool", max_w = 100)
+    expect_true(is.na(as.numeric(exact)))
+    expect_equal(attr(exact, "unavailable")$id, "component:stock/pool")
+    cutoff <- getBiomass(p, include = c("species", "resource", "components"),
+                         use_cutoff = TRUE)
+    expect_equal(attr(cutoff, "unavailable")$id,
+                 c("resource", "component:stock"))
+})
+
+test_that("biomass callbacks support short signatures and length precedence", {
+    callback <- function(p, n_other, component, filters) {
+        stopifnot(inherits(p, "MizerParams"))
+        c(pool = n_other[[component]] * filters$min_l)
+    }
+    rlang::local_bindings(concise_stock = callback, .env = globalenv())
+    p <- setComponent(NS_params_small, "stock", 5,
+                      dynamics_fun = "constant_other",
+                      biomass_fun = "concise_stock", biomass_filters = "min_l")
+    selectors <- c("resource", "components")
+    expected <- getBiomass(p, include = selectors, min_l = 0.1)
+    actual <- getBiomass(p, include = selectors, min_l = 0.1,
+                         min_w = c(1, 2, 3))
+    expect_equal(actual, expected)
+    expect_equal(as.numeric(actual["component:stock/pool"]), 0.5)
+    expect_equal(nrow(attr(actual, "unavailable")), 0)
+    rlang::local_bindings(concise_stock = function(p) stop("authored failure"),
+                          .env = globalenv())
+    expect_error(getBiomass(p, include = "components", min_l = 0.1),
+                 "Biomass measurement for component:stock: authored failure")
+})
+
+test_that("biomass getters accept legacy S4 objects directly", {
+    old_sim <- readRDS("assets/simc.1.0.rds")
+    old_params <- attributes(old_sim)$params
+    converted <- upgrade_s4_to_s3(old_params)
+    expect_equal(getBiomass(old_params), getBiomass(converted))
+    expect_equal(getBiomass(old_sim), getBiomass(upgrade_s4_to_s3(old_sim)))
+    upgraded <- suppressWarnings(suppressMessages(validParams(converted)))
+    measure <- function(p) getBiomass(p, include = c("species", "resource"))
+    actual <- suppressWarnings(suppressMessages(measure(old_params)))
+    expected <- getBiomass(upgraded, include = c("species", "resource"))
+    expect_equal(as.numeric(actual), as.numeric(expected))
+})
+
+test_that("extended biomass never labels invalid species values available", {
+    p <- NS_params_small
+    for (value in c(NA_real_, Inf, -1)) {
+        state <- p$initial_n * 0 + value
+        expect_error(getBiomass(p, n = state,
+                                include = c("species", "resource")),
+                     "Species biomass must be finite and non-negative")
+    }
+    state <- p$initial_n * 0 + 1e308
+    expect_true(any(is.infinite(getBiomass(p, n = state))))
+    expect_error(getBiomass(p, n = state,
+                            include = c("species", "resource")),
+                 "Species biomass must be finite and non-negative")
+})
+
+test_that("biomass series cannot count the same physical source twice", {
+    callback <- function(params, n, n_pp, n_other, t, component, filters) {
+        data.frame(series = "copy", value = 5, source = "resource")
+    }
+    rlang::local_bindings(duplicate_stock = callback, .env = globalenv())
+    p <- setComponent(NS_params_small, "stock", 5,
+                      dynamics_fun = "constant_other",
+                      biomass_fun = "duplicate_stock")
+    expect_error(getBiomass(p, include = c("resource", "components")),
+                 "same physical source")
+    expect_equal(as.numeric(getBiomass(p, include = "components")), 5)
+    p <- renameSpecies(NS_params_small, c(Sprat = "resource"))
+    expect_error(getBiomass(p, include = c("species", "resource")),
+                 "identifiers conflict")
+})
+
+test_that("unavailable component biomass is tracked at each saved time", {
+    callback <- function(params, n, n_pp, n_other, t, component, filters) {
+        data.frame(series = "pool", value = if (t == 0) NA_real_ else 5,
+                   available = t != 0,
+                   reason = if (t == 0) "Not measured" else NA_character_)
+    }
+    rlang::local_bindings(intermittent_stock = callback, .env = globalenv())
+    p <- setComponent(NS_params_small, "stock", 5,
+                      dynamics_fun = "constant_other",
+                      biomass_fun = "intermittent_stock")
+    s <- project(p, t_max = 0.2, t_save = 0.1, dt = 0.1,
+                 progress_bar = FALSE)
+    measured <- getBiomass(s, include = "components")
+    expect_equal(as.numeric(measured[, 1]), c(NA_real_, 5, 5))
+    expect_equal(attr(measured, "coverage")$time, getTimes(s))
+    expect_equal(attr(measured, "unavailable")$time, 0)
+    expect_equal(attr(measured, "unavailable")$reason, "Not measured")
+})
+
 # getN ----
 test_that("getN works", {
     N <- getN(sim)

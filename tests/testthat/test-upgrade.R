@@ -43,7 +43,7 @@ test_that("validSim upgrades its embedded capability registry", {
     old$params$capabilities <- NULL
     old$params$mizer_version <- "3.4.0.9003"
     up <- suppressWarnings(validSim(old))
-    expect_identical(up$params$capabilities$schema_version, 5L)
+    expect_identical(up$params$capabilities$schema_version, 6L)
     expect_length(up$params$capabilities$components, 0L)
     expect_identical(up$params$capabilities$processes,
                      default_process_registry(up$params))
@@ -273,7 +273,7 @@ test_that("schema-one definitions upgrade without live resolution", {
     p$initial_n_other <- list(pool = 1)
     p$mizer_version <- "3.4.0.9004"
     upgraded <- upgradeParams(p)
-    expect_identical(upgraded$capabilities$schema_version, 5L)
+    expect_identical(upgraded$capabilities$schema_version, 6L)
     expect_identical(upgraded$capabilities$components$pool$dynamics_fun,
                      "unloaded_legacy_step")
     expect_null(upgraded$capabilities$components$pool$rate_fun)
@@ -300,7 +300,7 @@ test_that("schema-two upgrades distinguish known and unspecified fixed states", 
     )
     p$mizer_version <- "3.4.0.9005"
     upgraded <- upgradeParams(p)
-    expect_identical(upgraded$capabilities$schema_version, 5L)
+    expect_identical(upgraded$capabilities$schema_version, 6L)
     expect_identical(upgraded$capabilities$components$pool$integration_order, 1L)
     expect_identical(upgraded$capabilities$components$pool$role, "dynamic")
     expect_null(upgraded$capabilities$components$pool$convergence_fun)

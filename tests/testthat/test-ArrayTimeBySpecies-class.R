@@ -4,6 +4,56 @@ ssb_small <- getSSB(NS_sim_small)
 yield_small <- getYield(NS_sim_small)
 abundance_small <- getN(NS_sim_small)
 
+test_that("biomass series retain metadata through selection and plotting", {
+    biomass <- getBiomass(NS_sim_small, include = c("species", "resource"))
+    selected <- biomass[c(4, 1), c(4, 1, 4), drop = FALSE]
+    expect_identical(attr(selected, "series")$id, colnames(selected))
+    expect_setequal(attr(selected, "coverage")$time,
+                    as.numeric(rownames(selected)))
+    expect_setequal(attr(selected, "coverage")$id, colnames(selected))
+    expect_error(plot(selected, total = TRUE), "same physical source")
+    plain <- selected * 2
+    expect_null(attr(plain, "series"))
+    expect_null(attr(plain, "coverage"))
+    expect_null(attr(plain, "unavailable"))
+    expect_null(attr(log(selected), "series"))
+    expect_false(inherits(log(selected), "ArrayTimeBySpecies"))
+    expect_identical(attributes(log(bio_small)), attributes(bio_small))
+    expect_equal(plot(biomass, return_data = TRUE),
+                 plotBiomass(NS_sim_small, include = c("species", "resource"),
+                             return_data = TRUE))
+    expect_error(plot(biomass, species = "not-a-series"), "Unknown biomass")
+    series <- attr(biomass, "series")
+    series$colour[series$id == "resource"] <- "orange"
+    attr(biomass, "series") <- series
+    plot <- plot(biomass)
+    expect_true("resource" %in% plot$data$Legend)
+    colours <- plot$scales$get_scales("colour")$palette(0)
+    expect_identical(unname(colours["resource"]), "orange")
+    expect_s3_class(plot2(biomass, biomass), "ggplot")
+    expect_s3_class(plotRelative(biomass, biomass), "ggplot")
+    added <- addPlot(plot(getBiomass(NS_sim_small)), biomass,
+                     species = "resource")
+    layer <- tail(ggplot2::ggplot_build(added)$data, 1)[[1]]
+    expect_true(all(layer$colour == "orange"))
+})
+
+test_that("unavailable biomass coverage survives printing and summaries", {
+    p <- setComponent(NS_params_small, "unknown", initial_value = 1,
+                      dynamics_fun = "constant_other")
+    sim <- project(p, t_max = 0.2, dt = 0.1, t_save = 0.1,
+                   progress_bar = FALSE)
+    biomass <- getBiomass(sim, include = c("species", "components"))
+    expect_output(print(biomass), "Unavailable.*component:unknown")
+    expect_output(print(summary(biomass)), "Unavailable.*component:unknown")
+    expect_true(all(is.na(tail(summary(biomass)$per_species, 1)[2:4])))
+    expect_error(plot(biomass, total = TRUE), "total is unavailable")
+    expect_match(plot(biomass)$labels$caption, "No biomass callback")
+    expect_null(measurement_caption(biomass[, 1:3, drop = FALSE]))
+    unavailable <- getBiomass(sim, include = "components")
+    expect_no_warning(ggplot2::ggplot_build(plot(unavailable)))
+})
+
 test_that("ArrayTimeBySpecies constructor works", {
     mat <- matrix(1:30, nrow = 10, ncol = 3)
     rownames(mat) <- as.character(1:10)

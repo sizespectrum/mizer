@@ -30,6 +30,39 @@ expect_ggplot <- function(fig) {
 }
 
 # plots have not changed ----
+test_that("biomass wrappers preserve extended measurement and filter choices", {
+    rlang::local_bindings(
+        plotted_pool_biomass = function(n_other, component, ...) {
+            stocks <- n_other[[component]]
+            data.frame(series = names(stocks), value = unname(stocks),
+                       label = c("Small pool", "Large pool"),
+                       colour = c("#0072B2", "#D55E00"),
+                       linetype = c("solid", "dashed"))
+        }, .env = globalenv()
+    )
+    p <- setComponent(NS_params_small, "pool",
+                      initial_value = c(small = 2, large = 5),
+                      dynamics_fun = "constant_other",
+                      biomass_fun = "plotted_pool_biomass")
+    simulation <- project(p, t_max = 0.2, dt = 0.1, t_save = 0.1,
+                          progress_bar = FALSE)
+    include <- c("resource", "component:pool")
+    measured <- getBiomass(simulation, include = include)
+    direct <- plot(measured, return_data = TRUE)
+    expect_identical(direct,
+                     plotBiomass(simulation, include = include,
+                                 return_data = TRUE))
+    expect_true(all(attr(direct, "coverage")$available))
+    filtered <- plotBiomass(simulation, include = include, min_w = 1,
+                            return_data = TRUE)
+    expect_true(any(!attr(filtered, "coverage")$available))
+    expect_error(plotBiomass(simulation, include = include, min_w = 1,
+                             total = TRUE), "total is unavailable")
+    expect_s3_class(plotlyBiomass(simulation, include = include), "plotly")
+    p <- plotBiomass(simulation, include = "component:pool")
+    expect_doppelganger("Biomass component series", p)
+})
+
 test_that("plots have not changed", {
 p <- plotBiomass(sim, species = species, total = TRUE,
                  tlim = c(0, 2.8),

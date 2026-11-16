@@ -358,6 +358,7 @@ refresh_builtin_tuning <- function(params) {
         }
     }
     params <- refresh_builtin_levels(params)
+    params <- refresh_builtin_mortality(params)
     refresh_builtin_transformations(params)
 }
 
@@ -1280,7 +1281,8 @@ capability_callback_names <- function(params) {
             unlist(definition[intersect(names(definition), c(
                 "dynamics_fun", "rate_fun",
                 "encounter_fun", "mort_fun", "convergence_fun",
-                "equation_rates_fun", "level_fun"
+                "equation_rates_fun", "level_fun", "biomass_fun",
+                "mortality_fun"
             ))], use.names = FALSE),
             unlist(lapply(definition$transformations, `[[`, "transform_fun"),
                    use.names = FALSE),

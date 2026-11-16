@@ -470,6 +470,9 @@ setRateContributions <- function(params, slot_name, value, noun, arg) {
         updated <- c(updated, value[value_i:length(value)])
     }
     slot(params, slot_name) <- updated
+    if (slot_name == "other_mort" && !isS4(params)) {
+        params <- refresh_builtin_mortality(params)
+    }
 
     params@time_modified <- lubridate::now()
     params
@@ -579,8 +582,12 @@ setRateContributions <- function(params, slot_name, value, noun, arg) {
 #'   `"grey"`.
 #' @param linetype Line type to use for the component in plots. Defaults to
 #'   `"solid"`.
-#' @param transformations Named transformation declarations. An update hook
-#'   may modify this component's initial state and parameters; additional paths
+#' @param biomass_fun Named biomass measurement callback, or NULL to remove
+#'   measurement support. This is independent of convergence and dynamics.
+#' @param biomass_filters Character vector of explicitly supported filters:
+#'   min_w, max_w, min_l, max_l and use_cutoff. Defaults to none.
+#' @param transformations Named transformation declarations. Update hooks may
+#'   modify this component's initial state and parameters; additional paths
 #'   must be explicit. Use action = 'none' for supported no-action operations.
 #' @param definition A named list specifying the component's callbacks and
 #'   plotting styles. Supplying a list replaces its previous definition before
@@ -600,7 +607,8 @@ setComponent <- function(params, component, initial_value,
                          colour = "grey", linetype = "solid",
                          definition, rate_fun, integration_order,
                          convergence_fun, role, stationary,
-                         equation_rates_fun, tuning, transformations) {
+                         equation_rates_fun, tuning, transformations,
+                         biomass_fun, biomass_filters) {
     params <- validParams(params)
     assert_that(is.string(component), nzchar(component))
     if (!missing(initial_value) && is.null(initial_value)) {
@@ -643,6 +651,9 @@ setComponent <- function(params, component, initial_value,
     if (!missing(tuning)) overrides["tuning"] <- list(tuning)
     if (!missing(transformations)) overrides["transformations"] <-
         list(transformations)
+    if (!missing(biomass_fun)) overrides["biomass_fun"] <- list(biomass_fun)
+    if (!missing(biomass_filters)) overrides["biomass_filters"] <-
+        list(biomass_filters)
     assembled <- assemble_component_definition(
         existing = existing,
         definition = if (missing(definition)) NULL else definition,

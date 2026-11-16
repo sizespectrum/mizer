@@ -66,8 +66,9 @@ print.ArrayTimeBySpecies <- function(x, ...) {
     value_name <- attr(x, "value_name") %||% "ArrayTimeBySpecies"
     units_str <- attr(x, "units")
     dims <- dim(x)
+    noun <- if (is.null(attr(x, "series"))) "species" else "series"
     header <- paste0(value_name, " (", dims[1], " times x ", dims[2],
-                     " species)")
+                     " ", noun, ")")
     if (!is.null(units_str) && nzchar(units_str)) {
         header <- paste0(header, " [", units_str, "]")
     }
@@ -95,6 +96,8 @@ print.ArrayTimeBySpecies <- function(x, ...) {
         if (length(omitted) > 5) detail <- paste0(detail, ", ...")
         cat(format_truncation_note(length(sp_idx), n_species, "species", detail), "\n")
     }
+    caption <- measurement_caption(x)
+    if (!is.null(caption)) cat(caption, "\n")
     invisible(x)
 }
 
@@ -104,12 +107,18 @@ summary.ArrayTimeBySpecies <- function(object, ...) {
     units_str <- attr(object, "units")
     sp_names <- colnames(object)
     mat <- unclass(object)
+    measure_summary <- function(values, fun) {
+        if (!is.null(attr(object, "coverage")) && anyNA(values)) {
+            return(NA_real_)
+        }
+        fun(values, na.rm = TRUE)
+    }
 
     df <- data.frame(
         Species = sp_names,
-        Min = apply(mat, 2, min, na.rm = TRUE),
-        Mean = apply(mat, 2, mean, na.rm = TRUE),
-        Max = apply(mat, 2, max, na.rm = TRUE),
+        Min = apply(mat, 2, measure_summary, fun = min),
+        Mean = apply(mat, 2, measure_summary, fun = mean),
+        Max = apply(mat, 2, measure_summary, fun = max),
         row.names = NULL,
         stringsAsFactors = FALSE
     )
@@ -120,6 +129,9 @@ summary.ArrayTimeBySpecies <- function(object, ...) {
         dims = dim(object),
         per_species = df
     )
+    for (attribute in measurement_attributes()) {
+        attr(result, attribute) <- attr(object, attribute)
+    }
     class(result) <- "summary.ArrayTimeBySpecies"
     result
 }
@@ -131,8 +143,11 @@ print.summary.ArrayTimeBySpecies <- function(x, ...) {
         header <- paste0(header, " [", x$units, "]")
     }
     cat(header, "\n")
-    cat(x$dims[1], "times x", x$dims[2], "species\n\n")
+    noun <- if (is.null(attr(x, "series"))) "species" else "series"
+    cat(x$dims[1], "times x", x$dims[2], paste0(noun, "\n\n"))
     print(x$per_species, row.names = FALSE)
+    caption <- measurement_caption(x)
+    if (!is.null(caption)) cat(caption, "\n")
     invisible(x)
 }
 
@@ -208,11 +223,12 @@ plot.ArrayTimeBySpecies <- function(x, species = NULL,
     if (return_data) return(plot_dat)
 
     ylim <- array_ylim(x, ylim, log_y, plot_dat[[2]])
-    plotDataFrame(plot_dat, params, xlab = "Year", ylab = y_label,
+    p <- plotDataFrame(plot_dat, params, xlab = "Year", ylab = y_label,
                   xtrans = if (log_x) "log10" else "identity",
                   ytrans = if (log_y) "log10" else "identity",
                   ylim = ylim, y_ticks = y_ticks, highlight = highlight,
                   legend_var = "Legend")
+    annotate_measurement_plot(p, plot_dat)
 }
 
 #' @rdname addPlot
@@ -269,7 +285,16 @@ addPlot.ArrayTimeBySpecies <- function(plot, x, species = NULL,
         layer_args$linetype <- linetype
     }
 
-    plot + do.call(geom_line, layer_args)
+    plot <- plot + do.call(geom_line, layer_args)
+    if (!is.null(attr(x, "series"))) {
+        plot <- extend_measurement_scales(
+            plot, plot_dat, attr(x, "params"),
+            colour = is.null(colour), linetype = is.null(linetype)
+        )
+        metadata <- combine_measurement_metadata(plot_dat, plot, plot_dat)
+        plot <- annotate_measurement_plot(plot, metadata)
+    }
+    plot
 }
 
 #' @rdname plot2
@@ -388,6 +413,9 @@ prepare_ArrayTimeBySpecies_plot_data <- function(x, species = NULL,
 
     all_species <- colnames(x)
     if (!is.null(species)) {
+        if (!is.null(attr(x, "series")) && any(!species %in% all_species)) {
+            stop("Unknown biomass series selection.", call. = FALSE)
+        }
         species <- intersect(species, all_species)
         if (length(species) == 0) {
             stop("None of the selected species are in the array.")
@@ -401,6 +429,7 @@ prepare_ArrayTimeBySpecies_plot_data <- function(x, species = NULL,
     # The total is the total over every species the array holds, so it is formed
     # before the selection narrows the columns.
     if (total) {
+        check_measurement_total(x)
         bm <- cbind(bm, Total = rowSums(bm))
     }
 
@@ -414,6 +443,7 @@ prepare_ArrayTimeBySpecies_plot_data <- function(x, species = NULL,
         # died out does not drag a logarithmic axis down by twenty decades.
         keep <- keep & bm$value >= 1e-20
     }
+    keep[is.na(keep)] <- FALSE
     bm <- bm[keep, c(1, 3, 2)]
     names(bm) <- c("Year", value_name, "Species")
 
@@ -432,6 +462,10 @@ prepare_ArrayTimeBySpecies_plot_data <- function(x, species = NULL,
     plot_dat <- bm[selected, , drop = FALSE]
     plot_dat$Legend <- as.character(plot_dat$Species)
     plot_dat$Legend[plot_dat$Legend %in% bkgrd_sp] <- "Background"
+
+    for (attribute in measurement_attributes()) {
+        attr(plot_dat, attribute) <- attr(x, attribute)
+    }
 
     plot_dat
 }
@@ -474,6 +508,9 @@ as.data.frame.ArrayTimeBySpecies <- function(x, row.names = NULL,
         attr(result, "units") <- attr(x, "units")
         attr(result, "type") <- attr(x, "type")
         attr(result, "params") <- attr(x, "params")
+        result <- subset_measurement_metadata(
+            result, x, colnames(result), rownames(result)
+        )
         class(result) <- c("ArrayTimeBySpecies", "matrix", "array")
     }
     result
@@ -488,6 +525,13 @@ Ops.ArrayTimeBySpecies <- function(e1, e2) {
     if (missing(e2)) op(e1) else op(e1, e2)
 }
 
+#' @export
+Math.ArrayTimeBySpecies <- function(x, ...) {
+    if (is.null(attr(x, "series"))) return(NextMethod())
+    fun <- match.fun(.Generic) # nolint: object_usage_linter.
+    fun(unclass_time(x), ...)
+}
+
 # Helper to strip all ArrayTimeBySpecies attributes
 unclass_time <- function(x) {
     x <- unclass(x)
@@ -495,6 +539,7 @@ unclass_time <- function(x) {
     attr(x, "units") <- NULL
     attr(x, "type") <- NULL
     attr(x, "params") <- NULL
+    for (attribute in measurement_attributes()) attr(x, attribute) <- NULL
     x
 }
 

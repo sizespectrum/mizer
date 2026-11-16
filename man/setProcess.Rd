@@ -3,7 +3,7 @@
 \name{setProcess}
 \alias{setProcess}
 \alias{getProcess}
-\title{Declare assessment support for a built-in model process}
+\title{Declare capabilities for a model process}
 \usage{
 setProcess(
   params,
@@ -15,7 +15,8 @@ setProcess(
   equation_rates_fun,
   tuning,
   level_fun,
-  transformations
+  transformations,
+  mortality_fun
 )
 
 getProcess(params, process)
@@ -46,6 +47,9 @@ changes. Each declares action = 'none' or a named transform_fun with
 action = 'update', explicit paths and optional settings. Supply this
 argument or a new definition to adopt support for a changed provider;
 an assessment-only update retains the previous transformation binding.}
+
+\item{mortality_fun}{Named consumer mortality-breakdown callback, or NULL
+to remove diagnostic support. It is bound independently of other families.}
 }
 \value{
 \code{setProcess()} returns the updated model. \code{getProcess()} returns
@@ -62,7 +66,8 @@ or consumer rate functions leaves the identity of the fish equations intact.
 Calling \code{setProcess(params, process)} with no capability arguments explicitly
 adopts the current provider for all retained capability families. A partial
 patch adopts only the families explicitly supplied: convergence/role,
-stationary/equation rates/tuning, reproduction level, or transformations.
+stationary/equation rates/tuning, reproduction level, transformations, or
+mortality diagnostics.
 Omitted families keep their previous provider bindings, including staleness.
 A replacement definition adopts all its supplied capabilities.
 }

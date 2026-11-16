@@ -186,3 +186,44 @@ test_that("Level registration has an independent provider binding", {
         adopted, adopted$capabilities$processes$reproduction, "reproduction"
     ))
 })
+
+test_that("Mortality diagnostics adopt only their own capability family", {
+    rlang::local_bindings(
+        declared_mortality = function(params, rates, ...) {
+            list(causes = list(total = rates$mort), complete = TRUE)
+        }, .env = globalenv()
+    )
+    p <- NS_params_small
+    old <- p$capabilities$processes$consumers
+    p$rates_funcs$Mort <- "unloaded_custom_mortality"
+    assessed <- setProcess(p, "consumers",
+                           convergence_fun = "builtin_consumer_assessment")
+    expect_identical(
+        assessed$capabilities$processes$consumers$mortality_binding,
+        old$mortality_binding
+    )
+    expect_false(mortality_binding_current(
+        assessed, assessed$capabilities$processes$consumers
+    ))
+    diagnosed <- setProcess(p, "consumers",
+                            mortality_fun = "declared_mortality")
+    definition <- diagnosed$capabilities$processes$consumers
+    expect_true(mortality_binding_current(diagnosed, definition))
+    for (field in c("binding", "tuning_binding", "level_binding",
+                    "transformation_binding")) {
+        expect_identical(definition[[field]], old[[field]])
+    }
+    expect_true("declared_mortality" %in% capability_callback_names(diagnosed))
+    expect_identical(
+        getProcess(diagnosed, "consumers")$definition$mortality_fun,
+        "declared_mortality"
+    )
+    removed <- setProcess(diagnosed, "consumers", mortality_fun = NULL)
+    expect_null(removed$capabilities$processes$consumers$mortality_fun)
+    expect_error(
+        setProcess(p, "resource", mortality_fun = "declared_mortality"),
+        "consumers process"
+    )
+    expect_error(setProcess(p, "consumers", mortality_fun = function() 1),
+                 "function name")
+})

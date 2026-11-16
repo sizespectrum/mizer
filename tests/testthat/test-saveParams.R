@@ -32,6 +32,29 @@ test_that("saving checks callbacks nested in tuning declarations", {
     expect_equal(restored$capabilities, p$capabilities)
 })
 
+test_that("saved measurement declarations retain independent capabilities", {
+    rlang::local_bindings(
+        saved_component_biomass = function(n_other, component, ...) {
+            c(stock = n_other[[component]])
+        },
+        saved_mortality_breakdown = function(total, ...) {
+            list(causes = list(aggregate = total), complete = TRUE)
+        }, .env = globalenv()
+    )
+    p <- setComponent(NS_params_small, "pool", initial_value = 2,
+                      dynamics_fun = "constant_other",
+                      biomass_fun = "saved_component_biomass")
+    p <- setProcess(p, "consumers",
+                    mortality_fun = "saved_mortality_breakdown")
+    path <- tempfile(fileext = ".rds")
+    withr::defer(unlink(path))
+    expect_warning(saveParams(p, path), "saved_component_biomass")
+    restored <- readParams(path)
+    expect_identical(restored$capabilities, p$capabilities)
+    expect_equal(as.numeric(getBiomass(restored, include = "components")), 2)
+    expect_true(getMortByCause(restored)$complete)
+})
+
 test_that("saved transformation declarations retain callback behaviour", {
     rlang::local_bindings(
         saved_pool_scale = function(params, before, component, details, ...) {

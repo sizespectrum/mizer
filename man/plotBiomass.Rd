@@ -20,7 +20,8 @@ plotBiomass(
   log_x = FALSE,
   log_y = TRUE,
   use_cutoff = FALSE,
-  ...
+  ...,
+  include = "species"
 )
 }
 \arguments{
@@ -78,6 +79,11 @@ precedence over \code{min_w}.}
 \item{\code{max_l}}{Largest length in size range. If supplied, this takes
 precedence over \code{max_w}.}
 }}
+
+\item{include}{Biomass series to measure, passed to \code{\link[=getBiomass]{getBiomass()}}. Defaults
+to \code{"species"}; resources and components require explicit inclusion.
+Plotting uses only the getter's result and metadata. A total requires
+complete coverage of every requested series.}
 }
 \value{
 A ggplot2 object, unless \code{return_data = TRUE}, in which case a data

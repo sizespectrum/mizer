@@ -19,7 +19,7 @@ Authors@R: c(person("Gustav", "Delius", email="gustav.delius@york.ac.uk",
                     comment = c(ORCID = "0000-0002-8478-3430")),
              person("Richard", "Southwell", email="richard.southwell@york.ac.uk",
                     role=c("ctb", "cph")))
-Version: 3.4.0.9008
+Version: 3.4.0.9009
 License: GPL-3
 Imports:
     assertthat,
@@ -68,6 +68,7 @@ Collate:
     'registerExtensions.R'
     'ArraySpeciesBySize-class.R'
     'ArrayTimeBySpecies-class.R'
+    'MizerBiomass-class.R'
     'ArrayTimeBySpeciesBySize-class.R'
     'ArrayResourceBySize-class.R'
     'MizerScan-class.R'
@@ -108,9 +109,11 @@ Collate:
     'mizer-package.R'
     'project_methods.R'
     'rate_functions.R'
+    'mortality.R'
     'sim_rates.R'
     'sizeIntegral.R'
     'summary_methods.R'
+    'biomass.R'
     'indicator_functions.R'
     'plots.R'
     'plotBiomassObservedVsModel.R'

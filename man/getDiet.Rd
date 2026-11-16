@@ -121,6 +121,7 @@ Other summary functions:
 \code{\link[=getBiomass]{getBiomass()}},
 \code{\link[=getEncounterByPrey]{getEncounterByPrey()}},
 \code{\link[=getGrowthCurves]{getGrowthCurves()}},
+\code{\link[=getMortByCause]{getMortByCause()}},
 \code{\link[=getN]{getN()}},
 \code{\link[=getSSB]{getSSB()}},
 \code{\link[=getSteadyResidual]{getSteadyResidual()}},
