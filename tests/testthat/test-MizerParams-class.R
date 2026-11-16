@@ -1,4 +1,11 @@
 # emptyParams ----
+test_that("new models have an empty versioned capability registry", {
+    p <- emptyParams(NS_species_params_small, no_w = 20)
+    expect_identical(p$capabilities,
+                     list(schema_version = 1L, components = list(),
+                          processes = list()))
+})
+
 # * test dimensions ----
 test_that("basic constructor sets dimensions properly", {
     species_params <- NS_species_params_small[c(1, 2, 3), ]
@@ -275,6 +282,9 @@ test_that("validParams skips the repair only for an unchanged object", {
     p <- params
     p@defaults_edition <- 2
     expect_false(is_validated(validation_key(p)))
+    p <- params
+    p$capabilities$schema_version <- 99L
+    expect_false(is_validated(validation_key(p)))
 
     # Changing the shape of a rate array is caught, so that the structural
     # checks in validObject() cannot be evaded by the fast path.
@@ -291,6 +301,18 @@ test_that("validParams skips the repair only for an unchanged object", {
     expect_true(is_validated(validation_key(p)))
     p@initial_effort[1] <- 100
     expect_true(is_validated(validation_key(p)))
+})
+
+test_that("capability corruption cannot bypass gated validation", {
+    p <- validParams(NS_params_small)
+    expect_true(is_validated(validation_key(p)))
+
+    p$capabilities$schema_version <- 99L
+    expect_error(validParams(p), "[Cc]apabilit|schema")
+
+    p <- NS_params_small
+    p$capabilities <- NULL
+    expect_error(validParams(p), "[Cc]apabilit|schema")
 })
 
 test_that("validParams repairs and validates an object that is not yet known", {

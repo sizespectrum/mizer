@@ -11,6 +11,27 @@ change and say how they split it between the food sources. Projections with
 high-order flux now report large growth Courant numbers; they retain the
 previous fixed-step calculation unless subcycling is requested.
 
+### Component updates retain omitted settings
+
+`setComponent()` can update an existing component without repeating its initial
+state or dynamics function. Omitted component parameters, callbacks, colour and
+line type are retained. Earlier versions reset omitted plotting styles to grey
+and solid on each update; supply `colour = "grey", linetype = "solid"` explicitly
+if that reset is wanted.
+
+The new `definition` argument supplies a reusable named list of callbacks and
+plotting styles. Passing a definition replaces the old definition before explicit
+arguments override its entries. Omitted optional callbacks are then removed,
+and omitted styles take the defaults; state and component parameters remain
+unchanged unless supplied separately. Explicit `NULL` removes an optional
+encounter or mortality callback.
+
+`getComponent()` now returns an additional `definition` entry alongside its
+original five entries. Code that selects entries by name continues to work;
+code that relies on an exact five-element result should select the entries it
+needs. The assembled definition is saved in the model, so changing the original
+list does not silently update models that already used it.
+
 ### A model keeps the defaults edition it was created with
 
 `defaults_edition()` chooses the edition of the defaults that mizer fills in for

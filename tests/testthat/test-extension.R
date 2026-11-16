@@ -219,7 +219,7 @@ test_that("setComponent refuses a name already used by a rate contribution", {
 # components ----
 test_that("We can set, get and remove components", {
     expect_error(setComponent(params, "test", 1),
-                 '"dynamics_fun" is missing')
+                 "dynamics_fun")
     p <- setComponent(params, "test", 1, 
                       dynamics_fun = "test_dyn",
                       encounter_fun = "test_dyn",
@@ -234,7 +234,12 @@ test_that("We can set, get and remove components", {
                                encounter_fun = "test_dyn",
                                dynamics_fun = "test_dyn",
                                mort_fun = "test_dyn",
-                               component_params = list(a = 2)))
+                               component_params = list(a = 2),
+                               definition = list(dynamics_fun = "test_dyn",
+                                                 encounter_fun = "test_dyn",
+                                                 mort_fun = "test_dyn",
+                                                 colour = "grey",
+                                                 linetype = "solid")))
     all <- getComponent(p)
     expect_type(all, "list")
     expect_identical(all$test, comp)
@@ -243,7 +248,7 @@ test_that("We can set, get and remove components", {
                       mort_fun = "test_dyn")
     all2 <- getComponent(p2)
     expect_length(all2, 2)
-    expect_length(all2$test2, 5)
+    expect_length(all2$test2, 6)
     expect_null(all2$test2$encounter_fun)
     p <- setComponent(p2, "test2", 1, "test_dyn", mort_fun = NULL)
     expect_null(getComponent(p, "test2")$mort_fun)
@@ -260,6 +265,127 @@ test_that("We can set, get and remove components", {
     expect_length(p1@other_encounter, 0)
     expect_null(p1@initial_n_other[["test"]])
     expect_null(p1@other_params[["test"]])
+    expect_null(p1@capabilities$components[["test"]])
+    expect_identical(p1@capabilities$components$test2,
+                     p2@capabilities$components$test2)
+})
+
+test_that("Component definitions are stored as assembled snapshots", {
+    definition <- list(dynamics_fun = "test_dyn",
+                       encounter_fun = "test_dyn", mort_fun = "test_dyn",
+                       colour = "orange", linetype = "dashed")
+    p <- setComponent(params, "pool", initial_value = 3,
+                      component_params = list(coefficient = 7),
+                      definition = definition, colour = "blue",
+                      mort_fun = NULL)
+    expected <- definition
+    expected$colour <- "blue"
+    expected["mort_fun"] <- list(NULL)
+    expect_identical(p@capabilities$components$pool, expected)
+    expect_identical(getComponent(p, "pool")$definition, expected)
+    expect_null(p@other_mort$pool)
+    expect_identical(p@other_encounter$pool, "test_dyn")
+
+    definition$colour <- "red"
+    definition$dynamics_fun <- "constant_other"
+    q <- setComponent(params, "pool", initial_value = 8,
+                      definition = definition)
+    expect_identical(getComponent(p, "pool")$definition, expected)
+    expect_identical(getComponent(q, "pool")$dynamics_fun, "constant_other")
+    expect_identical(getComponent(q, "pool")$definition$colour, "red")
+})
+
+test_that("Component patches retain omitted capabilities and instance data", {
+    p <- setComponent(params, "pool", initial_value = list(stock = 3),
+                      dynamics_fun = "test_dyn", encounter_fun = "test_dyn",
+                      mort_fun = "test_dyn", colour = "orange",
+                      linetype = "dashed", component_params = list(a = 2))
+    patched <- setComponent(p, "pool", encounter_fun = NULL)
+    comp <- getComponent(patched, "pool")
+    expect_identical(comp$initial_value, list(stock = 3))
+    expect_identical(comp$component_params, list(a = 2))
+    expect_identical(comp$dynamics_fun, "test_dyn")
+    expect_identical(comp$mort_fun, "test_dyn")
+    expect_null(comp$encounter_fun)
+    expect_null(patched@other_encounter$pool)
+    expect_identical(comp$definition$colour, "orange")
+    expect_identical(comp$definition$linetype, "dashed")
+    expect_identical(getColours(patched)[["pool"]], "orange")
+    expect_identical(getLinetypes(patched)[["pool"]], "dashed")
+    expect_identical(getComponent(p, "pool")$encounter_fun, "test_dyn")
+})
+
+test_that("Replacing a component definition replaces capabilities only", {
+    p <- setComponent(params, "pool", initial_value = 3,
+                      dynamics_fun = "test_dyn", encounter_fun = "test_dyn",
+                      mort_fun = "test_dyn", colour = "orange",
+                      linetype = "dashed", component_params = list(a = 2))
+    replacement <- list(dynamics_fun = "constant_other")
+    q <- setComponent(p, "pool", definition = replacement,
+                      mort_fun = "test_dyn")
+    comp <- getComponent(q, "pool")
+    expect_identical(comp$initial_value, 3)
+    expect_identical(comp$component_params, list(a = 2))
+    expect_identical(comp$dynamics_fun, "constant_other")
+    expect_identical(comp$mort_fun, "test_dyn")
+    expect_null(comp$encounter_fun)
+    expect_null(q@other_encounter$pool)
+    expect_identical(comp$definition$colour, "grey")
+    expect_identical(comp$definition$linetype, "solid")
+    expect_identical(getColours(q)[["pool"]], "grey")
+    expect_identical(getLinetypes(q)[["pool"]], "solid")
+    expect_identical(getComponent(p, "pool")$dynamics_fun, "test_dyn")
+})
+
+test_that("Component definitions reject unsupported inputs without changes", {
+    p <- setComponent(params, "pool", initial_value = 3,
+                      dynamics_fun = "test_dyn")
+    before <- p
+    expect_error(setComponent(p, "pool", definition = list()), "dynamics_fun")
+    expect_error(setComponent(p, "pool", definition = NULL), "definition")
+    expect_error(setComponent(p, "pool", dynamics_fun = NULL), "dynamics_fun")
+    missing_fun <- list(dynamics_fun = "not_a_function")
+    unsupported <- list(dynamics_fun = "test_dyn", rate_fun = "test_dyn")
+    expect_error(setComponent(p, "pool", definition = missing_fun),
+                 "not_a_function")
+    expect_error(setComponent(p, "pool", definition = unsupported),
+                 "rate_fun")
+    expect_error(setComponent(p, "new", dynamics_fun = "test_dyn"),
+                 "initial_value")
+    expect_identical(p, before)
+})
+
+test_that("A NULL component state is rejected without deleting its entry", {
+    p <- setComponent(params, "pool", initial_value = 3,
+                      definition = list(dynamics_fun = "constant_other"))
+    expect_error(setComponent(p, "pool", initial_value = NULL),
+                 "initial_value.*must not be NULL")
+    expect_error(setComponent(params, "empty", initial_value = NULL,
+                              dynamics_fun = "constant_other"),
+                 "initial_value.*must not be NULL")
+    expect_identical(names(p@initial_n_other), "pool")
+    expect_identical(getComponent(p, "pool")$initial_value, 3)
+    expect_identical(p@other_dynamics$pool, "constant_other")
+})
+
+test_that("Definition registration preserves legacy projection behaviour", {
+    e$definition_step_test <- function(params, n_other, component, dt, ...) {
+        n_other[[component]] + dt
+    }
+    direct <- setComponent(params, "pool", 2,
+                           dynamics_fun = "definition_step_test")
+    defined <- setComponent(
+        params, "pool", 2,
+        definition = list(dynamics_fun = "definition_step_test")
+    )
+    direct_sim <- project(direct, t_max = 0.2, dt = 0.1, t_save = 0.2,
+                          progress_bar = FALSE)
+    defined_sim <- project(defined, t_max = 0.2, dt = 0.1, t_save = 0.2,
+                           progress_bar = FALSE)
+    expect_equal(finalNOther(defined_sim)$pool, 2.2)
+    expect_equal(defined_sim@n, direct_sim@n)
+    expect_equal(defined_sim@n_pp, direct_sim@n_pp)
+    expect_identical(defined_sim@n_other, direct_sim@n_other)
 })
 
 test_that("We can set component colours and linetypes", {
@@ -278,6 +404,8 @@ test_that("We can set component colours and linetypes", {
     )
     expect_false("test2" %in% names(getColours(p2)))
     expect_false("test2" %in% names(getLinetypes(p2)))
+    expect_null(getComponent(p2, "test2")$definition$colour)
+    expect_null(getComponent(p2, "test2")$definition$linetype)
 
     p3 <- setComponent(params, "test3", 1,
                        dynamics_fun = "test_dyn")

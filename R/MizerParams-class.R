@@ -258,6 +258,11 @@ validMizerParams <- function(object) {
         errors <- c(errors, msg)
     }
 
+    capability_errors <- capability_registry_errors(params$capabilities)
+    if (!isTRUE(capability_errors)) {
+        errors <- c(errors, capability_errors)
+    }
+
     # Should not have legacy r_max column (has been renamed to R_max)
     if ("r_max" %in% names(params@species_params)) {
         msg <- "The 'r_max' column in species_params should be called 'R_max'. You can use 'validParams()' to upgrade your params object."
@@ -389,6 +394,9 @@ validMizerParams <- function(object) {
 #' @slot other_params A list containing the parameters needed by any mizer
 #'   extensions you may have installed to model other dynamical components of
 #'   the ecosystem.
+#' @slot capabilities A versioned registry of assembled component and process
+#'   capability specifications. Component definitions are stored by
+#'   [setComponent()] independently of their initial state and parameters.
 #' @slot rates_funcs A named list with the names of the functions that should be
 #'   used to calculate the rates needed by `project()`. By default this will be
 #'   set to the names of the built-in rate functions.
@@ -748,6 +756,7 @@ emptyParams <- function(species_params,
             other_dynamics = list(),
             other_encounter = list(),
             other_mort = list(),
+            capabilities = new_capability_registry(),
             rates_funcs = list(
                 Rates = "mizerRates",
                 Encounter = "mizerEncounter",
@@ -1078,7 +1087,8 @@ validation_key <- function(params) {
                      length(params@rr_pp), length(params@cc_pp),
                      array_shapes,
                      as.character(params@mizer_version),
-                     params@extensions))
+                     params@extensions,
+                     params$capabilities))
 }
 
 #' Repair a MizerParams object

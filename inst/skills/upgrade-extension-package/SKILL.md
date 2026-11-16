@@ -64,6 +64,7 @@ package.
 
 | Symptom | Cause | Section |
 |---|---|---|
+| A package's reusable component definition has changed, but previously created models still use the old choices | component definitions are stored as assembled snapshots in the model | Stored component definitions |
 | `is()` / `setClass()` / `expect_s4_class()` in the package, or `.onLoad()` calling `registerExtension()` / `getRegisteredExtensions()` | written against the S4 mizer | Part 1 |
 | After `rm(list = ls())`, or in the second and later examples of `R CMD check`, mizer reports the extension's class is not a defined class | the dynamic S4 marker classes lived in `.GlobalEnv` | Part 1 — the mechanism is gone, migrate rather than repair |
 | After `devtools::load_all()`, `coerceToExtensionClass()` reports no method or default for coercing `MizerParams` | same obsolete marker-class machinery | Part 1 |
@@ -637,6 +638,27 @@ you share an extension moved into the guide to creating an extension package.
 Prose that paraphrases the old "Creating extension packages" article should be
 re-read against the new one: its advice on marker classes was wrong by the end,
 still telling you to write `setClass("myExtension", contains = "MizerParams")`.
+
+## Stored component definitions
+
+From mizer 3.4.0.9004, `setComponent()` accepts a reusable `definition` list and
+stores the assembled choices in the model. This first preview supports the
+existing dynamics, encounter and mortality callbacks and plotting styles.
+Continue to register components through `setComponent()`; direct edits to the
+legacy callback slots do not update the stored definition. Those slots remain
+in use by the current runtime, including temporary overrides during tuning.
+
+Changing a definition object in your package affects subsequent registrations,
+not models that have already used it. To migrate those models, call
+`setComponent(params, component, definition = new_definition)` from the package's
+upgrade method. Omit initial state and component parameters to preserve each
+instance's data. A replacement definition removes old optional callbacks omitted
+from the new list; a call without `definition` patches only supplied arguments.
+
+The core upgrade creates snapshots for legacy components from their recorded
+callbacks and plotting styles. It does not invent support for future assessment,
+balancing or transformation capabilities. Keep using the version-stamp and
+idempotent-upgrade workflow in the `create-extension-package` skill.
 
 ## Finishing
 

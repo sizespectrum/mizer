@@ -143,6 +143,10 @@ contribution to the mortality rate from each other dynamical components.}
 extensions you may have installed to model other dynamical components of
 the ecosystem.}
 
+\item{\code{capabilities}}{A versioned registry of assembled component and process
+capability specifications. Component definitions are stored by
+\code{\link[=setComponent]{setComponent()}} independently of their initial state and parameters.}
+
 \item{\code{rates_funcs}}{A named list with the names of the functions that should be
 used to calculate the rates needed by \code{project()}. By default this will be
 set to the names of the built-in rate functions.}

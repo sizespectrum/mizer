@@ -15,7 +15,8 @@ setComponent(
   mort_fun,
   component_params,
   colour = "grey",
-  linetype = "solid"
+  linetype = "solid",
+  definition
 )
 
 removeComponent(params, component)
@@ -28,9 +29,12 @@ getComponent(params, component)
 \item{component}{Name of the component of interest. If missing, a list of
 all components will be returned.}
 
-\item{initial_value}{Initial value of the component}
+\item{initial_value}{Initial value of the component. Required for a new
+component; retained when omitted for an existing component. Must not be
+\code{NULL}; use \code{removeComponent()} to remove a component.}
 
-\item{dynamics_fun}{Name of function to calculate value at the next time step}
+\item{dynamics_fun}{Name of function to calculate value at the next time
+step. Required in the assembled definition.}
 
 \item{encounter_fun}{Name of function to calculate contribution to encounter
 rate. Optional.}
@@ -46,13 +50,19 @@ functions. This could for example be a named list of parameters. Optional.}
 
 \item{linetype}{Line type to use for the component in plots. Defaults to
 \code{"solid"}.}
+
+\item{definition}{A named list specifying the component's callbacks and
+plotting styles. Supplying a list replaces its previous definition before
+explicitly supplied arguments are applied. State and component parameters
+are supplied separately.}
 }
 \value{
 The updated MizerParams object
 
-For \code{getComponent}: A list with the entries \code{initial_value}, \code{dynamics_fun},
-\code{encounter_fun}, \code{mort_fun}, \code{component_params} for the requested
-component. If the requested component does not exist, \code{NULL} is returned.
+For \code{getComponent}: A list with the entries \code{initial_value},
+\code{dynamics_fun}, \code{encounter_fun}, \code{mort_fun}, \code{component_params}, and
+\code{definition} for the requested component. If the requested component does
+not exist, \code{NULL} is returned.
 If no \code{component} argument is given, then a list of lists for all
 components is returned.
 }
@@ -66,12 +76,27 @@ resources or .... This function allows you to set up such components.
 The component can be a number, a vector, an array, a list, or any other
 data structure you like.
 
-If you set a component with a new name, the new component will be added
-to the existing components. If you set a component with an existing name,
-the \code{initial_value} and \code{dynamics_fun} are overwritten, while the optional
-\code{encounter_fun}, \code{mort_fun} and \code{component_params} are only changed if the
-corresponding arguments are supplied. You can remove a component with
+A new component needs an \code{initial_value}, supplied separately from its
+definition. Its \code{dynamics_fun} can be supplied directly or through
+\code{definition}. For an existing component, omitted
+arguments retain their existing values. Explicit \code{NULL} removes an optional
+\code{encounter_fun} or \code{mort_fun}. You can remove a component with
 \code{removeComponent()}.
+
+A \code{definition} is a reusable named list containing \code{dynamics_fun},
+\code{encounter_fun}, \code{mort_fun}, \code{colour} and/or \code{linetype}. Explicit arguments
+override its entries. Supplying a definition replaces the component's
+previous definition: omitted optional callbacks are removed and omitted
+styles default to \code{"grey"} and \code{"solid"}. Without \code{definition}, explicitly
+supplied arguments patch the existing definition instead. Initial state and
+\code{component_params} belong to the component instance and are retained when
+omitted, including when its definition is replaced.
+
+The assembled definition is stored in the model. Subsequent changes to the
+list used as \code{definition} do not change that model; call \code{setComponent()}
+again to apply an update. Callback function names are stored, rather than
+their implementations, so the functions still need to be available when
+the model is used.
 }
 \seealso{
 "Extending mizer":

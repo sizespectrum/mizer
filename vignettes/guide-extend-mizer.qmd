@@ -278,6 +278,50 @@ Access components with [`getComponent()`](../reference/setComponent.html), remov
 Component state is available to all custom functions as `n_other[["detritus"]]`,
 and its parameters via `component_params`.
 
+### Reusable component definitions
+
+You can collect the callbacks and plotting styles in a plain named list and
+reuse it across models:
+
+```{r eval=FALSE}
+detritus_definition <- list(
+    dynamics_fun = "detritusDynamics",
+    encounter_fun = "detritusEncounter",
+    colour = "orange"
+)
+params <- setComponent(params, "detritus", initial_value = 1e5,
+                       definition = detritus_definition,
+                       component_params = list(rate = 1, capacity = 1e6))
+getComponent(params, "detritus")$definition
+```
+
+The supported definition fields are `dynamics_fun`, `encounter_fun`, `mort_fun`,
+`colour` and `linetype`. The functions must already be available by name.
+Initial state and component parameters are supplied separately. This first
+development preview of the capability contract still requires a custom step;
+equation-only components and the new measurement, assessment and tuning hooks
+will be added with their runtime support.
+
+Explicit arguments override the definition. A supplied definition replaces the
+old one: omitted encounter/mortality callbacks are removed and omitted styles
+default to grey/solid. Without a definition, a call patches only the arguments
+supplied, retaining the rest. Explicit `NULL` removes an optional callback:
+
+```{r eval=FALSE}
+params <- setComponent(params, "detritus", mort_fun = NULL)
+params <- setComponent(params, "detritus", colour = "blue")
+```
+
+For an existing component, omitted initial state and component parameters are
+retained even when replacing its definition. The model stores the assembled
+definition, so editing `detritus_definition` afterwards does not change it.
+Apply a new definition explicitly with `setComponent()`, or in an extension's
+upgrade method when migrating a saved model. The snapshot stores function names,
+not function bodies; the installed implementation of those functions still
+matters. Use `getComponent(params, "detritus")$definition` to inspect the stored
+choices. Ordinary [`setColours()`](../reference/setColours.html) and [`setLinetypes()`](../reference/setColours.html) updates keep those choices
+in step with the plotting settings.
+
 If there is nothing for `dynamics_fun` to update — a starvation or senescence
 mortality reads the state but keeps none of its own — do not invent a component
 for it. Register the function on its own instead:
