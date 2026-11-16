@@ -192,6 +192,13 @@
 
 ## Bug fixes
 
+- Reduce projection overhead without changing numerical results: second-order
+  bin averages avoid full-size index masks, built-in resource steps reuse the
+  consumer midpoint rates when there are no extra components, and rate guards
+  reuse argument matching while still checking each current model state.
+  Upper size boundaries use a vectorised interval lookup instead of repeatedly
+  scanning the grid for each species.
+
 - Fix package check warnings by declaring the `digest` dependency, aligning
   `project.MizerSim()` with the generic's `check_steady` argument while
   preserving its forwarding, and qualifying `utils::head()` in rate dependency

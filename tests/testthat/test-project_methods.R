@@ -339,3 +339,29 @@ test_that("Rate guards match positional and partially named state arguments", {
                            n_o = p$initial_n_other, t = 0), expected)
     expect_length(.rate_evaluation_stack$active, 0L)
 })
+
+test_that("Reused rate guards rematch calls without caching model state", {
+    provider <- function(params, n, n_pp, n_other, t, loop = FALSE, ...) {
+        if (loop) {
+            return(guarded(n_pp = n_pp, params = params, n_other = n_other,
+                           n = n, t = t, loop = TRUE))
+        }
+        if (t < 2) return(guarded(params, n * 2, n_pp, n_other, t + 1))
+        n
+    }
+    guarded <- guard_rate_callback(provider, "Encounter")
+    p <- NS_params_small
+    for (scale in c(1, 3)) {
+        n <- p$initial_n * scale
+        expect_equal(guarded(p, n, p$initial_n_pp, p$initial_n_other, 0),
+                     4 * n, tolerance = 0)
+        expect_equal(guarded(t = 0, n_o = p$initial_n_other,
+                             par = p, n_p = p$initial_n_pp, n = n),
+                     4 * n, tolerance = 0)
+    }
+    expect_error(guarded(p, n, p$initial_n_pp, p$initial_n_other, 0, TRUE),
+                 "Rate dependency cycle: Encounter -> Encounter")
+    expect_length(.rate_evaluation_stack$active, 0L)
+    expect_equal(guarded(p, n, p$initial_n_pp, p$initial_n_other, 2),
+                 n, tolerance = 0)
+})

@@ -86,7 +86,10 @@ support_top_idx <- function(params) {
     w <- params@w
     no_w <- length(w)
     w_max <- params@species_params$w_max
-    w_max_idx <- vapply(w_max, function(wm) sum(w <= wm), integer(1))
+    # The grid is sorted, so one interval lookup gives the same count as
+    # scanning every grid point separately for each species at every step.
+    w_max_idx <- findInterval(w_max, w)
+    names(w_max_idx) <- names(w_max)
     # The grid is truncated at w_max. First-order upwind feeds a class from the
     # growth of the class below, so its support reaches one bin past w_max (this
     # matches untruncated mizer); the second-order scheme feeds a class from the

@@ -209,18 +209,21 @@ trapezoidal_bin_average <- function(K) {
     if (is.null(d)) {
         n <- length(K)
         if (n < 2) return(K)
-        Kbar <- K
-        Kbar[-n] <- 0.5 * (K[-n] + K[-1])
-        return(Kbar)
+        k_bar <- K
+        k_bar[-n] <- 0.5 * (K[-n] + K[-1])
+        return(k_bar)
     }
     # Average along the last (size) dimension.
     n <- d[length(d)]
     if (n < 2) return(K)
-    idx_lo <- slice.index(K, length(d)) <= n - 1L
-    idx_hi <- slice.index(K, length(d)) >= 2L
-    Kbar <- K
-    Kbar[idx_lo] <- 0.5 * (K[idx_lo] + K[idx_hi])
-    Kbar
+    # Size slices are contiguous in R's column-major storage. Index the two
+    # neighbouring blocks directly instead of allocating full-size slice
+    # indices and logical masks at every rate evaluation.
+    stride <- prod(d[-length(d)])
+    idx <- seq_len(length(K) - stride)
+    k_bar <- K
+    k_bar[idx] <- 0.5 * (K[idx] + K[idx + stride])
+    k_bar
 }
 
 #' Bin-average the weight of a size-spectrum integral

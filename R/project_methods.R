@@ -211,16 +211,29 @@ guard_rate_callback <- function(fun, rate) {
     force(fun)
     force(rate)
     signature <- if (is.primitive(fun)) args(fun) else fun
+    matched_names <- NULL
+    matched_length <- -1L
+    positions <- NULL
     guarded <- function(...) {
         args <- list(...)
         # Match positions and partial names exactly as the provider will. The
         # placeholder indices avoid embedding models or arrays in the call.
-        supplied <- as.list(seq_along(args))
-        names(supplied) <- names(args)
-        call <- as.call(c(list(quote(.rate_callback)), supplied))
-        matched <- as.list(match.call(signature, call, expand.dots = TRUE))[-1L]
-        context_args <- args[unlist(matched, use.names = FALSE)]
-        names(context_args) <- names(matched)
+        # Matching depends only on the argument names and count, not on the
+        # changing state. Reuse it across time steps; a different call shape
+        # (including a nested call) is matched again before inspecting state.
+        if (length(args) != matched_length ||
+                !identical(names(args), matched_names)) {
+            supplied <- as.list(seq_along(args))
+            names(supplied) <- names(args)
+            call <- as.call(c(list(quote(.rate_callback)), supplied))
+            matched <- as.list(match.call(signature, call,
+                                          expand.dots = TRUE))[-1L]
+            positions <<- unlist(matched, use.names = TRUE)
+            matched_names <<- names(args)
+            matched_length <<- length(args)
+        }
+        context_args <- args[positions]
+        names(context_args) <- names(positions)
         params <- context_args[["params"]]
         if (is.null(params) && length(context_args) &&
                 inherits(context_args[[1L]], "MizerParams")) {

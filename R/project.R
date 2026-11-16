@@ -9,6 +9,11 @@
 #' @importFrom Rcpp sourceCpp
 NULL
 
+# Retain the original functions even if customFunction() replaces a namespace
+# binding later. Only these steps can use the specialised resource path.
+.builtin_resource_steps <- list(resource_semichemostat, resource_logistic,
+                                resource_constant)
+
 
 #' Project size spectrum forward in time
 #'
@@ -703,6 +708,15 @@ project_simple.MizerParams <-
         c <- matrix(0, nrow = no_sp, ncol = no_w)
         S <- matrix(0, nrow = no_sp, ncol = no_w)
 
+            # These steps use only resource_mort and ignore predictions.
+            # Compare resolved functions, so custom replacements still get
+            # complete context even if they use a familiar name.
+            builtin_resource <- any(vapply(.builtin_resource_steps, identical,
+                                           logical(1),
+                                           y = resource_dynamics_fn))
+            complete_midpoint <- !builtin_resource ||
+                length(params@other_dynamics) > 0L
+
             step_args <- function(rates) {
                 c(list(params = params, n = n, n_pp = n_pp, n_other = n_other,
                        rates = rates, t = t, dt = dt), list(...))
@@ -760,6 +774,19 @@ project_simple.MizerParams <-
             }
             step_resource <- function(rates, predicted_state = NULL,
                                       endpoint_rates = NULL) {
+                if (builtin_resource) {
+                    return(tryCatch(
+                        resource_dynamics_fn(
+                            params, n = n, n_pp = n_pp, n_other = n_other,
+                            rates = rates, t = t, dt = dt,
+                            resource_rate = params@rr_pp,
+                            resource_capacity = params@cc_pp, ...
+                        ), error = function(error) {
+                            stop("Resource step failed: ",
+                                 conditionMessage(error), call. = FALSE)
+                        }
+                    ))
+                }
                 invoke_model_step(
                     resource_dynamics_fn,
                     c(step_args(rates), list(resource_rate = params@rr_pp,
@@ -823,7 +850,11 @@ project_simple.MizerParams <-
                         t = t + dt, effort = effort, rates_fns = rates_fns, ...
                     )
                     r_mid <- average_rates(r, r_hat)
-                    r_component <- average_component_rates(r, r_hat)
+                    r_component <- if (complete_midpoint) {
+                        average_component_rates(r, r_hat)
+                    } else {
+                        r_mid
+                    }
                     predicted <- list(n = n_hat, n_pp = n_pp_hat,
                                       n_other = n_other_hat, t = t + dt)
 
