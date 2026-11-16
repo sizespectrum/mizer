@@ -122,6 +122,37 @@ positive recruitment cannot be produced by an absent spawning population, and a
 positive reproduction level cannot describe a species with zero recruitment.
 Choose a feasible control or change the underlying model state deliberately.
 
+### Model transformations require extension support
+
+Adding, removing, renaming or reordering species, changing the size grid, and
+scaling a model now require transformation support for its active processes.
+Projection support alone is insufficient. An unsupported operation stops before
+changing the model; update the relevant extension package to obtain support.
+Explicitly declaring that a transformation needs no action is different from
+having no declaration.
+
+`scaleModel()` no longer assumes every component state is a biomass that should
+be multiplied by the scale factor. Component hooks decide which stocks and
+parameters scale and which intensive or non-numeric quantities stay unchanged.
+The same contract applies to `scaleRates()`, where a factor changes the speed
+of the dynamics.
+
+Use `reorderSpecies(params, species)` to supply the complete desired species
+order. Reordering the species-parameter table directly remains unsupported;
+the model's arrays and extension-owned data must be reordered together.
+
+Structural reconstruction prepares any required initial guesses after extension
+data have been transformed. It does not separately match observations or
+rebalance reproduction just to reconstruct existing species on a grid.
+`addSpecies(steady = TRUE)` still performs its requested new-species steady-state
+calculation and balancing; `steady = FALSE` omits those calculations.
+
+With `removeSpecies(compensate = TRUE)`, mizer checks the remaining species'
+effective growth, diffusion, total mortality and recruitment after the removal.
+If these cannot be preserved, the operation stops instead of returning an
+unverified compensated model. Supported built-in resource dynamics are balanced
+at that state; this does not establish that every other component is steady.
+
 ### A model keeps the defaults edition it was created with
 
 `defaults_edition()` chooses the edition of the defaults that mizer fills in for

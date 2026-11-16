@@ -174,8 +174,69 @@ newMultispeciesParams <- function(
     # Collect the information signals raised while the model is built and
     # report them together at the end.
     with_info_level(info_level = info_level, {
-    no_sp <- nrow(species_params)
+        params <- new_multispecies_structure(
+            species_params, gear_params, no_w, min_w, max_w, min_w_pp,
+            second_order_w, kappa, lambda, n, p, w_pp_cutoff
+        )
+        if (is.null(interaction)) {
+            no_sp <- nrow(params@species_params)
+            interaction <- matrix(1, nrow = no_sp, ncol = no_sp)
+        }
 
+        set_params_args <- list(
+                                # setInteraction
+                                interaction = interaction,
+                                # setPredKernel()
+                                pred_kernel = pred_kernel,
+            # setSearchVolume()
+            search_vol = search_vol,
+            # setMaxIntakeRate()
+            intake_max = intake_max,
+            # setMetabolicRate()
+            metab = metab,
+            # setExtMort
+            ext_mort = ext_mort,
+            # setExtEncounter
+            ext_encounter = ext_encounter,
+            # setReproduction
+            maturity = maturity,
+            repro_prop = repro_prop,
+            RDD = RDD,
+            # setFishing reads gear_params already stored by emptyParams().
+            selectivity = selectivity,
+            catchability = catchability,
+            initial_effort = initial_effort)
+        # Preserve whether these arguments were actually supplied. This lets
+        # setExtMort() record z0 derived from an explicit argument while leaving
+        # z0 derived from the argument defaults out of given_species_params.
+        if (z0pre_given) {
+            set_params_args$z0pre <- z0pre
+        }
+        if (z0exp_given) {
+            set_params_args$z0exp <- z0exp
+        }
+        params <- finish_multispecies_params(
+            params, set_params_args,
+            resource_args = list(
+                resource_rate = resource_rate,
+                resource_capacity = resource_capacity,
+                resource_dynamics = resource_dynamics,
+                lambda = lambda, n = n, w_pp_cutoff = w_pp_cutoff,
+                balance = FALSE
+            )
+        )
+    })
+    params
+}
+
+# Construct dimensions and core bookkeeping without calling rate providers.
+# Structural transformations install their extension data and run hooks between
+# this phase and finish_multispecies_params().
+new_multispecies_structure <- function(
+    species_params, gear_params = NULL, no_w = 100, min_w = 0.001,
+    max_w = NA, min_w_pp = NA, second_order_w = NULL,
+    kappa = 1e11, lambda = 2.05, n = 2 / 3, p = 0.7,
+    w_pp_cutoff = 10) {
     species_params <- set_species_param_default(species_params, "n", n)
     species_params <- set_species_param_default(species_params, "p", p)
     given_species_params <- validGivenSpeciesParams(species_params)
@@ -183,35 +244,17 @@ newMultispeciesParams <- function(
     species_params <- validSpeciesParams(species_params)
     gear_params <- validGearParams(gear_params, species_params)
 
-    ## Create MizerParams object ----
+    # Create the grid and core array templates.
     params <- emptyParams(given_species_params,
                           gear_params,
                           no_w = no_w,
                           min_w = min_w,
                           max_w = max_w,
-                          min_w_pp = min_w_pp)
+        min_w_pp = min_w_pp)
 
-    # Resolve the requested second-order scheme against the default scheme of
-    # the model's defaults edition. The `bin_average` choice is applied now,
-    # before the rest of the parameters are computed, so that the bin-averaged
-    # resource constructions (initial abundance, capacity, rate) and the
-    # encounter/mortality quadratures all honour it. We set the slot directly
-    # rather than via the `second_order_w<-` setter to avoid its extra
-    # setParams() call here, since setParams() is run below anyway. The `flux`
-    # scheme is deferred until the end (see below): it does not affect any
-    # precomputed array, only time projection, and the construction-time
-    # steady-state solve for the initial abundances is only robust with the
-    # first-order upwind scheme.
     target_second_order_w <-
         resolve_second_order_w(second_order_w, defaults_edition(params))
-    params@second_order_w <-
-        list(flux = "upwind",
-             bin_average = target_second_order_w[["bin_average"]])
-
-    # Fill the slots ----
-    if (is.null(interaction)) {
-        interaction <- matrix(1, nrow = no_sp, ncol = no_sp)
-    }
+    params@second_order_w <- target_second_order_w
 
     params@initial_n_pp[] <- resource_power_law(params, kappa, lambda,
                                                 w_max = w_pp_cutoff)
@@ -222,61 +265,57 @@ newMultispeciesParams <- function(
     params@resource_params$n <- n
     params@resource_params$w_pp_cutoff <- w_pp_cutoff
 
-    set_params_args <- list(
-        object = params,
-        # setInteraction
-        interaction = interaction,
-        # setPredKernel()
-        pred_kernel = pred_kernel,
-        # setSearchVolume()
-        search_vol = search_vol,
-        # setMaxIntakeRate()
-        intake_max = intake_max,
-        # setMetabolicRate()
-        metab = metab,
-        # setExtMort
-        ext_mort = ext_mort,
-        # setExtEncounter
-        ext_encounter = ext_encounter,
-        # setReproduction
-        maturity = maturity,
-        repro_prop = repro_prop,
-        RDD = RDD,
-        # setFishing. The `gear_params` are not passed here: they are already
-        # stored in the params object by emptyParams() above and setFishing()
-        # reads them from there.
-        selectivity = selectivity,
-        catchability = catchability,
-        initial_effort = initial_effort)
-    # Preserve whether these arguments were actually supplied. This lets
-    # setExtMort() record z0 derived from an explicit argument while leaving
-    # z0 derived from the argument defaults out of given_species_params.
-    if (z0pre_given) {
-        set_params_args$z0pre <- z0pre
-    }
-    if (z0exp_given) {
-        set_params_args$z0exp <- z0exp
-    }
-    params <- do.call(setParams, set_params_args)
+    params
+}
 
-    params <- setResource(
-        params,
-        resource_rate = resource_rate,
-        resource_capacity = resource_capacity,
-        resource_dynamics = resource_dynamics,
-        lambda = lambda,
-        n = n,
-        w_pp_cutoff = w_pp_cutoff,
-        balance = FALSE)
-
-    params@initial_n[] <- get_initial_n(params)
-    # TODO: The next line can be removed after release of mizer 3.0
-    params@A <- rep(1, nrow(species_params))
-    })
-    # Now that the initial abundances have been computed with the robust upwind
-    # solver, switch on the requested advective-flux scheme for projection.
-    params@second_order_w[["flux"]] <- target_second_order_w[["flux"]]
-    return(params)
+# Rate construction and initialisation require a structurally complete model.
+finish_multispecies_params <- function(params, set_params_args = list(),
+                                       resource_args = NULL,
+                                       initialise = TRUE,
+                                       match_observations = TRUE,
+                                       updates = list(), restore = identity) {
+    flux <- params@second_order_w[["flux"]]
+    # Initial spectra use upwind; bin averaging is active during construction.
+    params@second_order_w[["flux"]] <- "upwind"
+    protected <- c("maturity", "psi", "intake_max", "search_vol", "metab",
+                   "mu_b", "ext_encounter", "ext_diffusion", "pred_kernel",
+                   "selectivity", "catchability", "cc_pp", "rr_pp")
+    updated_fields <- vapply(updates, function(update) update$path[[1L]],
+                             character(1))
+    for (field in intersect(protected, updated_fields)) {
+        comment(params[[field]]) <- "preserved transformation value"
+    }
+    build_rates <- function() {
+        do.call(setParams, c(list(object = params), set_params_args))
+    }
+    params <- if (length(updates)) {
+        with_info_level(build_rates(), info_level = 0)
+    } else {
+        build_rates()
+    }
+    params <- restore(params)
+    params <- restore_transformation_updates(params, updates)
+    if (!is.null(resource_args)) {
+        if ("cc_pp" %in% updated_fields) {
+            resource_args$resource_capacity <- params$cc_pp
+        }
+        if ("rr_pp" %in% updated_fields) {
+            resource_args$resource_rate <- params$rr_pp
+        }
+        params <- do.call(setResource, c(list(params = params), resource_args))
+        params <- restore(params)
+        params <- restore_transformation_updates(params, updates)
+    }
+    if (initialise && !"initial_n" %in% updated_fields) {
+        params@initial_n[] <- initial_n_guess(
+            params, match_observations = match_observations
+        )
+    }
+    params@A <- rep(1, nrow(params@species_params))
+    params <- restore(params)
+    params <- restore_transformation_updates(params, updates)
+    params@second_order_w[["flux"]] <- flux
+    params
 }
 
 #' Set or change any model parameters

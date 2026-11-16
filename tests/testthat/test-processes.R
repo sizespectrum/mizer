@@ -162,3 +162,27 @@ test_that("Process registry validation rejects malformed bindings", {
     expect_match(capability_registry_errors(registry),
                  "consumers, resource and/or reproduction")
 })
+
+test_that("Level registration has an independent provider binding", {
+    rlang::local_bindings(
+        independent_level = function(params, ...) {
+            rep(0.5, nrow(params$species_params))
+        }, .env = globalenv()
+    )
+    p <- NS_params_small
+    p$rates_funcs$RDD <- "noRDD"
+    tuning_binding <- p$capabilities$processes$reproduction$tuning_binding
+    transforms <- p$capabilities$processes$reproduction$transformation_binding
+    p <- setProcess(p, "reproduction", level_fun = "independent_level")
+    definition <- p$capabilities$processes$reproduction
+    expect_true(level_binding_current(p, definition))
+    expect_false(tuning_binding_current(p, definition, "reproduction"))
+    expect_identical(definition$tuning_binding, tuning_binding)
+    # Unrelated explicit patches cannot re-adopt a stale explicit transform.
+    expect_identical(definition$transformation_binding, transforms)
+    expect_error(prepare_tuning(p), "stationary")
+    adopted <- setProcess(p, "reproduction")
+    expect_true(tuning_binding_current(
+        adopted, adopted$capabilities$processes$reproduction, "reproduction"
+    ))
+})

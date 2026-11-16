@@ -20,8 +20,9 @@ numeric vector of species indices, or a logical vector indicating for
 each species whether it is to be removed (TRUE) or not.}
 
 \item{compensate}{If \code{TRUE}, the external rates of the remaining species
-are adjusted so that the remaining species have the same rates as before
-the removal, and the resource is rebalanced. See the section
+are adjusted and checked to preserve growth, diffusion, mortality and
+recruitment at the initial state. Supported resource dynamics are balanced.
+See the section
 "Compensating for the removed species". Default is \code{FALSE}.}
 
 \item{info_level}{Controls the amount of information messages that are
@@ -65,30 +66,24 @@ external diffusion rate, see \code{\link[=setExtDiffusion]{setExtDiffusion()}}. 
 \code{\link[=use_predation_diffusion]{use_predation_diffusion()}} is switched on.
 }
 
-All of this is calculated at the initial state stored in \code{params}. At that
-state the remaining species then have exactly the rates they had before the
-removal. In effect the removed species are still present, held at their
-initial abundances, but they no longer respond to changes in the rest of the
-model. As the model moves away from its initial state, the compensation no
-longer matches what the removed species would have done.
+Compensation is evaluated through the complete effective rate pipeline at
+the initial state. After trimming species and running all declared hooks,
+mizer checks growth, diffusion, total mortality and final recruitment of
+every remaining species. A failed check stops the operation. These quantities are
+preserved at this state; their responses to later changes may differ.
 
-The removed species also no longer eat the resource, so the resource
-capacity is rebalanced with \code{\link[=setResource]{setResource()}}: it is set so that at the
-initial state the resource replenishes at exactly the rate at which it is now
-consumed. The resource rate is kept. This replaces a resource capacity that
-you had set manually. Rebalancing puts the resource at steady state, so it
-keeps its rate of change only if that was zero. Thus if the model was at
-steady state, it stays at steady state. If the resource was not at steady
-state, it is put at steady state instead of keeping the rate at which it
-was changing.
+For the built-in semichemostat and logistic resource, reduced predation is
+balanced analytically by changing capacity, using the effective resource
+mortality. This puts the resource at steady state and keeps its renewal rate.
+A capacity set manually is replaced. A constant resource needs no adjustment.
+Custom resource dynamics and other components require explicit removal
+support; their hooks receive \code{details$compensate} and are responsible for
+their own compensation. This is not a whole-model steady-state guarantee.
 
-The compensation is added to the external rates on the assumption that
-they are added unchanged to the rates, as they are in mizer's own rate
-functions. If you have replaced a rate function with \code{\link[=setRateFunction]{setRateFunction()}},
-mizer checks that the rates are restored. Where they are not, it rescales
-the compensation by how much the rate responds to it, which restores a rate
-that your function calculates by multiplying mizer's rate by a factor. If a
-rate is still not restored, you are warned.
+The core adds each external-rate shortfall once. Custom callbacks that scale
+or otherwise alter that response need an authored transformation hook with
+permission to update the affected arrays. Mizer does not estimate a numerical
+correction for an unknown callback.
 
 Each external rate that is changed is marked as set manually. A later
 change to the species parameters that the rate is usually calculated from
@@ -96,10 +91,6 @@ change to the species parameters that the rate is usually calculated from
 compensation; mizer tells you when it ignores such a change. External rates
 to which the removed species contributed nothing are left unchanged and
 unmarked.
-
-The compensation covers the species and the resource. Other components
-added with \code{\link[=setComponent]{setComponent()}} that have dynamics of their own are not
-compensated, and you are warned about them.
 }
 
 \examples{

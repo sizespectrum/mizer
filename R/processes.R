@@ -41,20 +41,26 @@ process_registry_errors <- function(processes) {
                 !setequal(names(specification),
                           c("convergence_fun", "role", "binding", "stationary",
                             "equation_rates_fun", "tuning", "tuning_binding",
-                            "level_fun"))) {
+                            "level_fun", "level_binding", "transformations",
+                            "transformation_binding"))) {
             errors <- c(errors, paste0("Invalid specification for process '",
                                        process, "'."))
             next
         }
         fragment <- specification[c("convergence_fun", "role", "stationary",
                                     "equation_rates_fun", "tuning",
-                                    "tuning_binding", "level_fun")]
+                                    "tuning_binding", "level_fun",
+                                    "transformations",
+                                    "transformation_binding")]
         if (process == "reproduction") {
             if (!is.null(fragment$role) || !is.null(fragment$convergence_fun)) {
                 errors <- c(errors, paste0("Reproduction has no state role or ",
                                            "convergence callback."))
             }
             fragment$role <- NULL
+        }
+        if (!tuning_data_valid(specification$level_binding)) {
+            errors <- c(errors, "Invalid stored reproduction-level binding.")
         }
         result <- component_definition_errors(fragment, required = FALSE)
         if (!isTRUE(result)) errors <- c(errors, result)
@@ -123,6 +129,8 @@ default_process_registry <- function(params) {
     for (owner in names(processes)) {
         defaults <- default_provider_tuning(params, owner)
         processes[[owner]][names(defaults)] <- defaults
+        transforms <- default_provider_transformations(params, owner)
+        processes[[owner]][names(transforms)] <- transforms
     }
     processes
 }
@@ -140,7 +148,31 @@ refresh_resource_assessment <- function(params, previous) {
                         "tuning_binding", "level_fun")
             replacement[fields] <- previous_specification[fields]
         }
+        fields <- c("transformations", "transformation_binding",
+                    "level_fun", "level_binding")
+        replacement[fields] <- previous_specification[fields]
         params$capabilities$processes$resource <- replacement
+    }
+    params
+}
+
+level_binding_current <- function(params, definition) {
+    binding <- definition$level_binding
+    if (is.null(binding)) return(FALSE)
+    binding$automatic <- NULL
+    tuning_binding_current(params, list(tuning_binding = binding),
+                           "reproduction")
+}
+
+refresh_builtin_levels <- function(params) {
+    old <- params$capabilities$processes$reproduction
+    if (is.null(old) || level_binding_current(params, old) ||
+            !isTRUE(old$level_binding$automatic)) return(params)
+    defaults <- default_provider_tuning(params, "reproduction")
+    if (!is.null(defaults$level_fun)) {
+        fields <- c("level_fun", "level_binding")
+        old[fields] <- defaults[fields]
+        params$capabilities$processes$reproduction <- old
     }
     params
 }
@@ -194,8 +226,12 @@ assessment_capability <- function(params, owner) {
 #' provider or changing the projection dispatch chain invalidates the
 #' declaration until support is explicitly adopted again. Changing parameters
 #' or consumer rate functions leaves the identity of the fish equations intact.
-#' Calling `setProcess()` explicitly adopts the current provider, including when
-#' omitted arguments retain the previous callback and role.
+#' Calling `setProcess(params, process)` with no capability arguments explicitly
+#' adopts the current provider for all retained capability families. A partial
+#' patch adopts only the families explicitly supplied: convergence/role,
+#' stationary/equation rates/tuning, reproduction level, or transformations.
+#' Omitted families keep their previous provider bindings, including staleness.
+#' A replacement definition adopts all its supplied capabilities.
 #'
 #' A convergence callback returns a data frame with the columns `measure`,
 #' `value`, `tolerance` and `units`. It supplies measurements, not verdicts;
@@ -221,6 +257,11 @@ assessment_capability <- function(params, owner) {
 #' @param equation_rates_fun Callback exposing effective equation quantities.
 #' @param tuning Named strategies and their default, or NULL to remove support.
 #' @param level_fun Law-specific reproduction-level callback, or NULL.
+#' @param transformations Named operation declarations for structural and scale
+#'   changes. Each declares action = 'none' or a named transform_fun with
+#'   action = 'update', explicit paths and optional settings. Supply this
+#'   argument or a new definition to adopt support for a changed provider;
+#'   an assessment-only update retains the previous transformation binding.
 #' @return `setProcess()` returns the updated model. `getProcess()` returns
 #'   the callback, role, reusable `definition` and recorded provider `binding`.
 #'   With no `process` argument, `getProcess()` returns all stored processes.
@@ -228,20 +269,25 @@ assessment_capability <- function(params, owner) {
 #' @export
 #' @family extension tools
 setProcess <- function(params, process, definition, convergence_fun, role,
-                       stationary, equation_rates_fun, tuning, level_fun) {
+                       stationary, equation_rates_fun, tuning, level_fun,
+                       transformations) {
     params <- validParams(params)
+    whole_adoption <- missing(definition) && missing(convergence_fun) &&
+        missing(role) && missing(stationary) && missing(equation_rates_fun) &&
+        missing(tuning) && missing(level_fun) && missing(transformations)
     if (!is.character(process) || length(process) != 1L || is.na(process) ||
             !process %in% c("consumers", "resource", "reproduction")) {
         stop("`process` must be 'consumers', 'resource' or 'reproduction'.",
              call. = FALSE)
     }
     fields <- c("convergence_fun", "role", "stationary",
-                "equation_rates_fun", "tuning", "level_fun")
+                "equation_rates_fun", "tuning", "level_fun",
+                "transformations")
     assembled <- list(convergence_fun = NULL,
                       role = if (process == "reproduction") NULL else "dynamic",
                       stationary = NULL, equation_rates_fun = NULL,
                       tuning = NULL,
-                      level_fun = NULL)
+                      level_fun = NULL, transformations = NULL)
     existing <- params$capabilities$processes[[process]]
     if (missing(definition)) {
         if (!is.null(existing)) assembled[fields] <- existing[fields]
@@ -262,6 +308,8 @@ setProcess <- function(params, process, definition, convergence_fun, role,
         list(equation_rates_fun)
     if (!missing(tuning)) assembled["tuning"] <- list(tuning)
     if (!missing(level_fun)) assembled["level_fun"] <- list(level_fun)
+    if (!missing(transformations)) assembled["transformations"] <-
+        list(transformations)
     checked <- assembled
     if (process == "reproduction") {
         if (!is.null(checked$role) || !is.null(checked$convergence_fun)) {
@@ -281,8 +329,36 @@ setProcess <- function(params, process, definition, convergence_fun, role,
                                    paste0(process, " ", field))
         }
     }
-    assembled$tuning_binding <- tuning_provider_binding(params)
-    assembled$binding <- process_provider_binding(params, process)
+    assembled["transformation_binding"] <- if (
+        missing(transformations) && missing(definition) && !whole_adoption
+    ) {
+        list(existing$transformation_binding)
+    } else {
+        list(transformation_provider_binding(params))
+    }
+    assembled["tuning_binding"] <- if (
+        missing(definition) && missing(stationary) &&
+            missing(equation_rates_fun) && missing(tuning) && !whole_adoption
+    ) {
+        list(existing$tuning_binding)
+    } else {
+        list(tuning_provider_binding(params))
+    }
+    assembled["level_binding"] <- if (
+        missing(level_fun) && missing(definition) && !whole_adoption
+    ) {
+        list(existing$level_binding)
+    } else {
+        list(tuning_provider_binding(params))
+    }
+    assembled$binding <- if (
+        is.null(existing) || !missing(convergence_fun) || !missing(role) ||
+            !missing(definition) || whole_adoption
+    ) {
+        process_provider_binding(params, process)
+    } else {
+        existing$binding
+    }
     params$capabilities$processes[[process]] <- assembled
     params$time_modified <- lubridate::now()
     params
@@ -308,6 +384,6 @@ getProcess <- function(params, process) {
          role = specification$role,
          definition = specification[c("convergence_fun", "role", "stationary",
                                       "equation_rates_fun", "tuning",
-                                      "level_fun")],
+                                      "level_fun", "transformations")],
          binding = specification$binding)
 }

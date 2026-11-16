@@ -32,6 +32,38 @@ test_that("saving checks callbacks nested in tuning declarations", {
     expect_equal(restored$capabilities, p$capabilities)
 })
 
+test_that("saved transformation declarations retain callback behaviour", {
+    rlang::local_bindings(
+        saved_pool_scale = function(params, before, component, details, ...) {
+            state <- before$initial_n_other[[component]]
+            state$stock <- state$stock * details$factor
+            params$initial_n_other[[component]] <- state
+            params
+        },
+        .env = globalenv()
+    )
+    p <- setComponent(
+        NS_params_small, "pool",
+        initial_value = list(stock = 2, temperature = 15, label = "inshore"),
+        dynamics_fun = "constant_other",
+        transformations = list(
+            scale_abundance = list(
+                action = "update", transform_fun = "saved_pool_scale"
+            )
+        )
+    )
+    tmp <- tempfile(fileext = ".rds")
+    withr::defer(unlink(tmp))
+    expect_warning(saveParams(p, tmp), "saved_pool_scale")
+    restored <- readParams(tmp)
+    expect_equal(restored$capabilities, p$capabilities)
+    scaled <- scaleModel(restored, 3)
+    expect_equal(scaled$initial_n_other$pool,
+                 list(stock = 6, temperature = 15, label = "inshore"))
+    expect_equal(p$initial_n_other$pool,
+                 list(stock = 2, temperature = 15, label = "inshore"))
+})
+
 test_that("stored component definitions survive params and sim round trips", {
     definition <- list(dynamics_fun = "constant_other", colour = "red",
                        linetype = "dashed")

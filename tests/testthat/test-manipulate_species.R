@@ -28,10 +28,13 @@ lower_ns_manipulate_params <- newMultispeciesParams(lower_ns_species_params,
 
 # addSpecies ----
 test_that("model reconstruction preserves stored component specifications", {
+    support <- list(add_species = list(action = "none"),
+                    size_grid = list(action = "none"))
     p <- setComponent(NS_params_small, "pool", initial_value = 42,
                       dynamics_fun = "constant_other",
                       component_params = list(capacity = 80),
-                      colour = "red", linetype = "dashed")
+                      colour = "red", linetype = "dashed",
+                      transformations = support)
     stored <- p$capabilities
     extra <- species_params(p)[1, ]
     extra$species <- "extra"
@@ -272,13 +275,20 @@ randomise_upgrade_preserved_slots <- function(params) {
     }
 
     params@ext_diffusion[] <- runif(length(params@ext_diffusion), max = 1e-6)
-    params@initial_n_other <- stats::setNames(list(runif(4)), component)
-    params@other_dynamics <- stats::setNames(list("random_dynamics"), component)
-    params@other_encounter <- stats::setNames(list(zero_rate), component)
-    params@other_mort <- stats::setNames(list(zero_mort), component)
-    params@other_params <- stats::setNames(list(list(values = runif(3))),
-                                           component)
+    callbacks <- c("preserved_zero_encounter", "preserved_zero_mort")
+    assign(callbacks[[1L]], zero_rate, envir = globalenv())
+    assign(callbacks[[2L]], zero_mort, envir = globalenv())
+    withr::defer(rm(list = callbacks, envir = globalenv()),
+                 envir = parent.frame())
+    params <- setComponent(
+        params, component, initial_value = runif(4),
+        dynamics_fun = "constant_other", encounter_fun = callbacks[[1L]],
+        mort_fun = callbacks[[2L]], component_params = list(values = runif(3)),
+        transformations = list(add_species = list(action = "none"),
+                               size_grid = list(action = "none"))
+    )
     params@other_params$other <- list(values = runif(2))
+    params$extension_scalar <- list(label = "opaque", values = runif(2))
     params@use_predation_diffusion <- TRUE
     attr(params@rates_funcs, "random") <- runif(2)
     params
@@ -300,17 +310,23 @@ test_that("addSpecies preserves slots recently added to upgradeParams", {
                  ignore_attr = TRUE)
     for (slot in c("initial_n_other", "other_dynamics", "other_encounter",
                    "other_mort", "other_params", "rates_funcs",
-                   "use_predation_diffusion")) {
+                   "use_predation_diffusion", "extension_scalar")) {
         expect_identical(slot(p, slot), slot(params, slot))
     }
 })
 
 test_that("addSpecies preserves the class", {
     params <- small_trait_grid_manipulate_params
-    class(params) <- c("AddSpeciesTestParams", "MizerParams")
+    params <- recordExtension(params, "AddSpeciesTestParams")
+    for (owner in c("consumers", "resource", "reproduction")) {
+        params <- setProcess(
+            params, owner,
+            transformations = list(add_species = list(action = "none"))
+        )
+    }
     sp <- data.frame(species = "new", w_max = 10, k_vb = 1)
     p <- suppressWarnings(suppressMessages(
-        addSpecies(params, sp, info_level = 0)
+        addSpecies(params, sp, steady = FALSE, info_level = 0)
     ))
 
     expect_s3_class(p, "AddSpeciesTestParams")
@@ -404,6 +420,37 @@ test_that("removeSpecies(compensate = TRUE) works with scaled rate functions", {
         setRateFunction("Mort", "removal_scaled_mort") |>
         setRateFunction("Diffusion", "removal_scaled_diffusion")
     use_predation_diffusion(params) <- TRUE
+    for (owner in c("consumers", "resource", "reproduction")) {
+        params <- setProcess(
+            params, owner,
+            transformations = list(remove_species = list(action = "none"))
+        )
+    }
+    rlang::local_bindings(removal_scaled_hook = function(params, before,
+                                                         details, ...) {
+        keep <- details$new_species
+        params$ext_encounter <- before$ext_encounter[keep, , drop = FALSE]
+        params$mu_b <- before$mu_b[keep, , drop = FALSE]
+        params$ext_diffusion <- before$ext_diffusion[keep, , drop = FALSE]
+        target <- getEncounter(before)[keep, , drop = FALSE]
+        params$ext_encounter <- params$ext_encounter +
+            (target - getEncounter(params)) / 2
+        params$mu_b <- params$mu_b +
+            (getMort(before)[keep, , drop = FALSE] - getMort(params)) / 3
+        target <- getDiffusion(before)[keep, , drop = FALSE]
+        params$ext_diffusion <- params$ext_diffusion +
+            (target - getDiffusion(params)) / 0.5
+        balance_resource_strategy(params, rates = tuning_rate_context(params),
+                                  n_pp = params$initial_n_pp)
+    }, .env = globalenv())
+    params <- setTransformation(
+        params, "scaled_removal", owners = c("consumers", "resource"),
+        operation = "remove_species",
+        definition = list(
+            action = "update", transform_fun = "removal_scaled_hook",
+            paths = list("ext_encounter", "mu_b", "ext_diffusion", "cc_pp")
+        )
+    )
     keep <- c("Sprat", "Cod")
     expect_no_warning(p <- removeSpecies(params, "Herring", compensate = TRUE))
     for (rate in list(getEncounter, getMort, getDiffusion)) {
@@ -413,7 +460,7 @@ test_that("removeSpecies(compensate = TRUE) works with scaled rate functions", {
     }
 })
 
-test_that("removeSpecies(compensate = TRUE) warns if it cannot restore a rate", {
+test_that("removeSpecies stops if compensation cannot restore the rates", {
     # An encounter rate that ignores the external encounter rate
     e <- globalenv()
     e$removal_no_ext_encounter <- function(params, ...) {
@@ -422,8 +469,14 @@ test_that("removeSpecies(compensate = TRUE) warns if it cannot restore a rate", 
     withr::defer(rm("removal_no_ext_encounter", envir = e))
     params <- setRateFunction(NS_params_small, "Encounter",
                               "removal_no_ext_encounter")
-    expect_warning(removeSpecies(params, "Herring", compensate = TRUE),
-                   "did not restore the encounter rate of Sprat, Cod")
+    for (owner in c("consumers", "resource", "reproduction")) {
+        params <- setProcess(
+            params, owner,
+            transformations = list(remove_species = list(action = "none"))
+        )
+    }
+    expect_error(removeSpecies(params, "Herring", compensate = TRUE),
+                 "did not preserve effective")
 })
 
 test_that("removeSpecies(compensate = TRUE) keeps a model at steady state", {
@@ -499,17 +552,20 @@ test_that("removeSpecies(compensate = TRUE) marks only the rates it changes", {
                  ignore_attr = TRUE, tolerance = 1e-12)
 })
 
-test_that("removeSpecies(compensate = TRUE) warns about dynamic components", {
+test_that("declared component removal support handles compensation", {
     params <- setComponent(NS_params_small, "component", 1,
-                           dynamics_fun = "constant_other")
+                           dynamics_fun = "constant_other",
+                           transformations = list(remove_species =
+                                                      list(action = "none")))
     expect_no_warning(removeSpecies(params, "Herring", compensate = TRUE))
     # setComponent() looks the dynamics function up by name
     assign("removal_test_dyn", function(params, ...) 1, envir = globalenv())
     withr::defer(rm("removal_test_dyn", envir = globalenv()))
     params <- setComponent(NS_params_small, "component", 1,
-                           dynamics_fun = "removal_test_dyn")
-    expect_warning(removeSpecies(params, "Herring", compensate = TRUE),
-                   "`component` has dynamics of its own")
+                           dynamics_fun = "removal_test_dyn",
+                           transformations = list(remove_species =
+                                                      list(action = "none")))
+    expect_no_warning(removeSpecies(params, "Herring", compensate = TRUE))
     # Without compensation there is nothing to warn about
     expect_no_warning(removeSpecies(params, "Herring"))
 })
@@ -674,14 +730,20 @@ test_that("expandSizeGrid preserves slots recently added to upgradeParams", {
                  ignore_attr = TRUE)
     for (slot in c("initial_n_other", "other_dynamics", "other_encounter",
                    "other_mort", "other_params", "rates_funcs",
-                   "use_predation_diffusion")) {
+                   "use_predation_diffusion", "extension_scalar")) {
         expect_identical(slot(p, slot), slot(params, slot))
     }
 })
 
 test_that("expandSizeGrid preserves the class", {
     params <- small_trait_grid_manipulate_params
-    class(params) <- c("ExpandGridTestParams", "MizerParams")
+    params <- recordExtension(params, "ExpandGridTestParams")
+    for (owner in c("consumers", "resource", "reproduction")) {
+        params <- setProcess(
+            params, owner,
+            transformations = list(size_grid = list(action = "none"))
+        )
+    }
     p <- suppressWarnings(expandSizeGrid(params, new_max_w = max(params@w) * 10))
 
     expect_s3_class(p, "ExpandGridTestParams")
@@ -819,3 +881,283 @@ test_that("adjustSizeGrid works for expansion and truncation", {
                  "new_min_w_pp must be smaller than new_min_w.")
 })
 
+
+test_that("reorderSpecies maps every core species axis explicitly", {
+    for (second_order in c(FALSE, TRUE)) {
+        p <- NS_params_small
+        second_order_w(p) <- second_order
+        p <- setPredKernel(p, pred_kernel = pred_kernel(p))
+        order <- c(3L, 1L, 2L)
+        changed <- reorderSpecies(p, order)
+        expect_identical(changed$species_params$species,
+                         p$species_params$species[order])
+        expect_equal(changed$initial_n, p$initial_n[order, , drop = FALSE],
+                     ignore_attr = TRUE)
+        expect_equal(changed$interaction,
+                     p$interaction[order, order, drop = FALSE])
+        expect_equal(changed$selectivity,
+                     p$selectivity[, order, , drop = FALSE])
+        expect_equal(changed$pred_kernel,
+                     p$pred_kernel[order, , , drop = FALSE],
+                     ignore_attr = TRUE)
+        expect_equal(getRates(changed)$mort,
+                     getRates(p)$mort[order, , drop = FALSE],
+                     ignore_attr = TRUE)
+        restored <- reorderSpecies(changed, p$species_params$species)
+        expect_equal(restored$initial_n, p$initial_n)
+        expect_equal(restored$given_species_params, p$given_species_params)
+        expect_error(reorderSpecies(p, c(1, 1, 3)), "exactly once")
+        expect_error(species_params(p) <- species_params(p)[order, ],
+                     "do not match")
+    }
+})
+
+test_that("structural hooks precede dependent setters and rates", {
+    observed <- new.env(parent = emptyenv())
+    observed$setters <- 0L
+    observed$rates <- 0L
+    check_rho <- function(params) {
+        rho <- params$initial_n_other$rho
+        stopifnot(identical(dim(rho), dim(params$initial_n)),
+                  identical(dimnames(rho), dimnames(params$initial_n)))
+    }
+    kernel_method <- "setPredKernel.structuralTest"
+    kernel_check <- function(params, ...) {
+        check_rho(params)
+        observed$setters <- observed$setters + 1L
+        NextMethod()
+    }
+    assign(kernel_method, kernel_check, envir = globalenv())
+    withr::defer(rm(list = kernel_method, envir = globalenv()))
+    rlang::local_bindings(
+        structural_rho_encounter = function(params, ...) {
+            check_rho(params)
+            observed$rates <- observed$rates + 1L
+            params$initial_n * 0
+        },
+        structural_rdd = function(rdi, ...) rdi,
+        structural_rho_update = function(params, before, details, ...) {
+            rho <- array(1, dim = dim(params$initial_n),
+                         dimnames = dimnames(params$initial_n))
+            old_species <- which(!is.na(details$species_map))
+            old_bins <- which(!is.na(details$w_map))
+            target_species <- details$species_map[old_species]
+            target_bins <- details$w_map[old_bins]
+            rho[target_species, target_bins] <-
+                before$initial_n_other$rho[old_species, old_bins, drop = FALSE]
+            params$initial_n_other$rho <- rho
+            params
+        }, .env = globalenv())
+    operations <- c("add_species", "remove_species", "reorder_species",
+                    "rename_species", "size_grid")
+    update <- list(action = "update", transform_fun = "structural_rho_update")
+    updates <- setNames(rep(list(update), length(operations)), operations)
+    unchanged <- setNames(rep(list(list(action = "none")), length(operations)),
+                          operations)
+    for (second_order in c(FALSE, TRUE)) {
+        p <- with_defaults_edition(2, newTraitParams(
+            no_sp = 2, no_w = 20, second_order_w = second_order, info_level = 0
+        ))
+        p <- recordExtension(p, "structuralTest")
+        rho <- array(seq_along(p$initial_n), dim = dim(p$initial_n),
+                     dimnames = dimnames(p$initial_n))
+        p <- setComponent(
+            p, "rho", initial_value = rho, dynamics_fun = "constant_other",
+            role = "prescribed", encounter_fun = "structural_rho_encounter",
+            transformations = updates
+        )
+        p <- setReproduction(p, RDD = "structural_rdd")
+        p <- setResource(p, resource_dynamics = "resource_constant",
+                         balance = FALSE)
+        p <- setComponent(p, "rho", transformations = updates)
+        # These projection-only declarations deliberately provide no tuning.
+        for (owner in c("consumers", "resource", "reproduction")) {
+            p <- setProcess(p, owner, transformations = unchanged,
+                            stationary = NULL, tuning = NULL)
+        }
+        original <- p
+        extra <- p$species_params[1, ]
+        extra$species <- "new"
+        added <- addSpecies(p, extra, steady = FALSE, info_level = 0)
+        expect_equal(added$initial_n_other$rho[1:2, ],
+                     p$initial_n_other$rho)
+        expect_equal(added$initial_n[1:2, ], p$initial_n,
+                     ignore_attr = TRUE)
+        expect_gt(observed$setters, 0)
+        expect_gt(observed$rates, 0)
+        expect_identical(added$rates_funcs, p$rates_funcs)
+        expect_identical(added$resource_dynamics, p$resource_dynamics)
+        removed <- removeSpecies(added, "new")
+        expect_equal(removed$initial_n_other$rho, p$initial_n_other$rho)
+        reordered <- reorderSpecies(p, 2:1)
+        expect_equal(reordered$initial_n_other$rho,
+                     p$initial_n_other$rho[2:1, , drop = FALSE])
+        rename <- setNames("renamed", p$species_params$species[1])
+        renamed <- renameSpecies(p, rename)
+        expect_identical(rownames(renamed$initial_n_other$rho),
+                         renamed$species_params$species)
+        enlarged <- suppressWarnings(adjustSizeGrid(p,
+                                                    new_max_w = max(p$w) * 10))
+        map <- vapply(p$w, function(w) {
+            which.min(abs(log(enlarged$w / w)))
+        }, integer(1))
+        expect_equal(enlarged$initial_n_other$rho[, map],
+                     p$initial_n_other$rho)
+        expect_identical(defaults_edition(enlarged), defaults_edition(p))
+        expect_identical(p, original)
+    }
+})
+
+test_that("missing and failing structural hooks leave the model intact", {
+    p <- setComponent(NS_params_small, "pool",
+                      initial_value = list(label = "a"),
+                      dynamics_fun = "constant_other")
+    original <- p
+    expect_error(removeSpecies(p, "Herring", compensate = TRUE),
+                 "transformation support.*component:pool")
+    expect_error(renameSpecies(p, c(Herring = "herring")),
+                 "transformation support.*component:pool")
+    expect_identical(p, original)
+    rlang::local_bindings(structural_failure = function(params, ...) {
+        params$initial_n_other$pool <- "changed"
+        stop("hook failed deliberately")
+    }, .env = globalenv())
+    support <- list(action = "update", transform_fun = "structural_failure")
+    p <- setComponent(p, "pool",
+                      transformations = list(remove_species = support))
+    original <- p
+    expect_error(removeSpecies(p, "Herring"), "hook failed deliberately")
+    expect_identical(p, original)
+    support <- list(remove_species = list(action = "none"))
+    p <- setComponent(p, "pool", transformations = support)
+    changed <- removeSpecies(p, "Herring")
+    expect_identical(changed$initial_n_other$pool, p$initial_n_other$pool)
+})
+
+test_that("removal compensation uses full rates before and after hooks", {
+    observed <- new.env(parent = emptyenv())
+    observed$hook <- FALSE
+    observed$sizes <- integer()
+    rlang::local_bindings(
+                          removal_complete_rates = function(params, n, ...) {
+            stopifnot(identical(params$other_params$row_ids, rownames(n)))
+            observed$sizes <- c(observed$sizes, nrow(n))
+            rates <- mizerRates(params, n = n, ...)
+            herring <- if ("Herring" %in% rownames(n)) {
+                sum(n["Herring", ] * params$w * params$dw)
+            } else {
+                0
+            }
+            rates$mort <- rates$mort + herring / 1e12
+            rates
+        },
+        removal_bad_recruitment = function(params, n, ...) {
+            rates <- removal_complete_rates(params, n = n, ...)
+            rates$rdd <- rates$rdd * nrow(n)
+            rates
+        },
+        removal_rows_hook = function(params, before, details, ...) {
+            stopifnot(details$compensate,
+                      identical(before$other_params$row_ids,
+                                before$species_params$species))
+                              observed$hook <- TRUE
+            params$other_params$row_ids <- details$new_species
+            params
+        }, .env = globalenv())
+    p <- NS_params_small
+    p$other_params$row_ids <- p$species_params$species
+    p$rates_funcs$Rates <- "removal_complete_rates"
+    for (owner in c("consumers", "resource", "reproduction")) {
+        support <- if (owner == "consumers") {
+            list(action = "update", transform_fun = "removal_rows_hook",
+                 paths = list(c("other_params", "row_ids")))
+        } else {
+            list(action = "none")
+        }
+        p <- setProcess(p, owner,
+                        transformations = list(remove_species = support))
+    }
+    target <- getRates(p)
+    changed <- removeSpecies(p, "Herring", compensate = TRUE)
+    expect_true(observed$hook)
+    expect_true(all(c(3L, 2L) %in% observed$sizes))
+    expect_equal(getRates(changed)$mort,
+                 target$mort[c("Sprat", "Cod"), , drop = FALSE],
+                 ignore_attr = TRUE, tolerance = 1e-10)
+    expect_identical(p$other_params$row_ids, p$species_params$species)
+    p$rates_funcs$Rates <- "removal_bad_recruitment"
+    for (owner in c("consumers", "resource", "reproduction")) {
+        p <- setProcess(p, owner)
+    }
+    expect_error(removeSpecies(p, "Herring", compensate = TRUE),
+                 "did not preserve effective rdd")
+})
+
+test_that("authored core arrays reach dependent setters and survive", {
+    calls <- new.env(parent = emptyenv())
+    calls$count <- 0L
+    method <- "setSearchVolume.arrayOverrideTest"
+    assign(method, function(params, ...) {
+        stopifnot(all(params$intake_max == 73))
+        calls$count <- calls$count + 1L
+        NextMethod()
+    }, envir = globalenv())
+    withr::defer(rm(list = method, envir = globalenv()))
+    rlang::local_bindings(structural_intake = function(params, ...) {
+        params$intake_max[] <- 73
+        comment(params$intake_max) <- NULL
+        params$initial_n <- params$initial_n * 2
+        params$resource_params$a <- params$resource_params$a * 2
+        params
+    }, .env = globalenv())
+    p <- recordExtension(NS_params_small, "arrayOverrideTest")
+    for (owner in c("consumers", "resource", "reproduction")) {
+        p <- setProcess(
+            p, owner,
+            transformations = list(add_species = list(action = "none"))
+        )
+    }
+    p <- setTransformation(
+        p, "core_arrays", owners = c("consumers", "resource"),
+        operation = "add_species",
+        definition = list(
+            action = "update", transform_fun = "structural_intake",
+            paths = list("intake_max", "initial_n", c("resource_params", "a"))
+        )
+    )
+    extra <- p$species_params[1, ]
+    extra$species <- "new"
+    changed <- addSpecies(p, extra, steady = FALSE, info_level = 0)
+    expect_gt(calls$count, 0L)
+    expect_true(all(changed$intake_max == 73))
+    expect_null(comment(changed$intake_max))
+    expect_false(all(p$intake_max == 73))
+    expect_equal(changed$initial_n[1:3, ], 2 * p$initial_n, ignore_attr = TRUE)
+    expect_equal(changed$resource_params$a, 2 * p$resource_params$a)
+})
+
+test_that("grid changes preserve frozen kernels and fishing arrays", {
+    for (second_order in c(FALSE, TRUE)) {
+        p <- NS_params_small
+        second_order_w(p) <- second_order
+        p <- setPredKernel(p, pred_kernel = pred_kernel(p) * 0.8)
+        p <- setFishing(p, selectivity = p$selectivity * 0.7,
+                        catchability = p$catchability * 0.6)
+        changed <- adjustSizeGrid(p, new_max_w = max(p$w) * 10)
+        bins <- vapply(p$w, function(w) {
+            which.min(abs(log(changed$w / w)))
+        }, integer(1))
+        prey <- vapply(p$w_full, function(w) {
+            which.min(abs(log(changed$w_full / w)))
+        }, integer(1))
+        expect_equal(changed$pred_kernel[, bins, prey], p$pred_kernel,
+                     ignore_attr = TRUE)
+        expect_equal(changed$selectivity[, , bins], p$selectivity,
+                     ignore_attr = TRUE)
+        expect_equal(changed$catchability, p$catchability)
+        expect_identical(comment(changed$pred_kernel), comment(p$pred_kernel))
+        expect_identical(comment(changed$selectivity), comment(p$selectivity))
+        expect_true(all(changed$pred_kernel[, -bins, ] == 0))
+        expect_true(all(is.finite(getRates(changed)$mort)))
+    }
+})

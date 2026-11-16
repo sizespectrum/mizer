@@ -255,7 +255,7 @@ reproduction_level.MizerParams <- function(params) {
     params <- validParams(params)
     definition <- tuning_definition(params, "reproduction")
     if (is.null(definition) || is.null(definition$level_fun) ||
-            !tuning_binding_current(params, definition, "reproduction")) {
+            !level_binding_current(params, definition)) {
         stop("Missing current law-specific reproduction-level support for ",
             "the effective reproduction provider.",
             call. = FALSE

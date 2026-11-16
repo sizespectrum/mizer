@@ -120,11 +120,11 @@ calibrate_to <- function(params, to = c("biomass", "number")) {
 #' If you rescale the model by a factor \eqn{c} then this function makes the
 #' following rescalings in the params object:
 #' \itemize{
-#' \item The initial abundances are rescaled by \eqn{c}.
+#' \item The initial consumer and resource abundances are rescaled by \eqn{c}.
 #' \item The search volume is rescaled by \eqn{1/c}.
 #' \item The resource carrying capacity is rescaled by \eqn{c}
-#' \item The maximum reproduction rate \eqn{R_{max}} is rescaled by
-#'   \eqn{c}.
+#' \item Reproduction rate parameters `R_max` and `constant_reproduction`
+#'   are multiplied by \eqn{c}; `ricker_b` and `sheperd_b` are divided by it.
 #' }
 #' The effect of this is that the dynamics of the rescaled model are identical
 #' to those of the unscaled model, in the sense that it does not matter whether
@@ -132,8 +132,11 @@ calibrate_to <- function(params, to = c("biomass", "number")) {
 #' [project()] or whether one first runs a simulation and then rescales the
 #' resulting abundances.
 #'
-#' Note that if you use non-standard resource dynamics or other components then
-#' you may need to rescale additional parameters that appear in those dynamics.
+#' Components and custom providers must declare transformation support. Their
+#' hooks run after the core fields are scaled and before final validation, with
+#' the original model available for reference. A component can scale a stock
+#' while leaving intensive quantities, such as temperature, unchanged. Mizer
+#' does not infer how to transform an arbitrary component state.
 #' 
 #' In practice you will need to use some observations to set the scale for your
 #' model. If you have biomass observations you can use [calibrateBiomass()],
@@ -151,50 +154,34 @@ scaleModel <- function(params, factor, ...)
 #' @export
 scaleModel.MizerParams <- function(params, factor, ...) {
     params <- validParams(params)
-    assert_that(is.number(factor),
-                factor > 0)
-    
-    # Resource carrying capacity
-    params@cc_pp <- params@cc_pp * factor
-    
-    # Search volume
-    params@search_vol <- params@search_vol / factor
-    
-    sp <- params@species_params
-    # Rmax
-    # r_max is a deprecated spelling of R_max. Get rid of it.
-    if ("r_max" %in% names(sp)) {
-        sp$R_max <- sp$r_max
-        sp$r_max <- NULL
-        signal_info("R_max",
-                    "The 'r_max' column has been renamed to 'R_max'.",
+    assert_that(is.number(factor), is.finite(factor), factor > 0)
+    if (factor == 1) return(params)
+    plan <- prepare_transformation(params, "scale_abundance",
+                                   details = list(factor = factor))
+
+    # Keep the entire core transformation free of dependent calculations.
+    params@cc_pp[] <- params@cc_pp * factor
+    params@search_vol[] <- params@search_vol / factor
+    params@initial_n[] <- params@initial_n * factor
+    params@initial_n_pp[] <- params@initial_n_pp * factor
+    params@resource_params$kappa <- params@resource_params$kappa * factor
+    params@sc <- params@sc * factor
+
+    # Preserve the legacy spelling conversion without rebuilding rate arrays.
+    if ("r_max" %in% names(params@species_params)) {
+        params@species_params$R_max <- params@species_params$r_max
+        params@species_params$r_max <- NULL
+        params@given_species_params$r_max <- NULL
+        signal_info("R_max", "The 'r_max' column has been renamed to 'R_max'.",
                     level = 1, unhandled = "show")
     }
-    if ("R_max" %in% names(sp)) {
-        sp$R_max <- sp$R_max * factor
-    }
-    if ("gamma" %in% names(sp)) {
-        sp$gamma <- sp$gamma / factor
-    }
-    # `recalculate = FALSE` records the scaled parameters, so that a later
-    # recalculation does not undo the rescaling, without recalculating the
-    # rates: the search volume has already been scaled by hand above.
-    species_params(params, recalculate = FALSE) <- sp
-    
-    # Initial values
-    initial_n_other <- params@initial_n_other
-    for (res in names(initial_n_other)) {
-        initial_n_other[[res]] <- initial_n_other[[res]] * factor
-    }
-    initialN(params) <- params@initial_n * factor
-    initialNResource(params) <- params@initial_n_pp * factor
-    initialNOther(params) <- initial_n_other
-    # Resource abundance coefficient
-    params@resource_params$kappa <- params@resource_params$kappa * factor
-    
-    # community
-    params@sc <- params@sc * factor
-    
+    params <- scale_species_coefficients(params, factor, c(gamma = -1))
+    params <- scale_repro_coefficients(params, factor)
+
+    # The component hook owns its state, including nonnumeric and intensive
+    # quantities. No blanket multiplication of initial_n_other is meaningful.
+    params <- apply_transformation_hooks(params, plan)
+    params <- validParams(params)
     params@time_modified <- lubridate::now()
-    return(params)
+    params
 }

@@ -21,7 +21,8 @@ The MizerParams object with all rates rescaled by \code{factor}.
 Multiplies all rates in the model by a given factor. Rescaling all rates by
 a factor \eqn{f} is equivalent to rescaling time by \eqn{f}: it speeds up
 (or slows down) all dynamics without affecting the steady state of each
-species, provided the resource spectrum is held at its steady-state value.
+species and resource. Extension providers must declare how their dynamics
+transform under this change of time scale.
 }
 \details{
 The following rates and their associated species parameters are rescaled:
@@ -37,13 +38,23 @@ parameter)
 parameter)
 \item Catchability (\code{catchability} slot and \code{catchability} column in
 \code{gear_params})
-\item Maximum reproduction rate (\code{R_max} species parameter)
-\item Resource growth rate (\code{rr_pp} slot)
+\item Reproduction rate parameters (\code{R_max} and
+\code{constant_reproduction} multiply by the factor; \code{ricker_b} and
+\code{sheperd_b} divide by it)
+\item Resource growth rate (\code{rr_pp} slot and \code{r_pp} resource parameter)
 }
 
 Both the rate arrays stored in the MizerParams slots and the associated
 species parameters in \code{species_params} and \code{given_species_params} are
 rescaled, so that the parameters remain consistent with the rate arrays.
+Changed scalar coefficients are recorded as given values, including those
+previously calculated by mizer. Existing manually set arrays retain their
+protection from recalculation.
+
+Components and custom providers require declared transformation support.
+Their hooks run after the core fields are scaled and before final validation,
+with the original model available for reference. Component states are left
+to their hooks; there is no automatic state rescaling.
 }
 \seealso{
 \code{\link[=scaleModel]{scaleModel()}}

@@ -579,10 +579,15 @@ setRateContributions <- function(params, slot_name, value, noun, arg) {
 #'   `"grey"`.
 #' @param linetype Line type to use for the component in plots. Defaults to
 #'   `"solid"`.
+#' @param transformations Named transformation declarations. An update hook
+#'   may modify this component's initial state and parameters; additional paths
+#'   must be explicit. Use action = 'none' for supported no-action operations.
 #' @param definition A named list specifying the component's callbacks and
 #'   plotting styles. Supplying a list replaces its previous definition before
 #'   explicitly supplied arguments are applied. State and component parameters
 #'   are supplied separately.
+#'   Updating only state or component parameters does not re-adopt capabilities
+#'   after a global provider change; supply the relevant capability explicitly.
 #' @return The updated MizerParams object
 #' @seealso "Extending mizer":
 #'   [guide to extending mizer](https://sizespectrum.org/mizer/articles/guide-extend-mizer.html)
@@ -595,7 +600,7 @@ setComponent <- function(params, component, initial_value,
                          colour = "grey", linetype = "solid",
                          definition, rate_fun, integration_order,
                          convergence_fun, role, stationary,
-                         equation_rates_fun, tuning) {
+                         equation_rates_fun, tuning, transformations) {
     params <- validParams(params)
     assert_that(is.string(component), nzchar(component))
     if (!missing(initial_value) && is.null(initial_value)) {
@@ -636,6 +641,8 @@ setComponent <- function(params, component, initial_value,
     if (!missing(equation_rates_fun)) overrides["equation_rates_fun"] <-
         list(equation_rates_fun)
     if (!missing(tuning)) overrides["tuning"] <- list(tuning)
+    if (!missing(transformations)) overrides["transformations"] <-
+        list(transformations)
     assembled <- assemble_component_definition(
         existing = existing,
         definition = if (missing(definition)) NULL else definition,
@@ -671,12 +678,23 @@ setComponent <- function(params, component, initial_value,
     assembled[c("colour", "linetype")] <- accepted[c("colour", "linetype")]
     params@capabilities$components[[component]] <- assembled
     if (is.null(existing) || !missing(definition) ||
-            any(c("dynamics_fun", "rate_fun", "stationary",
-                  "equation_rates_fun", "tuning") %in% names(overrides))) {
+            any(c("stationary", "equation_rates_fun", "tuning") %in%
+                    names(overrides))) {
         params$capabilities$components[[component]]$tuning_binding <-
             tuning_provider_binding(params)
     }
-    params <- refresh_builtin_tuning(params)
+    if (is.null(existing) || !missing(definition) ||
+            !missing(transformations)) {
+        params$capabilities$components[[component]]$transformation_binding <-
+            transformation_provider_binding(params)
+    }
+    providers <- c("dynamics_fun", "rate_fun", "encounter_fun", "mort_fun")
+    provider_changed <- is.null(existing) || any(vapply(
+        providers,
+        function(field) !identical(existing[[field]], assembled[[field]]),
+        logical(1)
+    ))
+    if (provider_changed) params <- refresh_builtin_tuning(params)
 
     params@time_modified <- lubridate::now()
     params

@@ -104,6 +104,8 @@ restoreParamsClass <- function(params, target_class) {
 }
 
 copyPreservedParamsSlots <- function(params, old_params) {
+    extra <- setdiff(names(old_params), names(params))
+    params[extra] <- old_params[extra]
     params@other_dynamics <- old_params@other_dynamics
     params@initial_n_other <- old_params@initial_n_other
     params@other_encounter <- old_params@other_encounter
@@ -130,6 +132,135 @@ copyParamsComments <- function(params, old_params) {
     params
 }
 
+# Give hooks explicit species and bin maps rather than inferring the meaning
+# of arbitrary extension arrays from their dimensions.
+structural_details <- function(before, after = before,
+                               new_species = after$species_params$species,
+                               rename = character(), ...) {
+    old_species <- before$species_params$species
+    renamed <- old_species
+    renamed[match(names(rename), old_species)] <- unname(rename)
+    origin <- before$w[[1L]]
+    step <- log(before$w[[2L]] / origin)
+    grid_map <- function(from, to) {
+        match(round(log(from / origin) / step, 8),
+              round(log(to / origin) / step, 8))
+    }
+    c(list(
+        old_species = old_species, new_species = new_species,
+        species_map = setNames(match(renamed, new_species), old_species),
+        new_to_old = setNames(match(new_species, renamed), new_species),
+        rename = rename,
+        old_w = before$w, new_w = after$w,
+        old_w_full = before$w_full, new_w_full = after$w_full,
+        w_map = grid_map(before$w, after$w),
+        new_w_to_old = grid_map(after$w, before$w),
+        w_full_map = grid_map(before$w_full, after$w_full),
+        new_w_full_to_old = grid_map(after$w_full, before$w_full)
+    ), list(...))
+}
+
+# Core-owned axes are enumerated explicitly. Extension-owned objects are left
+# for their declared transformation hooks, even when their dimensions match.
+remap_core_species <- function(params, indices, drop_unused = FALSE) {
+    p <- params
+    old_species <- params$species_params$species
+    species <- old_species[indices]
+    for (field in c("linecolour", "linetype")) {
+        extra <- setdiff(names(params[[field]]), old_species)
+        p[[field]] <- params[[field]][c(species, extra)]
+    }
+    for (field in c("psi", "maturity", "initial_n", "intake_max",
+                    "search_vol", "metab", "mu_b", "ext_encounter",
+                    "ext_diffusion", "ft_mask")) {
+        p[[field]] <- params[[field]][indices, , drop = FALSE]
+    }
+    for (field in c("ft_pred_kernel_e", "ft_pred_kernel_p",
+                    "ft_pred_kernel_d")) {
+        if (length(dim(params[[field]])) == 2L) {
+            p[[field]] <- params[[field]][indices, , drop = FALSE]
+        }
+    }
+    if (length(dim(params$pred_kernel)) == 3L) {
+        p$pred_kernel <- params$pred_kernel[indices, , , drop = FALSE]
+    }
+    p$species_params <- params$species_params[indices, , drop = FALSE]
+    p$given_species_params <-
+        params$given_species_params[indices, , drop = FALSE]
+    p$interaction <- params$interaction[indices, indices, drop = FALSE]
+    p$selectivity <- params$selectivity[, indices, , drop = FALSE]
+    p$catchability <- params$catchability[, indices, drop = FALSE]
+    p$w_min_idx <- params$w_min_idx[indices]
+    p$A <- params$A[indices]
+    p$gear_params <- params$gear_params[
+        params$gear_params$species %in% species, , drop = FALSE
+    ]
+    p$gear_params <- validGearParams(p$gear_params, p$species_params,
+                                     edition = defaults_edition(p))
+    if (drop_unused) {
+        for (field in c("species_params", "given_species_params")) {
+            keep <- colSums(is.na(p[[field]])) < nrow(p[[field]])
+            p[[field]] <- p[[field]][, keep, drop = FALSE]
+        }
+    }
+    copyParamsComments(p, params)
+}
+
+# Preserve only the explicitly known core axes at overlapping grid points.
+restore_core_overlap <- function(candidate, before, details,
+                                 preserve_species = details$old_species) {
+    species <- which(details$old_species %in% preserve_species &
+                         !is.na(details$species_map))
+    target_species <- unname(details$species_map[species])
+    bins <- which(!is.na(details$w_map))
+    target_bins <- details$w_map[bins]
+    resource_bins <- which(!is.na(details$w_full_map))
+    target_resource <- details$w_full_map[resource_bins]
+    for (field in c("initial_n", "psi", "maturity", "mu_b", "ext_encounter",
+                    "ext_diffusion", "intake_max", "search_vol", "metab")) {
+        candidate[[field]][target_species, target_bins] <-
+            before[[field]][species, bins, drop = FALSE]
+    }
+    candidate$A[target_species] <- before$A[species]
+    candidate$sc[target_bins] <- before$sc[bins]
+    for (field in c("initial_n_pp", "cc_pp", "rr_pp")) {
+        candidate[[field]][target_resource] <- before[[field]][resource_bins]
+    }
+    gears <- intersect(dimnames(before$selectivity)$gear,
+                       dimnames(candidate$selectivity)$gear)
+    candidate$selectivity[gears, target_species, target_bins] <-
+        before$selectivity[gears, species, bins, drop = FALSE]
+    candidate$catchability[gears, target_species] <-
+        before$catchability[gears, species, drop = FALSE]
+    candidate
+}
+
+# A manually supplied dense kernel has no implied extension beyond its grid.
+# Retain its overlap and use zero in newly introduced bins until a hook or an
+# explicit setter supplies another value.
+map_frozen_core_arrays <- function(candidate, before, details) {
+    if (length(dim(before$pred_kernel)) == 3L &&
+            !is.null(comment(before$pred_kernel))) {
+        kernel <- array(0, dim = c(dim(candidate$initial_n),
+                                   length(candidate$w_full)),
+                        dimnames = list(sp = candidate$species_params$species,
+                                        w_pred = signif(candidate$w, 3),
+                                        w_prey = signif(candidate$w_full, 3)))
+        species <- which(!is.na(details$species_map))
+        bins <- which(!is.na(details$w_map))
+        prey <- which(!is.na(details$w_full_map))
+        kernel[details$species_map[species], details$w_map[bins],
+               details$w_full_map[prey]] <-
+            before$pred_kernel[species, bins, prey, drop = FALSE]
+        comment(kernel) <- comment(before$pred_kernel)
+        candidate$pred_kernel <- kernel
+    }
+    for (field in c("selectivity", "catchability")) {
+        comment(candidate[[field]]) <- comment(before[[field]])
+    }
+    candidate
+}
+
 #' @export
 addSpecies.MizerParams <- function(params, species_params, gear_params = data.frame(),
                                    initial_effort = NULL, interaction = NULL,
@@ -142,6 +273,7 @@ addSpecies.MizerParams <- function(params, species_params, gear_params = data.fr
     # check validity of parameters ----
     original_params <- params
     params <- validParams(params)
+        before <- params
     target_class <- getPreservedParamsClass(original_params, params)
     given_species_params <- validGivenSpeciesParams(species_params)
     species_params <- validSpeciesParams(species_params)
@@ -270,9 +402,8 @@ addSpecies.MizerParams <- function(params, species_params, gear_params = data.fr
     # object. It is built with the defaults edition and the numerical scheme of
     # params, so that the arrays it computes afresh, such as the predation
     # kernels, use the quadrature of params.
-    p <- with_defaults_edition(edition, newMultispeciesParams(
+        p <- with_defaults_edition(edition, new_multispecies_structure(
         combi_species_params,
-        interaction = inter,
         second_order_w = params@second_order_w,
         max_w = new_max_w,
         # for min_w_pp we choose something that will then be rounded down
@@ -283,10 +414,10 @@ addSpecies.MizerParams <- function(params, species_params, gear_params = data.fr
         kappa = params@resource_params$kappa,
         n = params@resource_params[["n"]],
         lambda = params@resource_params$lambda,
-        w_pp_cutoff = params@resource_params$w_pp_cutoff,
-        info_level = info_level
+            w_pp_cutoff = params@resource_params$w_pp_cutoff
     ))
     p@given_species_params <- combi_given_species_params
+        p@interaction[] <- inter
 
     # Set effort ----
     new_gear <- setdiff(unique(gear_params$gear),
@@ -309,9 +440,6 @@ addSpecies.MizerParams <- function(params, species_params, gear_params = data.fr
     p@resource_dynamics <- params@resource_dynamics
     p@resource_params <- params@resource_params
 
-    # Preserve comments ----
-    p <- copyParamsComments(p, params)
-
     # Copy old data ----
     # selector for old w bins inside new w
     old_w <- (extra_no_w + 1):(extra_no_w + no_w)
@@ -327,6 +455,32 @@ addSpecies.MizerParams <- function(params, species_params, gear_params = data.fr
     p@metab[old_sp, old_w] <- params@metab
 
     p <- copyPreservedParamsSlots(p, params)
+        p@initial_n[old_sp, old_w] <- params@initial_n
+        p <- restoreParamsClass(p, target_class)
+        details <- structural_details(
+            before, p, added = species_params$species, steady = steady
+        )
+        plan <- prepare_transformation(before, "add_species", details)
+        before_hooks <- p
+        p <- apply_transformation_hooks(p, plan)
+        updates <- capture_transformation_updates(before_hooks, p, plan)
+        p <- finish_multispecies_params(
+            p, set_params_args = list(interaction = inter,
+                                      initial_effort = p@initial_effort),
+            resource_args = list(
+                resource_rate = 10, resource_capacity = p@resource_params$kappa,
+                resource_dynamics = p@resource_dynamics,
+                lambda = p@resource_params$lambda, n = p@resource_params[["n"]],
+                w_pp_cutoff = p@resource_params$w_pp_cutoff, balance = FALSE
+            ), match_observations = FALSE, updates = updates,
+            restore = function(candidate) {
+                restore_core_overlap(candidate, params, details)
+            }
+        )
+
+        p@resource_params <- params@resource_params
+        p <- copyParamsComments(p, params)
+        p <- restore_transformation_updates(p, updates)
 
     # The following does not affect the new species but preserves
     # any changes the user might have made in the original params object
@@ -337,7 +491,6 @@ addSpecies.MizerParams <- function(params, species_params, gear_params = data.fr
     # p@mu_b[new_sp, ] <- rep(params@mu_b[1, ], each = no_new_sp)
 
     # initial solution ----
-    p@initial_n[old_sp, old_w] <- params@initial_n
 
     if (steady) {
         # Turn off self-interaction among the new species, so we can determine the
@@ -388,6 +541,7 @@ addSpecies.MizerParams <- function(params, species_params, gear_params = data.fr
         }
     }
 
+        p <- validParams(p)
     p <- restoreParamsClass(p, target_class)
     })
 
@@ -424,30 +578,24 @@ addSpecies.MizerParams <- function(params, species_params, gear_params = data.fr
 #'   external diffusion rate, see [setExtDiffusion()]. This only matters if
 #'   [use_predation_diffusion()] is switched on.
 #'
-#' All of this is calculated at the initial state stored in `params`. At that
-#' state the remaining species then have exactly the rates they had before the
-#' removal. In effect the removed species are still present, held at their
-#' initial abundances, but they no longer respond to changes in the rest of the
-#' model. As the model moves away from its initial state, the compensation no
-#' longer matches what the removed species would have done.
+#' Compensation is evaluated through the complete effective rate pipeline at
+#' the initial state. After trimming species and running all declared hooks,
+#' mizer checks growth, diffusion, total mortality and final recruitment of
+#' every remaining species. A failed check stops the operation. These quantities
+#' are preserved at this state; their responses to later changes may differ.
 #'
-#' The removed species also no longer eat the resource, so the resource
-#' capacity is rebalanced with [setResource()]: it is set so that at the
-#' initial state the resource replenishes at exactly the rate at which it is now
-#' consumed. The resource rate is kept. This replaces a resource capacity that
-#' you had set manually. Rebalancing puts the resource at steady state, so it
-#' keeps its rate of change only if that was zero. Thus if the model was at
-#' steady state, it stays at steady state. If the resource was not at steady
-#' state, it is put at steady state instead of keeping the rate at which it
-#' was changing.
+#' For the built-in semichemostat and logistic resource, reduced predation is
+#' balanced analytically by changing capacity, using the effective resource
+#' mortality. This puts the resource at steady state and keeps its renewal rate.
+#' A capacity set manually is replaced. A constant resource needs no adjustment.
+#' Custom resource dynamics and other components require explicit removal
+#' support; their hooks receive `details$compensate` and are responsible for
+#' their own compensation. This is not a whole-model steady-state guarantee.
 #'
-#' The compensation is added to the external rates on the assumption that
-#' they are added unchanged to the rates, as they are in mizer's own rate
-#' functions. If you have replaced a rate function with [setRateFunction()],
-#' mizer checks that the rates are restored. Where they are not, it rescales
-#' the compensation by how much the rate responds to it, which restores a rate
-#' that your function calculates by multiplying mizer's rate by a factor. If a
-#' rate is still not restored, you are warned.
+#' The core adds each external-rate shortfall once. Custom callbacks that scale
+#' or otherwise alter that response need an authored transformation hook with
+#' permission to update the affected arrays. Mizer does not estimate a numerical
+#' correction for an unknown callback.
 #'
 #' Each external rate that is changed is marked as set manually. A later
 #' change to the species parameters that the rate is usually calculated from
@@ -456,17 +604,14 @@ addSpecies.MizerParams <- function(params, species_params, gear_params = data.fr
 #' to which the removed species contributed nothing are left unchanged and
 #' unmarked.
 #'
-#' The compensation covers the species and the resource. Other components
-#' added with [setComponent()] that have dynamics of their own are not
-#' compensated, and you are warned about them.
-#'
 #' @param params A mizer params object for the original system.
 #' @param species The species to be removed. A vector of species names, or a
 #'   numeric vector of species indices, or a logical vector indicating for
 #'   each species whether it is to be removed (TRUE) or not.
 #' @param compensate If `TRUE`, the external rates of the remaining species
-#'   are adjusted so that the remaining species have the same rates as before
-#'   the removal, and the resource is rebalanced. See the section
+#'   are adjusted and checked to preserve growth, diffusion, mortality and
+#'   recruitment at the initial state. Supported resource dynamics are balanced.
+#'   See the section
 #'   "Compensating for the removed species". Default is `FALSE`.
 #' @param info_level Controls the amount of information messages that are
 #'   shown. Higher levels lead to more messages. Set to 0 to suppress all such
@@ -501,65 +646,27 @@ removeSpecies.MizerParams <- function(params, species, compensate = FALSE,
     params <- validParams(params)
     species <- valid_species_arg(params, species,
                                  return.logical = TRUE)
+        keep <- which(!species)
+        if (!length(keep)) {
+            stop("At least one species must remain in the model.")
+        }
+        details <- structural_details(
+            params, new_species = params$species_params$species[keep],
+            removed = params$species_params$species[species],
+            compensate = compensate
+        )
+        plan <- prepare_transformation(params, "remove_species", details)
     if (compensate) {
-        params <- compensate_removal(params, species)
+            compensation <- compensate_removal(params, species)
+            params <- compensation$params
     }
-    keep <- !species
-    p <- params
-
-    # Select only the parts corresponding the species we keep
-    p@linecolour <-
-        params@linecolour[!(names(params@linecolour) %in%
-                                params@species_params$species[species])]
-    p@linetype <-
-        params@linetype[!(names(params@linetype) %in%
-                              params@species_params$species[species])]
-    p@psi <- params@psi[keep, , drop = FALSE]
-    p@maturity <- params@maturity[keep, , drop = FALSE]
-    p@initial_n <- params@initial_n[keep, , drop = FALSE]
-    p@intake_max <- params@intake_max[keep, , drop = FALSE]
-    p@search_vol <- params@search_vol[keep, , drop = FALSE]
-    p@metab <- params@metab[keep, , drop = FALSE]
-    if (length(dim(params@ft_pred_kernel_e)) == 2) {
-        p@ft_pred_kernel_e <- params@ft_pred_kernel_e[keep, , drop = FALSE]
-    }
-    if (length(dim(params@ft_pred_kernel_p)) == 2) {
-        p@ft_pred_kernel_p <- params@ft_pred_kernel_p[keep, , drop = FALSE]
-    }
-    if (length(dim(params@ft_pred_kernel_d)) == 2) {
-        p@ft_pred_kernel_d <- params@ft_pred_kernel_d[keep, , drop = FALSE]
-    }
-    if (length(dim(params@pred_kernel)) == 3) {
-        p@pred_kernel <- params@pred_kernel[keep, , , drop = FALSE]
-    }
-    p@ft_mask <- params@ft_mask[keep, , drop = FALSE]
-    p@mu_b <- params@mu_b[keep, , drop = FALSE]
-    p@ext_encounter <- params@ext_encounter[keep, , drop = FALSE]
-    p@ext_diffusion <- params@ext_diffusion[keep, , drop = FALSE]
-    p@species_params <- p@species_params[keep, , drop = FALSE]
-    p@given_species_params <- p@given_species_params[keep, , drop = FALSE]
-    p@interaction <- params@interaction[keep, keep, drop = FALSE]
-    p@selectivity <- params@selectivity[, keep, , drop = FALSE]
-    p@catchability <- params@catchability[, keep, drop = FALSE]
-    p@w_min_idx <- params@w_min_idx[keep]
-    p@A <- params@A[keep]
-    p@gear_params <- p@gear_params[p@gear_params$species %in%
-                                       p@species_params$species, ]
-    p@gear_params <- validGearParams(p@gear_params, p@species_params,
-                                     edition = defaults_edition(p))
-
-    # Drop species parameters with all values NA
-    keep <- colSums(is.na(p@species_params)) < nrow(p@species_params)
-    p@species_params <- p@species_params[, keep]
-    keep <- colSums(is.na(p@given_species_params)) < nrow(p@given_species_params)
-    p@given_species_params <- p@given_species_params[, keep]
-
-    # Preserve comments
-    for (slot in (slotNames(p))) {
-        comment(slot(p, slot)) <- comment(slot(params, slot))
-    }
+        p <- remap_core_species(params, keep, drop_unused = TRUE)
+        p <- apply_transformation_hooks(p, plan)
 
     validObject(p)
+        if (compensate) {
+            verify_removal_compensation(p, compensation, keep)
+        }
 
     p@time_modified <- lubridate::now()
     })
@@ -567,169 +674,71 @@ removeSpecies.MizerParams <- function(params, species, compensate = FALSE,
     return(p)
 }
 
-#' Let the external rates take over the contributions of removed species
-#'
-#' Called by [removeSpecies()] with `compensate = TRUE`, before it drops the
-#' species. Adds to the external encounter rate, external mortality and
-#' external diffusion of every species what the species to be removed
-#' contributed to its encounter rate, mortality and diffusion at the initial
-#' state, and rebalances the resource capacity, so that at that state the
-#' remaining species and the resource have the rates they had before.
-#'
-#' The contributions are calculated on the full model, with the abundances of
-#' the species to be removed set to zero, rather than on the model after the
-#' removal. The two give the same rates, but an extension that keeps data of
-#' its own for each species trims that data in its `removeSpecies()` method
-#' only after `NextMethod()` returns, so its rate functions are consistent only
-#' on the full model. The removed species keep their zero abundances, which
-#' [removeSpecies()] then drops together with the rest of their rows.
-#'
-#' The encounter rate is compensated first, because the feeding level depends
-#' on it and the mortality, the diffusion and the resource mortality depend on
-#' the feeding level. With the encounter rate restored, the remaining predators
-#' feed exactly as before and the only change left in those rates is what the
-#' removed species contributed.
-#'
-#' The resource is rebalanced rather than given back its rate of change, so a
-#' resource that was not at steady state is put at steady state. Keeping its
-#' rate of change would need a formula for each resource dynamics (for the
-#' semichemostat the capacity shifts by a fixed amount, for the logistic its
-#' inverse does), whereas balancing goes through the `balance_<dynamics>()`
-#' function that each resource dynamics provides anyway.
-#'
-#' @param params A \linkS4class{MizerParams} object.
-#' @param remove A logical vector saying for each species whether it is to be
-#'   removed.
-#' @return The `MizerParams` object with the species still present, but with
-#'   zero abundance, and with the compensated external rates and resource
-#'   capacity.
-#' @noRd
+# Compute core compensation on the intact model so every extension still sees
+# its original species dimensions. Author hooks then adapt the reduced model.
 compensate_removal <- function(params, remove) {
-    old_encounter <- getEncounter(params)
-    old_mort <- getMort(params)
-    old_diffusion <- getDiffusion(params)
-    old_resource_mort <- getResourceMort(params)
-
+    target <- tuning_rate_context(params)
     params@initial_n[remove, ] <- 0
-
-    params <- compensate_rate(params, "ext_encounter", remove, old_encounter,
-                              getEncounter)
-    params <- compensate_rate(params, "mu_b", remove, old_mort, getMort)
-    params <- compensate_rate(params, "ext_diffusion", remove, old_diffusion,
-                              getDiffusion)
-
-    # The removed species no longer eat the resource. `resource_constant()`
-    # needs no balancing because it keeps the resource where it is anyway.
-    if (any(old_resource_mort != getResourceMort(params)) &&
-        params@resource_dynamics != "resource_constant") {
-        if (is.function(get0(paste0("balance_", params@resource_dynamics)))) {
-            # A frozen capacity would block the balancing, as in `steady()`
-            comment(params@cc_pp) <- NULL
-            params <- setResource(params)
-        } else {
-            signal_info("cc_pp", paste0(
-                "There is no `balance_", params@resource_dynamics, "()` ",
-                "function, so the resource capacity could not be rebalanced ",
-                "after the removed species stopped eating the resource. The ",
-                "resource is therefore not compensated for their removal."),
-                level = 1, severity = "warning", unhandled = "show")
-        }
+    effective_rate <- function(field) {
+        force(field)
+        function(params) tuning_rate_context(params)[[field]]
     }
-
-    dynamic <- names(params@other_dynamics)[
-        !vapply(params@other_dynamics,
-                function(f) identical(f, "constant_other"), logical(1))]
-    if (length(dynamic) > 0) {
-        signal_info("other_components", paste0(
-            "The compensation for the removed species covers the remaining ",
-            "species and the resource only. The component",
-            if (length(dynamic) > 1) "s " else " ",
-            paste0("`", dynamic, "`", collapse = ", "),
-            if (length(dynamic) > 1) " have" else " has",
-            " dynamics of ", if (length(dynamic) > 1) "their" else "its",
-            " own and may still be affected by the removal."),
-            level = 1, severity = "warning", unhandled = "show")
+    params <- compensate_rate(params, "ext_encounter", remove,
+                              target$encounter, effective_rate("encounter"))
+    params <- compensate_rate(params, "mu_b", remove,
+                              target$mort, effective_rate("mort"))
+    params <- compensate_rate(params, "ext_diffusion", remove,
+                              target$diffusion, effective_rate("diffusion"))
+    rates <- tuning_rate_context(params)
+    law <- sub("^mizer::", "", params$resource_dynamics)
+    balance_resource <- law %in%
+        c("resource_semichemostat", "resource_logistic") &&
+        !tuning_values_equal(target$resource_mort, rates$resource_mort)
+    if (balance_resource) {
+        params <- balance_resource_strategy(params, rates = rates,
+                                            n_pp = params$initial_n_pp)
     }
-
-    params
+    list(params = params, rates = target, resource_balanced = balance_resource)
 }
 
-#' Restore a rate of the remaining species through its external rate
-#'
-#' Adds to the external rate array `slot` the amount by which the rate that
-#' `get_rate()` calculates has fallen short of `target`, and checks that this
-#' restores the rate. An array to which the removed species contributed
-#' nothing is left alone, so that it is not marked as set manually needlessly.
-#' That comparison is exact: a species that contributes nothing changes
-#' neither the inputs of a rate nor, therefore, its numerical round-off.
-#'
-#' Adding the shortfall restores the rate whenever the external rate is added
-#' to it unchanged, as in all of mizer's own rate functions. A custom rate
-#' function need not do that; one that returns `2 * mizerEncounter(...)`
-#' doubles the compensation as well. So where the rate is not restored, the
-#' compensation is divided by the response of the rate to it. This is exact
-#' for any rate that at each size is an affine function of the external rate,
-#' which covers a rate function that scales mizer's rate. If the rate is still
-#' not restored, the user is warned.
-#'
-#' @param params A \linkS4class{MizerParams} object.
-#' @param slot One of `"ext_encounter"`, `"mu_b"` or `"ext_diffusion"`.
-#' @param remove A logical vector saying for each species whether it is to be
-#'   removed.
-#' @param target The rate (species x size) before the removal.
-#' @param get_rate The function calculating the rate from `params`.
-#' @param tol The tolerance for a restored rate, relative to the largest value
-#'   of the rate of that species.
-#' @return The `MizerParams` object with the slot updated.
-#' @noRd
-compensate_rate <- function(params, slot, remove, target, get_rate,
-                            tol = 1e-8) {
-    target <- unclass_rate(target)
-    reduced <- unclass_rate(get_rate(params))
-    compensation <- target - reduced
+# Add each shortfall once. Unknown callback responses are the responsibility
+# of their explicit transformation hooks, never inferred by numerical probes.
+compensate_rate <- function(params, slot, remove, target, get_rate) {
+    compensation <- unclass_rate(target) - unclass_rate(get_rate(params))
     compensation[remove, ] <- 0
-    if (all(compensation == 0)) {
-        return(params)
+    if (all(compensation == 0)) return(params)
+    add_compensation(params, slot, compensation)
+}
+
+# Check the complete effective pipeline again after all hooks and trimming.
+# Resource compensation retains the established built-in convention of putting
+# it at steady state; this is not a whole-model steady-state guarantee.
+verify_removal_compensation <- function(params, compensation, keep) {
+    actual <- tuning_rate_context(params)
+    for (field in c("e_growth", "diffusion", "mort", "rdd")) {
+        target <- compensation$rates[[field]]
+        target <- if (field == "rdd") {
+            target[keep]
+        } else {
+            target[keep, , drop = FALSE]
+        }
+        if (!tuning_values_equal(actual[[field]], target)) {
+            stop("Species-removal compensation did not preserve effective ",
+                 field, " for the remaining species. Supply a removal hook ",
+                 "that supports `compensate = TRUE`.", call. = FALSE)
+        }
     }
-    # TRUE where the rate of a remaining species is not restored
-    not_restored <- function(rate) {
-        off <- abs(rate - target) > tol * apply(abs(target), 1, max)
-        off[remove, ] <- FALSE
-        off
+    if (compensation$resource_balanced) {
+        terms <- builtin_resource_equation_rates(
+            params, n_pp = params$initial_n_pp, rates = actual
+        )
+        if (!tuning_values_equal(terms[[1L]], terms[[2L]])) {
+            stop("Species-removal compensation did not balance the resource. ",
+                 "Supply a removal hook that supports `compensate = TRUE`.",
+                 call. = FALSE)
+        }
     }
-    compensated <- add_compensation(params, slot, compensation)
-    rate <- unclass_rate(get_rate(compensated))
-    off <- not_restored(rate)
-    if (any(off)) {
-        # Rescale everywhere, not only where the rate is off by more than the
-        # tolerance, which is relative to the largest value of the rate and so
-        # would leave small values off. The two evaluations of the rate differ
-        # only in the external rate, so the response is measured to the
-        # round-off in the rate, about eps * rate. Where the compensation is
-        # too small to measure it to 1e-4, it is left as it is, which leaves an
-        # error that is negligible compared to the rate.
-        response <- (rate - reduced) / compensation
-        fix <- abs(compensation) > 1e4 * .Machine$double.eps * abs(target) &
-            is.finite(response) & response != 0
-        compensation[fix] <- compensation[fix] / response[fix]
-        compensated <- add_compensation(params, slot, compensation)
-        rate <- unclass_rate(get_rate(compensated))
-        off <- not_restored(rate)
-    }
-    if (any(off)) {
-        quantity <- switch(slot, ext_encounter = "encounter rate",
-                           mu_b = "mortality rate",
-                           ext_diffusion = "diffusion rate")
-        species <- params@species_params$species[rowSums(off) > 0]
-        signal_info(slot, paste0(
-            "The compensation for the removed species did not restore the ",
-            quantity, " of ", paste(species, collapse = ", "), ". The ",
-            quantity, " is calculated by a function that does not respond ",
-            "to the external ", quantity, " in a way the compensation can ",
-            "match, so the remaining species do not keep their rates."),
-            level = 1, severity = "warning", unhandled = "show")
-    }
-    compensated
+    invisible(TRUE)
 }
 
 #' Add the compensation for removed species to an external rate
@@ -779,6 +788,7 @@ renameSpecies <- function(params, replace, ...) {
 #' @export
 renameSpecies.MizerParams <- function(params, replace, ...) {
     params <- validParams(params)
+    before <- params
     replace[] <- as.character(replace)
     to_replace <- names(replace)
     species <- params@species_params$species
@@ -790,6 +800,12 @@ renameSpecies.MizerParams <- function(params, replace, ...) {
     names(species) <- species
     species[to_replace] <- replace
     names(species) <- NULL
+    if (anyNA(species) || any(!nzchar(species)) || anyDuplicated(species)) {
+        stop("Species names must be nonempty and unique.")
+    }
+    details <- structural_details(before, new_species = species,
+                                  rename = replace)
+    plan <- prepare_transformation(before, "rename_species", details)
     rownames(params@species_params) <- species
     params@species_params$species <- species
     rownames(params@given_species_params) <- species
@@ -842,18 +858,62 @@ renameSpecies.MizerParams <- function(params, replace, ...) {
         dimnames(params@ft_mask)[[1]] <- species
     }
 
+    params <- apply_transformation_hooks(params, plan)
     validObject(params)
 
     params@time_modified <- lubridate::now()
     return(params)
 }
+#' Reorder species
+#'
+#' Reorders all core species axes and invokes registered extension hooks.
+#' Every current species must occur exactly once in `species`.
+#'
+#' @param params A MizerParams object.
+#' @param species Species names in the desired order, or a permutation of their
+#'   current integer indices.
+#' @param ... Unused.
+#' @return The updated MizerParams object.
+#' @seealso [addSpecies()], [removeSpecies()], [renameSpecies()]
+#' @export
+reorderSpecies <- function(params, species, ...) {
+    UseMethod("reorderSpecies")
+}
+
+#' @rdname reorderSpecies
+#' @usage NULL
+#' @export
+reorderSpecies.MizerParams <- function(params, species, ...) {
+    params <- validParams(params)
+    current <- params$species_params$species
+    if (is.numeric(species) && !is.complex(species) &&
+            all(is.finite(species)) && all(species == floor(species)) &&
+            setequal(species, seq_along(current))) {
+        species <- current[species]
+    }
+    if (!is.character(species) || anyNA(species) ||
+            length(species) != length(current) || anyDuplicated(species) ||
+            !setequal(species, current)) {
+        stop("`species` must contain every species exactly once.")
+    }
+    details <- structural_details(params, new_species = species)
+    plan <- prepare_transformation(params, "reorder_species", details)
+    candidate <- remap_core_species(params, match(species, current))
+    candidate <- apply_transformation_hooks(candidate, plan)
+    validObject(candidate)
+    candidate$time_modified <- lubridate::now()
+    candidate
+}
+
 #' Adjust the size grid
 #'
 #' This function adjusts the size grid in a [MizerParams] object to the desired
 #' minimum and maximum size. It can both expand and truncate the grid.
 #' If the grid is truncated, any data outside the new grid is discarded.
 #' A warning is issued if there is non-negligible biomass in the discarded
-#' size bins.
+#' size bins. Manually supplied dense predation kernels and fishing arrays
+#' retain their existing overlap; newly introduced bins are zero unless an
+#' explicit transformation hook supplies other values.
 #'
 #' @param params A [MizerParams] object.
 #' @param new_min_w The new minimum size in the grid. Defaults to the minimum
@@ -893,6 +953,8 @@ adjustSizeGrid.MizerParams <- function(params,
                                        tol = 1e-6,
                                        ...) {
     target_class <- class(params)
+    params <- validParams(params)
+    before <- params
     sp_sel <- valid_species_arg(params, preserve_species, return.logical = TRUE)
     min_w <- min(params@w)
     max_w <- max(params@w)
@@ -968,16 +1030,15 @@ adjustSizeGrid.MizerParams <- function(params,
     sp_params_for_grid$w_min[idx_min] <- new_min_w
 
     # Built with the defaults edition and the numerical scheme of params
-    p <- with_defaults_edition(defaults_edition(params), newMultispeciesParams(
+    edition <- defaults_edition(params)
+    p <- with_defaults_edition(edition, new_multispecies_structure(
         sp_params_for_grid,
-        interaction = params@interaction,
         second_order_w = params@second_order_w,
         max_w = new_max_w,
         min_w = new_min_w,
         min_w_pp = new_min_w_pp * 10^(0.5 * dx),
         no_w = new_no_w,
         gear_params = params@gear_params,
-        initial_effort = params@initial_effort,
         kappa = params@resource_params$kappa,
         n = params@resource_params[["n"]],
         lambda = params@resource_params$lambda,
@@ -994,6 +1055,7 @@ adjustSizeGrid.MizerParams <- function(params,
         new_sp_params$w_repro_max <- pmin(new_sp_params$w_repro_max, new_sp_params$w_max)
     }
     p@species_params <- new_sp_params
+    p@w_min_idx <- get_w_min_idx(new_sp_params, p@w)
 
     new_given_sp_params <- params@given_species_params
     if ("w_min" %in% names(new_given_sp_params)) {
@@ -1025,6 +1087,54 @@ adjustSizeGrid.MizerParams <- function(params,
     match_full_new <- match(old_full_k, new_full_k)
     old_full_idx <- which(!is.na(match_full_new))
     new_full_idx <- match_full_new[old_full_idx]
+
+    p@interaction[] <- params@interaction
+    p@initial_effort <- params@initial_effort
+    # Copy over overlapping data
+    p@initial_n[sp_sel, new_idx] <- params@initial_n[sp_sel, old_idx]
+    p@A[sp_sel] <- params@A[sp_sel]
+    p@psi[sp_sel, new_idx] <- params@psi[sp_sel, old_idx]
+    p@maturity[sp_sel, new_idx] <- params@maturity[sp_sel, old_idx]
+    p@sc[new_idx] <- params@sc[old_idx]
+    p@mu_b[sp_sel, new_idx] <- params@mu_b[sp_sel, old_idx]
+    p@ext_encounter[sp_sel, new_idx] <- params@ext_encounter[sp_sel, old_idx]
+    p@ext_diffusion[sp_sel, new_idx] <- params@ext_diffusion[sp_sel, old_idx]
+    p@intake_max[sp_sel, new_idx] <- params@intake_max[sp_sel, old_idx]
+    p@search_vol[sp_sel, new_idx] <- params@search_vol[sp_sel, old_idx]
+    p@metab[sp_sel, new_idx] <- params@metab[sp_sel, old_idx]
+
+    p@initial_n_pp[new_full_idx] <- params@initial_n_pp[old_full_idx]
+    p@cc_pp[new_full_idx] <- params@cc_pp[old_full_idx]
+    p@rr_pp[new_full_idx] <- params@rr_pp[old_full_idx]
+    p@resource_dynamics <- params@resource_dynamics
+    p@resource_params <- params@resource_params
+
+    p <- copyPreservedParamsSlots(p, params)
+    p <- restoreParamsClass(p, target_class)
+    details <- structural_details(
+        before, p, preserve_species = params$species_params$species[sp_sel]
+    )
+    plan <- prepare_transformation(before, "size_grid", details)
+    p <- restore_core_overlap(p, params, details,
+                              params$species_params$species[sp_sel])
+    p <- map_frozen_core_arrays(p, params, details)
+    before_hooks <- p
+    p <- apply_transformation_hooks(p, plan)
+    updates <- capture_transformation_updates(before_hooks, p, plan)
+    p <- finish_multispecies_params(
+        p, set_params_args = list(interaction = params@interaction,
+                                  initial_effort = params@initial_effort),
+        resource_args = list(
+            resource_rate = 10, resource_capacity = p@resource_params$kappa,
+            resource_dynamics = p@resource_dynamics,
+            lambda = p@resource_params$lambda, n = p@resource_params[["n"]],
+            w_pp_cutoff = p@resource_params$w_pp_cutoff, balance = FALSE
+        ), match_observations = FALSE, updates = updates,
+        restore = function(candidate) {
+            restore_core_overlap(candidate, params, details,
+                                 params$species_params$species[sp_sel])
+        }
+    )
 
     # Check for biomass/diet loss warnings
     truncated_idx <- setdiff(seq_along(params@w), old_idx)
@@ -1103,39 +1213,19 @@ adjustSizeGrid.MizerParams <- function(params,
         }
     }
 
-    # Copy over overlapping data
-    p@initial_n[sp_sel, new_idx] <- params@initial_n[sp_sel, old_idx]
-    p@A[sp_sel] <- params@A[sp_sel]
-    p@psi[sp_sel, new_idx] <- params@psi[sp_sel, old_idx]
-    p@maturity[sp_sel, new_idx] <- params@maturity[sp_sel, old_idx]
-    p@sc[new_idx] <- params@sc[old_idx]
-    p@mu_b[sp_sel, new_idx] <- params@mu_b[sp_sel, old_idx]
-    p@ext_encounter[sp_sel, new_idx] <- params@ext_encounter[sp_sel, old_idx]
-    p@ext_diffusion[sp_sel, new_idx] <- params@ext_diffusion[sp_sel, old_idx]
-    p@intake_max[sp_sel, new_idx] <- params@intake_max[sp_sel, old_idx]
-    p@search_vol[sp_sel, new_idx] <- params@search_vol[sp_sel, old_idx]
-    p@metab[sp_sel, new_idx] <- params@metab[sp_sel, old_idx]
-
-    p@initial_n_pp[new_full_idx] <- params@initial_n_pp[old_full_idx]
-    p@cc_pp[new_full_idx] <- params@cc_pp[old_full_idx]
-    p@rr_pp[new_full_idx] <- params@rr_pp[old_full_idx]
-    p@resource_dynamics <- params@resource_dynamics
     p@resource_params <- params@resource_params
 
-    # Preserve other slots and metadata
-    p@given_species_params <- new_given_sp_params
-    p <- copyPreservedParamsSlots(p, params)
+    # Restore core plotting metadata after rate construction.
     p <- setColours(p, params@linecolour)
     p <- setLinetypes(p, params@linetype)
 
     # Preserve comments
     p <- copyParamsComments(p, params)
+    p <- restore_transformation_updates(p, updates)
 
     p <- validParams(p)
 
     # Restore plot metadata exactly
-    p@species_params <- new_sp_params
-    p@given_species_params <- new_given_sp_params
     p@linecolour <- params@linecolour
     p@linetype <- params@linetype
 

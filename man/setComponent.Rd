@@ -23,7 +23,8 @@ setComponent(
   role,
   stationary,
   equation_rates_fun,
-  tuning
+  tuning,
+  transformations
 )
 
 removeComponent(params, component)
@@ -61,7 +62,9 @@ functions. This could for example be a named list of parameters. Optional.}
 \item{definition}{A named list specifying the component's callbacks and
 plotting styles. Supplying a list replaces its previous definition before
 explicitly supplied arguments are applied. State and component parameters
-are supplied separately.}
+are supplied separately.
+Updating only state or component parameters does not re-adopt capabilities
+after a global provider change; supply the relevant capability explicitly.}
 
 \item{rate_fun}{Name of function returning the component's derivative.
 Required unless \code{dynamics_fun} is supplied.}
@@ -80,6 +83,10 @@ assessment incomplete.}
 \item{equation_rates_fun}{Callback exposing effective equation quantities.}
 
 \item{tuning}{Named strategies and their default, or NULL to remove support.}
+
+\item{transformations}{Named transformation declarations. An update hook
+may modify this component's initial state and parameters; additional paths
+must be explicit. Use action = 'none' for supported no-action operations.}
 }
 \value{
 The updated MizerParams object

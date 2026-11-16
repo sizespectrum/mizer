@@ -67,6 +67,18 @@
 
 ## New features
 
+- Species, grid and scaling operations now use declared transformation hooks
+  for extension-owned data (#670, #592, #609). Missing support stops before
+  changes; an explicit no-action declaration is distinct from missing support.
+  Hooks run after core structural bookkeeping and before dependent rate
+  construction or steady-state calculations. `reorderSpecies()` changes model
+  order consistently, and `setTransformation()` registers joint ownership.
+- Model scaling no longer multiplies arbitrary component states. Extensions
+  declare how stocks, intensive quantities and non-numeric states transform.
+  Built-in Ricker, Shepherd and constant recruitment parameters now scale with
+  their laws, and scaled resource and species coefficients survive later
+  recalculation.
+
 - Tuning now selects stored, named strategies for each process or explicitly
   selected joint strategies (#670, #534). Strategies declare fixed inputs,
   evolving states, adjustable parameters, bounds and preserved quantities.

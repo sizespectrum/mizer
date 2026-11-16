@@ -75,8 +75,10 @@ One such process is a species that you take out of the model but whose effect
 on the others you want to keep. `removeSpecies(params, species,
 compensate = TRUE)` adds what the removed species contributed to the encounter
 rate and mortality of the remaining species to their `ext_encounter` and
-`ext_mort`, and rebalances the resource, so that a model at steady state stays
-there.
+`ext_mort` (and likewise external diffusion). It checks the remaining species'
+effective equation rates and balances supported built-in resource dynamics.
+Extensions supply their own compensation through removal hooks; the operation
+does not establish that every component is at steady state.
 
 External encounter changes the realised encounter and feeding level, but it does
 not enter the power-law reference state used by [`get_gamma_default()`](../reference/get_gamma_default.html) and
@@ -298,7 +300,8 @@ getComponent(params, "detritus")$definition
 
 The supported definition fields are `dynamics_fun`, `rate_fun`, `encounter_fun`,
 `mort_fun`, `colour`, `linetype`, `integration_order`, `convergence_fun`,
-`role`, `stationary`, `equation_rates_fun` and `tuning`. Supply a step, an
+`role`, `stationary`, `equation_rates_fun`, `tuning` and `transformations`.
+Supply a step, an
 equation, or both; a supplied custom step takes precedence during projection.
 Callback identifiers may be ordinary function names or `package::exported_name`.
 Mizer resolves them when preparing an operation. Initial state and component
@@ -576,6 +579,75 @@ c("component:pool" = "evolve"))` or `joint = "coupled"`. Declarations are
 stored with the model and bound to their effective named/S3 providers. Changing
 a provider requires explicit adoption of the corresponding support, not merely
 leaving an old function name in the registry.
+
+### Transforming extension data with the model
+
+Species, grid and scale operations need their own capability. A component that
+can project or tune does not automatically know how its data should transform.
+Register a `transformations` map on its definition, or on a built-in process
+with `setProcess()`. The operation names are `add_species`, `remove_species`,
+`reorder_species`, `rename_species`, `size_grid`, `scale_abundance` and
+`scale_rates`. Missing support stops the operation before changes. Use
+`list(action = "none")` explicitly for an operation requiring no action.
+
+An updating declaration supplies `action = "update"` and a named
+`transform_fun`. The callback receives the candidate `params`, the original
+model as `before`, `operation`, `details`, ownership context and any stored
+`settings`. It returns the updated candidate. Component callbacks receive
+`component`, and process callbacks receive `process`.
+
+For example, a pool can contain a stock alongside an intensive temperature and
+a text label. Scaling should multiply only the stock:
+
+```{r eval=FALSE}
+scalePool <- function(params, before, component, details, ...) {
+    state <- before@initial_n_other[[component]]
+    state$stock <- state$stock * details$factor
+    params@initial_n_other[[component]] <- state
+    params
+}
+params <- setComponent(params, "mixed_pool",
+    initial_value = list(stock = 2, temperature = 15, label = "inshore"),
+    definition = list(dynamics_fun = "constant_other", role = "prescribed",
+        stationary = TRUE,
+        transformations = list(
+            scale_abundance = list(action = "update", transform_fun = "scalePool"),
+            scale_rates = list(action = "none"))))
+```
+
+A component owns its own initial state and component-parameter subtree by
+default. Declare additional permitted `paths` explicitly, as a list of character
+vectors naming fields in the model, when the hook must update other data it
+owns. Process hooks likewise declare their permitted paths. Mizer checks that
+hooks respect their declarations; it does not guess which dimensions represent
+species, sizes or biomass. Shared data require one joint declaration through
+[`setTransformation(params, name, owners, operation, definition)`](../reference/setTransformation.html). A registered
+joint hook replaces local hooks for those owners and that operation. Overlapping
+owners or writable paths are errors.
+
+Species-operation details include `old_species`, `new_species`, `species_map`
+(old to new indices) and `new_to_old` (new to old indices); missing entries are
+`NA`. Renaming also supplies `rename`, a named old-to-new label vector. Grid
+details include `old_w`, `new_w`, `old_w_full`, `new_w_full` and their overlap
+maps: `w_map`, `new_w_to_old`, `w_full_map`, `new_w_full_to_old`. Scaling supplies
+`factor`. Use these explicit mappings to transform a species-by-size array such
+as spatial overlap; decide explicitly how newly added entries are initialised.
+
+Hooks run after core structural bookkeeping and before dependent rate setters,
+initialisation or steady-state calculations. At this point the candidate is
+deliberately incomplete: other owners' hooks may still be pending. Update only
+your declared data, using `before` when original values are needed; defer
+whole-model validation and dependent rate calculations to mizer. Coupled owners
+that need a coordinated update should use a joint hook. Errors leave the input
+model unchanged. The completed transformation retains its defaults edition and
+stored capability declarations.
+
+When a process hook deliberately supplies a core rate array, declare that path
+explicitly. Its authored values are retained through dependent construction,
+including initial-state calculations. Update an authoritative predation kernel
+or its parameters, rather than its derived FFT caches. A manually supplied
+dense kernel or fishing array retains its overlap and freeze status through a
+grid change; new cells are zero unless the hook fills them.
 
 
 ---

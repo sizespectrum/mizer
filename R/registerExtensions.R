@@ -187,6 +187,7 @@ recordExtension <- function(params, name, version = NULL, requirement = NULL) {
         entry <- setNames(req, name)
         ext <- if (present) { ext[[name]] <- req; ext } else c(entry, ext)
         params$extensions <- ext
+        if (!present) params <- refresh_recorded_capabilities(params)
         return(params)
     }
 
@@ -201,6 +202,18 @@ recordExtension <- function(params, name, version = NULL, requirement = NULL) {
         ext <- c(setNames(list(entry), name), ext)
     }
     params$extensions <- ext
+    if (!present) params <- refresh_recorded_capabilities(params)
+    params
+}
+
+# Recording does not coerce the returned object. Snapshot known automatic
+# support against the class chain that coerceToExtensionClass() will adopt.
+refresh_recorded_capabilities <- function(params) {
+    if (!is.list(params$capabilities) ||
+            !identical(params$capabilities$schema_version, 5L)) return(params)
+    adopted <- coerceToExtensionClass(params)
+    adopted <- refresh_builtin_tuning(adopted)
+    params$capabilities <- adopted$capabilities
     params
 }
 
