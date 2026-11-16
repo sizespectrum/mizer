@@ -309,3 +309,21 @@ test_that("Definition reuse does not automatically endorse custom routes", {
     p$rates_funcs$RDD <- "author_recruitment"
     expect_error(mizerReproductionDefinition(p), "No built-in reproduction")
 })
+
+test_that("Failed balancers cannot mutate reference-bearing caller data", {
+    rlang::local_bindings(
+        failing_reference_balancer = function(params, ...) {
+            params$other_params$audit$value <- 2
+            stop("deliberate balancing failure")
+        }, .env = globalenv()
+    )
+    p <- NS_params_small
+    p$other_params$audit <- new.env(parent = emptyenv())
+    p$other_params$audit$value <- 1
+    block <- p$capabilities$processes$reproduction$tuning
+    block$strategies[[block$default]]$balance_fun <-
+        "failing_reference_balancer"
+    p <- setProcess(p, "reproduction", tuning = block)
+    expect_error(balanceRDD(p), "deliberate balancing failure")
+    expect_identical(p$other_params$audit$value, 1)
+})

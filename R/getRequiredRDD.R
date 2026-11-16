@@ -35,8 +35,9 @@ getRequiredRDD.MizerParams <- function(params, ..., rates = NULL) {
             method <- getS3method("projectRates", class_name, optional = TRUE)
             if (!is.null(method)) break
         }
-        standard <- identical(rates_fns$Rates, mizerRates) ||
-            (identical(rates_fns$Rates, projectRates) &&
+        provider <- rate_callback_provider(rates_fns$Rates)
+        standard <- identical(provider, mizerRates) ||
+            (identical(provider, projectRates) &&
                  identical(method, projectRates.MizerParams))
         args <- list(params, n = params@initial_n,
                      n_pp = params@initial_n_pp,

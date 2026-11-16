@@ -867,3 +867,14 @@ test_that("Component input and temporal declarations stay independent", {
     expect_null(getComponent(replaced, "pool")$definition$autonomous)
     expect_null(getComponent(replaced, "pool")$definition$prescribed_mask_fun)
 })
+
+test_that("Full-rate validation uses the effective package-aware callbacks", {
+    rlang::local_bindings(
+        complete_rate_adapter = function(params, ...) mizerRates(params, ...),
+        .env = globalenv()
+    )
+    p <- setRateFunction(NS_params_small, "RDD", "mizer::BevertonHoltRDD")
+    expected <- getRates(p)
+    q <- setRateFunction(p, "Rates", "complete_rate_adapter")
+    expect_equal(getRates(q), expected)
+})

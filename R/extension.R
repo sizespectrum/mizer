@@ -86,7 +86,7 @@
             Rates =
                 f(params, n = n, n_pp = n_pp, n_other = n_other, t = t,
                   effort = effort,
-                  rates_fns = lapply(params@rates_funcs, get))
+                  rates_fns = projectRateFunctions(params))
         ),
         error = function(e) {
             stop("The function '", fun, "' failed when called with test inputs: ",

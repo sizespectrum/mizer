@@ -452,6 +452,12 @@ should shrink by about a factor of four when `dt` is halved. Check stiffness
 separately. With subcycling enabled, callbacks receive the actual internal
 substep size and are called for each substep.
 
+The supplied `rates` are already the complete effective context. If a custom
+rate provider requests an unfinished rate at the same model state and time,
+mizer reports `Rate dependency cycle` with the dependency chain. Requests for
+independent rates or a different state remain supported. The guard records only
+unfinished evaluations; it does not cache rate results between states.
+
 ### Components and the steady state
 
 Register a `convergence_fun` when a component can assess whether its state is
@@ -616,6 +622,11 @@ state, declared parameter changes and bounds, preserved quantities and all
 effective equation rates. It refreshes affected dependencies and reassesses the
 released model. There is no numerical fallback, silent clamp or second search
 to repair a failed balance.
+
+Balancing, tuning and extension upgrades isolate the candidate's mutable
+instance data. A callback that fails cannot leave partial edits in the caller's
+model. This isolation does not extend to unrelated global state or external
+resources used by author code.
 
 Use `setProcess()` for the same declarations on `"consumers"`, `"resource"`
 or `"reproduction"`. Reproduction can also provide `level_fun` for its own

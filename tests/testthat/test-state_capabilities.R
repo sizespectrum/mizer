@@ -76,6 +76,96 @@ test_that("Temporal declarations are independent of instantaneous zeros", {
     expect_null(unset_state$autonomous)
 })
 
+test_that("Held components retain autonomy of their active contributions", {
+    rlang::local_bindings(
+        state_pool_step = function(n_other, component, ...) {
+            n_other[[component]]
+        },
+        state_pool_rhs = function(n_other, component, ...) {
+            n_other[[component]] * 0
+        },
+        state_pool_rhs_changed = function(...) {
+            stop("A held component's equation must not be evaluated.")
+        },
+        state_pool_encounter = function(params, ...) params$ext_encounter * 0,
+        .env = globalenv()
+    )
+    p <- setComponent(NS_params_small, "pool", 1,
+                      dynamics_fun = "state_pool_step",
+                      rate_fun = "state_pool_rhs",
+                      encounter_fun = "state_pool_encounter", autonomous = TRUE)
+    for (fixed in list("component:pool", c("resource", "component:pool"))) {
+        held <- hold_fixed_states(p, fixed)
+        held$capabilities$components$pool$rate_fun <- "state_pool_rhs_changed"
+        state <- prepare_state_capabilities(held, fixed = fixed)
+        expect_true(state[["component:pool"]]$temporal_current)
+        expect_true(state[["component:pool"]]$temporal_required)
+        expect_true(state[["component:pool"]]$autonomous)
+        expect_true(assessment_temporal_coverage(state)$autonomous)
+        expect_false(prepare_state_capabilities(held)[[
+            "component:pool"
+        ]]$temporal_current)
+    }
+    held_resource <- hold_fixed_states(p, "resource")
+    state <- prepare_state_capabilities(held_resource, fixed = "resource")
+    expect_true(state[["component:pool"]]$temporal_current)
+    expect_true(state$resource$temporal_current)
+    expect_false(state$resource$temporal_required)
+})
+
+test_that("Held contributors still check active providers and declarations", {
+    rlang::local_bindings(
+        state_pool_step = function(n_other, component, ...) {
+            n_other[[component]]
+        },
+        state_pool_encounter = function(params, ...) params$ext_encounter * 0,
+        state_pool_forced_encounter = function(params, t, ...) {
+            params$ext_encounter * 0 + sin(t)^2
+        },
+        state_pool_mort = function(params, ...) params$ext_mort * 0,
+        state_pool_forced_mort = function(params, t, ...) {
+            params$ext_mort * 0 + sin(t)^2
+        },
+        state_pool_rates = function(params, ...) mizerRates(params, ...),
+        .env = globalenv()
+    )
+    p <- setComponent(NS_params_small, "pool", 1,
+                      dynamics_fun = "state_pool_step",
+                      encounter_fun = "state_pool_encounter",
+                      mort_fun = "state_pool_mort", autonomous = TRUE)
+    fixed <- c("resource", "component:pool")
+    held <- hold_fixed_states(p, fixed)
+    for (field in c("other_encounter", "other_mort", "rates_funcs")) {
+        changed <- held
+        if (field == "rates_funcs") {
+            changed$rates_funcs$Rates <- "state_pool_rates"
+        } else {
+            changed[[field]]$pool <- if (field == "other_encounter") {
+                "state_pool_forced_encounter"
+            } else {
+                "state_pool_forced_mort"
+            }
+        }
+        state <- prepare_state_capabilities(changed, fixed = fixed)[[
+            "component:pool"
+        ]]
+        expect_false(state$temporal_current)
+        expect_null(state$autonomous)
+    }
+    for (autonomous in list(FALSE, NULL)) {
+        declared <- setComponent(p, "pool",
+                                 encounter_fun = "state_pool_forced_encounter",
+                                 autonomous = autonomous)
+        state <- prepare_state_capabilities(
+            hold_fixed_states(declared, fixed), fixed = fixed
+        )[["component:pool"]]
+        expect_true(state$temporal_current)
+        expect_identical(state$autonomous, autonomous)
+        coverage <- assessment_temporal_coverage(list(pool = state))
+        expect_false(isTRUE(coverage$autonomous))
+    }
+})
+
 test_that("Exact resource equations use effective rates without time probes", {
     p <- NS_params_small
     n_pp <- p$initial_n_pp

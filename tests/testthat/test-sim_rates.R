@@ -130,3 +130,11 @@ test_that("mizer_rates_subset skips the rates that are not needed", {
     # FeedingLevel needs only Encounter, so nothing downstream is calculated
     expect_setequal(names(subset), c("encounter", "feeding_level"))
 })
+
+test_that("Declared dependency cycles are rejected explicitly", {
+    testthat::local_mocked_bindings(
+        .rate_dependencies = list(Encounter = "Mort", Mort = "Encounter")
+    )
+    expect_error(needed_rates("Mort"),
+                 "Rate dependency cycle: Mort -> Encounter")
+})

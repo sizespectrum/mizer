@@ -156,7 +156,7 @@ test_that("newMultispeciesParams second_order_w bin-averages resource", {
 
     # Initial abundances are finite and the model projects.
     expect_true(all(is.finite(p@initial_n)))
-    expect_error(suppressMessages(project(p, t_max = 1)), NA)
+    expect_error(suppressMessages(project(p, t_max = 1, subcycle = TRUE)), NA)
 })
 
 test_that("second_order_w argument accepts the same forms as the setter", {

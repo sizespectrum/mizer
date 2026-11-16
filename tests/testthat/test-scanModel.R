@@ -292,6 +292,33 @@ test_that("scanModel() accepts the 'second_order' method alias", {
     expect_equal(scan_alias, scan_canon)
 })
 
+test_that("Attractor measurements continue at the assessed model time", {
+    rlang::local_bindings(time_forced_pool = function(params, n_other,
+                                                      component, t, dt, ...) {
+        n_other[[component]] + t * dt
+    }, .env = globalenv())
+    p <- setComponent(NS_params_small, "pool", initial_value = 0,
+                      dynamics_fun = "time_forced_pool")
+    seen <- NULL
+    measure <- function(sim) {
+        seen <<- sim
+        cbind(pool = as.numeric(sim$n_other[, "pool"]))
+    }
+    conv <- list(attractor = NA_character_, years = 4,
+                 assessment = list(time = 4, scope = "whole"))
+    value <- measure_on_attractor(p, measure, conv, dt = 0.1,
+                                  t_sample = 0.2, sample_all = TRUE,
+                                  method = "euler")
+    expect_equal(getTimes(seen), c(4, 4.1, 4.2))
+    expect_equal(as.numeric(seen$n_other[, "pool"]), c(0, 0.4, 0.81))
+    expect_equal(unname(value$max), 0.81)
+
+    conv$attractor <- "fixed_point"
+    measure_on_attractor(p, measure, conv, dt = 0.1,
+                         t_sample = 0.2, sample_all = FALSE, method = "euler")
+    expect_equal(getTimes(seen), 4)
+})
+
 test_that("Conditional sampling holds inputs and retains providers", {
     rlang::local_bindings(
         scan_changing_component = function(params, n_other, component, dt,

@@ -129,7 +129,11 @@ plot(getSteadyResidual(params))          # which species, and at which sizes
 ```
 
 **Read `attractor` together with `assessment`.** A `"fixed_point"` requires all
-required assessments to pass. With `scope = "conditional"` that claim applies
+required assessments to pass and autonomous dynamics throughout the assessed
+scope. A seasonal equation can have zero instantaneous drift at one phase
+without having reached an equilibrium. Such a passing assessment retains its
+time and measures, but `attractor` remains `NA`; inspect `assessment$autonomous`
+and `assessment$temporal_unavailable`. With `scope = "conditional"` that claim applies
 only with the named states fixed; the report retains those names. `termination`
 says how the run ended and `converged` whether the solver was happy. Neither
 alone establishes a whole-model steady state, and the legacy `residual` biomass

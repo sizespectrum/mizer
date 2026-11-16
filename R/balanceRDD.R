@@ -121,6 +121,9 @@ balanceRDD <- function(params, rdd_target = NULL, strategy = NULL,
             }
             strategy <- "set_parameters"
         }
+        # Author callbacks can receive reference-bearing instance data. Work
+        # on an isolated candidate even when a callback fails before returning.
+        params <- clone_params_runtime(params)
         plan <- prepare_tuning(
             params,
             owners = "reproduction", solver = "balance",

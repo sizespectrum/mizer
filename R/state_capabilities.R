@@ -54,11 +54,29 @@ temporal_provider_binding <- function(params, owner) {
     binding
 }
 
-temporal_binding_current <- function(params, definition, owner) {
+temporal_binding_current <- function(params, definition, owner,
+                                     fixed = character()) {
     binding <- definition$temporal_binding
     if (is.null(binding)) return(FALSE)
     binding$automatic <- NULL
-    identical(binding, temporal_provider_binding(params, owner))
+    current <- temporal_provider_binding(params, owner)
+    # A conditional analysis never evaluates a held state's own dynamics.
+    # Its encounter/mortality contributions and the effective rate providers
+    # remain active, so their identifiers must still match the declaration.
+    if ("resource" %in% fixed) {
+        binding$resource_dynamics <- NULL
+        current$resource_dynamics <- NULL
+    }
+    components <- substring(fixed[startsWith(fixed, "component:")], 11L)
+    for (field in c("other_dynamics", "component_equations")) {
+        binding[[field]] <- binding[[field]][
+            setdiff(names(binding[[field]]), components)
+        ]
+        current[[field]] <- current[[field]][
+            setdiff(names(current[[field]]), components)
+        ]
+    }
+    identical(binding, current)
 }
 
 builtin_autonomous_rates <- function(params) {
@@ -195,7 +213,8 @@ prepare_state_capabilities <- function(params, fixed = character()) {
                 }
             }
         }
-        temporal_current <- temporal_binding_current(params, definition, owner)
+        temporal_current <- temporal_binding_current(params, definition, owner,
+                                                     fixed = fixed)
         autonomous <- if (temporal_current) definition$autonomous else NULL
         temporal_reason <- if (!temporal_current) {
             "The temporal declaration does not match the current provider."

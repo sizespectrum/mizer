@@ -712,3 +712,21 @@ test_that("tuning freezes recruitment after an immigration Rates wrapper", {
     expect_identical(attr(out, "convergence")$search_assessment$scope,
                      "conditional")
 })
+
+test_that("Failed tuning assessments cannot mutate caller reference data", {
+    rlang::local_bindings(
+        failing_reference_assessment = function(params, ...) {
+            params$other_params$audit$value <- 2
+            stop("deliberate assessment failure")
+        }, .env = globalenv()
+    )
+    p <- NS_params_small
+    p$other_params$audit <- new.env(parent = emptyenv())
+    p$other_params$audit$value <- 1
+    p <- setProcess(p, "consumers",
+                    convergence_fun = "failing_reference_assessment")
+    expect_error(tuneSteadyState(p, t_max = 0.1, dt = 0.1, t_check = 0.1,
+                                 progress_bar = FALSE, info_level = 0),
+                 "deliberate assessment failure")
+    expect_identical(p$other_params$audit$value, 1)
+})

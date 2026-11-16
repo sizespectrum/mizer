@@ -254,6 +254,19 @@ test_that("Oscillation modes require current complete autonomous equilibrium", {
     expect_error(getOscillationModeSim(result), "No oscillatory mode")
 })
 
+test_that("Mode construction uses the model returned by stability analysis", {
+    local_mocked_bindings(getStability = function(params, effort, ...) {
+        params$initial_effort <- validEffortVector(effort, params)
+        scoped_mode_result(params)
+    })
+    sim <- getOscillationModeSim(NS_params_small, effort = 2, t_save = 2)
+    expect_equal(unname(sim$params$initial_effort),
+                 rep(2, length(NS_params_small$initial_effort)))
+    expect_true(all(sim$effort == 2))
+    expect_equal(sim$sim_params$assessment,
+                 scoped_mode_result(sim$params)$assessment)
+})
+
 test_that("Conditional mode simulations retain excluded cells and provenance", {
     rlang::local_bindings(
         mode_mask = function(params, ...) {

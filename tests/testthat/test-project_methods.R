@@ -258,3 +258,84 @@ test_that("pinned recruitment overrides a named complete Rates provider", {
     expect_error(pin_recruitment_rates(functions, c(1, NA)),
                  "finite nonnegative")
 })
+
+test_that("Rate dependency cycles fail explicitly and release runtime guards", {
+    rlang::local_bindings(
+        cyclic_encounter = function(params, n, n_pp, n_other, t, ...) {
+            getRates(params, n = n, n_pp = n_pp, n_other = n_other,
+                     t = t)$encounter
+        },
+        self_encounter = function(params, n, n_pp, n_other, t, ...) {
+            getEncounter(params, n = n, n_pp = n_pp, n_other = n_other, t = t)
+        }, .env = globalenv()
+    )
+    p <- NS_params_small
+    p$rates_funcs$Encounter <- "cyclic_encounter"
+    expect_error(getRates(p), "Rate dependency cycle:.*Rates")
+    expect_error(project(p, t_max = 0.1, dt = 0.1, t_save = 0.1,
+                         progress_bar = FALSE), "Rate dependency cycle")
+    p$rates_funcs$Encounter <- "self_encounter"
+    expect_error(getEncounter(p),
+                 "Rate dependency cycle: Encounter -> Encounter")
+    expect_length(.rate_evaluation_stack$active, 0L)
+    expect_no_error(getRates(NS_params_small))
+})
+
+test_that("Nested independent rates and another state are not cycles", {
+    rlang::local_bindings(
+        nested_rdd = function(rdi, species_params, params, ...) {
+            stopifnot(all(is.finite(getEncounter(params))))
+            BevertonHoltRDD(rdi, species_params)
+        },
+        shifted_encounter = function(params, n, n_pp, n_other, t, ...) {
+            if (sum(n) == sum(params$initial_n)) {
+                return(getEncounter(params, n = n * 2, n_pp = n_pp,
+                                    n_other = n_other, t = t))
+            }
+            mizerEncounter(params, n, n_pp, n_other, t)
+        }, .env = globalenv()
+    )
+    p <- NS_params_small
+    p$rates_funcs$RDD <- "nested_rdd"
+    expect_equal(getRates(p)$rdd, getRates(NS_params_small)$rdd)
+    p$rates_funcs$Encounter <- "shifted_encounter"
+    expected <- mizerEncounter(p, p$initial_n * 2, p$initial_n_pp,
+                               p$initial_n_other)
+    expect_equal(as.numeric(getEncounter(p)), as.numeric(expected))
+    expect_no_error(getRates(p))
+    expect_length(.rate_evaluation_stack$active, 0L)
+})
+
+test_that("Rate guards match positional and partially named state arguments", {
+    rlang::local_bindings(
+        positional_encounter = function(params, n, n_pp, n_other, t, ...) {
+            if (sum(n) == sum(params$initial_n)) {
+                encounter <- project_rate_function(params, "Encounter")
+                return(encounter(params, n * 2, n_pp, n_other, t))
+            }
+            mizerEncounter(params, n, n_pp, n_other, t)
+        },
+        partial_encounter = function(params, n, n_pp, n_other, t, ...) {
+            if (sum(n_pp) == sum(params$initial_n_pp)) {
+                encounter <- project_rate_function(params, "Encounter")
+                return(encounter(par = params, n = n, n_p = n_pp * 2,
+                                 n_o = n_other, t = t))
+            }
+            mizerEncounter(params, n, n_pp, n_other, t)
+        }, .env = globalenv()
+    )
+    p <- NS_params_small
+    p$rates_funcs$Encounter <- "positional_encounter"
+    expected <- mizerEncounter(p, p$initial_n * 2, p$initial_n_pp,
+                               p$initial_n_other)
+    encounter <- project_rate_function(p, "Encounter")
+    actual <- encounter(p, p$initial_n, p$initial_n_pp, p$initial_n_other, 0)
+    expect_equal(actual, expected)
+    p$rates_funcs$Encounter <- "partial_encounter"
+    expected <- mizerEncounter(p, p$initial_n, p$initial_n_pp * 2,
+                               p$initial_n_other)
+    encounter <- project_rate_function(p, "Encounter")
+    expect_equal(encounter(par = p, n = p$initial_n, n_p = p$initial_n_pp,
+                           n_o = p$initial_n_other, t = 0), expected)
+    expect_length(.rate_evaluation_stack$active, 0L)
+})

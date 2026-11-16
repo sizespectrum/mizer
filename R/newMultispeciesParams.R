@@ -302,7 +302,14 @@ finish_multispecies_params <- function(params, set_params_args = list(),
         if ("rr_pp" %in% updated_fields) {
             resource_args$resource_rate <- params$rr_pp
         }
-        params <- do.call(setResource, c(list(params = params), resource_args))
+        build_resource <- function() {
+            do.call(setResource, c(list(params = params), resource_args))
+        }
+        params <- if (length(updates)) {
+            with_info_level(build_resource(), info_level = 0)
+        } else {
+            build_resource()
+        }
         params <- restore(params)
         params <- restore_transformation_updates(params, updates)
     }

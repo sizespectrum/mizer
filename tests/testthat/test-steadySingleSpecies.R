@@ -53,9 +53,12 @@ test_that("steadySingleSpecies produces steady state with diffusion", {
 
     params <- steadySingleSpecies(params, species = species)
 
-    # Now that we have the steady state, we can use `reproduction_level<-` to
-    # set the reproduction parameters to values that are consistent with it.
-    suppressWarnings(reproduction_level(params) <- 0.5)
+    # The level setter preserves actual recruitment. Here the changed spectrum
+    # needs an explicit target from its transport boundary to become steady.
+    target <- getRequiredRDD(params)
+    params <- suppressWarnings(balanceRDD(params, rdd_target = target,
+                                          reproduction_level = 0.5))
+    expect_equal(getRDD(params), target, ignore_attr = TRUE)
 
     # And then the steady state should be preserved by project()
     sim <- project(params, t_max = 5)

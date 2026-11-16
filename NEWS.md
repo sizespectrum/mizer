@@ -192,6 +192,18 @@
 
 ## Bug fixes
 
+- Recursive rate dependencies now report the dependency cycle explicitly;
+  independent nested rate requests remain supported. Package-qualified rate
+  names use the same effective dispatch during validation and projection.
+- Balancing, tuning and extension upgrades isolate mutable instance data so
+  failed callbacks cannot change the caller's model. Species transformations
+  also check finite arrays after extension hooks have run.
+- Steady-state reports distinguish a passing instantaneous residual from
+  autonomous temporal support. Missing equation prerequisites give incomplete
+  assessments, and seasonal or unknown temporal dependence cannot establish a
+  fixed point merely by passing at one phase.
+- Oscillation-mode simulations retain the effort used for their stability
+  analysis, and scan measurements continue from the time reached while settling.
 - Extension upgrades can use validating public setters without recursively
   restarting their own upgrade chain. Mizer keeps inner-to-outer ordering,
   stamps each extension after success and clears the runtime guard on failure.

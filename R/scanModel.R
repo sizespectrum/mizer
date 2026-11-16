@@ -428,11 +428,13 @@ measure_on_attractor <- function(settled, value_func, conv, dt, t_sample,
     whole_period <- identical(conv$attractor, "limit_cycle") &&
         is.finite(conv$period) && conv$period > 0
     fixed_point <- identical(conv$attractor, "fixed_point") && !sample_all
+    start <- conv$assessment$time %||% conv$years %||% 0
+    if (!is.finite(start)) start <- 0
 
     if (fixed_point) {
         # Nothing moves, so a snapshot carries all the information a longer
         # run would, and costs no projection at all.
-        sim <- params_as_sim(settled)
+        sim <- params_as_sim(settled, t = start)
         sim$sim_params$assessment <- conv$assessment
         sim$sim_params$scope <- conv$assessment$scope %||% conv$scope
         sim$sim_params$fixed <- conv$assessment$fixed %||% conv$fixed
@@ -444,7 +446,8 @@ measure_on_attractor <- function(settled, value_func, conv, dt, t_sample,
         no_steps <- max(1, round(window / dt))
         fixed <- conv$assessment$fixed %||% conv$fixed %||% character()
         sampling_params <- hold_fixed_states(settled, fixed)
-        sim <- project(sampling_params, t_max = no_steps * dt, dt = dt,
+        sim <- project(sampling_params, t_max = no_steps * dt, t_start = start,
+                       dt = dt,
                        t_save = dt, method = method, progress_bar = FALSE)
         # The measured trajectory holds the selected states, while diagnostic
         # getters still see the model's original equation providers.

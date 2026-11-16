@@ -216,7 +216,7 @@ test_that("getCriticalFeedingLevel matches metab over intake_max times alpha", {
     expected <- params@metab / params@intake_max / params@species_params$alpha
     expect_equal(getCriticalFeedingLevel(params), expected,
                  ignore_attr = c("value_name", "units", "type", "class",
-                                 "params", "representation"))
+                                 "params", "representation", "size_grid"))
 })
 
 # getPredRate -------------------------------------------------------------

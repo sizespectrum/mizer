@@ -108,14 +108,9 @@ getEncounter.MizerParams <- function(object, n = initialN(object),
                 identical(length(n_pp), length(params@initial_n_pp)),
                 identical(length(n_other), length(params@initial_n_other))
     )
-    if (params@rates_funcs$Encounter == "mizerEncounter") {
-        encounter <- projectEncounter(params, n = n, n_pp = n_pp,
-                                      n_other = n_other, t = t, ...)
-    } else {
-        encounter_fn <- get(params@rates_funcs$Encounter)
-        encounter <- encounter_fn(params, n = n, n_pp = n_pp,
-                                  n_other = n_other, t = t, ...)
-    }
+    encounter_fn <- project_rate_function(params, "Encounter")
+    encounter <- encounter_fn(params, n = n, n_pp = n_pp,
+                              n_other = n_other, t = t, ...)
     ArraySpeciesBySize(encounter, value_name = "Encounter rate",
              units = "g/year", params = params)
 }
@@ -177,15 +172,9 @@ getFeedingLevel.MizerParams <- function(object, n, n_pp, n_other,
     if (missing(n_other)) n_other <- params@initial_n_other
     # calculate feeding level
     encounter <- getEncounter(params, n, n_pp, n_other, t = t)
-    if (params@rates_funcs$FeedingLevel == "mizerFeedingLevel") {
-        feeding_level <- projectFeedingLevel(
-            params, n = n, n_pp = n_pp, n_other = n_other,
-            encounter = encounter, t = t)
-    } else {
-        f <- get(params@rates_funcs$FeedingLevel)
-        feeding_level <- f(params, n = n, n_pp = n_pp, n_other = n_other,
-                           encounter = encounter, t = t)
-    }
+    f <- project_rate_function(params, "FeedingLevel")
+    feeding_level <- f(params, n = n, n_pp = n_pp, n_other = n_other,
+                       encounter = encounter, t = t)
     return(ArraySpeciesBySize(feeding_level, value_name = "Feeding level",
                               type = "proportion", params = params))
 }
@@ -269,15 +258,9 @@ getEReproAndGrowth.MizerParams <- function(object, n = initialN(object),
     params <- validParams(object)
     encounter <- getEncounter(params, n, n_pp, n_other, t = t)
     feeding_level <- getFeedingLevel(params, n, n_pp, n_other, time_range = t)
-    if (params@rates_funcs$EReproAndGrowth == "mizerEReproAndGrowth") {
-        e <- projectEReproAndGrowth(
-            params, n = n, n_pp = n_pp, n_other = n_other, t = t,
-            encounter = encounter, feeding_level = feeding_level)
-    } else {
-        f <- get(params@rates_funcs$EReproAndGrowth)
-        e <- f(params, n = n, n_pp = n_pp, n_other = n_other, t = t,
-               encounter = encounter, feeding_level = feeding_level)
-    }
+    f <- project_rate_function(params, "EReproAndGrowth")
+    e <- f(params, n = n, n_pp = n_pp, n_other = n_other, t = t,
+           encounter = encounter, feeding_level = feeding_level)
     ArraySpeciesBySize(e, value_name = "Energy for growth and reproduction",
              units = "g/year", params = params)
 }
@@ -338,15 +321,9 @@ getPredRate.MizerParams <- function(object, n = initialN(object),
     params <- validParams(object)
     feeding_level <- getFeedingLevel(params, n = n, n_pp = n_pp,
                                      n_other = n_other, time_range = t)
-    if (params@rates_funcs$PredRate == "mizerPredRate") {
-        pred_rate <- projectPredRate(
-            params, n = n, n_pp = n_pp, n_other = n_other, t = t,
-            feeding_level = feeding_level)
-    } else {
-        f <- get(params@rates_funcs$PredRate)
-        pred_rate <- f(params, n = n, n_pp = n_pp, n_other = n_other, t = t,
-                       feeding_level = feeding_level)
-    }
+    f <- project_rate_function(params, "PredRate")
+    pred_rate <- f(params, n = n, n_pp = n_pp, n_other = n_other, t = t,
+                   feeding_level = feeding_level)
     dimnames(pred_rate) <- list(sp = dimnames(params@initial_n)$sp,
                                 w_prey = as.character(signif(params@w_full, 3)))
     ArraySpeciesBySize(pred_rate, value_name = "Predation rate",
@@ -414,15 +391,9 @@ getPredMort.MizerParams <- function(object, n, n_pp, n_other,
 
     pred_rate <- getPredRate(params, n = n, n_pp = n_pp, n_other = n_other,
                              t = t)
-    if (params@rates_funcs$PredMort == "mizerPredMort") {
-        pred_mort <- projectPredMort(
-            params, n = n, n_pp = n_pp, n_other = n_other, t = t,
-            pred_rate = pred_rate)
-    } else {
-        f <- get(params@rates_funcs$PredMort)
-        pred_mort <- f(params, n = n, n_pp = n_pp, n_other = n_other, t = t,
-                       pred_rate = pred_rate)
-    }
+    f <- project_rate_function(params, "PredMort")
+    pred_mort <- f(params, n = n, n_pp = n_pp, n_other = n_other, t = t,
+                   pred_rate = pred_rate)
     # Predation mortality is a sink integrated against the prey density over the
     # prey bin, so under second-order bin-averaging it is a bin average and is
     # plotted at the geometric bin centre (see get_ArraySpeciesBySize_w()).
@@ -485,15 +456,9 @@ getResourceMort.MizerParams <- function(params, n = initialN(params),
 
     pred_rate <- getPredRate(params, n = n, n_pp = n_pp, n_other = n_other,
                              t = t)
-    if (params@rates_funcs$ResourceMort == "mizerResourceMort") {
-        mort <- projectResourceMort(
-            params, n = n, n_pp = n_pp, n_other = n_other,
-            t = t, pred_rate = pred_rate)
-    } else {
-        f <- get(params@rates_funcs$ResourceMort)
-        mort <- f(params, n = n, n_pp = n_pp, n_other = n_other,
-                  t = t, pred_rate = pred_rate)
-    }
+    f <- project_rate_function(params, "ResourceMort")
+    mort <- f(params, n = n, n_pp = n_pp, n_other = n_other,
+              t = t, pred_rate = pred_rate)
 
     # Extensions such as mizerMR return a resource x size matrix here. Leave
     # such non-vector results unwrapped so the extension can wrap them in its
@@ -761,11 +726,7 @@ getFMort.MizerParams <- function(object, effort, time_range, drop = TRUE,
     if (missing(n_pp)) n_pp <- params@initial_n_pp
     if (missing(n_other)) n_other <- params@initial_n_other
     no_gears <- dim(params@catchability)[[1]]
-    f <- if (params@rates_funcs$FMort == "mizerFMort") {
-        projectFMort
-    } else {
-        get(params@rates_funcs$FMort)
-    }
+    f <- project_rate_function(params, "FMort")
     if (length(dim(effort)) == 2) {
         times <- dimnames(effort)$time
         f_mort <- array(0,
@@ -963,14 +924,9 @@ getERepro.MizerParams <- function(object, n = initialN(object),
     params <- validParams(object)
     e <- getEReproAndGrowth(params, n = n, n_pp = n_pp, n_other = n_other,
                             t = t)
-    if (params@rates_funcs$ERepro == "mizerERepro") {
-        erepro <- projectERepro(params, n = n, n_pp = n_pp, n_other = n_other,
-                                t = t, e = e)
-    } else {
-        f <- get(params@rates_funcs$ERepro)
-        erepro <- f(params, n = n, n_pp = n_pp, n_other = n_other, t = t,
-                    e = e)
-    }
+    f <- project_rate_function(params, "ERepro")
+    erepro <- f(params, n = n, n_pp = n_pp, n_other = n_other, t = t,
+                e = e)
     # The per-capita reproductive investment is the integrand of the
     # reproduction integral, where (under second-order bin-averaging) it enters
     # as a bin average, so it is plotted at the geometric bin centre.
@@ -1039,14 +995,9 @@ getEGrowth.MizerParams <- function(object, n = initialN(object),
                          t = t)
     e <- getEReproAndGrowth(params, n = n, n_pp = n_pp,
                             n_other = n_other, t = t)
-    if (params@rates_funcs$EGrowth == "mizerEGrowth") {
-        g <- projectEGrowth(params, n = n, n_pp = n_pp, n_other = n_other,
-                            t = t, e_repro = e_repro, e = e)
-    } else {
-        f <- get(params@rates_funcs$EGrowth)
-        g <- f(params, n = n, n_pp = n_pp, n_other = n_other, t = t,
-               e_repro = e_repro, e = e)
-    }
+    f <- project_rate_function(params, "EGrowth")
+    g <- f(params, n = n, n_pp = n_pp, n_other = n_other, t = t,
+           e_repro = e_repro, e = e)
     ArraySpeciesBySize(g, value_name = "Growth rate",
              units = "g/year", params = params)
 }
@@ -1100,16 +1051,10 @@ getRDI.MizerParams <- function(object, n = initialN(object),
     diffusion <- getDiffusion(params, n = n, n_pp = n_pp, n_other = n_other,
                               t = t)
     mort <- getMort(params, n = n, n_pp = n_pp, n_other = n_other, t = t)
-    if (params@rates_funcs$RDI == "mizerRDI") {
-        rdi <- projectRDI(params, n = n, n_pp = n_pp, n_other = n_other, t = t,
-                          e_repro = e_repro, e_growth = e_growth, mort = mort,
-                          diffusion = diffusion)
-    } else {
-        f <- get(params@rates_funcs$RDI)
-        rdi <- f(params, n = n, n_pp = n_pp, n_other = n_other, t = t,
-                 e_repro = e_repro, e_growth = e_growth, mort = mort,
-                 diffusion = diffusion)
-    }
+    f <- project_rate_function(params, "RDI")
+    rdi <- f(params, n = n, n_pp = n_pp, n_other = n_other, t = t,
+             e_repro = e_repro, e_growth = e_growth, mort = mort,
+             diffusion = diffusion)
     names(rdi) <- params@species_params$species
     rdi
 }
@@ -1184,8 +1129,9 @@ getRDD.MizerParams <- function(object, n = initialN(object),
                    rdi = getRDI(object, n = n, n_pp = n_pp,
                                 n_other = n_other, t = t), ...) {
     params <- validParams(object)
-    rdd <- projectRDD(params, rdi = rdi, species_params = params@species_params,
-                      t = t, ...)
+    f <- project_rate_function(params, "RDD")
+    rdd <- f(params, rdi = rdi, species_params = params@species_params,
+             t = t, ...)
     names(rdd) <- params@species_params$species
     rdd
 }

@@ -191,6 +191,10 @@ distanceSSLogN.MizerParams <- function(params, current, previous,
 #' `termination = "residual_tolerance"`. The `assessment` entry of the
 #' `"convergence"` attribute records the measures, tolerances and coverage.
 #' The separate `residual` entry retains its biomass-drift meaning.
+#' A passing instantaneous assessment establishes a fixed point only when
+#' autonomous dynamics are declared throughout the assessed scope. Seasonal
+#' or unknown temporal dependence leaves `attractor = NA`, even if the
+#' numerical stopping criteria pass at the sampled phase.
 #'
 #' Even so, `t_check` should be an *odd* multiple of `dt`, which is why it
 #' defaults to `15 * dt`. A period-2 cycle (period `2 * dt`), the most common
@@ -326,7 +330,8 @@ distanceSSLogN.MizerParams <- function(params, current, previous,
 #'       its own rather than running out of time or losing a species. This is a
 #'       statement about the numerics, not about the state.}
 #'     \item{`attractor`}{What the state that was reached actually is:
-#'       `"fixed_point"` when the assessment passes in its recorded scope,
+#'       `"fixed_point"` when the assessment passes in its recorded scope with
+#'       complete autonomous support,
 #'       `"limit_cycle"` when a cycle was detected and no required extension
 #'       state lies outside the cycle diagnostic, and `NA` otherwise
 #'       — a run stopped in mid-flight, or a species on its way out. This is the
@@ -469,14 +474,20 @@ convergence_result <- function(termination, converged, attractor,
 
 #' Whether the assessed state counts as a fixed point
 #'
-#' Only a complete, passing assessment supports a fixed-point claim. Its scope
-#' remains attached to the convergence result, including any fixed inputs.
+#' Only a complete, passing assessment with autonomous dynamics supports a
+#' fixed-point claim. Its scope remains attached to the convergence result,
+#' including any fixed inputs. An instantaneous zero of a time-dependent
+#' equation does not establish an equilibrium.
 #'
 #' @param assessment The result of [getSteadyAssessment()].
 #' @return `"fixed_point"` or `NA_character_`.
 #' @noRd
 steady_attractor <- function(assessment) {
-    if (isTRUE(assessment$verdict)) "fixed_point" else NA_character_
+    if (isTRUE(assessment$verdict) && isTRUE(assessment$autonomous)) {
+        "fixed_point"
+    } else {
+        NA_character_
+    }
 }
 
 #' Prepare a solver's assessment and check its supported state variables
@@ -556,6 +567,14 @@ steady_assessment_details <- function(assessment) {
         details <- c(details, paste0(" Convergence support is unavailable for ",
                                      paste(assessment$missing, collapse = ", "),
                                      "."))
+    }
+    if (!isTRUE(assessment$autonomous)) {
+        details <- c(details, paste0(
+            " Autonomous dynamics are not established for ",
+            paste(assessment$temporal_unavailable$owner, collapse = ", "),
+            "; a passing instantaneous assessment does not establish ",
+            "a fixed point."
+        ))
     }
     if (assessment$scope == "conditional") {
         details <- c(details, paste0(" This is a conditional assessment with ",

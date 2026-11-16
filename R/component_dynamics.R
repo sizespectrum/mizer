@@ -63,8 +63,14 @@ checked_component_rate <- function(fun, params, n, n_pp, n_other, rates, t,
         stop("Equation-based component '", component,
              "' needs a finite numeric state.", call. = FALSE)
     }
-    derivative <- fun(params, n = n, n_pp = n_pp, n_other = n_other,
-                      rates = rates, t = t, component = component, ...)
+    derivative <- tryCatch(
+        fun(params, n = n, n_pp = n_pp, n_other = n_other,
+            rates = rates, t = t, component = component, ...),
+        error = function(error) {
+            stop("Equation for component '", component, "' failed: ",
+                 conditionMessage(error), call. = FALSE)
+        }
+    )
     if (!is.numeric(derivative) || any(!is.finite(derivative))) {
         stop("Equation for component '", component,
              "' must return a finite numeric derivative.", call. = FALSE)
@@ -146,7 +152,14 @@ invoke_model_step <- function(fun, args, predicted_state = NULL,
     }
     # These are supplied by the numerical stage, not a stale value in `...`.
     if (!is.null(arg_names)) args <- args[!arg_names %in% names(optional)]
-    do.call(fun, c(args, optional))
+    tryCatch(do.call(fun, c(args, optional)), error = function(error) {
+        context <- if (is.null(args$component)) {
+            "Resource step"
+        } else {
+            paste0("Step for component '", args$component, "'")
+        }
+        stop(context, " failed: ", conditionMessage(error), call. = FALSE)
+    })
 }
 
 component_integrators <- function(params, method) {

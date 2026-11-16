@@ -31,24 +31,22 @@ stability_coverage <- function(params, states, discrete = FALSE) {
     required <- names(states)[vapply(states, function(spec) {
         !isTRUE(spec$fixed) || isTRUE(spec$temporal_required)
     }, logical(1))]
+    temporal <- assessment_temporal_coverage(states)
     reasons <- new.env(parent = emptyenv())
-    reasons$table <- data.frame(owner = character(), capability = character(),
-                                reason = character(), stringsAsFactors = FALSE)
+    reasons$table <- data.frame(
+        owner = temporal$temporal_unavailable$owner,
+        capability = rep("autonomy", nrow(temporal$temporal_unavailable)),
+        reason = temporal$temporal_unavailable$reason,
+        stringsAsFactors = FALSE
+    )
     add <- function(owner, capability, reason) {
         reasons$table <- rbind(reasons$table, data.frame(
             owner = owner, capability = capability, reason = reason,
             stringsAsFactors = FALSE
         ))
     }
-    autonomous <- TRUE
     for (owner in required) {
         spec <- states[[owner]]
-        if (!isTRUE(spec$temporal_current) || !isTRUE(spec$autonomous)) {
-            add(owner, "autonomy", spec$temporal_reason %||%
-                    "Autonomous dynamics have not been declared.")
-            autonomous <- if (identical(spec$autonomous, FALSE) ||
-                                  isFALSE(autonomous)) FALSE else NA
-        }
         if (isTRUE(spec$fixed)) next
         if (!isTRUE(spec$mask_current)) {
             add(owner, "state", spec$mask_reason %||%
@@ -78,7 +76,7 @@ stability_coverage <- function(params, states, discrete = FALSE) {
     missing <- unique(unavailable$owner)
     list(required = required, covered = setdiff(required, missing),
          missing = missing, unavailable = unavailable,
-         complete = !length(missing), autonomous = autonomous)
+         complete = !length(missing), autonomous = temporal$autonomous)
 }
 
 #' Shared scaffolding for the stability analyses

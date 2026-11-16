@@ -97,3 +97,15 @@ test_that("Step adapters retain the positional first model argument", {
     expect_equal(as.numeric(finalNResource(sim)), as.numeric(p@initial_n_pp))
     expect_equal(steady_rates(p)$other$pool, 0.5)
 })
+
+test_that("Equation and step programming errors retain provider context", {
+    bad <- function(...) stop("deliberate callback error")
+    p <- NS_params_small
+    expect_error(checked_component_rate(bad, p, p$initial_n, p$initial_n_pp,
+                                        list(pool = 1), list(), 0, "pool"),
+                 "Equation for component 'pool' failed: deliberate callback")
+    expect_error(invoke_model_step(bad, list(params = p, component = "pool")),
+                 "Step for component 'pool' failed: deliberate callback")
+    expect_error(invoke_model_step(bad, list(params = p)),
+                 "Resource step failed: deliberate callback")
+})

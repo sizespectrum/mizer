@@ -156,7 +156,8 @@ died out). The steady-state finders can also return
 its own rather than running out of time or losing a species. This is a
 statement about the numerics, not about the state.}
 \item{\code{attractor}}{What the state that was reached actually is:
-\code{"fixed_point"} when the assessment passes in its recorded scope,
+\code{"fixed_point"} when the assessment passes in its recorded scope with
+complete autonomous support,
 \code{"limit_cycle"} when a cycle was detected and no required extension
 state lies outside the cycle diagnostic, and \code{NA} otherwise
 — a run stopped in mid-flight, or a species on its way out. This is the
@@ -270,6 +271,10 @@ When both criteria hold, the run stops with
 \code{termination = "residual_tolerance"}. The \code{assessment} entry of the
 \code{"convergence"} attribute records the measures, tolerances and coverage.
 The separate \code{residual} entry retains its biomass-drift meaning.
+A passing instantaneous assessment establishes a fixed point only when
+autonomous dynamics are declared throughout the assessed scope. Seasonal
+or unknown temporal dependence leaves \code{attractor = NA}, even if the
+numerical stopping criteria pass at the sampled phase.
 
 Even so, \code{t_check} should be an \emph{odd} multiple of \code{dt}, which is why it
 defaults to \code{15 * dt}. A period-2 cycle (period \code{2 * dt}), the most common
