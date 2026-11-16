@@ -113,6 +113,63 @@ getYield(sim)["2010", ]                  # yield in year 2010
 
 ---
 
+## Including resources and components in biomass
+
+`getBiomass()` measures species by default. Use `include` to request the resource
+or extension components explicitly:
+
+```{r eval=FALSE}
+biomass <- getBiomass(sim, include = c("species", "resource", "components"))
+plot(biomass)
+# The convenience plot uses the same measurement:
+plotBiomass(sim, include = c("species", "resource", "components"))
+```
+
+`"components"` requests every component. Use `"component:pool"` for one component,
+or `"component:pool/detritus"` for one of its named series. Series identifiers are
+stable even when display labels coincide. Inspect `attr(biomass, "series")` for
+labels, colours and physical sources, and `attr(biomass, "coverage")` for the
+availability of each requested measurement at each saved time. An unavailable
+measurement is `NA` with a reason; it is not zero. Plot captions report missing
+measurements, and `total = TRUE` requires complete coverage. Selecting the same
+physical source through two providers is an error.
+
+The resource uses its full size grid unless a filter is requested. Components
+must explicitly support each requested size filter; an unsupported filter makes
+their measurement unavailable. Biomass measurement does not establish that a
+component is steady: use [`getSteadyAssessment()`](../reference/getSteadyAssessment.html) for convergence.
+
+Default species-only results keep the existing numeric vector for params and
+[`ArrayTimeBySpecies`](../reference/ArrayTimeBySpecies.html) for simulations. Explicit resource/component inclusion adds
+metadata, with a `MizerBiomass` numeric vector for params. Both extended results
+can be plotted directly. Subsetting retains the selected metadata; arithmetic
+returns plain numeric values.
+
+---
+
+## Mortality causes
+
+[`getMortByCause()`](../reference/getMortByCause.html) reports the authoritative total separately from its diagnostic
+breakdown:
+
+```{r eval=FALSE}
+mortality <- getMortByCause(params)
+mortality$complete
+names(mortality$causes)
+plot(mortality$causes$predation)
+```
+
+The built-in breakdown contains predation, fishing, external mortality and
+registered additive contributions. `metadata` supplies cause labels and colours.
+A replacement total-mortality provider needs its own declared decomposition;
+otherwise the report retains the total and explains why the breakdown is
+incomplete. A declared complete breakdown that disagrees with the total is an
+error. For simulations this check runs at each selected saved time, before any
+averaging. The unexplained `residual` is a diagnostic difference, not an invented
+mortality cause.
+
+---
+
 ## Indicator functions
 
 These compute community-level indicators. All accept `MizerSim` (time series) or
@@ -175,7 +232,7 @@ yourself, silently and only for some users. Three things are worth knowing:
   whose first dimension is named `"time"` is lined up with the times of the
   simulation rather than multiplied out against them.
 
-The result is already an [`ArrayTimeBySpecies`](../reference/ArrayTimeBySpecies.html) when it is one, so you inherit the
+The result is already an `ArrayTimeBySpecies` when it is one, so you inherit the
 whole toolkit described below — `plot()`, [`plot2()`](../reference/plot2.html), [`plotRelative()`](../reference/plotRelative.html),
 [`addPlot()`](../reference/addPlot.html) — for free. For a quantity that keeps the size dimension, and so is
 not an integral over sizes, wrap it yourself:

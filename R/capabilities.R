@@ -3,7 +3,7 @@
 # support and distinguish dynamic state from prescribed inputs.
 
 new_capability_registry <- function() {
-    list(schema_version = 5L, components = list(), processes = list(),
+    list(schema_version = 6L, components = list(), processes = list(),
          tuning = list(), transformations = list())
 }
 
@@ -16,13 +16,14 @@ upgrade_capability_registry <- function(registry, params = NULL) {
             !is.numeric(registry$schema_version) ||
             length(registry$schema_version) != 1L ||
             is.na(registry$schema_version) ||
-            !registry$schema_version %in% 1:4) return(registry)
+            !registry$schema_version %in% 1:5) return(registry)
     fields <- c("schema_version", "components", "processes")
-    if (registry$schema_version == 4L) fields <- c(fields, "tuning")
+    if (registry$schema_version >= 4L) fields <- c(fields, "tuning")
+    if (registry$schema_version >= 5L) fields <- c(fields, "transformations")
     if (!setequal(names(registry), fields)) return(registry)
     if (registry$schema_version < 4L) registry$tuning <- list()
-    registry$schema_version <- 5L
-    registry$transformations <- list()
+    if (registry$schema_version < 5L) registry$transformations <- list()
+    registry$schema_version <- 6L
     if (!is.list(registry$components) ||
             !capability_names_valid(registry$components)) return(registry)
     for (component in names(registry$components)) {
@@ -68,7 +69,8 @@ component_definition_defaults <- function() {
          integration_order = NULL, convergence_fun = NULL, role = "dynamic",
          stationary = NULL, equation_rates_fun = NULL, tuning = NULL,
          tuning_binding = NULL, transformations = NULL,
-         transformation_binding = NULL)
+         transformation_binding = NULL, biomass_fun = NULL,
+         biomass_filters = character())
 }
 
 component_definition_fields <- function() {
@@ -91,7 +93,12 @@ component_definition_errors <- function(definition, required = TRUE) {
     if (!capability_names_valid(definition)) {
         return("Component definition fields must have unique, non-empty names.")
     }
-    unknown <- setdiff(fields, component_definition_fields())
+    allowed <- if (required) {
+        names(component_definition_defaults())
+    } else {
+        component_definition_fields()
+    }
+    unknown <- setdiff(fields, allowed)
     if (length(unknown)) {
         return(paste0("Unknown component definition fields: ",
                       paste(unknown, collapse = ", "), "."))
@@ -102,7 +109,8 @@ component_definition_errors <- function(definition, required = TRUE) {
         errors <- c(errors, "Component requires `dynamics_fun` or `rate_fun`.")
     }
     callbacks <- c("dynamics_fun", "rate_fun", "encounter_fun", "mort_fun",
-                   "convergence_fun", "equation_rates_fun", "level_fun")
+                   "convergence_fun", "equation_rates_fun", "level_fun",
+                   "biomass_fun")
     for (field in intersect(fields, callbacks)) {
         value <- definition[[field]]
         valid_name <- is.character(value) && length(value) == 1L &&
@@ -110,6 +118,16 @@ component_definition_errors <- function(definition, required = TRUE) {
         if (!is.null(value) && !valid_name) {
             errors <- c(errors, paste0("`", field,
                                        "` must be a function name or NULL."))
+        }
+    }
+    if ("biomass_filters" %in% fields) {
+        filters <- definition$biomass_filters
+        if (!is.character(filters) || anyNA(filters) ||
+                anyDuplicated(filters) ||
+                any(!filters %in% c("min_w", "max_w", "min_l", "max_l",
+                                    "use_cutoff"))) {
+            errors <- c(errors, paste0("`biomass_filters` must name unique ",
+                                       "supported biomass filters."))
         }
     }
     if ("role" %in% fields) {
@@ -174,7 +192,7 @@ capability_registry_errors <- function(registry) {
     }
     version <- registry$schema_version
     if (!is.numeric(version) || length(version) != 1L ||
-            is.na(version) || version != 5L) {
+            is.na(version) || version != 6L) {
         return("Unsupported capabilities schema_version; update mizer.")
     }
     components <- registry$components
@@ -216,7 +234,8 @@ legacy_component_definition <- function(params, component) {
          integration_order = NULL, convergence_fun = NULL, role = "dynamic",
          stationary = NULL, equation_rates_fun = NULL, tuning = NULL,
          tuning_binding = NULL, transformations = NULL,
-         transformation_binding = NULL)
+         transformation_binding = NULL, biomass_fun = NULL,
+         biomass_filters = character())
 }
 
 legacy_capability_registry <- function(params) {
@@ -280,7 +299,8 @@ assemble_component_definition <- function(existing = NULL, definition = NULL,
     }
     check(result, required = TRUE)
     for (field in c("dynamics_fun", "rate_fun", "encounter_fun", "mort_fun",
-                    "convergence_fun", "equation_rates_fun", "level_fun")) {
+                    "convergence_fun", "equation_rates_fun", "level_fun",
+                    "biomass_fun")) {
         fun <- result[[field]]
         if (!is.null(fun)) {
             context <- paste0("component `", field, "`")

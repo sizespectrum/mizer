@@ -42,7 +42,8 @@ process_registry_errors <- function(processes) {
                           c("convergence_fun", "role", "binding", "stationary",
                             "equation_rates_fun", "tuning", "tuning_binding",
                             "level_fun", "level_binding", "transformations",
-                            "transformation_binding"))) {
+                            "transformation_binding", "mortality_fun",
+                            "mortality_binding"))) {
             errors <- c(errors, paste0("Invalid specification for process '",
                                        process, "'."))
             next
@@ -62,6 +63,8 @@ process_registry_errors <- function(processes) {
         if (!tuning_data_valid(specification$level_binding)) {
             errors <- c(errors, "Invalid stored reproduction-level binding.")
         }
+        mortality_errors <- process_mortality_errors(specification, process)
+        if (!isTRUE(mortality_errors)) errors <- c(errors, mortality_errors)
         result <- component_definition_errors(fragment, required = FALSE)
         if (!isTRUE(result)) errors <- c(errors, result)
         binding <- specification$binding
@@ -77,6 +80,21 @@ process_registry_errors <- function(processes) {
         }
     }
     if (length(errors)) errors else TRUE
+}
+
+process_mortality_errors <- function(definition, process) {
+    fun <- definition$mortality_fun
+    if (!is.null(fun) && (!is.character(fun) || length(fun) != 1L ||
+                              is.na(fun) || !nzchar(fun))) {
+        return("mortality_fun must be a function name or NULL.")
+    }
+    if (!is.null(fun) && process != "consumers") {
+        return("Mortality diagnostics belong to the consumers process.")
+    }
+    if (!tuning_data_valid(definition$mortality_binding)) {
+        return("Invalid stored mortality diagnostic binding.")
+    }
+    TRUE
 }
 
 # Only core projection methods can receive automatic built-in declarations.
@@ -131,6 +149,12 @@ default_process_registry <- function(params) {
         processes[[owner]][names(defaults)] <- defaults
         transforms <- default_provider_transformations(params, owner)
         processes[[owner]][names(transforms)] <- transforms
+        mortality <- if (owner == "consumers") {
+            default_provider_mortality(params)
+        } else {
+            list(mortality_fun = NULL, mortality_binding = NULL)
+        }
+        processes[[owner]][names(mortality)] <- mortality
     }
     processes
 }
@@ -218,7 +242,7 @@ assessment_capability <- function(params, owner) {
          current = current, reason = reason)
 }
 
-#' Declare assessment support for a built-in model process
+#' Declare capabilities for a model process
 #'
 #' Register a convergence callback or a prescribed-input declaration for the
 #' current consumers or resource process. The declaration is stored in the model
@@ -229,7 +253,8 @@ assessment_capability <- function(params, owner) {
 #' Calling `setProcess(params, process)` with no capability arguments explicitly
 #' adopts the current provider for all retained capability families. A partial
 #' patch adopts only the families explicitly supplied: convergence/role,
-#' stationary/equation rates/tuning, reproduction level, or transformations.
+#' stationary/equation rates/tuning, reproduction level, transformations, or
+#' mortality diagnostics.
 #' Omitted families keep their previous provider bindings, including staleness.
 #' A replacement definition adopts all its supplied capabilities.
 #'
@@ -257,6 +282,8 @@ assessment_capability <- function(params, owner) {
 #' @param equation_rates_fun Callback exposing effective equation quantities.
 #' @param tuning Named strategies and their default, or NULL to remove support.
 #' @param level_fun Law-specific reproduction-level callback, or NULL.
+#' @param mortality_fun Named consumer mortality-breakdown callback, or NULL
+#'   to remove diagnostic support. It is bound independently of other families.
 #' @param transformations Named operation declarations for structural and scale
 #'   changes. Each declares action = 'none' or a named transform_fun with
 #'   action = 'update', explicit paths and optional settings. Supply this
@@ -270,11 +297,12 @@ assessment_capability <- function(params, owner) {
 #' @family extension tools
 setProcess <- function(params, process, definition, convergence_fun, role,
                        stationary, equation_rates_fun, tuning, level_fun,
-                       transformations) {
+                       transformations, mortality_fun) {
     params <- validParams(params)
     whole_adoption <- missing(definition) && missing(convergence_fun) &&
         missing(role) && missing(stationary) && missing(equation_rates_fun) &&
-        missing(tuning) && missing(level_fun) && missing(transformations)
+        missing(tuning) && missing(level_fun) && missing(transformations) &&
+        missing(mortality_fun)
     if (!is.character(process) || length(process) != 1L || is.na(process) ||
             !process %in% c("consumers", "resource", "reproduction")) {
         stop("`process` must be 'consumers', 'resource' or 'reproduction'.",
@@ -282,12 +310,13 @@ setProcess <- function(params, process, definition, convergence_fun, role,
     }
     fields <- c("convergence_fun", "role", "stationary",
                 "equation_rates_fun", "tuning", "level_fun",
-                "transformations")
+                "transformations", "mortality_fun")
     assembled <- list(convergence_fun = NULL,
                       role = if (process == "reproduction") NULL else "dynamic",
                       stationary = NULL, equation_rates_fun = NULL,
                       tuning = NULL,
-                      level_fun = NULL, transformations = NULL)
+                      level_fun = NULL, transformations = NULL,
+                      mortality_fun = NULL)
     existing <- params$capabilities$processes[[process]]
     if (missing(definition)) {
         if (!is.null(existing)) assembled[fields] <- existing[fields]
@@ -310,7 +339,12 @@ setProcess <- function(params, process, definition, convergence_fun, role,
     if (!missing(level_fun)) assembled["level_fun"] <- list(level_fun)
     if (!missing(transformations)) assembled["transformations"] <-
         list(transformations)
+    if (!missing(mortality_fun)) assembled["mortality_fun"] <-
+        list(mortality_fun)
+    mortality_errors <- process_mortality_errors(assembled, process)
+    if (!isTRUE(mortality_errors)) stop(mortality_errors, call. = FALSE)
     checked <- assembled
+    checked$mortality_fun <- NULL
     if (process == "reproduction") {
         if (!is.null(checked$role) || !is.null(checked$convergence_fun)) {
             stop("Reproduction has no state role or convergence callback.")
@@ -323,7 +357,7 @@ setProcess <- function(params, process, definition, convergence_fun, role,
         resolve_model_callback(assembled$convergence_fun,
                                paste0("Assessment for process '", process, "'"))
     }
-    for (field in c("equation_rates_fun", "level_fun")) {
+    for (field in c("equation_rates_fun", "level_fun", "mortality_fun")) {
         if (!is.null(assembled[[field]])) {
             resolve_model_callback(assembled[[field]],
                                    paste0(process, " ", field))
@@ -350,6 +384,14 @@ setProcess <- function(params, process, definition, convergence_fun, role,
         list(existing$level_binding)
     } else {
         list(tuning_provider_binding(params))
+    }
+    assembled["mortality_binding"] <- if (process != "consumers") {
+        list(NULL)
+    } else if (missing(mortality_fun) && missing(definition) &&
+                   !whole_adoption) {
+        list(existing$mortality_binding)
+    } else {
+        list(mortality_provider_binding(params))
     }
     assembled$binding <- if (
         is.null(existing) || !missing(convergence_fun) || !missing(role) ||
@@ -384,6 +426,7 @@ getProcess <- function(params, process) {
          role = specification$role,
          definition = specification[c("convergence_fun", "role", "stationary",
                                       "equation_rates_fun", "tuning",
-                                      "level_fun", "transformations")],
+                                      "level_fun", "transformations",
+                                      "mortality_fun")],
          binding = specification$binding)
 }

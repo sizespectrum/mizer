@@ -67,6 +67,19 @@
 
 ## New features
 
+- `getBiomass()` can explicitly include the resource and extension components,
+  including several named biomass series from one component (#670, #589).
+  Default species-only results retain their existing values and shapes.
+  Measurements carry labels, colours and coverage into plotting; unavailable
+  measurements have reasons, and an incomplete collection cannot be plotted
+  as a complete total. `plotBiomass()` and `plotlyBiomass()` forward inclusion
+  and requested filters to the getter.
+- `getMortByCause()` supplies a separate mortality diagnostic, including
+  registered additive contributions. Its complete decompositions are checked
+  against the effective total at every species, size and saved time. A custom
+  total provider needs explicitly registered diagnostic support; missing
+  support returns an incomplete report without inventing causes.
+
 - Species, grid and scaling operations now use declared transformation hooks
   for extension-owned data (#670, #592, #609). Missing support stops before
   changes; an explicit no-action declaration is distinct from missing support.

@@ -280,6 +280,7 @@ reference:
     not a component of fish mortality (its superseded alias is `getM2Background()`).
   contents:
   - getRates
+  - getMortByCause
   - has_concept("rate functions")
 - title: Calculating indicators
   description: Calculate ecological indicators from a `MizerSim` object, such as

@@ -231,6 +231,32 @@ test_that("getTrophicLevel gives 2 for a predator whose prey all have level 1", 
 
 # Calibration and matching ----
 
+test_that("resource biomass integrates the full grid in both modes", {
+    p <- NS_params_small
+    # Constant cell-average density gives an analytic biomass integral. The
+    # last bin has no right-hand sample in the trapezoidal summary quadrature.
+    p$initial_n_pp[] <- 1
+    p$initial_n_pp[length(p$initial_n_pp)] <- 0
+    w <- p$w_full[-length(p$w_full)]
+    dw <- p$dw_full[-length(p$dw_full)]
+    p$second_order_w[["bin_average"]] <- FALSE
+    first <- getBiomass(p, include = "resource")
+    expect_equal(as.numeric(first), sum(w * dw))
+    p$second_order_w[["bin_average"]] <- TRUE
+    second <- getBiomass(p, include = "resource")
+    expect_equal(as.numeric(second), sum(((w + dw)^2 - w^2) / 2))
+    expect_gt(as.numeric(second), as.numeric(first))
+
+    # Resource below the consumer grid is included unless explicitly filtered.
+    p$initial_n_pp[] <- 0
+    below <- p$w_full < min(p$w)
+    p$initial_n_pp[below] <- 1
+    expect_gt(as.numeric(getBiomass(p, include = "resource")), 0)
+    p$second_order_w[["bin_average"]] <- FALSE
+    expect_equal(as.numeric(getBiomass(p, include = "resource",
+                                       min_w = min(p$w))), 0)
+})
+
 test_that("the calibration and matching functions integrate in both modes", {
     check <- function(params) {
         cutoff <- params@w[10]

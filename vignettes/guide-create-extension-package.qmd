@@ -231,7 +231,7 @@ this:
 2. `getBiomass.mizerFoo` calls `NextMethod()`.
 3. R finds `getBiomass.mizerShelf` and calls it.
 4. `getBiomass.mizerShelf` calls `NextMethod()`.
-5. R finds the standard mizer `getBiomass.MizerParams` and calls it.
+5. R finds the standard mizer [`getBiomass.MizerParams`](../reference/getBiomass.html) and calls it.
 6. The standard result is returned to step 4, shelf biomasses are added, the
    result is returned to step 2, and `mizerFoo`'s biomasses are added on top.
 

@@ -825,6 +825,35 @@ unchanged input on failure, and a saved-model round trip. Keep the public
 `species_params<-()` rule that table rows alone cannot reorder the model; use
 `reorderSpecies()` for a coordinated reorder.
 
+## Registering biomass and mortality diagnostics
+
+The measurement preview (3.4.0.9009) adds `biomass_fun` and `biomass_filters` to
+component definitions. Register measurements independently of convergence:
+even a component with a known biomass needs its own stationarity assessment.
+The callback receives the current state and time and returns named numeric
+biomasses or the richer data-frame form documented in the `extend-mizer` skill.
+Declare supported filters explicitly and return unavailable rows with reasons
+when a requested measurement cannot be made. Keep identifiers and plotting
+metadata stable across simulation times, including when a value is unavailable.
+
+Move component discovery and biomass calculation from custom plotting methods
+into the getter capability. `getBiomass(include = ...)` supplies labels, colours
+and coverage to `plot()`; plotting should consume this result. The default stays
+species only. Do not make a plot discover extra components behind the getter's
+back, or sum incomplete measurements with `na.rm = TRUE` and call that a total.
+Use physical-source identifiers to prevent double counting a resource exposed
+through more than one registration path.
+
+For mortality plots, consume `getMortByCause()` and its cause metadata.
+Registered additive mortality contributions appear automatically with the
+built-in assembler. A replacement `Rates` or `Mort` provider supplies a
+`mortality_fun` on the consumers process. The callback's complete decomposition
+must reproduce the effective total at every state; an incomplete report keeps
+its missing-support reasons. Adopting this diagnostic does not re-adopt stale
+tuning, convergence or transformation declarations. Remove copied mortality
+plot logic only after checking the extension's intended causes and presentation
+against the shared getter.
+
 ## Finishing
 
 Run the checklist for package authors in the `create-extension-package` skill

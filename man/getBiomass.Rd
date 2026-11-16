@@ -2,10 +2,12 @@
 % Please edit documentation in R/summary_methods.R
 \name{getBiomass}
 \alias{getBiomass}
+\alias{getBiomass.MizerSim}
+\alias{getBiomass.MizerParams}
 \title{Calculate the total biomass of each species within a size range at each time
 step.}
 \usage{
-getBiomass(object, use_cutoff = FALSE, ...)
+getBiomass(object, use_cutoff = FALSE, ..., include = "species")
 }
 \arguments{
 \item{object}{An object of class \code{MizerParams} or \code{MizerSim}.}
@@ -15,40 +17,52 @@ species parameters is used as the minimum weight for each species (ignoring any
 size range arguments in \code{...}). If FALSE (default), the specified size range
 arguments are used, if provided, or the full size range of the species is used.}
 
-\item{...}{
-  Arguments passed on to \code{\link{get_size_range_array}}
-  \describe{
-    \item{\code{min_w}}{Smallest weight in size range. Defaults to smallest weight in
-the model.}
-    \item{\code{max_w}}{Largest weight in size range. Defaults to largest weight in the
-model.}
-    \item{\code{min_l}}{Smallest length in size range. If supplied, this takes
-precedence over \code{min_w}.}
-    \item{\code{max_l}}{Largest length in size range. If supplied, this takes precedence
-over \code{max_w}.}
-  }}
+\item{...}{Size filters \code{min_w}, \code{max_w}, \code{min_l} and \code{max_l} as described
+in \code{\link[=get_size_range_array]{get_size_range_array()}}. With a \code{MizerParams} object, \code{n}, \code{n_pp},
+\code{n_other} and \code{t} can specify the state and time to measure, defaulting
+to the initial state and time zero.}
+
+\item{include}{Character vector selecting \code{"species"} (the default),
+\code{"resource"}, \code{"components"}, a particular \code{"component:name"}, or an
+exact \code{"component:name/series"} identifier. Overlapping selections are
+included only once. Resource length limits use \code{\link[=resource_params]{resource_params()}};
+resource size limits must be scalar. Components must explicitly declare
+which filters their biomass callback supports.}
 }
 \value{
 If called with a MizerParams object, a named vector with the biomass
 in grams for each species in the model. If called with a MizerSim object,
 an \code{ArrayTimeBySpecies} object (time x species) containing the biomass in
-grams at each time step for all species.
+grams at each time step for all species. Selecting resource or component
+series returns a \code{MizerBiomass} numeric vector for \code{MizerParams}, or an
+\code{ArrayTimeBySpecies} with additional named columns for \code{MizerSim}.
 }
 \description{
 Calculates the total biomass through time within user defined size limits.
-The default option is to use the size range starting at the size specified
-by the \code{biomass_cutoff} species parameter, if it is set, or else the full
-size range of each species. You can specify minimum
+By default the full size range of each species is included. With
+\code{use_cutoff = TRUE}, the size range starts at the \code{biomass_cutoff} species
+parameter, if it is set. You can specify minimum
 and maximum weight or length range for the species. Lengths take precedence
 over weights (i.e. if both min_l and min_w are supplied, only min_l will be
 used).
 }
 \details{
-When no size range arguments are provided, the function checks if the
-\code{biomass_cutoff} column exists in the species parameters. If it does,
+When \code{use_cutoff = TRUE}, the function checks if the \code{biomass_cutoff}
+column exists in the species parameters. If it does,
 those values are used as the minimum weight for each species. For species
 with NA values in \code{biomass_cutoff}, the default minimum weight (smallest
 weight in the model) is used.
+
+Biomass measurement is independent of convergence assessment. The resource
+is integrated over its full size grid, using the model's quadrature scheme.
+Component biomass comes from the component's registered \code{biomass_fun}, which
+receives the complete state at each saved time. A component may return
+several named biomass series. Missing measurement support or unsupported
+explicit filters produce NA values with reasons in the \code{unavailable}
+attribute. Callback errors and invalid results are reported as errors.
+Extended results carry \code{series} metadata and a \code{coverage} table with
+\code{time}, \code{id}, \code{available} and \code{reason} columns. Different selected series
+must represent different physical sources, to avoid counting biomass twice.
 }
 \examples{
 biomass <- getBiomass(NS_sim)
@@ -67,6 +81,7 @@ Other summary functions:
 \code{\link[=getDiet]{getDiet()}},
 \code{\link[=getEncounterByPrey]{getEncounterByPrey()}},
 \code{\link[=getGrowthCurves]{getGrowthCurves()}},
+\code{\link[=getMortByCause]{getMortByCause()}},
 \code{\link[=getN]{getN()}},
 \code{\link[=getSSB]{getSSB()}},
 \code{\link[=getSteadyResidual]{getSteadyResidual()}},

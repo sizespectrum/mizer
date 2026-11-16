@@ -24,7 +24,9 @@ setComponent(
   stationary,
   equation_rates_fun,
   tuning,
-  transformations
+  transformations,
+  biomass_fun,
+  biomass_filters
 )
 
 removeComponent(params, component)
@@ -84,9 +86,15 @@ assessment incomplete.}
 
 \item{tuning}{Named strategies and their default, or NULL to remove support.}
 
-\item{transformations}{Named transformation declarations. An update hook
-may modify this component's initial state and parameters; additional paths
+\item{transformations}{Named transformation declarations. Update hooks may
+modify this component's initial state and parameters; additional paths
 must be explicit. Use action = 'none' for supported no-action operations.}
+
+\item{biomass_fun}{Named biomass measurement callback, or NULL to remove
+measurement support. This is independent of convergence and dynamics.}
+
+\item{biomass_filters}{Character vector of explicitly supported filters:
+min_w, max_w, min_l, max_l and use_cutoff. Defaults to none.}
 }
 \value{
 The updated MizerParams object

@@ -231,16 +231,16 @@ plotDataFrame <- function(frame, params, style = "line", xlab = waiver(),
     }
 
     # Need to keep species in order for legend
-    legend_levels <-
-        intersect(names(params@linecolour), frame[[legend_var]])
+    styles <- measured_plot_styles(frame, params, legend_var)
+    legend_levels <- styles$levels
     frame[[legend_var]] <- factor(frame[[legend_var]], levels = legend_levels)
 
     if (sum(is.na(frame$Legend))) {
         warning("missing legend in params@linecolour, some groups won't be displayed")
     }
 
-    linecolour <- params@linecolour[legend_levels]
-    linetype <- params@linetype[legend_levels]
+    linecolour <- styles$colour
+    linetype <- styles$linetype
     linesize <- make_linesize(legend_levels, highlight)
 
     xbreaks <- waiver()
@@ -267,7 +267,9 @@ plotDataFrame <- function(frame, params, style = "line", xlab = waiver(),
                p <- p +
                    geom_area(aes(x = .data[[x_var]], y = .data[[y_var]],
                                  fill = .data[[legend_var]])) +
-                   scale_fill_manual(values = linecolour)
+                scale_fill_manual(values = linecolour,
+                                  labels = styles$labels,
+                                  limits = styles$limits)
            },
            "line" = ,
            "ribbon" = ,
@@ -288,16 +290,24 @@ plotDataFrame <- function(frame, params, style = "line", xlab = waiver(),
                                        ymax = .data[["ymax"]],
                                        fill = .data[[legend_var]]),
                                    alpha = 0.25, colour = NA) +
-                       scale_fill_manual(values = linecolour)
+                    scale_fill_manual(values = linecolour,
+                                      labels = styles$labels,
+                                      limits = styles$limits)
                }
                # "envelope" draws the two edges of the band in place of the
                # value that lies inside it.
                y_vars <- if (style == "envelope") c("ymax", "ymin") else y_var
                for (yv in y_vars) p <- p + value_line(yv)
                p <- p +
-                   scale_colour_manual(values = linecolour) +
-                   scale_linetype_manual(values = linetype) +
-                   scale_discrete_manual("linewidth", values = linesize)
+                scale_colour_manual(values = linecolour,
+                                    labels = styles$labels,
+                                    limits = styles$limits) +
+                scale_linetype_manual(values = linetype,
+                                      labels = styles$labels,
+                                      limits = styles$limits) +
+                scale_discrete_manual("linewidth", values = linesize,
+                                      labels = styles$labels,
+                                      limits = styles$limits)
            },
            stop("unknown style selected")
     )
@@ -312,6 +322,71 @@ plotDataFrame <- function(frame, params, style = "line", xlab = waiver(),
 
     make_mizer_plot(p, mizer_tooltip_vars(frame, group_var, x_var, y_var,
                                           legend_var))
+}
+
+# Measurements supply their own series without fictional species in params.
+# Ordinary plot data keeps the established model styling unchanged.
+measured_plot_styles <- function(frame, params, legend_var = "Legend") {
+    series <- attr(frame, "series")
+    colour <- params@linecolour
+    linetype <- params@linetype
+    labels <- ggplot2::waiver()
+    if (!is.null(series)) {
+        ids <- unique(series$id)
+        series <- series[match(ids, series$id), , drop = FALSE]
+        colour <- c(stats::setNames(series$colour, ids),
+                    colour[setdiff(names(colour), ids)])
+        linetype <- c(stats::setNames(series$linetype, ids),
+                      linetype[setdiff(names(linetype), ids)])
+        labels <- stats::setNames(names(colour), names(colour))
+        labels[ids] <- series$label
+        if (any(!as.character(frame[[legend_var]]) %in% names(colour))) {
+            stop("Plot series are missing measurement metadata.",
+                 call. = FALSE)
+        }
+    }
+    levels <- intersect(names(colour), as.character(frame[[legend_var]]))
+    empty <- !is.null(series) && !length(levels)
+    list(levels = levels, colour = colour[levels],
+         linetype = linetype[levels], labels = labels,
+         limits = if (empty) character() else NULL)
+}
+
+combine_measurement_metadata <- function(frame, first, second) {
+    series <- rbind(attr(first, "series"), attr(second, "series"))
+    if (is.null(series)) return(frame)
+    attr(frame, "series") <- series[!duplicated(series$id), , drop = FALSE]
+    coverage <- rbind(attr(first, "coverage"), attr(second, "coverage"))
+    attr(frame, "coverage") <- coverage
+    attr(frame, "unavailable") <- coverage[!coverage$available, , drop = FALSE]
+    frame
+}
+
+extend_measurement_scales <- function(plot, frame, params,
+                                      colour = TRUE, linetype = FALSE) {
+    styles <- measured_plot_styles(frame, params)
+    for (aesthetic in c(if (colour) "colour", if (linetype) "linetype")) {
+        old <- plot$scales$get_scales(aesthetic)
+        values <- if (is.null(old)) character() else old$palette(0)
+        additions <- styles[[aesthetic]]
+        values <- c(values, additions[setdiff(names(additions), names(values))])
+        labels <- stats::setNames(names(values), names(values))
+        if (!is.null(old) && is.character(old$labels)) {
+            previous <- old$labels
+            if (is.null(names(previous))) {
+                names(previous) <- names(values)[seq_along(previous)]
+            }
+            labels[names(previous)] <- previous
+        }
+        labels[names(styles$labels)] <- styles$labels
+        plot$scales$scales <- Filter(function(scale) {
+            !aesthetic %in% scale$aesthetics
+        }, plot$scales$scales)
+        plot <- plot + ggplot2::scale_discrete_manual(
+            aesthetics = aesthetic, values = values, labels = labels
+        )
+    }
+    plot
 }
 
 #' Check that a data frame has the variables a band style needs
@@ -523,6 +598,7 @@ plotComparisonDataFrame <- function(frame1, frame2, params,
     frame1$Model <- name1
     frame2$Model <- name2
     frame <- rbind(frame1, frame2)
+    frame <- combine_measurement_metadata(frame, frame1, frame2)
     frame$Model <- factor(frame$Model, levels = c(name1, name2))
 
     var_names <- names(frame)
@@ -532,12 +608,13 @@ plotComparisonDataFrame <- function(frame1, frame2, params,
         stop("The `legend_var` argument must be the name of a variable ",
              "in the data frame.")
     }
-    legend_levels <- intersect(names(params@linecolour), frame[[legend_var]])
+    styles <- measured_plot_styles(frame, params, legend_var)
+    legend_levels <- styles$levels
     frame[[legend_var]] <- factor(frame[[legend_var]], levels = legend_levels)
     if (sum(is.na(frame[[legend_var]]))) {
         warning("missing legend in params@linecolour, some groups won't be displayed")
     }
-    linecolour <- params@linecolour[legend_levels]
+    linecolour <- styles$colour
     linesize <- make_linesize(legend_levels, highlight)
 
     xbreaks <- waiver()
@@ -561,11 +638,15 @@ plotComparisonDataFrame <- function(frame1, frame2, params,
         geom_line(aes(x = .data[[x_var]], y = .data[[y_var]],
                       linetype = .data[["Model"]],
                       linewidth = .data[["LineSpec"]])) +
-        scale_colour_manual(values = linecolour) +
+        scale_colour_manual(values = linecolour, labels = styles$labels,
+                            limits = styles$limits) +
         scale_linetype_discrete(drop = FALSE) +
-        scale_discrete_manual("linewidth", values = linesize, guide = "none")
-    make_mizer_plot(p, mizer_tooltip_vars(frame, legend_var, x_var, y_var,
-                                          extra = "Model"))
+        scale_discrete_manual("linewidth", values = linesize, guide = "none",
+                              limits = styles$limits)
+    tooltip <- mizer_tooltip_vars(frame, legend_var, x_var, y_var,
+                                  extra = "Model")
+    p <- make_mizer_plot(p, tooltip)
+    annotate_measurement_plot(p, frame)
 }
 
 #' Make a plot of the relative difference between two data frames
@@ -630,13 +711,15 @@ plotRelativeDataFrame <- function(frame1, frame2, params,
     frame$rel_diff <- relative_difference(frame[[paste0(y_var, ".x")]],
                                           frame[[paste0(y_var, ".y")]])
     frame <- frame[is.finite(frame$rel_diff), ]
+    frame <- combine_measurement_metadata(frame, frame1, frame2)
 
-    legend_levels <- intersect(names(params@linecolour), frame[[legend_var]])
+    styles <- measured_plot_styles(frame, params, legend_var)
+    legend_levels <- styles$levels
     frame[[legend_var]] <- factor(frame[[legend_var]], levels = legend_levels)
     if (sum(is.na(frame[[legend_var]]))) {
         warning("missing legend in params@linecolour, some groups won't be displayed")
     }
-    linecolour <- params@linecolour[legend_levels]
+    linecolour <- styles$colour
     linesize <- make_linesize(legend_levels, highlight)
     frame$LineSpec <- frame[[legend_var]]
 
@@ -652,10 +735,14 @@ plotRelativeDataFrame <- function(frame1, frame2, params,
         geom_line(aes(x = .data[[x_var]], y = .data[["rel_diff"]],
                       colour = .data[[legend_var]],
                       linewidth = .data[["LineSpec"]])) +
-        scale_colour_manual(values = linecolour) +
-        scale_discrete_manual("linewidth", values = linesize, guide = "none")
-    make_mizer_plot(p, mizer_tooltip_vars(frame, group_var, x_var, "rel_diff",
-                                          legend_var))
+        scale_colour_manual(values = linecolour, labels = styles$labels,
+                            limits = styles$limits) +
+        scale_discrete_manual("linewidth", values = linesize, guide = "none",
+                              limits = styles$limits)
+    tooltip <- mizer_tooltip_vars(frame, group_var, x_var, "rel_diff",
+                                  legend_var)
+    p <- make_mizer_plot(p, tooltip)
+    annotate_measurement_plot(p, frame)
 }
 
 #' Symmetric relative difference between two values
@@ -1399,6 +1486,10 @@ spectrum_density_wrt <- function(per_log_size) {
 #'   used for the plot is returned instead of the plot itself. Default is FALSE.
 #' @param use_cutoff If TRUE, the `biomass_cutoff` column in the species
 #'   parameters is used as the minimum weight for each species.
+#' @param include Biomass series to measure, passed to [getBiomass()]. Defaults
+#'   to `"species"`; resources and components require explicit inclusion.
+#'   Plotting uses only the getter's result and metadata. A total requires
+#'   complete coverage of every requested series.
 #' @param ... Arguments setting the size range over which the biomass is
 #'   calculated (see [getBiomass()]):
 #'   \describe{
@@ -1434,7 +1525,7 @@ plotBiomass <- function(object, species = NULL, tlim = c(NA, NA),
                         y_ticks = 6, ylim = c(NA, NA), total = FALSE,
                         background = TRUE, highlight = NULL, log = NULL,
                         return_data = FALSE, log_x = FALSE, log_y = TRUE,
-                        use_cutoff = FALSE, ...) {
+                        use_cutoff = FALSE, ..., include = "species") {
     UseMethod("plotBiomass")
 }
 
@@ -1453,7 +1544,8 @@ plotBiomass.MizerSim <- function(object, species = NULL,
                         end_time = lifecycle::deprecated(),
                         min_w = min(object@params@w),
                         max_w = max(object@params@w),
-                        min_l = NULL, max_l = NULL, ...) {
+                        min_l = NULL, max_l = NULL, ...,
+                        include = "species") {
     if (lifecycle::is_present(start_time)) {
         lifecycle::deprecate_warn("2.6.0", "plotBiomass(start_time)", "plotBiomass(tlim)")
         tlim[[1]] <- start_time
@@ -1463,9 +1555,15 @@ plotBiomass.MizerSim <- function(object, species = NULL,
         tlim[[2]] <- end_time
     }
     log_axes <- parsePlotLog(log, log_x = log_x, log_y = log_y)
-    bm <- getBiomass(object, use_cutoff = use_cutoff,
-                     min_w = min_w, max_w = max_w,
-                     min_l = min_l, max_l = max_l)
+    measurement_args <- list(object = object, use_cutoff = use_cutoff,
+                             include = include)
+    # Unrequested fish-grid defaults must not truncate resources or impose a
+    # size filter on a component that measures an aggregate stock.
+    if (!missing(min_w)) measurement_args$min_w <- min_w
+    if (!missing(max_w)) measurement_args$max_w <- max_w
+    if (!missing(min_l)) measurement_args$min_l <- min_l
+    if (!missing(max_l)) measurement_args$max_l <- max_l
+    bm <- do.call(getBiomass, measurement_args)
     plot(bm, species = species,
          tlim = tlim,
          y_ticks = y_ticks, ylim = ylim,
@@ -1493,7 +1591,7 @@ plotlyBiomass <- function(object,
              min_w = min(object@params@w),
              max_w = max(object@params@w),
              min_l = NULL,
-             max_l = NULL) {
+             max_l = NULL, include = "species") {
     if (lifecycle::is_present(start_time)) {
         lifecycle::deprecate_warn("2.6.0", "plotlyBiomass(start_time)", "plotlyBiomass(tlim)")
         tlim[[1]] <- start_time
@@ -1505,6 +1603,10 @@ plotlyBiomass <- function(object,
     argg <- as.list(environment())
     argg$start_time <- NULL
     argg$end_time <- NULL
+    if (missing(min_w)) argg$min_w <- NULL
+    if (missing(max_w)) argg$max_w <- NULL
+    if (missing(min_l)) argg$min_l <- NULL
+    if (missing(max_l)) argg$max_l <- NULL
     plotHover(do.call("plotBiomass", argg),
              tooltip = c("Species", "Year", "Biomass"))
 }

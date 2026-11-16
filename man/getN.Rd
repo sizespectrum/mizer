@@ -48,6 +48,7 @@ Other summary functions:
 \code{\link[=getDiet]{getDiet()}},
 \code{\link[=getEncounterByPrey]{getEncounterByPrey()}},
 \code{\link[=getGrowthCurves]{getGrowthCurves()}},
+\code{\link[=getMortByCause]{getMortByCause()}},
 \code{\link[=getSSB]{getSSB()}},
 \code{\link[=getSteadyResidual]{getSteadyResidual()}},
 \code{\link[=getTrophicLevel]{getTrophicLevel()}},

@@ -300,7 +300,8 @@ getComponent(params, "detritus")$definition
 
 The supported definition fields are `dynamics_fun`, `rate_fun`, `encounter_fun`,
 `mort_fun`, `colour`, `linetype`, `integration_order`, `convergence_fun`,
-`role`, `stationary`, `equation_rates_fun`, `tuning` and `transformations`.
+`role`, `stationary`, `equation_rates_fun`, `tuning`, `transformations`,
+`biomass_fun` and `biomass_filters`.
 Supply a step, an
 equation, or both; a supplied custom step takes precedence during projection.
 Callback identifiers may be ordinary function names or `package::exported_name`.
@@ -579,6 +580,62 @@ c("component:pool" = "evolve"))` or `joint = "coupled"`. Declarations are
 stored with the model and bound to their effective named/S3 providers. Changing
 a provider requires explicit adoption of the corresponding support, not merely
 leaving an old function name in the registry.
+
+### Measuring component biomass
+
+A component's `biomass_fun` measures its stocks without defining convergence or
+changing the model. It receives `params`, `n`, `n_pp`, `n_other`, `t`, `component`
+and `filters`. Accept `...` for arguments the callback does not need. Return
+finite nonnegative biomass in grams as a named numeric vector, or a data frame
+with `series` and `value` columns. Name a single value too, for example
+`c(biomass = value)`.
+The richer form can also provide `label`, `colour`, `linetype`, `source`,
+`available` and `reason`; unavailable values must be `NA` with a reason.
+
+```{r eval=FALSE}
+poolBiomass <- function(n_other, component, ...) {
+    stocks <- n_other[[component]]
+    c(detritus = stocks$detritus, microbes = stocks$microbes)
+}
+params <- setComponent(
+    params, "pool",
+    initial_value = list(detritus = 20, microbes = 3, temperature = 15),
+    dynamics_fun = "constant_other", biomass_fun = "poolBiomass"
+)
+getBiomass(params, include = "component:pool")
+```
+
+The default `biomass_filters = character()` declares only full-stock
+measurement. List supported filter names explicitly from `min_w`, `max_w`,
+`min_l`, `max_l` and `use_cutoff`; the callback must honour them. Unsupported
+filters produce unavailable measurements rather than silently returning the
+unfiltered stock. Only requested filters appear in `filters`.
+
+Keep series identifiers, labels, styles and physical-source identifiers stable
+across saved simulation times. Use an unavailable row when a measurement is
+missing at one time. Distinct series default to distinct physical sources; if
+your component measures the built-in resource, declare `source = "resource"`
+so selecting both representations cannot double count it. Components without a
+biomass callback remain explicitly unavailable when requested.
+
+### Declaring mortality breakdowns
+
+Additive contributions registered through `mort_fun` or `other_mort()` are
+included automatically by [`getMortByCause()`](../reference/getMortByCause.html) when the outer mortality assembler
+is built in. A custom `Rates` or `Mort` provider instead registers
+`setProcess(params, "consumers", mortality_fun = "myBreakdown")`. This diagnostic
+capability is bound independently of convergence, tuning and transformation
+support; registering one family does not re-adopt another after a provider
+change.
+
+The callback receives the model, state, effort, time, complete `rates`,
+authoritative `total` and `process = "consumers"`. Return
+`list(causes = list(...), complete = TRUE)` with each named cause a finite
+species-by-size matrix. Optional `metadata` supplies `id`, `label`, `owner`,
+`colour` and `linetype`; optional `unavailable` rows explain missing causes of
+an incomplete report. Mizer checks complete causes against the actual total,
+cell by cell and time by time. Do not manufacture an attribution for unexplained
+mortality or use proportional rescaling to force agreement.
 
 ### Transforming extension data with the model
 
