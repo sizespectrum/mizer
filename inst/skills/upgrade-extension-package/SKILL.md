@@ -67,6 +67,7 @@ package.
 | A package's reusable component definition has changed, but previously created models still use the old choices | component definitions are stored as assembled snapshots in the model | Stored component definitions |
 | A component needs its own derivative or predicted endpoint, or corrector results change when it uses `pred_rate` or `f_mort` | equations and custom steps are separate capabilities, and correctors now provide complete midpoint rates | Component equations and prediction context |
 | A model using the package has incomplete steady-state coverage, or a solver refuses missing convergence support | a component or custom resource needs a quantitative convergence declaration; an equation or biomass alone does not provide it | Registering convergence support |
+| Stability reports missing state, equation or autonomy support, or prescribed inputs acquire spurious modes | structural input masks and temporal declarations are independent capabilities | Declaring structural inputs and temporal support |
 | `is()` / `setClass()` / `expect_s4_class()` in the package, or `.onLoad()` calling `registerExtension()` / `getRegisteredExtensions()` | written against the S4 mizer | Part 1 |
 | After `rm(list = ls())`, or in the second and later examples of `R CMD check`, mizer reports the extension's class is not a defined class | the dynamic S4 marker classes lived in `.GlobalEnv` | Part 1 — the mechanism is gone, migrate rather than repair |
 | After `devtools::load_all()`, `coerceToExtensionClass()` reports no method or default for coercing `MizerParams` | same obsolete marker-class machinery | Part 1 |
@@ -717,8 +718,8 @@ the optional capabilities it is to retain.
 Use `role = "prescribed"` only when the state block is an input of the model.
 Freezing a dynamic state for one analysis instead uses explicit conditional
 scope. Temporary frozen callbacks do not alter the stored structural role.
-Partial prescribed-coordinate masks are a later preview. The built-in constant
-resource is recognised as a prescribed input.
+The built-in constant resource is recognised as a prescribed input. The
+stability preview adds partial masks as described below.
 
 Update saved models through the package's upgrade method to install these
 declarations. Test passing, failing and missing coverage; signed and zero-state
@@ -726,6 +727,44 @@ measures; callback failures; provider replacement; and both quadrature schemes
 for any size integrals. The current Newton solver requires unsupported dynamic
 components to be explicitly fixed. A convergence callback alone does not add
 their states to that solver.
+
+## Declaring structural inputs and temporal support
+
+The stability preview (3.4.0.9010) stores independent `prescribed_mask_fun`,
+`autonomous` and resource `rate_fun` capabilities. Changing one capability
+does not renew the provider bindings of the others. A provider replacement
+therefore needs explicit adoption of each declaration that still applies.
+
+A prescribed-mask callback receives the model, with optional `owner`,
+`component` or `process` identifiers. It returns a logical mask with exactly
+the state's dimensions and names and no missing entries. `TRUE` means the
+coordinate is a structural input, not an unknown in equilibrium or stability
+analysis. The callback describes model structure: do not infer a mask from a
+currently zero abundance or derivative. Partial masks require a numeric state;
+`role = "prescribed"` remains the shorthand for an entire input block.
+
+Declare `autonomous = TRUE` only when the effective providers used by that state
+owner have no explicit time dependence. This is separate from `stationary`
+tuning support: `sin(t) * x` has a stationary solution at zero but a
+time-dependent Jacobian there. Custom reproduction contributes to the consumer
+equations and therefore needs the consumers' temporal declaration. An explicit
+conditional exclusion removes the excluded owner's unused dynamics, but its
+encounter or mortality contributions can still require temporal support.
+
+For continuous resource stability, register `rate_fun` with
+`setProcess(params, "resource", ...)`. It returns the actual resource derivative
+with the same shape as `initialNResource(params)` and receives the complete
+effective rates, current state and time. Keep a custom resource step as well
+when needed for projection. The built-in semichemostat, logistic and constant
+resource laws have exact equation adapters; mizer no longer estimates an
+unknown resource equation by taking a very short custom step.
+
+This preview's Jacobians cover consumer and resource coordinates only.
+Component equations and convergence callbacks do not automatically grant
+Jacobian support. Whole-model requests with dynamic components report missing
+coverage; callers must explicitly choose conditional scope to hold them fixed.
+Test time-dependent forcing, partial prescribed masks, zero-state invasion
+modes, stale bindings and unsupported drivers, as well as the supported path.
 
 ## Registering tuning and reproduction support
 

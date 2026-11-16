@@ -212,3 +212,71 @@ test_that("getOscillationModeSim reports clipping only when it matters", {
     expect_warning(getOscillationModeSim(stab, amplitude = 10),
                    "clipped at zero")
 })
+
+# A small explicit mode isolates the consumer contract from eigendecomposition.
+scoped_mode_result <- function(params, fixed = character()) {
+    scope <- if (length(fixed)) "conditional" else "whole"
+    assessment <- getSteadyAssessment(params, tol = 1e6, scope = scope,
+                                      fixed = fixed)
+    result <- list(
+        params = params, eigenvalues = c(-1 + 1i, -1 - 1i),
+        leading_oscillatory_eigenvalue = -1 + 1i,
+        leading_oscillatory_eigenvector = list(
+            fish = params$initial_n * (1 + 1i),
+            resource = params$initial_n_pp * (1 + 1i)
+        ), scope = scope, fixed = fixed,
+        prescribed = assessment$prescribed,
+        prescribed_masks = assessment$prescribed_masks,
+        coverage = list(complete = TRUE), autonomous = TRUE,
+        assessment = assessment, time = 3
+    )
+    attr(result, "stability_key") <- stability_model_key(params)
+    result
+}
+
+test_that("Oscillation modes require current complete autonomous equilibrium", {
+    result <- scoped_mode_result(NS_params_small)
+    old <- result
+    old$coverage <- NULL
+    expect_error(getOscillationModeSim(old), "Recompute.*getStability")
+    changed <- result
+    changed$params$initial_n[1, 1] <- changed$params$initial_n[1, 1] + 1
+    expect_error(getOscillationModeSim(changed), "model changed.*Recompute")
+    for (field in c("coverage", "autonomous", "assessment")) {
+        incomplete <- result
+        if (field == "coverage") incomplete$coverage$complete <- FALSE
+        if (field == "autonomous") incomplete$autonomous <- FALSE
+        if (field == "assessment") incomplete$assessment$verdict <- FALSE
+        expect_error(getOscillationModeSim(incomplete),
+                     "complete stability coverage.*autonomous equilibrium")
+    }
+    result$leading_oscillatory_eigenvalue <- NULL
+    expect_error(getOscillationModeSim(result), "No oscillatory mode")
+})
+
+test_that("Conditional mode simulations retain excluded cells and provenance", {
+    rlang::local_bindings(
+        mode_mask = function(params, ...) {
+            mask <- state_mask_like(params$initial_n)
+            mask[, 3] <- TRUE
+            mask
+        }, .env = .GlobalEnv
+    )
+    p <- setComponent(NS_params_small, "pool", initial_value = 2,
+                      dynamics_fun = "constant_other")
+    p <- setProcess(p, "consumers", prescribed_mask_fun = "mode_mask")
+    fixed <- c("resource", "component:pool")
+    result <- scoped_mode_result(p, fixed)
+    sim <- getOscillationModeSim(result, amplitude = 0.05, t_save = 2)
+    expect_identical(sim$sim_params$scope, "conditional")
+    expect_identical(sim$sim_params$fixed, fixed)
+    expect_identical(sim$sim_params$coverage, result$coverage)
+    expect_identical(sim$sim_params$assessment, result$assessment)
+    expect_identical(sim$sim_params$analysis_time, 3)
+    for (i in seq_len(dim(sim$n)[1])) {
+        expect_equal(sim$n[i, , 3], p$initial_n[, 3])
+        expect_equal(sim$n_pp[i, ], p$initial_n_pp)
+        expect_equal(sim$n_other[[i, "pool"]], 2)
+    }
+    expect_gt(max(abs(sim$n[1, , ] - sim$n[2, , ])), 0)
+})

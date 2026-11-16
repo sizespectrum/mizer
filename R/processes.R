@@ -43,7 +43,10 @@ process_registry_errors <- function(processes) {
                             "equation_rates_fun", "tuning", "tuning_binding",
                             "level_fun", "level_binding", "transformations",
                             "transformation_binding", "mortality_fun",
-                            "mortality_binding"))) {
+                            "mortality_binding", "prescribed_mask_fun",
+                            "prescribed_binding", "autonomous",
+                            "temporal_binding", "rate_fun",
+                            "equation_binding"))) {
             errors <- c(errors, paste0("Invalid specification for process '",
                                        process, "'."))
             next
@@ -52,7 +55,10 @@ process_registry_errors <- function(processes) {
                                     "equation_rates_fun", "tuning",
                                     "tuning_binding", "level_fun",
                                     "transformations",
-                                    "transformation_binding")]
+                                    "transformation_binding",
+                                    "prescribed_mask_fun", "prescribed_binding",
+                                    "autonomous",
+                                    "temporal_binding", "rate_fun")]
         if (process == "reproduction") {
             if (!is.null(fragment$role) || !is.null(fragment$convergence_fun)) {
                 errors <- c(errors, paste0("Reproduction has no state role or ",
@@ -63,6 +69,8 @@ process_registry_errors <- function(processes) {
         if (!tuning_data_valid(specification$level_binding)) {
             errors <- c(errors, "Invalid stored reproduction-level binding.")
         }
+        state_errors <- process_state_errors(specification, process)
+        if (!isTRUE(state_errors)) errors <- c(errors, state_errors)
         mortality_errors <- process_mortality_errors(specification, process)
         if (!isTRUE(mortality_errors)) errors <- c(errors, mortality_errors)
         result <- component_definition_errors(fragment, required = FALSE)
@@ -155,6 +163,14 @@ default_process_registry <- function(params) {
             list(mortality_fun = NULL, mortality_binding = NULL)
         }
         processes[[owner]][names(mortality)] <- mortality
+        state <- if (owner != "reproduction") {
+            default_provider_state(params, owner)
+        } else {
+            list(prescribed_mask_fun = NULL, prescribed_binding = NULL,
+                 autonomous = NULL, temporal_binding = NULL, rate_fun = NULL,
+                 equation_binding = NULL)
+        }
+        processes[[owner]][names(state)] <- state
     }
     processes
 }
@@ -173,7 +189,10 @@ refresh_resource_assessment <- function(params, previous) {
             replacement[fields] <- previous_specification[fields]
         }
         fields <- c("transformations", "transformation_binding",
-                    "level_fun", "level_binding")
+                    "level_fun", "level_binding",
+                    "prescribed_mask_fun", "prescribed_binding",
+                    "autonomous", "temporal_binding",
+                    "rate_fun", "equation_binding")
         replacement[fields] <- previous_specification[fields]
         params$capabilities$processes$resource <- replacement
     }
@@ -254,7 +273,8 @@ assessment_capability <- function(params, owner) {
 #' adopts the current provider for all retained capability families. A partial
 #' patch adopts only the families explicitly supplied: convergence/role,
 #' stationary/equation rates/tuning, reproduction level, transformations, or
-#' mortality diagnostics.
+#' mortality diagnostics, prescribed inputs, temporal dependence or resource
+#' equations.
 #' Omitted families keep their previous provider bindings, including staleness.
 #' A replacement definition adopts all its supplied capabilities.
 #'
@@ -267,8 +287,9 @@ assessment_capability <- function(params, owner) {
 #' A new `definition` replaces the previous callback and role before explicit
 #' arguments are applied. Without `definition`, omitted arguments are retained.
 #' The default role is `"dynamic"`. A `"prescribed"` role declares the whole
-#' state block as an input rather than a dynamic variable. Partial masks are not
-#' supported by this interface. Supplying `convergence_fun = NULL` removes its
+#' state block as an input rather than a dynamic variable. A dynamic owner may
+#' declare a partial `prescribed_mask_fun`. Supplying `convergence_fun = NULL`
+#' removes its
 #' callback. State and equations are not changed by this registration.
 #'
 #' @param params A MizerParams object.
@@ -278,6 +299,17 @@ assessment_capability <- function(params, owner) {
 #' @param convergence_fun Name of an assessment callback, optionally qualified
 #'   as `package::exported_function`, or `NULL`.
 #' @param role Either `"dynamic"` or `"prescribed"` for a state process.
+#' @param prescribed_mask_fun Named structural mask callback. It receives
+#'   params and optional owner/process and returns logical values with the exact
+#'   state dimensions and names; TRUE marks prescribed inputs. It is not called
+#'   with time or state values. Use role = 'dynamic' for a partial mask.
+#' @param autonomous TRUE for equations without explicit time dependence, FALSE
+#'   for forced equations, or NULL for undeclared support. This is independent
+#'   of stationary tuning. Declare reproduction autonomy on consumers, whose
+#'   temporal binding includes the complete effective rate pipeline.
+#' @param rate_fun Named exact resource equation callback returning dn_pp/dt,
+#'   with the state dimensions and names. Its context includes params, n, n_pp,
+#'   n_other, rates and t. Only the resource process accepts this capability.
 #' @param stationary Explicit TRUE/FALSE stationary-tuning declaration.
 #' @param equation_rates_fun Callback exposing effective equation quantities.
 #' @param tuning Named strategies and their default, or NULL to remove support.
@@ -297,12 +329,14 @@ assessment_capability <- function(params, owner) {
 #' @family extension tools
 setProcess <- function(params, process, definition, convergence_fun, role,
                        stationary, equation_rates_fun, tuning, level_fun,
-                       transformations, mortality_fun) {
+                       transformations, mortality_fun, prescribed_mask_fun,
+                       autonomous, rate_fun) {
     params <- validParams(params)
     whole_adoption <- missing(definition) && missing(convergence_fun) &&
         missing(role) && missing(stationary) && missing(equation_rates_fun) &&
         missing(tuning) && missing(level_fun) && missing(transformations) &&
-        missing(mortality_fun)
+        missing(mortality_fun) && missing(prescribed_mask_fun) &&
+        missing(autonomous) && missing(rate_fun)
     if (!is.character(process) || length(process) != 1L || is.na(process) ||
             !process %in% c("consumers", "resource", "reproduction")) {
         stop("`process` must be 'consumers', 'resource' or 'reproduction'.",
@@ -310,13 +344,15 @@ setProcess <- function(params, process, definition, convergence_fun, role,
     }
     fields <- c("convergence_fun", "role", "stationary",
                 "equation_rates_fun", "tuning", "level_fun",
-                "transformations", "mortality_fun")
+                "transformations", "mortality_fun", "prescribed_mask_fun",
+                "autonomous", "rate_fun")
     assembled <- list(convergence_fun = NULL,
                       role = if (process == "reproduction") NULL else "dynamic",
                       stationary = NULL, equation_rates_fun = NULL,
                       tuning = NULL,
                       level_fun = NULL, transformations = NULL,
-                      mortality_fun = NULL)
+                      mortality_fun = NULL, prescribed_mask_fun = NULL,
+                      autonomous = NULL, rate_fun = NULL)
     existing <- params$capabilities$processes[[process]]
     if (missing(definition)) {
         if (!is.null(existing)) assembled[fields] <- existing[fields]
@@ -341,6 +377,12 @@ setProcess <- function(params, process, definition, convergence_fun, role,
         list(transformations)
     if (!missing(mortality_fun)) assembled["mortality_fun"] <-
         list(mortality_fun)
+    if (!missing(prescribed_mask_fun)) assembled["prescribed_mask_fun"] <-
+        list(prescribed_mask_fun)
+    if (!missing(autonomous)) assembled["autonomous"] <- list(autonomous)
+    if (!missing(rate_fun)) assembled["rate_fun"] <- list(rate_fun)
+    state_errors <- process_state_errors(assembled, process)
+    if (!isTRUE(state_errors)) stop(state_errors, call. = FALSE)
     mortality_errors <- process_mortality_errors(assembled, process)
     if (!isTRUE(mortality_errors)) stop(mortality_errors, call. = FALSE)
     checked <- assembled
@@ -357,7 +399,8 @@ setProcess <- function(params, process, definition, convergence_fun, role,
         resolve_model_callback(assembled$convergence_fun,
                                paste0("Assessment for process '", process, "'"))
     }
-    for (field in c("equation_rates_fun", "level_fun", "mortality_fun")) {
+    for (field in c("equation_rates_fun", "level_fun", "mortality_fun",
+                    "prescribed_mask_fun", "rate_fun")) {
         if (!is.null(assembled[[field]])) {
             resolve_model_callback(assembled[[field]],
                                    paste0(process, " ", field))
@@ -393,6 +436,28 @@ setProcess <- function(params, process, definition, convergence_fun, role,
     } else {
         list(mortality_provider_binding(params))
     }
+    assembled["prescribed_binding"] <- if (process == "reproduction") {
+        list(NULL)
+    } else if (missing(role) && missing(prescribed_mask_fun) &&
+                   missing(definition) && !whole_adoption) {
+        list(existing$prescribed_binding)
+    } else {
+        list(state_provider_binding(params, process))
+    }
+    assembled["temporal_binding"] <- if (process == "reproduction") {
+        list(NULL)
+    } else if (missing(autonomous) && missing(definition) && !whole_adoption) {
+        list(existing$temporal_binding)
+    } else {
+        list(temporal_provider_binding(params, process))
+    }
+    assembled["equation_binding"] <- if (process != "resource") {
+        list(NULL)
+    } else if (missing(rate_fun) && missing(definition) && !whole_adoption) {
+        list(existing$equation_binding)
+    } else {
+        list(state_provider_binding(params, process))
+    }
     assembled$binding <- if (
         is.null(existing) || !missing(convergence_fun) || !missing(role) ||
             !missing(definition) || whole_adoption
@@ -427,6 +492,7 @@ getProcess <- function(params, process) {
          definition = specification[c("convergence_fun", "role", "stationary",
                                       "equation_rates_fun", "tuning",
                                       "level_fun", "transformations",
-                                      "mortality_fun")],
+                                      "mortality_fun", "prescribed_mask_fun",
+                                      "autonomous", "rate_fun")],
          binding = specification$binding)
 }

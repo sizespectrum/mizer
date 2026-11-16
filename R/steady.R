@@ -523,6 +523,24 @@ prepare_solver_assessment <- function(params, residual_tol, scope, fixed,
     prepared
 }
 
+# Apply a conditional state constraint to a projection copy. The original
+# provider names are restored by the caller before returning model semantics.
+hold_fixed_states <- function(params, fixed) {
+    if (!is.character(fixed) || anyNA(fixed) || anyDuplicated(fixed) ||
+            any(!fixed %in% assessment_owners(params))) {
+        stop("`fixed` must contain unique canonical state-owner IDs.",
+             call. = FALSE)
+    }
+    if ("consumers" %in% fixed) {
+        stop("Projection cannot hold consumers fixed.", call. = FALSE)
+    }
+    if ("resource" %in% fixed) params$resource_dynamics <- "resource_constant"
+    for (owner in fixed[startsWith(fixed, "component:")]) {
+        params$other_dynamics[[substring(owner, 11L)]] <- "constant_other"
+    }
+    params
+}
+
 #' Name the state variables preventing a complete steady-state verdict
 #' @param assessment The result of [getSteadyAssessment()].
 #' @noRd
@@ -616,16 +634,7 @@ project_until_settled <- function(params,
         )
         original_resource_dynamics <- params@resource_dynamics
         original_other_dynamics <- params@other_dynamics
-        if ("resource" %in% assessment_plan$fixed) {
-            params@resource_dynamics <- "resource_constant"
-        }
-        fixed_components <- grep("^component:", assessment_plan$fixed,
-                                 value = TRUE)
-        fixed_components <- substring(fixed_components,
-                                      nchar("component:") + 1L)
-        for (component in fixed_components) {
-            params@other_dynamics[[component]] <- "constant_other"
-        }
+        params <- hold_fixed_states(params, assessment_plan$fixed)
         assessment_plan <- prepare_solver_assessment(
             params, residual_tol, scope, fixed, criterion, tolerances, atol,
             require_steady = require_steady,

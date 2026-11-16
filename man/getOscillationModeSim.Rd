@@ -35,6 +35,11 @@ linear approximation.  The result can be inspected with all standard mizer
 plotting functions (e.g. \code{\link[=plotBiomass]{plotBiomass()}}, \code{\link[=plotSpectra]{plotSpectra()}}).
 }
 \details{
+This requires a current, complete stability analysis at an autonomous
+equilibrium. Conditional analyses are supported with their explicit fixed
+inputs retained; the returned \code{sim_params} records that scope and coverage.
+Older stability lists without this information must be recomputed.
+
 The object shows the \emph{shape} of the mode — which species swing, how far, and
 in what phase relative to each other and to the resource. Whether the model
 actually settles onto this oscillation is a separate question, answered by

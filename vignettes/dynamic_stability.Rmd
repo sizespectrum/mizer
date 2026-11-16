@@ -72,11 +72,19 @@ simulation with a small enough time step converges to.
 
 *(Note on numerical implementation: while analysing the relative Jacobian $K$ is
 conceptually natural, computing it requires dividing by $N_i^*$, which causes
-floating-point overflow for structurally zero size classes (e.g., extinct species
-or truncated tails). Therefore, `getStability()` numerically computes the
+division by zero for dynamic coordinates with zero abundance (including an
+extinct species that could invade). Therefore, `getStability()` computes the
 absolute Jacobian $J$ using finite-difference steps scaled multiplicatively to
-the local density. This is mathematically equivalent to the relative analysis but
-avoids dividing by zero.)*
+the local density. Centred differences are used inside the nonnegative domain,
+and a second-order one-sided difference is used at its boundary. Similarity to
+the relative Jacobian holds where the reference abundances are positive;
+the absolute Jacobian also remains defined at zero.)*
+
+The report additionally checks that the model is an autonomous equilibrium for
+the requested scope. Whole-model scope is the default. Explicitly prescribed
+inputs are excluded, while other dynamic states remain part of the requested
+coverage even when their current abundance or rate is zero. Missing support,
+a failed equilibrium assessment or a marginal mode gives `stable = NA`.
 
 ### The stability of the model and the stability of the solver
 
@@ -214,13 +222,13 @@ Because the steady state is unstable, running the dynamics forward will never "c
 sim_cycle <- projectUntilSettled(params, effort = 1.5, t_max = 200,
                                  t_check = 0.2, t_save = 0.2,
                                  method = "tr_bdf2")
-attr(sim_cycle, "convergence")
+attr(sim_cycle, "convergence")[c("attractor", "period", "amplitude", "scope")]
 ```
 ```{r echo = FALSE}
-conv_cycle
+conv_cycle[c("attractor", "period", "amplitude", "scope")]
 ```
 
-`projectUntilSettled()` correctly identifies the attractor as a limit cycle with a period of about `r round(conv_cycle$period, 1)` years and a peak-to-trough biomass amplitude of about `r round(100 * conv_cycle$amplitude)`% of the mean. Applied to a model with a genuine stable steady state (such as the default `params` at effort 0), the same call reports `attractor = "fixed_point"`, which it does only when the biomasses have actually stopped drifting and not merely because the distance function went quiet:
+`projectUntilSettled()` correctly identifies the attractor as a limit cycle with a period of about `r round(conv_cycle$period, 1)` years and a peak-to-trough biomass amplitude of about `r round(100 * conv_cycle$amplitude)`% of the mean. Applied to a model with a genuine stable steady state (such as the default `params` at effort 0), the same call reports `attractor = "fixed_point"`, which requires the scoped state-change assessment to pass, rather than only a small distance between successive observations:
 
 ```{r pts_steady, eval = FALSE}
 attr(projectUntilSettled(params, t_max = 100), "convergence")$attractor
@@ -244,7 +252,7 @@ Notice how well the detected nonlinear period (about `r round(conv_cycle$period,
 
 ## Visualising the oscillation shape
 
-Finally, `getOscillationModeSim()` constructs a `MizerSim` object covering one period of the oscillation *in the linear approximation*, using the eigenvector of the dominant oscillatory mode. This isolates the pure **shape** of the cycle — which species and sizes participate and with what phase — without the growth or the nonlinear distortion of the full run. Fish and resource are driven by the same eigenvector and the same scale factor, so the resource carries the phase the mode gives it: on this model it leads the total fish biomass by about 0.3 years of the 5.12-year period.
+Finally, `getOscillationModeSim()` constructs a `MizerSim` object covering one period of the oscillation *in the linear approximation*, using the eigenvector of the dominant oscillatory mode. This isolates the pure **shape** of the cycle — which species and sizes participate and with what phase — without the growth or the nonlinear distortion of the full run. Fish and resource are driven by the same eigenvector and the same scale factor, so their relative amplitude and phase come from that mode. Its period here is about `r round(stab$oscillation_period, 2)` years.
 
 ```{r limit_cycle, eval = FALSE}
 lcs <- getOscillationModeSim(params_f15, amplitude = 0.1)

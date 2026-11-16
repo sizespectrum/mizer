@@ -214,7 +214,8 @@ test_that("A custom resource assessment need not probe its step", {
     resource_dynamics(p) <- "unprobed_resource"
     missing <- getSteadyAssessment(p, tol = 1e6)
     expect_identical(missing$missing, "resource")
-    p <- setProcess(p, "resource", convergence_fun = "resource_measure")
+    p <- setProcess(p, "resource", convergence_fun = "resource_measure",
+                    prescribed_mask_fun = NULL)
     report <- getSteadyAssessment(p, tol = 1e6, t = 2)
     expect_false(report$verdict)
     expect_identical(report$missing, character())
@@ -294,9 +295,11 @@ test_that("Custom projection providers do not receive unrelated derivatives", {
     p$extensions <- c(assessment_test_subclass = NA_character_)
     p <- coerceToExtensionClass(p)
     p <- setProcess(p, "consumers",
-                    convergence_fun = "external_equation_assessment")
+                    convergence_fun = "external_equation_assessment",
+                    prescribed_mask_fun = NULL)
     p <- setProcess(p, "resource",
-                    convergence_fun = "external_equation_assessment")
+                    convergence_fun = "external_equation_assessment",
+                    prescribed_mask_fun = NULL)
     report <- getSteadyAssessment(p)
     expect_true(report$verdict)
     expect_identical(report$covered, c("consumers", "resource"))
@@ -304,4 +307,120 @@ test_that("Custom projection providers do not receive unrelated derivatives", {
     p <- setProcess(p, "consumers",
                     convergence_fun = "builtin_consumer_assessment")
     expect_error(getSteadyAssessment(p), "No built-in consumer derivative")
+})
+
+test_that("Prescribed cells are excluded before either quadrature", {
+    for (second in c(FALSE, TRUE)) {
+        p <- NS_params_small
+        p$second_order_w[["bin_average"]] <- second
+        n <- p$initial_n * 0 + 1
+        derivative <- n * 2
+        active <- n > 0
+        active[, 3] <- FALSE
+        derivative[, 3] <- 1e12
+        n[, 3] <- 1e12
+        expected_n <- n
+        expected_n[!active] <- 0
+        expected_rate <- derivative
+        expected_rate[!active] <- 0
+        report <- builtin_consumer_assessment(
+            p, n, derivative, tol = 0.2, atol = 1, criterion = "state",
+            dynamic_mask = active
+        )
+        expect_equal(report$value, as.numeric(sizeIntegral(
+            p, weighting = p$w, n = expected_rate
+        )))
+        expect_equal(report$tolerance, 1 + 0.2 * as.numeric(sizeIntegral(
+            p, weighting = p$w, n = expected_n
+        )))
+        resource_n <- p$initial_n_pp * 0 + 1
+        resource_rate <- resource_n * 2
+        resource_active <- resource_n > 0
+        resource_active[3] <- FALSE
+        resource_n[3] <- resource_rate[3] <- 1e12
+        report <- builtin_resource_assessment(
+            p, resource_n, resource_rate, tol = 0.2, atol = 1,
+            criterion = "state", dynamic_mask = resource_active
+        )
+        weight <- bin_average_weight(p$w_full, p) * p$dw_full
+        expect_equal(report$value, 2 * sum(weight[resource_active]))
+        expect_equal(report$tolerance,
+                     1 + 0.2 * sum(weight[resource_active]))
+    }
+})
+
+test_that("Partial prescribed owners still require quantitative coverage", {
+    rlang::local_bindings(
+        pool_mask = function(params, component) {
+            setNames(c(TRUE, FALSE), names(params$initial_n_other[[component]]))
+        },
+        pool_measure = function(params, n_other, component, prescribed_mask,
+                                dynamic_mask) {
+            stopifnot(identical(unname(prescribed_mask), c(TRUE, FALSE)),
+                      identical(unname(dynamic_mask), c(FALSE, TRUE)))
+            data.frame(measure = "dynamic", value = n_other[[component]][2],
+                       tolerance = 0, units = "units/year")
+        },
+        entire_pool_mask = function(params, component) {
+            state_mask_like(params$initial_n_other[[component]], TRUE)
+        }, .env = .GlobalEnv
+    )
+    p <- setComponent(NS_params_small, "pool", initial_value = c(a = 1, b = 0),
+                      dynamics_fun = "constant_other",
+                      prescribed_mask_fun = "pool_mask")
+    report <- getSteadyAssessment(p, tol = 1e6)
+    expect_identical(report$missing, "component:pool")
+    expect_true("component:pool" %in% report$required)
+    p <- setComponent(p, "pool", convergence_fun = "pool_measure")
+    report <- getSteadyAssessment(p, tol = 1e6)
+    expect_true(report$verdict)
+    expect_identical(report$prescribed_masks[["component:pool"]],
+                     c(a = TRUE, b = FALSE))
+    p <- setComponent(p, "pool", prescribed_mask_fun = "entire_pool_mask",
+                      convergence_fun = NULL)
+    report <- getSteadyAssessment(p, tol = 1e6)
+    expect_true(report$verdict)
+    expect_identical(report$prescribed, "component:pool")
+    expect_false("component:pool" %in% report$required)
+})
+
+test_that("Resource assessments use authored equations without probing steps", {
+    rlang::local_bindings(
+        assessment_resource_step = function(...) stop("do not step"),
+        assessment_resource_rhs = function(params, n_pp, rates, t) {
+            stopifnot(!is.null(rates$f_mort))
+            n_pp * 0 + t
+        }, .env = .GlobalEnv
+    )
+    p <- NS_params_small
+    resource_dynamics(p) <- "assessment_resource_step"
+    p <- setProcess(p, "resource", rate_fun = "assessment_resource_rhs",
+                    convergence_fun = "builtin_resource_assessment",
+                    prescribed_mask_fun = NULL)
+    report <- getSteadyAssessment(p, tol = 1e6, t = 2)
+    weight <- bin_average_weight(p$w_full, p) * p$dw_full
+    expect_equal(report$measures$value[report$measures$owner == "resource"],
+                 2 * sum(weight))
+    expect_identical(report$missing, character())
+})
+
+test_that("Prepared masks become stale after their model parameters change", {
+    rlang::local_bindings(
+        configured_mask = function(params, component) {
+            seq_along(params$initial_n_other[[component]]) <=
+                params$other_params[[component]]$fixed_count
+        }, .env = .GlobalEnv
+    )
+    p <- setComponent(NS_params_small, "pool", initial_value = c(1, 2),
+                      dynamics_fun = "constant_other",
+                      component_params = list(fixed_count = 2),
+                      prescribed_mask_fun = "configured_mask")
+    prepared <- prepare_steady_assessment(p, tol = 1e6)
+    candidate <- p
+    candidate$initial_n <- candidate$initial_n * 2
+    candidate$initial_n_other$pool <- c(3, 4)
+    expect_true(steady_assessment(candidate, prepared)$verdict)
+    candidate$other_params$pool$fixed_count <- 1
+    expect_error(steady_assessment(candidate, prepared),
+                 "parameters or providers changed")
 })

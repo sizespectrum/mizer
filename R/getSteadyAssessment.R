@@ -6,7 +6,9 @@
 #' Missing convergence support is reported explicitly; it never counts as a
 #' successful check. A conditional assessment requires an explicit `fixed`
 #' list and describes the subsystem with those owners held at their current
-#' values. Owners declared prescribed are recorded separately.
+#' values. Owners declared prescribed are recorded separately. Structural
+#' prescribed-coordinate masks exclude only those cells from the assessment;
+#' the remaining cells of a partially prescribed owner still require coverage.
 #'
 #' The default `criterion = "state"` measures the integral of the absolute
 #' rate of change of each consumer spectrum and the resource spectrum, weighted
@@ -35,13 +37,14 @@
 #'   tolerances. Names are `owner/measure`, as shown in the `measures` table.
 #' @param atol Absolute tolerance for built-in checks, in grams per year.
 #' @param t Time at which to evaluate the model, in years.
-#' @param dt Step length for built-in resource dynamics supplied as a step map.
+#' @param dt Step length made available to extension convergence callbacks.
 #' @param ... Additional arguments made available to convergence callbacks.
 #' @return A `MizerSteadyAssessment` list. `verdict` is `TRUE` when every
 #'   required owner is covered and passes, `FALSE` when any measured check
 #'   fails, and `NA` when no check fails but required support is missing.
 #'   The list records `scope`, `fixed`, `prescribed`, `required`, `covered`,
-#'   `missing`, `time` and `criterion`. `unavailable` gives each missing
+#'   `missing`, `time` and `criterion`. `prescribed_masks` records the exact
+#'   prescribed coordinates for each owner. `unavailable` gives each missing
 #'   owner, capability and reason. `measures` has columns `owner`, `measure`,
 #'   `value`, `tolerance`, `units` and `passed`. A scope with no required
 #'   dynamic owners is steady by construction and has no measures.
@@ -74,11 +77,28 @@ getSteadyAssessment.MizerParams <- function(params, tol = 0.05,
     steady_assessment(params, prepared = prepared, effort = effort, t = t, ...)
 }
 
+assessment_state_structure <- function(state) {
+    list(type = typeof(state), length = length(state),
+         dimensions = dim(state), dimnames = dimnames(state),
+         names = names(state), class = class(state),
+         children = if (is.list(state)) {
+             lapply(state, assessment_state_structure)
+         } else {
+             NULL
+         })
+}
+
 assessment_model_key <- function(params) {
-    list(capabilities = params$capabilities, rates_funcs = params$rates_funcs,
-         dispatch = process_dispatch_binding(params),
-         resource_dynamics = params$resource_dynamics,
-         other_dynamics = params$other_dynamics)
+    # Structural masks may read arbitrary model parameters, but never current
+    # state values. Retain state structure while permitting runtime evolution.
+    model <- params
+    for (field in c("initial_n", "initial_n_pp", "initial_n_other")) {
+        model[[field]] <- assessment_state_structure(params[[field]])
+    }
+    model$initial_effort <- NULL
+    digest::digest(list(model = model,
+                        dispatch = process_dispatch_binding(params)),
+                   algo = "xxhash64")
 }
 
 # Resolve and validate once per operation, without evaluating any equations or
@@ -132,8 +152,10 @@ prepare_steady_assessment <- function(params, tol = 0.05,
     specifications <- setNames(lapply(owners, function(owner) {
         assessment_capability(params, owner)
     }), owners)
-    prescribed <- owners[vapply(specifications, function(specification) {
-        isTRUE(specification$current) && specification$role == "prescribed"
+    state_capabilities <- prepare_state_capabilities(params, fixed = fixed)
+    prescribed <- owners[vapply(state_capabilities, function(specification) {
+        !specification$fixed && isTRUE(specification$mask_current) &&
+            !any(specification$dynamic_mask)
     }, logical(1))]
     required <- setdiff(owners, c(fixed, prescribed))
     callbacks <- list()
@@ -142,6 +164,14 @@ prepare_steady_assessment <- function(params, tol = 0.05,
                               reason = character(), stringsAsFactors = FALSE)
     for (owner in required) {
         specification <- specifications[[owner]]
+        state <- state_capabilities[[owner]]
+        if (!isTRUE(state$mask_current)) {
+            unavailable <- rbind(unavailable, data.frame(
+                owner = owner, capability = "prescribed_inputs",
+                reason = state$mask_reason, stringsAsFactors = FALSE
+            ))
+            next
+        }
         if (!isTRUE(specification$current) ||
                 is.null(specification$convergence_fun)) {
             unavailable <- rbind(unavailable, data.frame(
@@ -166,6 +196,8 @@ prepare_steady_assessment <- function(params, tol = 0.05,
     }
     list(scope = scope, fixed = fixed, rate_constraints = rate_constraints,
          prescribed = prescribed,
+         prescribed_masks = lapply(state_capabilities, `[[`, "prescribed_mask"),
+         state_capabilities = state_capabilities,
          required = required,
          covered = if (length(callbacks)) names(callbacks) else character(),
          missing = unavailable$owner, unavailable = unavailable,
@@ -239,24 +271,24 @@ steady_assessment <- function(params, prepared = NULL,
     params <- validParams(params)
     if (is.null(prepared)) prepared <- prepare_steady_assessment(params)
     if (!identical(prepared$model_key, assessment_model_key(params))) {
-        stop("The model's providers changed after assessment preparation; ",
+        stop("The model's parameters or providers changed after assessment ",
+             "preparation; ",
              "prepare a new assessment.", call. = FALSE)
     }
     if (!is.numeric(t) || is.complex(t) || length(t) != 1L || !is.finite(t)) {
         stop("`t` must be a finite number.", call. = FALSE)
     }
     covered <- prepared$covered
-    resource_name <- sub("^mizer::", "", params$resource_dynamics)
-    evaluate_resource <- prepared$builtin_projection &&
-        "resource" %in% covered && resource_name %in%
-        c("resource_semichemostat", "resource_logistic", "resource_constant")
+    resource <- prepared$state_capabilities$resource
+    evaluate_resource <- "resource" %in% covered &&
+        isTRUE(resource$equation_current) && !is.null(resource$rate_fun)
     evaluated <- if (length(covered)) {
         steady_rates(
             params, effort = effort, dt = prepared$dt, n = n, n_pp = n_pp,
             n_other = n_other, t = t, evaluate_other = FALSE,
             evaluate_consumers = prepared$builtin_projection &&
                 "consumers" %in% covered,
-            evaluate_resource = evaluate_resource, rates_fns = rates_fns
+            evaluate_resource = FALSE, rates_fns = rates_fns
         )
     } else {
         list(params = params, n = n, n_pp = n_pp, n_other = n_other,
@@ -264,13 +296,22 @@ steady_assessment <- function(params, prepared = NULL,
              rates = NULL, time = t)
     }
     params <- evaluated$params
+    if (evaluate_resource) {
+        evaluated$dn_pp_dt <- evaluate_resource_equation(
+            params, resource, n = n, n_pp = n_pp, n_other = n_other,
+            rates = evaluated$rates, t = t
+        )
+    }
     measures <- empty_assessment_measures()
     for (owner in covered) {
         derivative <- NULL
         args <- list(params, n = n, n_pp = n_pp, n_other = n_other,
                      rates = evaluated$rates, t = t, dt = prepared$dt,
                      tol = prepared$tol, atol = prepared$atol,
-                     criterion = prepared$criterion)
+                     criterion = prepared$criterion,
+                     prescribed_mask = prepared$prescribed_masks[[owner]],
+                     dynamic_mask = prepared$state_capabilities[[owner]]$
+                         dynamic_mask)
         if (startsWith(owner, "component:")) {
             component <- substring(owner, nchar("component:") + 1L)
             args$component <- component
@@ -331,7 +372,9 @@ steady_assessment <- function(params, prepared = NULL,
     }
     report <- structure(list(
         verdict = verdict, scope = prepared$scope, fixed = prepared$fixed,
-        prescribed = prepared$prescribed, required = prepared$required,
+        prescribed = prepared$prescribed,
+        prescribed_masks = prepared$prescribed_masks,
+        required = prepared$required,
         covered = covered, missing = prepared$missing,
         unavailable = prepared$unavailable, measures = measures,
         time = t, criterion = prepared$criterion
@@ -345,10 +388,14 @@ steady_assessment <- function(params, prepared = NULL,
 }
 
 builtin_consumer_assessment <- function(params, n, derivative, tol, atol,
-                                        criterion, ...) {
+                                        criterion, dynamic_mask = NULL, ...) {
     if (is.null(derivative)) {
         stop("No built-in consumer derivative is available for this provider.",
              call. = FALSE)
+    }
+    if (!is.null(dynamic_mask)) {
+        n[!dynamic_mask] <- 0
+        derivative[!dynamic_mask] <- 0
     }
     abundance <- as.numeric(sizeIntegral(params, weighting = params@w,
                                          n = abs(n)))
@@ -364,10 +411,14 @@ builtin_consumer_assessment <- function(params, n, derivative, tol, atol,
 }
 
 builtin_resource_assessment <- function(params, n_pp, derivative, tol, atol,
-                                        criterion, ...) {
+                                        criterion, dynamic_mask = NULL, ...) {
     if (is.null(derivative)) {
         stop("No built-in resource derivative is available for this provider.",
              call. = FALSE)
+    }
+    if (!is.null(dynamic_mask)) {
+        n_pp[!dynamic_mask] <- 0
+        derivative[!dynamic_mask] <- 0
     }
     weight <- bin_average_weight(params@w_full, params) * params@dw_full
     value <- if (criterion == "state") {

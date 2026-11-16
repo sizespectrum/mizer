@@ -230,6 +230,8 @@ test_that("We can set, get and remove components", {
     expect_identical(p@other_mort, list(test = "test_dyn"))
     expect_identical(p@other_params, list(test = list(a = 2)))
     comp <- getComponent(p, "test")
+    input_binding <- state_provider_binding(p, "component:test")
+    time_binding <- temporal_provider_binding(p, "component:test")
     expect_mapequal(comp, list(initial_value = 1,
                                encounter_fun = "test_dyn",
                                dynamics_fun = "test_dyn",
@@ -253,7 +255,11 @@ test_that("We can set, get and remove components", {
                                    transformation_binding =
                                        transformation_provider_binding(p),
                                    biomass_fun = NULL,
-                                   biomass_filters = character()
+                                   biomass_filters = character(),
+                                   prescribed_mask_fun = NULL,
+                                   prescribed_binding = input_binding,
+                                   autonomous = NULL,
+                                   temporal_binding = time_binding
                                )))
     all <- getComponent(p)
     expect_type(all, "list")
@@ -319,6 +325,8 @@ test_that("Component definitions are stored as assembled snapshots", {
                       component_params = list(coefficient = 7),
                       definition = definition, colour = "blue",
                       mort_fun = NULL)
+    input_binding <- state_provider_binding(p, "component:pool")
+    time_binding <- temporal_provider_binding(p, "component:pool")
     expected <- list(dynamics_fun = "test_dyn", rate_fun = NULL,
                      encounter_fun = "test_dyn", mort_fun = NULL,
                      colour = "blue", linetype = "dashed",
@@ -328,7 +336,11 @@ test_that("Component definitions are stored as assembled snapshots", {
                      tuning_binding = tuning_provider_binding(p),
                      transformations = NULL, transformation_binding =
                          transformation_provider_binding(p),
-                     biomass_fun = NULL, biomass_filters = character())
+                     biomass_fun = NULL, biomass_filters = character(),
+                     prescribed_mask_fun = NULL,
+                     prescribed_binding = input_binding,
+                     autonomous = NULL,
+                     temporal_binding = time_binding)
     expect_identical(p@capabilities$components$pool, expected)
     expect_identical(getComponent(p, "pool")$definition, expected)
     expect_null(p@other_mort$pool)
@@ -818,4 +830,40 @@ test_that("Biomass-only component patches do not adopt stale capabilities", {
         patched$capabilities$components$pool$transformation_binding,
         component_before$transformation_binding
     )
+})
+
+test_that("Component input and temporal declarations stay independent", {
+    rlang::local_bindings(
+        component_input_mask = function(params, component) {
+            state_mask_like(params$initial_n_other[[component]])
+        },
+        component_next_rhs = function(n_other, component, ...) {
+            n_other[[component]] * 0
+        }, .env = globalenv()
+    )
+    p <- setComponent(NS_params_small, "pool", c(a = 1, b = 2),
+                      dynamics_fun = "constant_other",
+                      prescribed_mask_fun = "component_input_mask",
+                      autonomous = TRUE)
+    state <- function(params) {
+        prepare_state_capabilities(params)[["component:pool"]]
+    }
+    p$rates_funcs$RDD <- "constantRDD"
+    before <- p$capabilities$components$pool
+    q <- setComponent(p, "pool", initial_value = c(a = 2, b = 3))
+    expect_identical(q$capabilities$components$pool$temporal_binding,
+                     before$temporal_binding)
+    expect_false(state(q)$temporal_current)
+    q <- setComponent(q, "pool", prescribed_mask_fun = NULL)
+    expect_null(getComponent(q, "pool")$definition$prescribed_mask_fun)
+    expect_false(state(q)$temporal_current)
+    q <- setComponent(q, "pool", autonomous = TRUE)
+    expect_true(state(q)$temporal_current)
+    changed <- setComponent(q, "pool", rate_fun = "component_next_rhs")
+    expect_null(getComponent(changed, "pool")$definition$autonomous)
+    expect_true(state(changed)$mask_current)
+    definition <- list(dynamics_fun = "constant_other")
+    replaced <- setComponent(p, "pool", definition = definition)
+    expect_null(getComponent(replaced, "pool")$definition$autonomous)
+    expect_null(getComponent(replaced, "pool")$definition$prescribed_mask_fun)
 })

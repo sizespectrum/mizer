@@ -128,11 +128,16 @@ Defaults to 0, because a scan makes one projection per scan value and
 summarises them itself; raise it when investigating why one of them
 behaved oddly.}
 
-\item{...}{Further arguments are passed on to \code{distance_func}.}
+\item{...}{Further arguments passed to \code{\link[=projectUntilSettled]{projectUntilSettled()}} and its
+\code{distance_func}, including \code{scope} and \code{fixed} for conditional analysis.}
 }
 \value{
 An object of class \link{MizerScan}, which is a data frame with one row
 per scan value and series, carrying the metadata that \code{\link[=plot]{plot()}} needs.
+\code{scope} and \code{assessment_complete} describe the settling assessment; the
+\code{assessment} list-column retains its full measures, fixed and prescribed
+inputs, and unavailable capabilities. Conditional fixed inputs remain
+fixed during the sampling projection too.
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
@@ -213,7 +218,9 @@ work there. Set \code{sample_all = TRUE} to force the sampling projection at eve
 scan value.
 
 Neither function can be given extra arguments through \code{...}, which is
-reserved for \code{distance_func}. Use a closure instead, for example
+forwarded to \code{\link[=projectUntilSettled]{projectUntilSettled()}}, including \code{scope} and \code{fixed} for
+conditional analysis, and then to \code{distance_func}. Use a closure instead,
+for example
 \code{value_func = function(sim) getBiomass(sim, min_w = 10)}.
 }
 

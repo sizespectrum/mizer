@@ -100,7 +100,8 @@ test_that("scanModel() returns a MizerScan laid out as documented", {
     expect_identical(names(scan),
                      c("Fishing effort", "Biomass", "Species", "ymin", "ymax",
                        "termination", "converged", "attractor", "period",
-                       "residual"))
+                       "residual", "scope", "assessment_complete",
+                       "assessment"))
     expect_identical(nrow(scan), 9L)
     # The metadata is lifted off what the value function returned.
     expect_identical(attr(scan, "value_name"), "Biomass")
@@ -289,4 +290,43 @@ test_that("scanModel() accepts the 'second_order' method alias", {
         scan_fast(NS_params_small, scan_values = c(0, 0.5),
                   set_func = scanEffort(), method = "tr_bdf2")))
     expect_equal(scan_alias, scan_canon)
+})
+
+test_that("Conditional sampling holds inputs and retains providers", {
+    rlang::local_bindings(
+        scan_changing_component = function(params, n_other, component, dt,
+                                           ...) {
+            n_other[[component]] + dt
+        },
+        scan_changing_resource = function(params, n_pp, dt, ...) n_pp + dt,
+        .env = .GlobalEnv
+    )
+    p <- setComponent(NS_params_small, "pool", initial_value = 2,
+                      dynamics_fun = "scan_changing_component")
+    resource_dynamics(p) <- "scan_changing_resource"
+    fixed <- c("resource", "component:pool")
+    seen <- NULL
+    measure <- function(sim) {
+        seen <<- sim
+        cbind(pool = as.numeric(sim$n_other[, "pool"]))
+    }
+    scan <- suppressMessages(scanModel(
+        p, scan_values = 1, set_func = function(params, value) params,
+        value_func = measure, sample_all = TRUE, t_max = 0.2, t_check = 0.1,
+        dt = 0.1, t_sample = 0.2, residual_tol = 1e6, progress_bar = FALSE,
+        scope = "conditional", fixed = fixed
+    ))
+    expect_true(all(scan$scope == "conditional"))
+    expect_true(all(scan$assessment_complete))
+    expect_identical(scan$assessment[[1]]$fixed, fixed)
+    expect_identical(seen$sim_params$scope, "conditional")
+    expect_identical(seen$sim_params$fixed, fixed)
+    expect_identical(seen$params$resource_dynamics, "scan_changing_resource")
+    expect_identical(seen$params$other_dynamics$pool, "scan_changing_component")
+    expect_equal(as.numeric(seen$n_other[, "pool"]), rep(2, nrow(seen$n_other)))
+    for (i in seq_len(nrow(seen$n_pp))) {
+        expect_equal(seen$n_pp[i, ], p$initial_n_pp)
+    }
+    expect_equal(scan[[2]], 2)
+    expect_equal(scan$ymin, scan$ymax)
 })

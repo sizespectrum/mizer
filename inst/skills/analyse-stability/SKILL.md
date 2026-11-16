@@ -22,8 +22,10 @@ when it is not, characterising the **limit cycle** that replaces it. These are
 standard semichemostat resource dynamics and solves for the resource alongside
 the fish, so the resource density and the feeding levels it implies are
 self-consistent even where consumers are satiated. `getStability()` and
-`getDiscreteStability()` perturb the resource alongside the fish and so work
-with any resource dynamics.
+`getDiscreteStability()` include every supported dynamic resource coordinate
+alongside the fish. Continuous analysis needs a resource equation capability;
+discrete analysis uses the supported resource step. Both require an appropriate
+autonomous-model contract for the providers used by the analysis.
 
 Distinct from calibration: the `calibrate-model` skill gets you *onto* a fixed
 point; what follows analyses the *dynamics around* it. The natural entry point
@@ -37,7 +39,7 @@ Mizer discretises the size axis but not time, so on the size grid the model is a
 system of ODEs; `getStability()` differentiates their right-hand side directly
 and takes the eigenvalues of that Jacobian. **No time step is involved**, so the
 eigenvalues are a property of the model rather than of a solver. The result
-reports whether the state is stable or unstable, the maximum real part of the
+reports whether the state is stable, unstable or inconclusive, the maximum real part of the
 eigenvalues (`max_real_part`; > 0 means unstable), and the **period** at which
 the model rings (`dominant_period` for the dominant mode,
 `oscillation_period` for the leading *oscillatory* one). A complex pair is an
@@ -61,13 +63,14 @@ stab                                     # stable/unstable, growth rate, cycle p
   the cheapest check that the model is smooth enough for the analysis to mean
   anything: if the answer moves, do not trust it.
 
-**Both `getStability()` and `getOscillationModeSim()` linearise at the state stored in
-the object**, so a model that is not on a fixed point gets eigenvalues for the
-neighbourhood of a point it is not sitting at. Both now warn when handed one;
-the fix is to run `findSteadyState()` (or `tuneSteadyState()`) first, not to
-ignore the
-warning. `plot(getSteadyResidual(params))` shows how far off it is — see the
-`calibrate-model` skill.
+**Both `getStability()` and `getOscillationModeSim()` use the state stored in
+the object.** At a state that fails its scoped steady-state assessment, raw
+Jacobian diagnostics do not establish equilibrium stability: the verdict is
+inconclusive. `getOscillationModeSim()` requires complete, current support and
+an autonomous equilibrium for its recorded scope. Run `findSteadyState()` or
+`tuneSteadyState()` first, then inspect `getSteadyAssessment()` — see the
+`calibrate-model` skill. An old stability list without coverage and scope must
+be recomputed.
 
 `tuneSteadyState()` and `findSteadyState()` attach a related `"convergence"`
 attribute, which answers three questions separately: `termination` says why the
@@ -95,13 +98,46 @@ Newton solver can solve consumers and resource only; dynamic component states
 must be explicitly held fixed when using it. The projection solver can advance
 components, provided their convergence measures are declared.
 
-Stability coverage is still being migrated in the development previews. The
-current `getStability()` and `getDiscreteStability()` Jacobians contain consumers
-and resource and hold other components at their stored values. Their precondition
-check uses whole-model assessment, but that does not add missing component rows
-to the Jacobian. Treat these eigenvalues as a subsystem analysis when dynamic
-components are present. Explicit structural input masks and whole/conditional
-stability verdicts are a later stage of the extension design.
+Stability means the whole model by default. Dynamic component Jacobians are
+not available in this release, so a model containing an uncovered dynamic
+component returns an incomplete, inconclusive report. It does not silently
+compute a subsystem and label it as the whole model. Request the subsystem
+explicitly when that is the question you want to ask:
+
+```r
+stab <- getStability(params, scope = "conditional", fixed = "component:pool")
+stab$scope
+stab$coverage
+```
+
+The fixed owners remain recorded throughout the result and any generated
+oscillation-mode simulation. A fixed dynamic pool is different from an input
+declared by the model. Explicit prescribed-input declarations, including
+coordinate masks for partially prescribed states, remove those coordinates
+from both continuous and discrete eigenproblems. Built-in `resource_constant`
+declares the resource as prescribed. Excluded coordinates are reconstructed as
+zero perturbations in eigenvectors and stay unchanged in mode simulations.
+
+Mizer never decides that a coordinate is prescribed because its abundance,
+derivative or Jacobian row happens to be zero. Entirely absent fish species still
+have invasion modes, and genuine zero eigenvalues or unit multipliers remain in
+the spectrum. This differs from the active set used by the Newton solver.
+
+Read `status`, `stable`, `coverage` and `assessment` together:
+
+| Evidence for the requested scope | `status` | `stable` |
+|---|---|---|
+| Complete autonomous equilibrium, all modes strictly decay | `stable` | `TRUE` |
+| Complete autonomous equilibrium, a mode grows | `unstable` | `FALSE` |
+| Marginal modes, missing support, or a non-equilibrium state | `inconclusive` | `NA` |
+| Complete coverage with no dynamic coordinates | `not_applicable` | `NA` |
+
+`stability_tol` sets the numerical margin around zero real part or unit modulus.
+The result records this tolerance, the evaluation time, prescribed coordinates,
+conditional exclusions and reasons for missing support. Time-dependent forcing
+needs its own suitable analysis; a stationary state alone does not establish
+that its Jacobian is autonomous. `isTRUE(stab$stable)` safely tests for an
+established stable verdict.
 
 ## Is mizer's time step stable? — `getDiscreteStability()`
 
@@ -112,6 +148,11 @@ map that `project(method = "euler")` takes at that step size and returns its
 scheme* does not amplify perturbations at that `dt`. It is that step and not an
 approximation to it: the same transport coefficients, the same Thomas solver and
 the model's own `resource_dynamics`.
+
+With excluded coordinates, this is the full step with those inputs reset to
+their reference values between steps, followed by selection of the dynamic
+outputs. It is not a newly derived numerical solver for the constrained
+continuous equations; an implicit step can couple coordinates internally.
 
 The two verdicts can differ, and that is the point: the implicit transport solve
 damps oscillations artificially, so an unstable steady state can have a spectral

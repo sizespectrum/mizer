@@ -79,7 +79,9 @@
 #' scan value.
 #'
 #' Neither function can be given extra arguments through `...`, which is
-#' reserved for `distance_func`. Use a closure instead, for example
+#' forwarded to [projectUntilSettled()], including `scope` and `fixed` for
+#' conditional analysis, and then to `distance_func`. Use a closure instead,
+#' for example
 #' `value_func = function(sim) getBiomass(sim, min_w = 10)`.
 #'
 #' @param params An object of class `MizerParams`.
@@ -149,10 +151,15 @@
 #'   Defaults to 0, because a scan makes one projection per scan value and
 #'   summarises them itself; raise it when investigating why one of them
 #'   behaved oddly.
-#' @param ... Further arguments are passed on to `distance_func`.
+#' @param ... Further arguments passed to [projectUntilSettled()] and its
+#'   `distance_func`, including `scope` and `fixed` for conditional analysis.
 #'
 #' @return An object of class [MizerScan], which is a data frame with one row
 #'   per scan value and series, carrying the metadata that [plot()] needs.
+#'   `scope` and `assessment_complete` describe the settling assessment; the
+#'   `assessment` list-column retains its full measures, fixed and prescribed
+#'   inputs, and unavailable capabilities. Conditional fixed inputs remain
+#'   fixed during the sampling projection too.
 #'
 #' @family scan functions
 #' @concept scan
@@ -318,6 +325,7 @@ scanModel.MizerParams <- function(params, scan_values, set_func,
                 info_level = info_level, ...
             )
             conv <- attr(settled, "convergence")
+            assessment <- conv$assessment
 
             measured <- measure_on_attractor(
                 settled, value_func, conv, dt = dt, t_sample = t_sample,
@@ -350,9 +358,19 @@ scanModel.MizerParams <- function(params, scan_values, set_func,
                 attractor = conv$attractor %||% NA_character_,
                 period = conv$period %||% NA_real_,
                 residual = conv$residual %||% NA_real_,
+                scope = assessment$scope %||% conv$scope %||% NA_character_,
+                assessment_complete = if (inherits(
+                    assessment, "MizerSteadyAssessment"
+                )) {
+                    !length(assessment$missing) &&
+                        all(assessment$required %in% assessment$covered)
+                } else {
+                    NA
+                },
                 row.names = NULL,
                 stringsAsFactors = FALSE
             )
+            rows[[i]]$assessment <- I(rep(list(assessment), nrow(rows[[i]])))
             attractors[[i]] <- conv$attractor %||% NA_character_
             terminations[[i]] <- conv$termination %||% NA_character_
 
@@ -414,14 +432,26 @@ measure_on_attractor <- function(settled, value_func, conv, dt, t_sample,
     if (fixed_point) {
         # Nothing moves, so a snapshot carries all the information a longer
         # run would, and costs no projection at all.
-        vals <- value_func(params_as_sim(settled))
+        sim <- params_as_sim(settled)
+        sim$sim_params$assessment <- conv$assessment
+        sim$sim_params$scope <- conv$assessment$scope %||% conv$scope
+        sim$sim_params$fixed <- conv$assessment$fixed %||% conv$fixed
+        vals <- value_func(sim)
         keep <- 1L
     } else {
         window <- if (whole_period) conv$period else t_sample
         # project() advances in whole time steps.
         no_steps <- max(1, round(window / dt))
-        sim <- project(settled, t_max = no_steps * dt, dt = dt, t_save = dt,
-                       method = method, progress_bar = FALSE)
+        fixed <- conv$assessment$fixed %||% conv$fixed %||% character()
+        sampling_params <- hold_fixed_states(settled, fixed)
+        sim <- project(sampling_params, t_max = no_steps * dt, dt = dt,
+                       t_save = dt, method = method, progress_bar = FALSE)
+        # The measured trajectory holds the selected states, while diagnostic
+        # getters still see the model's original equation providers.
+        sim$params <- settled
+        sim$sim_params$assessment <- conv$assessment
+        sim$sim_params$scope <- conv$assessment$scope %||% conv$scope
+        sim$sim_params$fixed <- fixed
         vals <- value_func(sim)
         # With t_save = dt there are no_steps + 1 saved times, 0 to
         # no_steps * dt. Over exactly one period the last of them repeats the
