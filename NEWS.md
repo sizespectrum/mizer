@@ -99,9 +99,13 @@
 - `plotCDF()`, `plotCDF2()` and their `plotly…()` counterparts gain `min_w`,
   `max_w`, `min_l` and `max_l` to choose the size range a distribution is
   integrated over (#564). A bound that falls inside a size bin includes
-  exactly the part of the bin below or above it, in both numerical schemes.
-  Without bounds a distribution covers the whole size grid, and a community
-  total includes every species and the resource whichever curves are drawn.
+  exactly the part of the bin below or above it, in both numerical schemes,
+  and each bin is weighted as `sizeIntegral(exact_bounds = TRUE)` weights it,
+  so an unnormalised curve ends at the matching `getBiomass()` or `getN()`
+  value. With bin averaging this replaces the weighting at the geometric bin
+  centre, which changes the curves slightly. Without bounds a distribution
+  covers the whole size grid, and a community total includes every species and
+  the resource whichever curves are drawn.
 - New `getR0()` gives the lifetime reproductive output R0 of each species:
   the number of eggs that one recruit produces over its life, with growth,
   mortality, diffusion and reproductive investment held fixed (#632). It is

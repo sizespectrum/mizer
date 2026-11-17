@@ -170,10 +170,14 @@ A completed cumulative contribution stays constant beyond its last bin, so a
 community CDF on a length axis does not fall when one species' grid ends.
 
 The CDF bounds are exact: a bound inside a bin takes only the part of the bin
-on the selected side. The `min_w`/`max_w` of `getBiomass()` and the other
-summaries are not yet exact in that way: in a first-order model they include a
-whole bin whenever its left edge lies in the range. An unnormalised
-`plotCDF()` can therefore end below `getBiomass()` over the same range.
+on the selected side. Each bin is weighted as `sizeIntegral()` weights it with
+`exact_bounds = TRUE`, so an unnormalised `plotCDF()` ends at the value that
+`getBiomass()` or `getN()` reports for the same range in a model of defaults
+edition 3. In models of editions 1 and 2 those functions count the bins at the
+ends of a range whole by default; pass them `exact_bounds = TRUE` to compare.
+In a model that bin-averages its integrals, the cumulative values therefore
+differ slightly from those of earlier versions, which weighted each bin at its
+geometric centre.
 
 ### Summary functions count the ends of a size range exactly in edition 3
 

@@ -300,14 +300,18 @@ A completed cumulative contribution stays constant beyond its last bin, so a
 community CDF on a length axis does not fall when one species' grid ends.
 
 The CDF bounds are exact: a bound inside a bin takes only the part of the bin
-on the selected side. The `min_w`/`max_w` of [`getBiomass()`](../reference/getBiomass.html) and the other
-summaries are not yet exact in that way: in a first-order model they include a
-whole bin whenever its left edge lies in the range. An unnormalised
-`plotCDF()` can therefore end below `getBiomass()` over the same range.
+on the selected side. Each bin is weighted as [`sizeIntegral()`](../reference/sizeIntegral.html) weights it with
+`exact_bounds = TRUE`, so an unnormalised `plotCDF()` ends at the value that
+[`getBiomass()`](../reference/getBiomass.html) or [`getN()`](../reference/getN.html) reports for the same range in a model of defaults
+edition 3. In models of editions 1 and 2 those functions count the bins at the
+ends of a range whole by default; pass them `exact_bounds = TRUE` to compare.
+In a model that bin-averages its integrals, the cumulative values therefore
+differ slightly from those of earlier versions, which weighted each bin at its
+geometric centre.
 
 ### Summary functions count the ends of a size range exactly in edition 3
 
-When you give [`getBiomass()`](../reference/getBiomass.html), [`getN()`](../reference/getN.html) or another summary function a size
+When you give `getBiomass()`, `getN()` or another summary function a size
 range with `min_w`, `max_w`, `min_l` or `max_l`, the size bins at its two ends
 usually lie partly inside the range and partly outside it. Until now mizer
 counted such a bin whole or not at all, according to whether its left edge
@@ -319,7 +323,7 @@ In a model created with defaults edition 3, each bin now contributes exactly
 the part of it that lies inside the range. Results with a size range change
 when you create the model in edition 3 rather than edition 2, by up to the
 content of the two bins at the ends of the range, which on a coarse grid can
-be a large part of a narrow range. This affects [`sizeIntegral()`](../reference/sizeIntegral.html),
+be a large part of a narrow range. This affects `sizeIntegral()`,
 `getBiomass()`, `getN()`, [`getMeanWeight()`](../reference/getMeanWeight.html), [`getMeanLength()`](../reference/getMeanWeight.html),
 [`getMeanMaxWeight()`](../reference/getMeanMaxWeight.html), [`getProportionOfLargeFish()`](../reference/getProportionOfLargeFish.html) and the plots built on
 them, such as [`plotBiomass()`](../reference/plotBiomass.html) with `min_w`. Through the `biomass_cutoff` and

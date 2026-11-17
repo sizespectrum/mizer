@@ -398,10 +398,12 @@ or length on its x axis. Bounds inside a bin include only the overlapping
 fraction of its width, under both numerical schemes. A normalised curve with
 no mass in the selected interval has `NA` values.
 
-These bounds are exact, unlike the `min_w`/`max_w` of `getBiomass()` and the
-other summaries, which in a first-order model include a whole bin whenever its
-left edge lies in the range. The end of an unnormalised curve can therefore be
-smaller than `getBiomass()` over the same range by up to one boundary bin.
+Each bin is weighted exactly as `sizeIntegral()` weights it with
+`exact_bounds = TRUE`, so the end of an unnormalised curve is what
+`getBiomass()` (or `getN()` for `power = 0`) reports for the same range. In a
+model of defaults edition 3 that is their default; in a model of an earlier
+edition pass them `exact_bounds = TRUE` to compare, because by default they
+count a bin at an end of the range whole or not at all.
 
 ```r
 plotCDF(params, biomass = TRUE, min_w = 10, max_w = 1000)
