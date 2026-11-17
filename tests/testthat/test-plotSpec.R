@@ -190,14 +190,8 @@ two_panel_data <- function() {
                fish = rep(c("Cod", "Sprat"), each = 7),
                panel = rep(c("a", "b"), each = 7))
 }
-# Plots carry their own Layout only from ggplot2 3.5.0.
-skip_without_plot_layout <- function() {
-    skip_if(utils::packageVersion("ggplot2") < "3.5.0",
-            "ggplot2 < 3.5.0 does not build with the plot's Layout")
-}
 
 test_that("an open end of the y viewport is fitted to the visible data", {
-    skip_without_plot_layout()
     # y = x on log-log axes, so the line crosses the edges of the visible x
     # range at the heights of those edges.
     data <- data.frame(x = c(1, 10, 100), y = c(1, 10, 100), fish = "Cod")
@@ -225,7 +219,6 @@ test_that("an open end of the y viewport is fitted to the visible data", {
 })
 
 test_that("fitted viewports keep reference lines, bands and stacks in view", {
-    skip_without_plot_layout()
     first <- new_plot_spec(
         data.frame(x = 1:4, y = c(1, 2, 3, 4), fish = "Cod"),
         NS_params_small, x_var = "x", y_var = "y", group_var = "fish",
@@ -254,7 +247,6 @@ test_that("fitted viewports keep reference lines, bands and stacks in view", {
 })
 
 test_that("stacked areas on different size grids are fitted as drawn", {
-    skip_without_plot_layout()
     # ggplot2 aligns the two flat series before stacking them, so the stack
     # reaches 200 although no x value is shared.
     stacked <- new_plot_spec(
@@ -267,7 +259,6 @@ test_that("stacked areas on different size grids are fitted as drawn", {
 })
 
 test_that("layers added with ggplot2 are fitted when the plot is built", {
-    skip_without_plot_layout()
     base <- render_plot_spec(new_plot_spec(
         data.frame(x = 1:4, y = c(1, 2, 3, 4), fish = "Cod"),
         NS_params_small, x_var = "x", y_var = "y", group_var = "fish",
@@ -291,7 +282,6 @@ test_that("layers added with ggplot2 are fitted when the plot is built", {
 })
 
 test_that("each free y scale of a facet is fitted on its own", {
-    skip_without_plot_layout()
     spec <- new_plot_spec(two_panel_data(), NS_params_small, x_var = "x", y_var = "y",
                           group_var = "fish", xlim = c(3, 5),
                           wrap_var = "panel", wrap_scale = "free_y")

@@ -698,14 +698,11 @@ plot_y_is_log <- function(plot) {
     plot_axis_is_log(plot, "y")
 }
 
-# Whether a plot's x or y scale is log10. ggplot2 3.5 added
-# get_transformation(); earlier versions only have the `trans` field.
+# Whether a plot's x or y scale is log10.
 plot_axis_is_log <- function(plot, axis) {
     scale <- plot$scales$get_scales(axis)
     if (is.null(scale)) return(FALSE)
-    transformation <- tryCatch(scale$get_transformation(),
-                               error = function(e) scale$trans)
-    identical(transformation$name, "log-10")
+    identical(scale$get_transformation()$name, "log-10")
 }
 
 #' Y-axis limits an array's type calls for

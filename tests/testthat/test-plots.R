@@ -2001,8 +2001,6 @@ test_that("CDF bounds validate, handle empty mass and reach every entry point", 
 })
 
 test_that("zooming the size or time axis fits the y axis to what is visible", {
-    skip_if(utils::packageVersion("ggplot2") < "3.5.0",
-            "ggplot2 < 3.5.0 does not build with the plot's Layout")
     # Both plots have a logarithmic y axis.
     y_range <- function(p) {
         10^ggplot2::ggplot_build(p)$layout$panel_params[[1]]$y.range

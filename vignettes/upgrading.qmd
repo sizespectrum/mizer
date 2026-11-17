@@ -275,9 +275,9 @@ vertices, and an end of `ylim` left as `NA` is fitted to what is visible inside
 the window, so zooming in on the size or time axis still rescales the value
 axis. The fit is made when the plot is drawn, so it includes layers you add
 afterwards with `+`, reaches the top of stacked areas and treats each free y
-scale of a faceted plot separately. It needs ggplot2 3.5.0 or later (4.0.0 or
-later in [`plotHover()`](../reference/plotHover.html)); with an earlier version an open end covers all of the
-data. Animations still use `tlim` to choose their displayed frames.
+scale of a faceted plot separately. In [`plotHover()`](../reference/plotHover.html) the fit needs ggplot2
+4.0.0 or later; with ggplot2 3.5 an open end of an interactive plot covers all
+of the data. Animations still use `tlim` to choose their displayed frames.
 
 Code that used plot limits to extract a subset of the returned data should
 subset that data explicitly. For biomass or abundance integrated over a size
@@ -314,6 +314,19 @@ ends of a range whole by default; pass them `exact_bounds = TRUE` to compare.
 In a model that bin-averages its integrals, the cumulative values therefore
 differ slightly from those of earlier versions, which weighted each bin at its
 geometric centre.
+
+### mizer needs ggplot2 3.5.0 or later
+
+mizer fits the y axis of a zoomed plot when the plot is drawn, through the
+layout that ggplot2 3.5.0 lets a plot carry, so it no longer installs or loads
+alongside an older ggplot2. `install.packages("mizer")` updates ggplot2 for
+you. If your project pins its package versions, for example with renv, update
+ggplot2 there as well:
+
+```{r eval=FALSE}
+install.packages("ggplot2")
+renv::snapshot()  # only if the project uses renv
+```
 
 ### Summary functions count the ends of a size range exactly in edition 3
 

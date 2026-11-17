@@ -88,6 +88,8 @@
 
 ## New features
 
+- mizer now needs ggplot2 3.5.0 or later, which it uses to fit the y axis of a
+  zoomed plot when the plot is drawn (#564).
 - Plot limits now only set the visible window (#564). `wlim`, `llim`, `tlim`
   and `ylim` no longer remove data before it is plotted, so `return_data =
   TRUE`, community totals, comparisons, relative differences and cumulative
@@ -95,9 +97,9 @@
   the window is drawn up to its edge. An end of `ylim` that is left as `NA` is
   fitted, when the plot is drawn, to what is visible inside the window: every
   layer, including those added afterwards with `+`, stacked areas up to the
-  top of the stack, and each free y scale of a faceted plot on its own. This
-  needs ggplot2 3.5.0 or later, and in `plotHover()` ggplot2 4.0.0 or later;
-  with earlier versions the open end covers all of the data. Code that used
+  top of the stack, and each free y scale of a faceted plot on its own. In
+  `plotHover()` this needs ggplot2 4.0.0 or later; with ggplot2 3.5 the open
+  end of an interactive plot covers all of the data. Code that used
   the limits to subset returned data needs updating; see the upgrade guide.
   Animations still use `tlim` to choose their frames.
 - `plotCDF()`, `plotCDF2()` and their `plotly…()` counterparts gain `min_w`,

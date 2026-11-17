@@ -160,21 +160,14 @@ plot_spec_scales <- function(spec) {
 # every layer, including those a user adds with `+` after mizer has returned
 # the plot, after stats and positions have run (so stacked areas reach the top
 # of the stack ggplot2 draws) and separately for each free y scale of a facet.
-# ggplot2 (>= 3.5.0) builds a plot with the Layout object stored in it, so every
-# mizer plot carries a MizerLayout; earlier versions ignore it and choose the y
-# range from all of the data.
+# ggplot2 builds a plot with the Layout object stored in it, so every mizer plot
+# carries a MizerLayout.
 mizer_layout_cache <- new.env(parent = emptyenv())
 
 mizer_layout <- function() {
-    if (is.null(mizer_layout_cache$layout)) {
-        mizer_layout_cache$layout <-
-            if (utils::packageVersion("ggplot2") >= "3.5.0") {
-                new_mizer_layout()
-            } else {
-                FALSE
-            }
-    }
-    if (isFALSE(mizer_layout_cache$layout)) NULL else mizer_layout_cache$layout
+    mizer_layout_cache$layout <- mizer_layout_cache$layout %||%
+        new_mizer_layout()
+    mizer_layout_cache$layout
 }
 
 # Created when first needed rather than when mizer is built, so that it extends
@@ -197,8 +190,7 @@ new_mizer_layout <- function() {
 }
 
 with_mizer_layout <- function(plot) {
-    layout <- mizer_layout()
-    if (!is.null(layout)) plot$layout <- layout
+    plot$layout <- mizer_layout()
     plot
 }
 
