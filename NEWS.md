@@ -67,16 +67,20 @@
 
 ## New features
 
-- Plot limits (`wlim`, `llim`, `tlim`, `ylim`) now control the visible window
-  without filtering returned data or changing totals and comparisons (#564,
-  second stage). `plotCDF()`, `plotCDF2()` and their interactive counterparts
-  accept explicit `min_w`, `max_w`, `min_l` and `max_l` integration bounds,
-  including partial boundary bins under both quadrature schemes. CDFs use
-  the complete abundance data and retain completed contributions in totals.
-
-- Plotting uses a shared internal specification for ordinary, comparison,
-  relative and animated renderers (#564, first stage). Public plotting APIs,
-  returned data, limit semantics and CDF calculations are unchanged.
+- Plot limits now only set the visible window (#564). `wlim`, `llim`, `tlim`
+  and `ylim` no longer remove data before it is plotted, so `return_data =
+  TRUE`, community totals, comparisons, relative differences and cumulative
+  distributions are the same whatever window is shown, and a line that leaves
+  the window is drawn up to its edge. An end of `ylim` that is left as `NA` is
+  fitted to the part of the data inside the window. Code that used the limits
+  to subset returned data needs updating; see the upgrade guide. Animations
+  still use `tlim` to choose their frames.
+- `plotCDF()`, `plotCDF2()` and their `plotly…()` counterparts gain `min_w`,
+  `max_w`, `min_l` and `max_l` to choose the size range a distribution is
+  integrated over (#564). A bound that falls inside a size bin includes
+  exactly the part of the bin below or above it, in both numerical schemes.
+  Without bounds a distribution covers the whole size grid, and a community
+  total includes every species and the resource whichever curves are drawn.
 - `getCourant()` reports the growth Courant numbers on the model's active
   size support. Projections with high-order flux now report large Courant
   numbers, and optional `subcycle = TRUE` advances consumers, resources and
@@ -110,6 +114,10 @@
 
 ## Bug fixes
 
+- `plotDataFrame()` now warns about legend entries that have no colour in
+  `params@linecolour` also when the legend comes from `legend_var`. Before,
+  the warning looked only at a column called `Legend`, so it never fired for
+  any other legend variable (#564).
 - Size-resolved array wrappers now retain the exact original size-grid mapping
   when subsetted (#650). Printing, summaries, data-frame conversion and plots
   work for sparse selections, and reordered or repeated columns keep the

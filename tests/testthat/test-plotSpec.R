@@ -6,9 +6,8 @@ test_that("plot specifications use named roles regardless of column order", {
                           x_var = "mass", y_var = "response",
                           group_var = "fish",
                           xlab = "Mass", ylab = "Response", xtrans = "log10",
-                          highlight = "Cod", density_wrt = "log_w")
+                          highlight = "Cod")
     expect_identical(class(spec), "list")
-    expect_identical(spec$density_wrt, "log_w")
     before <- spec
     p <- render_plot_spec(spec)
     expect_identical(spec, before)
@@ -44,28 +43,67 @@ test_that("comparison and relative specifications align named roles", {
         NS_params_small, x_var = "size", y_var = "rate", group_var = "animal"
     )
     comparison <- compare_plot_specs(first, second, "Before", "After")
-    p <- render_plot_spec(comparison)
-    expect_equal(p$data$response, c(1, 2, 4, 2, 4, 8))
-    expect_equal(p$data$mass, rep(c(1, 10, 100), 2))
-    expect_identical(levels(p$data$Model), c("Before", "After"))
-    expect_identical(attr(p, "mizer_tooltip"),
+    p_comparison <- render_plot_spec(comparison)
+    expect_equal(p_comparison$data$response, c(1, 2, 4, 2, 4, 8))
+    expect_equal(p_comparison$data$mass, rep(c(1, 10, 100), 2))
+    expect_identical(levels(p_comparison$data$Model), c("Before", "After"))
+    expect_identical(attr(p_comparison, "mizer_tooltip"),
                      c("fish", "mass", "response", "Model"))
-    skip_if_not_installed("vdiffr")
-    vdiffr::expect_doppelganger("Named comparison specification", p)
 
     relative <- relative_plot_specs(first, second)
     expect_equal(relative$data$rel_diff, rep(2 / 3, 3))
     expect_identical(relative$variables$value, "rel_diff")
-    p <- render_plot_spec(relative)
-    expect_identical(attr(p, "mizer_tooltip"), c("fish", "mass", "rel_diff"))
-    vdiffr::expect_doppelganger("Named relative specification", p)
+    p_relative <- render_plot_spec(relative)
+    expect_identical(attr(p_relative, "mizer_tooltip"),
+                     c("fish", "mass", "rel_diff"))
 
     # Interpolation uses the named size and value fields too.
     second$data <- data.frame(size = c(10, 1000), animal = "Cod",
                               rate = c(2, 6))
-    relative <- relative_plot_specs(first, second, interpolate = TRUE)
-    expect_equal(relative$data$mass, c(10, 100))
-    expect_equal(relative$data$rel_diff, c(0, 0))
+    interpolated <- relative_plot_specs(first, second, interpolate = TRUE)
+    expect_equal(interpolated$data$mass, c(10, 100))
+    expect_equal(interpolated$data$rel_diff, c(0, 0))
+
+    skip_if_not_installed("vdiffr")
+    vdiffr::expect_doppelganger("Named comparison specification", p_comparison)
+    vdiffr::expect_doppelganger("Named relative specification", p_relative)
+})
+
+test_that("comparison data frames are aligned by role, not by position", {
+    frame1 <- data.frame(w = c(1, 10), value = c(1, 2), Species = "Cod",
+                         Legend = "Cod")
+    frame2 <- data.frame(length = c(1, 10), biomass = c(3, 4),
+                         Species = "Cod", Legend = "Cod")
+    p <- plotComparisonDataFrame(frame1, frame2, NS_params_small)
+    expect_named(p$data, c("w", "value", "Species", "Legend", "Model",
+                           "LineSpec"))
+    expect_equal(p$data$value, c(1, 2, 3, 4))
+    rel <- plotRelativeDataFrame(frame1, frame2, NS_params_small)
+    expect_equal(rel$data$rel_diff, relative_difference(c(1, 2), c(3, 4)))
+})
+
+test_that("specifications are validated when they are built", {
+    frame <- data.frame(mass = 1:2, response = 1:2, fish = "Cod")
+    expect_error(new_plot_spec(frame, NS_params_small, "mass", "response",
+                               "fish", style = "bogus"),
+                 "unknown style selected")
+    expect_error(new_plot_spec(frame, NS_params_small, "mass", "response",
+                               "fish", wrap_var = "missing"),
+                 "wrap_var")
+    expect_error(new_plot_spec(frame, NS_params_small, "mass", "missing",
+                               "fish"),
+                 "Plot variables missing from data: missing")
+    spec <- new_plot_spec(frame, NS_params_small, "mass", "response", "fish",
+                          options = list(mode = "bogus"))
+    expect_error(render_plot_spec(spec), "Unknown plot specification mode")
+})
+
+test_that("the legend warning checks the legend variable that is used", {
+    frame <- data.frame(mass = 1:2, response = 1:2, fish = "Cod",
+                        key = "Not a colour")
+    expect_warning(plotDataFrame(frame, NS_params_small, legend_var = "key"),
+                   "missing legend in params@linecolour")
+    expect_no_warning(plotDataFrame(frame, NS_params_small))
 })
 
 test_that("the legacy adapter preserves data columns and log filtering", {

@@ -1,8 +1,11 @@
 # Internal plotting contract. Data arrive fully prepared: selection, totals,
 # density conversion and integration belong to the producer, not the renderer.
 # This is a plain list, never a new public class or a return_data schema.
-# density_wrt describes the prepared values, when known; it does not request
-# another conversion. Legacy data-frame adapters need not infer it from labels.
+# Every renderer reads its columns through the named roles in `variables`;
+# column positions matter only to the public plotDataFrame() adapter.
+plot_spec_modes <- c("ordinary", "comparison", "relative")
+plot_spec_styles <- c("line", "area", "ribbon", "envelope")
+
 new_plot_spec <- function(data, params, x_var, y_var, group_var,
                           legend_var = group_var, frame_var = NULL,
                           xlab = waiver(), ylab = waiver(),
@@ -10,8 +13,7 @@ new_plot_spec <- function(data, params, x_var, y_var, group_var,
                           xlim = c(NA, NA), ylim = c(NA, NA),
                           style = "line", y_ticks = 6, highlight = NULL,
                           wrap_var = NULL, wrap_scale = NULL,
-                          density_wrt = NA_character_, tooltip = NULL,
-                          options = list()) {
+                          tooltip = NULL, options = list()) {
     variables <- list(x = x_var, value = y_var, group = group_var,
                       legend = legend_var, frame = frame_var)
     missing <- setdiff(unlist(variables, use.names = FALSE), names(data))
@@ -19,27 +21,41 @@ new_plot_spec <- function(data, params, x_var, y_var, group_var,
         stop("Plot variables missing from data: ",
              paste(missing, collapse = ", "))
     }
+    if (!style %in% plot_spec_styles) {
+        stop("unknown style selected")
+    }
+    if (!is.null(wrap_var) && !(wrap_var %in% names(data))) {
+        stop("The `wrap_var` argument must be the name of a variable ",
+             "in the data frame.")
+    }
     options <- utils::modifyList(
         list(mode = "ordinary", style = style, y_ticks = y_ticks,
              highlight = highlight, wrap_var = wrap_var,
-             wrap_scale = wrap_scale, legend_warning_var = legend_var),
+             wrap_scale = wrap_scale),
         options
     )
     list(data = data, params = params, variables = variables,
          labels = list(x = xlab, y = ylab),
          scales = list(x = xtrans, y = ytrans),
          limits = list(x = xlim, y = ylim),
-         density_wrt = density_wrt, tooltip = tooltip, options = options)
+         tooltip = tooltip, options = options)
 }
 
 # The positional contract is confined to the compatibility boundary. In
 # particular, keep the public column names and the automatic Legend column.
-legacy_plot_spec <- function(frame, params, legend_var = NULL, ...) {
+legacy_plot_spec <- function(frame, params, legend_var = NULL,
+                             wrap_var = NULL, ...) {
     assert_that(is.data.frame(frame), is(params, "MizerParams"))
     if (ncol(frame) < 3) {
         stop("The data frame needs to have at least 3 variables.")
     }
     variables <- names(frame)[1:3]
+    # A facet must be one of the caller's own columns, not the Legend column
+    # that this adapter adds.
+    if (!is.null(wrap_var) && !(wrap_var %in% names(frame))) {
+        stop("The `wrap_var` argument must be the name of a variable ",
+             "in the data frame.")
+    }
     if (is.null(legend_var)) {
         frame$Legend <- frame[[variables[[3]]]]
         legend_var <- "Legend"
@@ -49,7 +65,7 @@ legacy_plot_spec <- function(frame, params, legend_var = NULL, ...) {
     }
     new_plot_spec(frame, params, x_var = variables[[1]],
                   y_var = variables[[2]], group_var = variables[[3]],
-                  legend_var = legend_var, ...)
+                  legend_var = legend_var, wrap_var = wrap_var, ...)
 }
 
 # Align semantic roles, not column positions. Each producer has already used
@@ -98,7 +114,6 @@ relative_plot_specs <- function(first, second, interpolate = FALSE) {
     first$variables$value <- "rel_diff"
     first$labels$y <- "Relative difference"
     first$scales$y <- "identity"
-    first$density_wrt <- NA_character_
     first$options$mode <- "relative"
     first$tooltip <- NULL
     first
@@ -156,101 +171,120 @@ set_plot_viewport <- function(plot, xlim = c(NA, NA), ylim = c(NA, NA)) {
 
 render_plot_spec <- function(spec) {
     vars <- spec$variables
-    x_var <- vars$x
-    y_var <- vars$value
-    group_var <- vars$group
-    legend_var <- vars$legend
     mode <- spec$options$mode
-    style <- spec$options$style
+    if (!mode %in% plot_spec_modes) {
+        stop("Unknown plot specification mode `", mode, "`.")
+    }
     frame <- spec$data
     legend_levels <- plot_spec_legend_levels(spec)
-    frame[[legend_var]] <- factor(frame[[legend_var]], levels = legend_levels)
-    if (sum(is.na(frame[[spec$options$legend_warning_var]]))) {
+    frame[[vars$legend]] <- factor(frame[[vars$legend]],
+                                   levels = legend_levels)
+    if (anyNA(frame[[vars$legend]])) {
         warning("missing legend in params@linecolour, ",
                 "some groups won't be displayed")
     }
-    linecolour <- spec$params@linecolour[legend_levels]
-    linetype <- spec$params@linetype[legend_levels]
-    linesize <- make_linesize(legend_levels, spec$options$highlight)
-
     spec$limits$x <- drop_nonpositive_limits(spec$limits$x, spec$scales$x)
     spec$limits$y <- drop_nonpositive_limits(spec$limits$y, spec$scales$y)
     if (mode != "relative") {
-        frame <- drop_nonpositive_values(frame, x_var, spec$scales$x)
-        frame <- drop_nonpositive_values(frame, y_var, spec$scales$y)
+        frame <- drop_nonpositive_values(frame, vars$x, spec$scales$x)
+        frame <- drop_nonpositive_values(frame, vars$value, spec$scales$y)
     }
-    if (mode != "ordinary") frame$LineSpec <- frame[[legend_var]]
+    if (mode != "ordinary") frame$LineSpec <- frame[[vars$legend]]
     spec$data <- frame
 
-    # Preserve mapping order: ggplotly uses it to order the hover fields.
-    mapping <- aes(group = .data[[group_var]])
-    if (mode == "comparison") {
-        model_var <- vars$model
-        mapping <- aes(group = interaction(.data[[legend_var]],
-                                           .data[[model_var]]),
-                       colour = .data[[legend_var]])
-    }
-    p <- ggplot(frame, mapping) + plot_spec_scales(spec)
-
-    if (mode == "comparison") {
-        p <- p + geom_line(aes(x = .data[[x_var]], y = .data[[y_var]],
-                               linetype = .data[[model_var]],
-                               linewidth = .data[["LineSpec"]]))
-    } else if (mode == "relative") {
-        p <- p + geom_hline(yintercept = 0, linetype = 1,
-                            colour = "dark grey", linewidth = 0.75) +
-            geom_line(aes(x = .data[[x_var]], y = .data[[y_var]],
-                          colour = .data[[legend_var]],
-                          linewidth = .data[["LineSpec"]]))
-    } else if (style == "area") {
-        p <- p + geom_area(aes(x = .data[[x_var]], y = .data[[y_var]],
-                               fill = .data[[legend_var]])) +
-            scale_fill_manual(values = linecolour)
-    } else {
-        if (!style %in% c("line", "ribbon", "envelope")) {
-            stop("unknown style selected")
-        }
-        if (style != "line") {
-            check_band_vars(names(frame), style)
-            p <- p + geom_ribbon(aes(x = .data[[x_var]],
-                                     ymin = .data[["ymin"]],
-                                     ymax = .data[["ymax"]],
-                                     fill = .data[[legend_var]]),
-                                 alpha = 0.25, colour = NA) +
-                scale_fill_manual(values = linecolour)
-        }
-        # Give each layer its own binding of yv, including both band edges.
-        value_line <- function(yv) {
-            geom_line(aes(x = .data[[x_var]], y = .data[[yv]],
-                          colour = .data[[legend_var]],
-                          linetype = .data[[legend_var]],
-                          linewidth = .data[[legend_var]]))
-        }
-        y_vars <- if (style == "envelope") c("ymax", "ymin") else y_var
-        for (yv in y_vars) p <- p + value_line(yv)
-    }
-    if (mode != "ordinary" || style != "area") {
-        p <- p + scale_colour_manual(values = linecolour)
-        if (mode == "ordinary") {
-            p <- p + scale_linetype_manual(values = linetype) +
-                scale_discrete_manual("linewidth", values = linesize)
-        } else {
-            if (mode == "comparison") {
-                p <- p + scale_linetype_discrete(drop = FALSE)
-            }
-            p <- p + scale_discrete_manual("linewidth", values = linesize,
-                                           guide = "none")
-        }
-    }
+    p <- ggplot(frame, plot_spec_mapping(spec)) + plot_spec_scales(spec) +
+        plot_spec_layers(spec, legend_levels)
     wrap_var <- spec$options$wrap_var
     if (!is.null(wrap_var)) {
-        if (!(wrap_var %in% names(frame))) {
-            stop("The `wrap_var` argument must be the name of a variable ",
-                 "in the data frame.")
-        }
         p <- p + facet_wrap(wrap_var, scales = spec$options$wrap_scale)
     }
     make_mizer_plot(p, plot_spec_tooltip(spec))
+}
+
+# Preserve mapping order: ggplotly uses it to order the hover fields.
+plot_spec_mapping <- function(spec) {
+    vars <- spec$variables
+    if (spec$options$mode == "comparison") {
+        return(aes(group = interaction(.data[[vars$legend]],
+                                       .data[[vars$model]]),
+                   colour = .data[[vars$legend]]))
+    }
+    aes(group = .data[[vars$group]])
+}
+
+# The geoms of each mode, followed by the scales that style them. Comparison
+# and relative plots distinguish models by linetype and draw the legend
+# without line widths; ordinary plots carry the full species styling.
+plot_spec_layers <- function(spec, legend_levels) {
+    vars <- spec$variables
+    x_var <- vars$x
+    y_var <- vars$value
+    legend_var <- vars$legend
+    linecolour <- spec$params@linecolour[legend_levels]
+    linesize <- make_linesize(legend_levels, spec$options$highlight)
+    hidden_linewidth <- scale_discrete_manual("linewidth", values = linesize,
+                                              guide = "none")
+    switch(
+        spec$options$mode,
+        comparison = list(
+            geom_line(aes(x = .data[[x_var]], y = .data[[y_var]],
+                          linetype = .data[[vars$model]],
+                          linewidth = .data[["LineSpec"]])),
+            scale_colour_manual(values = linecolour),
+            scale_linetype_discrete(drop = FALSE),
+            hidden_linewidth
+        ),
+        relative = list(
+            geom_hline(yintercept = 0, linetype = 1,
+                       colour = "dark grey", linewidth = 0.75),
+            geom_line(aes(x = .data[[x_var]], y = .data[[y_var]],
+                          colour = .data[[legend_var]],
+                          linewidth = .data[["LineSpec"]])),
+            scale_colour_manual(values = linecolour),
+            hidden_linewidth
+        ),
+        ordinary = ordinary_plot_layers(spec, legend_levels, linecolour,
+                                        linesize)
+    )
+}
+
+ordinary_plot_layers <- function(spec, legend_levels, linecolour, linesize) {
+    vars <- spec$variables
+    x_var <- vars$x
+    legend_var <- vars$legend
+    style <- spec$options$style
+    if (style == "area") {
+        return(list(
+            geom_area(aes(x = .data[[x_var]], y = .data[[vars$value]],
+                          fill = .data[[legend_var]])),
+            scale_fill_manual(values = linecolour)
+        ))
+    }
+    band <- list()
+    if (style != "line") {
+        check_band_vars(names(spec$data), style)
+        band <- list(
+            geom_ribbon(aes(x = .data[[x_var]], ymin = .data[["ymin"]],
+                            ymax = .data[["ymax"]],
+                            fill = .data[[legend_var]]),
+                        alpha = 0.25, colour = NA),
+            scale_fill_manual(values = linecolour)
+        )
+    }
+    # A function rather than an inline aes(), so that each layer keeps its own
+    # binding of yv, including both edges of an envelope.
+    value_line <- function(yv) {
+        geom_line(aes(x = .data[[x_var]], y = .data[[yv]],
+                      colour = .data[[legend_var]],
+                      linetype = .data[[legend_var]],
+                      linewidth = .data[[legend_var]]))
+    }
+    y_vars <- if (style == "envelope") c("ymax", "ymin") else vars$value
+    linetype <- spec$params@linetype[legend_levels]
+    c(band, lapply(y_vars, value_line),
+      list(scale_colour_manual(values = linecolour),
+           scale_linetype_manual(values = linetype),
+           scale_discrete_manual("linewidth", values = linesize)))
 }
 
 # Animation consumes the same named contract. Static hover plots continue to
