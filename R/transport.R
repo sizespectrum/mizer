@@ -13,6 +13,28 @@ flux_limiter_scheme <- function(params) {
     if (flux == "upwind") "none" else flux
 }
 
+#' Whether Euler transport holds the excluded upper tail at zero
+#'
+#' Shared by Euler solver selection and the steady-state drift diagnostic.
+#' The legacy upwind Euler solver without positive diffusion can populate
+#' classes above the retained support. All other Euler paths clear them.
+#' Diffusion is checked across all species and sizes using the rates already
+#' evaluated at the current state, including custom rate functions; do not
+#' substitute a parameter slot or cache the result across time steps.
+#'
+#' This policy is specific to Euler. Predictor-corrector and TR-BDF2 always
+#' clear the excluded tail. It does not choose the support top or alter the
+#' outgoing flux from the last retained class.
+#'
+#' @param diffusion The evaluated species-by-size diffusion rate array.
+#' @param flux_limiter Internal flux scheme from `flux_limiter_scheme()`:
+#'   `"none"`, `"van_leer"` or `"centred"`.
+#' @return A single logical: whether Euler clears the excluded upper tail.
+#' @noRd
+euler_uses_hard_boundary <- function(diffusion, flux_limiter) {
+    flux_limiter != "none" || any(diffusion > 0)
+}
+
 #' Uniform log-size grid spacing
 #'
 #' The mizer size grid is geometric, so `x = log(w)` is uniformly spaced. This
@@ -53,10 +75,9 @@ log_dx <- function(params) {
 #' even when a frozen, food-limited or otherwise degenerate growth field is
 #' supplied (e.g. in the second-order time-steppers' frozen-rate solves).
 #'
-#' The dynamics impose this as the upper boundary condition (see
-#' `get_transport_coefs()`) so that abundance is held at zero above `w_max` even
-#' when diffusion would otherwise carry density past it, and the Newton solver
-#' solves on exactly this support.
+#' The transport solvers impose this boundary (see `get_transport_coefs()`),
+#' except for the legacy upwind Euler path without positive diffusion (see
+#' `euler_uses_hard_boundary()`). The Newton solver solves on this support.
 #'
 #' @param params A \linkS4class{MizerParams} object.
 #' @return A per-species integer vector of the top retained size-class index.
