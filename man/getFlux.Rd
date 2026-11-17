@@ -59,16 +59,14 @@ At the recruitment size, the flux is simply the recruitment rate
 the flux is zero.
 
 At the face just above a species' retained size support, the value is the
-flux leaving the last retained size class. Whenever projection holds the
-excluded size classes at zero this is a loss through an absorbing boundary,
-not an increase in the excluded size class. That is the case with any
-positive diffusion, with a second-order flux scheme, and with the
-\code{"predictor_corrector"} and \code{"tr_bdf2"} methods of \code{\link[=project]{project()}}. Only the
-default Euler method with first-order upwind fluxes and no diffusion moves
-this flux on into the excluded size class. Influx from an already populated
-excluded tail is omitted, as in the transport solver; the flux limiter still
-uses the supplied state. This boundary value is stored at the first excluded
-grid node, when
+flux leaving the last retained size class. Without diffusion this is zero
+unless individuals are still growing there, which they are not if
+\code{w_repro_max} is no larger than \code{w_max}, as it is by default. Individuals
+that do leave are lost through the boundary, except with the default Euler
+method, first-order upwind fluxes and no diffusion, which carry them on into
+the next size class. Influx from an already populated excluded tail is
+omitted, as in the transport solver; the flux limiter still uses the supplied
+state. This boundary value is stored at the first excluded grid node, when
 there is one. The face above the final grid bin is not part of this array.
 Use \code{all.sizes = TRUE} when plotting to include the boundary face.
 
