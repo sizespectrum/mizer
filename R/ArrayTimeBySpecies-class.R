@@ -246,10 +246,7 @@ addPlot.ArrayTimeBySpecies <- function(plot, x, species = NULL,
     y_var <- names(plot_dat)[[2]]
     check_addPlot_compatible(plot, x_var = "Year", y_var = y_var,
                              units = attr(x, "units"))
-    plot <- set_plot_viewport(
-        plot, xlim = tlim, ylim = ylim,
-        source = viewport_source("Year", y_var, group = "Species",
-                                 data = plot_dat))
+    plot <- set_plot_viewport(plot, xlim = tlim, ylim = ylim)
 
     mapping <- aes(x = .data[["Year"]], y = .data[[y_var]],
                    group = .data[["Species"]])

@@ -595,17 +595,18 @@ test_that("size viewports preserve returned data and totals", {
 })
 
 test_that("zooming the size axis fits the y axis to what is visible", {
+    # The y axis is logarithmic.
     y_range <- function(p) {
-        ggplot2::ggplot_build(p)$layout$panel_params[[1]]$y.range
+        10^ggplot2::ggplot_build(p)$layout$panel_params[[1]]$y.range
     }
     full <- plotSpectra(NS_params_small)
     zoom <- plotSpectra(NS_params_small, wlim = c(1, 100))
-    expect_lt(diff(y_range(zoom)), diff(y_range(full)))
+    expect_lt(diff(log(y_range(zoom))), diff(log(y_range(full))))
     # The data are unchanged; only the window moved.
     expect_equal(zoom$data, full$data)
     visible <- full$data[full$data$w >= 1 & full$data$w <= 100, 2]
-    expect_lte(zoom$coordinates$limits$y[1], min(visible))
-    expect_gte(zoom$coordinates$limits$y[2], max(visible))
+    expect_lte(y_range(zoom)[1], min(visible))
+    expect_gte(y_range(zoom)[2], max(visible))
 })
 
 test_that("a background species selected by name is drawn once", {

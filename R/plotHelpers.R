@@ -89,14 +89,11 @@ plot_y_is_log <- function(plot) {
     plot_axis_is_log(plot, "y")
 }
 
-# Whether a plot's x or y scale is log10. ggplot2 3.5 added
-# get_transformation(); earlier versions only have the `trans` field.
+# Whether a plot's x or y scale is log10.
 plot_axis_is_log <- function(plot, axis) {
     scale <- plot$scales$get_scales(axis)
     if (is.null(scale)) return(FALSE)
-    transformation <- tryCatch(scale$get_transformation(),
-                               error = function(e) scale$trans)
-    identical(transformation$name, "log-10")
+    identical(scale$get_transformation()$name, "log-10")
 }
 
 #' Y-axis limits an array's type calls for
@@ -183,20 +180,28 @@ add_total_line <- function(plot_dat, x_var = names(plot_dat)[[1]],
         series <- series[order(series[[x_var]]), , drop = FALSE]
         x <- series[[x_var]]
         y <- series[[value_col]]
-        if (length(x) < 2) {
-            # `approx()` needs two points. A single density value contributes
-            # only at that coordinate; a cumulative value persists beyond it.
+        unique_x <- unique(x)
+        if (length(unique_x) < 2) {
+            # `approx()` needs two distinct points. Average ties as it does.
+            # A single density coordinate contributes only where it sits; a
+            # cumulative value persists beyond it.
+            y_mean <- mean(y, na.rm = TRUE)
             if (cumulative) {
-                total[x_all >= x] <- total[x_all >= x] + y
+                beyond <- x_all >= unique_x
+                total[beyond] <- total[beyond] + y_mean
             } else {
-                hit <- match(x, x_all)
-                total[hit] <- total[hit] + y
+                hit <- match(unique_x, x_all)
+                total[hit] <- total[hit] + y_mean
             }
             next
         }
+        # A completed cumulative series keeps the value at its last size,
+        # averaged over ties as approx() averages them.
+        last <- mean(y[x == x[length(x)]], na.rm = TRUE)
         contribution <- stats::approx(log(x), y, xout = log(x_all),
+                                      ties = mean,
                                       yleft = if (cumulative) 0 else NA_real_,
-                                      yright = if (cumulative) tail(y, 1) else
+                                      yright = if (cumulative) last else
                                           NA_real_)$y
         contribution[is.na(contribution)] <- 0
         total <- total + contribution

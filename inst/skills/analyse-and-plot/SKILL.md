@@ -270,8 +270,10 @@ dedicated `plot…()` functions below — share these optional arguments:
 
 `wlim`/`llim` (size axis), `tlim` (time axis) and `ylim` (value axis) only set the **visible
 window**: data outside the range is hidden but nothing is recomputed or
-removed from `return_data`. An end of `ylim` left as `NA` is fitted to the
-data inside the size or time window, so zooming in rescales the value axis. Limits also leave comparison and relative values
+removed from `return_data`. An end of `ylim` left as `NA` is fitted to what
+is visible inside the size or time window, so zooming in rescales the value
+axis. The fit is made when the plot is drawn, so it also covers layers you add
+with `+` and gives each free y scale of a faceted plot its own range. Limits also leave comparison and relative values
 and community totals unchanged. For animations, `tlim` chooses the displayed
 frames; it does not change the values calculated at those times. To change
 the underlying numbers — for example the size range that a biomass is summed

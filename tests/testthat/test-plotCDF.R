@@ -371,6 +371,21 @@ test_that("size viewports preserve returned data and totals", {
     }
 })
 
+test_that("CDF bounds need only be in order for the curves they affect", {
+    # 10 cm is less than 100 g for each fish but not for the resource.
+    cdf <- plotCDF(NS_params_small, min_l = 10, max_w = 100,
+                   resource = FALSE, total = FALSE, return_data = TRUE)
+    expect_setequal(unique(cdf$Species),
+                    NS_params_small@species_params$species)
+    expect_error(plotCDF(NS_params_small, min_l = 10, max_w = 100,
+                         resource = TRUE, return_data = TRUE),
+                 "lower integration bound must be less than")
+    # A total sums the resource too, whichever curves are drawn.
+    expect_error(plotCDF(NS_params_small, min_l = 10, max_w = 100,
+                         resource = FALSE, total = TRUE, return_data = TRUE),
+                 "lower integration bound must be less than")
+})
+
 test_that("the end of a CDF is the getBiomass() integral over its range", {
     for (second in c(FALSE, TRUE)) {
         p <- NS_params_small

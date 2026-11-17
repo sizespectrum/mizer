@@ -187,11 +187,13 @@ plot_cdf <- function(params, power, normalise, log_x, log_y, wlim, llim,
     series <- abundance_series(params, params@initial_n, params@initial_n_pp,
                                power = 0, x = params@w, x_full = params@w_full,
                                background = background)
+    # A total includes every contributor, whichever curves are drawn.
+    contributors <- if (total) unique(series$Species) else shown
     cdf_dat <- prepare_spectra_cdf_data(series, params, power,
                                         min_w = min_w, max_w = max_w,
-                                        min_l = min_l, max_l = max_l)
-    # A total includes every contributor, whichever curves are drawn.
-    if (!total) cdf_dat <- cdf_dat[cdf_dat$Species %in% shown, , drop = FALSE]
+                                        min_l = min_l, max_l = max_l,
+                                        contributors = contributors)
+    cdf_dat <- cdf_dat[cdf_dat$Species %in% contributors, , drop = FALSE]
     cdf_dat <- convert_plot_size_axis(cdf_dat, params, size_axis)
     if (total) {
         cdf_dat <- add_total_line(cdf_dat, x_var = plot_size_x_var(size_axis),
@@ -237,9 +239,15 @@ check_cdf_bounds <- function(min_w, max_w, min_l, max_l) {
 # of a curve is the integral that getBiomass() or getN() reports over the same
 # range with `exact_bounds = TRUE`, in both numerical schemes. A cumulative
 # value belongs on the upper edge of the part of its bin inside the range.
+#
+# Length bounds convert to different weights for each species and for the
+# resource, so they can be in order for some and crossed for others. Only the
+# `contributors`, the series that are drawn or summed into a total, must have
+# them in order; any other series gets zero weights and is discarded.
 prepare_spectra_cdf_data <- function(series, params, power,
                                      min_w = 0, max_w = Inf,
-                                     min_l = NULL, max_l = NULL) {
+                                     min_l = NULL, max_l = NULL,
+                                     contributors = unique(series$Species)) {
     check_cdf_bounds(min_w, max_w, min_l, max_l)
     bins <- lapply(c(FALSE, TRUE), function(resource) {
         w <- if (resource) params@w_full else params@w
@@ -247,7 +255,10 @@ prepare_spectra_cdf_data <- function(series, params, power,
         limits <- size_range_limits(params, min_w = min_w, max_w = max_w,
                                     min_l = min_l, max_l = max_l,
                                     resource = resource)
-        if (any(limits$min_w >= limits$max_w)) {
+        row_names <- if (resource) "Resource" else
+            as.character(params@species_params$species)
+        checked <- row_names %in% contributors
+        if (any(limits$min_w[checked] >= limits$max_w[checked])) {
             stop("Each CDF lower integration bound must be less than ",
                  "its upper bound.")
         }

@@ -124,6 +124,8 @@ make_linesize <- function(levels, highlight) {
 #'
 #' Attaches the tooltip information to a ggplot object and adds the
 #' `"mizer_plot"` class so that [plotHover()] knows which aesthetics to show.
+#' It also gives the plot the layout that fits an open end of its y limits to
+#' the data visible within its x limits when the plot is built.
 #'
 #' @param plot A ggplot object.
 #' @param tooltip Character vector of variable names to include in the plotly
@@ -132,6 +134,7 @@ make_linesize <- function(levels, highlight) {
 #'   `"mizer_plot"` prepended to its class.
 #' @keywords internal
 make_mizer_plot <- function(plot, tooltip) {
+    plot <- with_mizer_layout(plot)
     attr(plot, "mizer_tooltip") <- tooltip
     class(plot) <- unique(c("mizer_plot", class(plot)))
     plot
@@ -240,7 +243,7 @@ plotHover.mizer_plot <- function(x = ggplot2::last_plot(), ...,
                                      "all") {
     class(x) <- setdiff(class(x), "mizer_plot")
     widget <- withCallingHandlers(
-        plotly::ggplotly(x, ..., tooltip = tooltip),
+        plotly::ggplotly(hover_viewport(x), ..., tooltip = tooltip),
         warning = function(w) {
             if (grepl("transformation introduced infinite values",
                       conditionMessage(w))) {

@@ -25,7 +25,7 @@ Imports:
     assertthat,
     deSolve,
     dplyr,
-    ggplot2 (>= 3.4.0),
+    ggplot2 (>= 3.5.0),
     ggrepel,
     grid,
     lubridate,

@@ -1035,10 +1035,8 @@ addPlot.ArraySpeciesBySize <- function(plot, x, species = NULL,
     y_var <- names(plot_dat)[2]
     check_addPlot_compatible(plot, x_var = x_var, y_var = y_var,
                              units = array_units(x, size_axis, per_log_size))
-    plot <- set_plot_viewport(
-        plot, xlim = plot_size_xlim(wlim, size_axis, llim),
-        source = viewport_source(x_var, y_var, group = "Species",
-                                 data = plot_dat))
+    plot <- set_plot_viewport(plot,
+                              xlim = plot_size_xlim(wlim, size_axis, llim))
 
     mapping <- aes(x = .data[[x_var]], y = .data[[y_var]],
                    group = .data[["Species"]])

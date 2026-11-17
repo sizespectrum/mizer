@@ -161,6 +161,44 @@ test_that("plot.ArraySpeciesBySize returns ggplot", {
     expect_true(is.numeric(df[[2]]))
 })
 
+test_that("array plot totals count repeated samples only once", {
+    x <- matrix(c(1, 2, 1, 2), nrow = 2,
+                dimnames = list(sp = c("a", "b"), w = c("1", "1")))
+    x <- ArraySpeciesBySize(x)
+    for (columns in list(1, 1:2)) {
+        selected <- x[, columns, drop = FALSE]
+        original <- plot(selected, all.sizes = TRUE, return_data = TRUE)
+        expect_no_warning(out <- plot(selected, total = TRUE,
+                                      all.sizes = TRUE, return_data = TRUE))
+        total <- out[out$Species == "Total", ]
+        expect_equal(total$w, 1)
+        expect_equal(total[[2]], 3)
+        expect_equal(out[out$Species != "Total", ], original)
+    }
+})
+
+test_that("array plot totals preserve repeated model size coordinates", {
+    for (average in c(FALSE, TRUE)) {
+        p <- NS_params_small
+        second_order_w(p) <- c(bin_average = average)
+        x <- getMort(p)
+        for (size_axis in c("w", "l")) {
+            single <- plot(x[, 5, drop = FALSE], total = TRUE,
+                           size_axis = size_axis, all.sizes = TRUE,
+                           return_data = TRUE)
+            expect_no_warning({
+                repeated <- plot(x[, c(5, 5), drop = FALSE], total = TRUE,
+                                 size_axis = size_axis, all.sizes = TRUE,
+                                 return_data = TRUE)
+            })
+            expect_equal(repeated[repeated$Species == "Total", ],
+                         single[single$Species == "Total", ],
+                         ignore_attr = TRUE)
+            expect_equal(nrow(repeated), nrow(single) + nrow(x))
+        }
+    }
+})
+
 test_that("length-axis array plots only transform number densities", {
     density <- initialN(NS_params_small)
     density_w <- plot(density, size_axis = "w", return_data = TRUE)

@@ -88,14 +88,20 @@
 
 ## New features
 
+- mizer now needs ggplot2 3.5.0 or later, which it uses to fit the y axis of a
+  zoomed plot when the plot is drawn (#564).
 - Plot limits now only set the visible window (#564). `wlim`, `llim`, `tlim`
   and `ylim` no longer remove data before it is plotted, so `return_data =
   TRUE`, community totals, comparisons, relative differences and cumulative
   distributions are the same whatever window is shown, and a line that leaves
   the window is drawn up to its edge. An end of `ylim` that is left as `NA` is
-  fitted to the part of the data inside the window. Code that used the limits
-  to subset returned data needs updating; see the upgrade guide. Animations
-  still use `tlim` to choose their frames.
+  fitted, when the plot is drawn, to what is visible inside the window: every
+  layer, including those added afterwards with `+`, stacked areas up to the
+  top of the stack, and each free y scale of a faceted plot on its own. In
+  `plotHover()` this needs ggplot2 4.0.0 or later; with ggplot2 3.5 the open
+  end of an interactive plot covers all of the data. Code that used
+  the limits to subset returned data needs updating; see the upgrade guide.
+  Animations still use `tlim` to choose their frames.
 - `plotCDF()`, `plotCDF2()` and their `plotly…()` counterparts gain `min_w`,
   `max_w`, `min_l` and `max_l` to choose the size range a distribution is
   integrated over (#564). A bound that falls inside a size bin includes
@@ -105,7 +111,9 @@
   value. With bin averaging this replaces the weighting at the geometric bin
   centre, which changes the curves slightly. Without bounds a distribution
   covers the whole size grid, and a community total includes every species and
-  the resource whichever curves are drawn.
+  the resource whichever curves are drawn. Length bounds, which convert to a
+  different weight for each species and the resource, need only be in order
+  for the curves that are drawn or summed into a total.
 - New `getR0()` gives the lifetime reproductive output R0 of each species:
   the number of eggs that one recruit produces over its life, with growth,
   mortality, diffusion and reproductive investment held fixed (#632). It is
@@ -170,6 +178,10 @@
   `params@linecolour` also when the legend comes from `legend_var`. Before,
   the warning looked only at a column called `Legend`, so it never fired for
   any other legend variable (#564).
+- Plotting size-resolved arrays with `total = TRUE` now works when columns
+  repeat a single size coordinate (#659). Repeated samples contribute only
+  once to the community total, with differing values at the same size averaged
+  within each species. The individual species' plotted values are preserved.
 
 - The `plotly…()` wrappers now pass `...` on to their plot functions (#564).
   `plotlyYield()`, `plotlyYieldGear()`, `plotlyPredMort()`, `plotlyFMort()`

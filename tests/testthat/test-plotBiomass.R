@@ -92,7 +92,13 @@ test_that("time viewports preserve returned data and totals", {
 })
 
 test_that("zooming the time axis fits the y axis to the visible years", {
+    # The y axis is logarithmic.
+    y_range <- function(p) {
+        10^ggplot2::ggplot_build(p)$layout$panel_params[[1]]$y.range
+    }
     bm <- plotBiomass(sim, tlim = c(2, 3))
     years <- bm$data$Year >= 2 & bm$data$Year <= 3
-    expect_equal(bm$coordinates$limits$y, range(bm$data[years, 2]))
+    expect_lt(diff(log(y_range(bm))), diff(log(y_range(plotBiomass(sim)))))
+    expect_lte(y_range(bm)[1], min(bm$data[years, 2]))
+    expect_gte(y_range(bm)[2], max(bm$data[years, 2]))
 })

@@ -244,24 +244,18 @@ plotYieldGear.MizerSim <- function(object,
     linesize <- make_linesize(species_levels, highlight)
     xtrans <- if (log_axes$log_x) "log10" else "identity"
     ytrans <- if (log_axes$log_y) "log10" else "identity"
-    viewport <- plot_viewport(
-        drop_nonpositive_limits(tlim, xtrans),
-        drop_nonpositive_limits(ylim, ytrans), xtrans, ytrans,
-        list(viewport_source("Year", "Yield", group = c("Species", "Gear"))))
-    p <- make_mizer_plot(
+    make_mizer_plot(
         ggplot(ym) +
             geom_line(aes(x = Year, y = Yield, colour = Species,
                           linetype = Gear, linewidth = Legend)) +
             scale_y_continuous(trans = ytrans, name = "Yield [g]") +
             scale_x_continuous(trans = xtrans) +
-            coord_cartesian(xlim = viewport$x,
-                            ylim = viewport_ylim(viewport, ym)) +
+            coord_cartesian(xlim = drop_nonpositive_limits(tlim, xtrans),
+                            ylim = drop_nonpositive_limits(ylim, ytrans)) +
             scale_colour_manual(values = params@linecolour[species_levels]) +
             scale_discrete_manual("linewidth", values = linesize),
         c("Species", "Gear", "Year", "Yield")
     )
-    attr(p, "mizer_viewport") <- viewport
-    p
 }
 
 #' @rdname plotYieldGear

@@ -141,9 +141,13 @@ This applies to array plots, named plots, comparisons and relative plots.
 `return_data = TRUE` returns the same data with or without these limits, and
 community totals and cumulative distributions no longer depend on the window.
 Lines and areas can cross a window boundary without losing their neighbouring
-vertices, and an end of `ylim` left as `NA` is fitted to the part of each line
-inside the window, so zooming in on the size or time axis still rescales the
-value axis. Animations still use `tlim` to choose their displayed frames.
+vertices, and an end of `ylim` left as `NA` is fitted to what is visible inside
+the window, so zooming in on the size or time axis still rescales the value
+axis. The fit is made when the plot is drawn, so it includes layers you add
+afterwards with `+`, reaches the top of stacked areas and treats each free y
+scale of a faceted plot separately. In `plotHover()` the fit needs ggplot2
+4.0.0 or later; with ggplot2 3.5 an open end of an interactive plot covers all
+of the data. Animations still use `tlim` to choose their displayed frames.
 
 Code that used plot limits to extract a subset of the returned data should
 subset that data explicitly. For biomass or abundance integrated over a size
@@ -153,8 +157,10 @@ For `plotCDF()`, `plotCDF2()` and their `plotly…()` counterparts, select the
 integration range with the new scalar `min_w`, `max_w`, `min_l` and `max_l`
 arguments. Length bounds override the corresponding weight bounds and are
 converted with each species' own length-weight parameters, including the
-resource's equivalent-sphere convention. Partial boundary bins contribute only
-the part inside the interval, under both quadrature schemes.
+resource's equivalent-sphere convention, so a lower length bound can lie above
+an upper weight bound for some species and not for others. That is an error
+only for a curve that is drawn or summed into a total. Partial boundary bins
+contribute only the part inside the interval, under both quadrature schemes.
 
 ```r
 # Previously used the visible size range to select a distribution:
@@ -178,6 +184,19 @@ ends of a range whole by default; pass them `exact_bounds = TRUE` to compare.
 In a model that bin-averages its integrals, the cumulative values therefore
 differ slightly from those of earlier versions, which weighted each bin at its
 geometric centre.
+
+### mizer needs ggplot2 3.5.0 or later
+
+mizer fits the y axis of a zoomed plot when the plot is drawn, through the
+layout that ggplot2 3.5.0 lets a plot carry, so it no longer installs or loads
+alongside an older ggplot2. `install.packages("mizer")` updates ggplot2 for
+you. If your project pins its package versions, for example with renv, update
+ggplot2 there as well:
+
+```r
+install.packages("ggplot2")
+renv::snapshot()  # only if the project uses renv
+```
 
 ### Summary functions count the ends of a size range exactly in edition 3
 

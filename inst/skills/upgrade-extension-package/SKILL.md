@@ -606,7 +606,10 @@ of deriving a nonsense value from the additive contribution.
 mizer's own plots no longer filter their data by `wlim`, `llim`, `tlim` or
 `ylim`. The limits are handed to the renderer, which shows only that window;
 `return_data = TRUE`, totals and comparisons are the same whatever the window,
-and an open end of `ylim` is fitted to the data inside it.
+and an open end of `ylim` is fitted to what is visible inside it. That fit is
+made when the plot is drawn, by a layout that mizer's plotting functions attach
+to the plot, so a plot made with `plotDataFrame()` gets it, while a ggplot that
+a package builds itself takes its y range from all of its data.
 
 `apply_wlim()` is still exported and still filters, so an array `plot()` method
 that calls it keeps the old behaviour. To match mizer, drop the call and pass

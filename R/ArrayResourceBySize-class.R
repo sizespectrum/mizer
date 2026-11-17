@@ -390,9 +390,8 @@ addPlot.ArrayResourceBySize <- function(plot, x, species = NULL,
     y_var <- names(plot_dat)[2]
     check_addPlot_compatible(plot, x_var = x_var, y_var = y_var,
                              units = array_units(x, size_axis, per_log_size))
-    plot <- set_plot_viewport(
-        plot, xlim = plot_size_xlim(wlim, size_axis, llim),
-        source = viewport_source(x_var, y_var, data = plot_dat))
+    plot <- set_plot_viewport(plot,
+                              xlim = plot_size_xlim(wlim, size_axis, llim))
 
     # A resource array is a single line, so there is nothing to distinguish by
     # colour. Mapping colour to the "Resource" legend level would rely on the
