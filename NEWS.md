@@ -118,18 +118,35 @@
   `ylim`, `y_ticks`, `total` or `background` on to the array plot instead of
   ignoring them, and `plotPredMort()` keeps 0 as its lower limit only when no
   `ylim` is given (#564).
+
 - `plotSpectra()` no longer draws a background species twice, under its own
   name and as "Background", when it is also selected by name. It is drawn once
   as "Background", as in `plotCDF()` and the time-series plots (#564).
+
 - `plotDataFrame()` now warns about legend entries that have no colour in
   `params@linecolour` also when the legend comes from `legend_var`. Before,
   the warning looked only at a column called `Legend`, so it never fired for
   any other legend variable (#564).
+
 - The `plotly…()` wrappers now pass `...` on to their plot functions (#564).
   `plotlyYield()`, `plotlyYieldGear()`, `plotlyPredMort()`, `plotlyFMort()`
   and `plotlySpectra()` used to drop them silently, so that for example
   `plotlyFMort(sim, all.sizes = TRUE)` ignored `all.sizes`. All the wrappers
   now forward their arguments in the same way.
+
+- Euler projection and steady-state drift diagnostics now share the rule for
+  selecting the upper size boundary. The rule uses the current evaluated
+  diffusion across all species, including custom rates, and the flux scheme.
+  This internal refactor preserves numerical behaviour and the legacy upwind
+  Euler path without positive diffusion.
+
+- Steady-state drift diagnostics no longer count transport into empty size
+  classes above the retained support when projection holds those classes at
+  zero (#658). Losses from the last retained class still contribute, as does
+  inflow into empty classes inside the support. Populated tails and the legacy
+  upwind Euler path without diffusion retain their previous diagnostic
+  behaviour; the numerical details explain these limits.
+
 - Size-resolved array wrappers now retain the exact original size-grid mapping
   when subsetted (#650). Printing, summaries, data-frame conversion and plots
   work for sparse selections, and reordered or repeated columns keep the
