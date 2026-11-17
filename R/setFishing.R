@@ -220,8 +220,13 @@ setFishing.MizerParams <- function(params, selectivity = NULL, catchability = NU
                                       w = w_names)
         params@selectivity <- selectivity
     } else {
-        selectivity <- calc_selectivity(params)
-        selectivity <- preserve_rate_overrides(params, "selectivity", selectivity)
+        # A catchability supplied in this call sets the gears itself, so only
+        # a stored one can impose its gears on the selectivity.
+        gears <- fishing_gears(params, gear_names,
+                               c("selectivity",
+                                 if (is.null(catchability)) "catchability"))
+        selectivity <- preserve_rate_overrides(params, "selectivity",
+                                               calc_selectivity(params), gears)
         selectivity <- copy_override_marker(selectivity, params@selectivity)
         params@selectivity <- selectivity
     }
@@ -257,7 +262,9 @@ setFishing.MizerParams <- function(params, selectivity = NULL, catchability = NU
                           gear_params$species[[g]]]] <-
                 gear_params$catchability[[g]]
         }
-        catchability <- preserve_rate_overrides(params, "catchability", catchability)
+        catchability <- preserve_rate_overrides(
+            params, "catchability", catchability,
+            fishing_gears(params, gear_names))
         catchability <- copy_override_marker(catchability, params@catchability)
         params@catchability <- catchability
     }

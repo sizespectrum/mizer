@@ -110,8 +110,8 @@ prepare_rate_value <- function(params, var, value, species) {
         attr(value, "mizer_override_species") <- NULL
         return(value)
     }
-    original <- unclass_rate(if (var == "psi") repro_prop(params) else
-        slot(params, var))
+    original <- if (var == "psi") repro_prop(params) else slot(params, var)
+    original <- unclass_rate(original)
     expected <- rate_slice(original, var, species)
     axis <- rate_species_dim(var)
     if (identical(dim(value), dim(original))) {
@@ -120,10 +120,17 @@ prepare_rate_value <- function(params, var, value, species) {
             stop("The species dimnames must match the model's species order.")
         }
         check_other_dimnames(dimnames(value)[-axis], dimnames(original)[-axis])
+        # Dimnames are optional. Where they are missing, the entries are in
+        # the order of the rate array, which supplies the names.
+        dn <- dimnames(value)
+        if (is.null(dn)) dn <- vector("list", length(dim(value)))
+        missing_dn <- vapply(dn, is.null, logical(1))
+        dn[missing_dn] <- dimnames(original)[missing_dn]
+        dimnames(value) <- dn
         value <- rate_slice(value, var, species)
     } else if (length(species) == 1L &&
-               length(value) == length(expected) &&
-               length(dim(value)) < length(dim(expected))) {
+                   length(value) == length(expected) &&
+                   length(dim(value)) < length(dim(expected))) {
         # The slice of a single species without its species dimension: a
         # vector, or for the selectivity a gear x size matrix.
         if (!is.null(dim(value))) {
@@ -163,27 +170,103 @@ prepare_rate_value <- function(params, var, value, species) {
                        params@species_params$species)
 }
 
-# Preserve only the protected slices of a newly calculated array.
-preserve_rate_overrides <- function(params, var, value) {
+# Index the given gears and species of a fishing array by name.
+fishing_index <- function(x, gears, species = dimnames(x)[[2]]) {
+    index <- lapply(dim(x), seq_len)
+    index[[1]] <- match(gears, dimnames(x)[[1]])
+    index[[2]] <- match(species, dimnames(x)[[2]])
+    index
+}
+
+# Bring a fishing array calculated for the gears in the gear parameters onto
+# the gear axis `gears`, matching by name. A gear without parameters gets
+# zeros.
+align_gears <- function(x, gears) {
+    if (identical(dimnames(x)[[1]], gears)) return(x)
+    dn <- dimnames(x)
+    dn[[1]] <- gears
+    out <- array(0, dim = c(length(gears), dim(x)[-1]), dimnames = dn)
+    common <- intersect(gears, dimnames(x)[[1]])
+    values <- do.call(`[`, c(list(x), fishing_index(x, common),
+                             list(drop = FALSE)))
+    do.call(`[<-`, c(list(out), fishing_index(out, common),
+                     list(value = values)))
+}
+
+# The gear axis of a recalculated fishing array. The two fishing arrays must
+# share one. A fishing array set by hand as a whole keeps the gears it was set
+# with, as it did before arrays could be set for selected species, and the
+# other array follows it. Otherwise the gears are those in the gear
+# parameters. `vars` names the arrays whose stored gears may be kept.
+fishing_gears <- function(params, gear_names,
+                          vars = c("selectivity", "catchability")) {
+    for (var in vars) {
+        if (length(rate_override_species(params, var)) ==
+                nrow(params@species_params)) {
+            return(dimnames(slot(params, var))[[1]])
+        }
+    }
+    gear_names
+}
+
+signal_kept_override <- function(params, var, selected) {
+    entry <- frozen_rate_params()[[var]]
+    quantity <- entry$quantity
+    if (length(selected) < nrow(params@species_params)) {
+        quantity <- paste0(quantity, " for ", toString(selected))
+    }
+    signal_not_recalculated(var, quantity,
+                            override_reset_call(params, var, selected),
+                            entry$derived_from %||% "species parameters")
+}
+
+# Preserve only the protected slices of a newly calculated array. An array
+# set by hand as a whole is kept as it is. The fishing arrays are given the
+# gear axis `gears` (see `fishing_gears()`), and their protected slices are
+# matched by gear name, because the gears in the gear parameters may have been
+# reordered, added or removed since the array was set. The protected values
+# for a gear that is no longer there are dropped with it.
+preserve_rate_overrides <- function(params, var, value, gears = NULL) {
     selected <- rate_override_species(params, var)
+    old <- slot(params, var)
+    if (length(selected) &&
+            length(selected) == nrow(params@species_params)) {
+        if (different(value, old)) signal_kept_override(params, var, selected)
+        return(old)
+    }
+    fishing <- var %in% c("selectivity", "catchability")
+    if (fishing) {
+        value <- align_gears(value, gears %||% dimnames(value)[[1]])
+    }
     if (!length(selected)) return(value)
-    if (!identical(dim(value), dim(slot(params, var)))) {
+    if (fishing) {
+        common <- intersect(dimnames(value)[[1]], dimnames(old)[[1]])
+        dropped <- setdiff(dimnames(old)[[1]], common)
+        kept <- do.call(`[`, c(list(old), fishing_index(old, common, selected),
+                               list(drop = FALSE)))
+        proposed <- do.call(`[`, c(list(value),
+                                   fishing_index(value, common, selected),
+                                   list(drop = FALSE)))
+        lost <- do.call(`[`, c(list(old),
+                               fishing_index(old, dropped, selected)))
+        if (different(kept, proposed) || any(lost != 0)) {
+            signal_kept_override(params, var, selected)
+        }
+        return(do.call(`[<-`, c(list(value),
+                                fishing_index(value, common, selected),
+                                list(value = kept))))
+    }
+    if (!identical(dim(value), dim(old))) {
         stop("Reset the manual override of `", var,
              "` before changing its array dimensions.")
     }
-    dimnames(value) <- dimnames(slot(params, var))
-    old <- rate_slice(slot(params, var), var, selected)
-    if (different(old, rate_slice(value, var, selected))) {
-        entry <- frozen_rate_params()[[var]]
-        quantity <- entry$quantity
-        if (length(selected) < nrow(params@species_params)) {
-            quantity <- paste0(quantity, " for ", toString(selected))
-        }
-        signal_not_recalculated(var, quantity,
-                                override_reset_call(params, var, selected),
-                                entry$derived_from %||% "species parameters")
+    # The calculated species x size arrays have the layout of the stored ones
+    dimnames(value) <- dimnames(old)
+    kept <- rate_slice(old, var, selected)
+    if (different(kept, rate_slice(value, var, selected))) {
+        signal_kept_override(params, var, selected)
     }
-    replace_rate_slice(value, var, selected, old)
+    replace_rate_slice(value, var, selected, kept)
 }
 
 #' Inspect manual rate overrides

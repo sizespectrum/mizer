@@ -94,3 +94,19 @@ test_that("reset calls name the species in the shortest form", {
     expect_equal(override_reset_call(p, "pred_kernel", "Cod"),
                  "setPredKernel(params, reset = TRUE)")
 })
+
+test_that("a full array without dimnames can be used with `species`", {
+    withr::local_options(mizer_info_level = 0)
+    p <- NS_params_small
+    m <- unclass_rate(metab(p)) * 2
+    dimnames(m) <- NULL
+    q <- setMetabolicRate(p, metab = m, species = "Cod")
+    expect_equal(metab(q)["Cod", ], m[3, ], ignore_attr = TRUE)
+    expect_equal(metab(q)["Herring", ], metab(p)["Herring", ])
+    expect_equal(rate_overrides(q)$species, "Cod")
+    s <- selectivity(p) * 0.5
+    dimnames(s) <- NULL
+    q <- setFishing(p, selectivity = s, species = "Cod")
+    expect_equal(selectivity(q)[, "Cod", ], s[, 3, ], ignore_attr = TRUE)
+    expect_equal(selectivity(q)[, "Sprat", ], selectivity(p)[, "Sprat", ])
+})

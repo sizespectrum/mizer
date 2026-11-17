@@ -167,6 +167,14 @@ retaining other species’ overrides.
 [`rate_overrides(params)`](https://sizespectrum.org/mizer/reference/rate_overrides.md)
 lists the protected species, retained parameter inputs, and reset calls.
 
+Cod’s protected values are tied to the gear names, so they stay with
+their gears when you later change `gear_params`: reordering the gears
+keeps them, a new gear is calculated for Cod as for any other species,
+and the values for a gear you remove go with it. An array set without
+`species` is frozen as a whole and keeps the gears it was set with, even
+if a gear is no longer in `gear_params`; the other fishing array then
+uses the same gears.
+
 ------------------------------------------------------------------------
 
 ## setFishing()

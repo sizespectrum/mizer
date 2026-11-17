@@ -655,3 +655,51 @@ test_that("fishing overrides protect species slices across gears", {
         expect_equal(nrow(rate_overrides(p)), 0L)
     }
 })
+
+test_that("fishing overrides follow the gears by name when gears are reordered", {
+    withr::local_options(mizer_info_level = 0)
+    p <- NS_params_small
+    selectivity(p, species = "Cod") <- selectivity(p)[, "Cod", ]
+    catchability(p, species = "Cod") <- catchability(p)[, "Cod"]
+    gp <- gear_params(p)
+    gp <- gp[rev(seq_len(nrow(gp))), ]
+    expect_no_message(gear_params(p) <- gp)
+    control <- NS_params_small
+    gear_params(control) <- gp
+    expect_equal(selectivity(p), selectivity(control), ignore_attr = TRUE)
+    expect_equal(catchability(p), catchability(control), ignore_attr = TRUE)
+    expect_equal(getFMort(p), getFMort(NS_params_small), ignore_attr = TRUE)
+    expect_equal(rate_overrides(p)$species, c("Cod", "Cod"))
+})
+
+test_that("fishing overrides survive removing a species that leaves a gear unused", {
+    withr::local_options(mizer_info_level = 0)
+    # Herring is the only species caught by the Pelagic gear
+    # Overrides of the whole arrays keep their gears, as they always have
+    p <- NS_params_small
+    selectivity(p) <- selectivity(p)
+    catchability(p) <- catchability(p)
+    q <- setFishing(removeSpecies(p, "Herring"))
+    expect_true(validObject(q))
+    expect_equal(selectivity(q),
+                 selectivity(p)[, c("Sprat", "Cod"), , drop = FALSE],
+                 ignore_attr = TRUE)
+    expect_equal(catchability(q), catchability(p)[, c("Sprat", "Cod")],
+                 ignore_attr = TRUE)
+    expect_equal(getFMort(q), getFMort(p)[c("Sprat", "Cod"), ],
+                 ignore_attr = TRUE)
+    # Overrides of single species keep their values on the remaining gears
+    p <- NS_params_small
+    selectivity(p, species = "Cod") <- selectivity(p)[, "Cod", ] * 0.5
+    catchability(p, species = "Cod") <- catchability(p)[, "Cod"] * 2
+    q <- setFishing(removeSpecies(p, "Herring"))
+    expect_true(validObject(q))
+    expect_identical(dimnames(selectivity(q))$gear, c("Industrial", "Otter"))
+    expect_identical(dimnames(catchability(q))$gear, c("Industrial", "Otter"))
+    expect_equal(selectivity(q)[, "Cod", ],
+                 selectivity(p)[c("Industrial", "Otter"), "Cod", ])
+    expect_equal(catchability(q)[, "Cod"],
+                 catchability(p)[c("Industrial", "Otter"), "Cod"])
+    expect_equal(getFMort(q), getFMort(p)[c("Sprat", "Cod"), ],
+                 ignore_attr = TRUE)
+})
