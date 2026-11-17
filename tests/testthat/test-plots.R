@@ -741,6 +741,23 @@ test_that("add_total_line averages ties before interpolating distinct sizes", {
     expect_equal(out[out$Species != "Total", ], plot_dat)
 })
 
+test_that("a cumulative total averages ties and keeps final values", {
+    plot_dat <- data.frame(w = c(1, 1, 2, 2, 4),
+                           value = c(1, 3, 5, 7, 10),
+                           Species = c("a", "a", "a", "a", "b"))
+    expect_no_warning(out <- add_total_line(plot_dat, cumulative = TRUE))
+    total <- out[out$Species == "Total", ]
+    expect_equal(total$w, c(1, 2, 4))
+    # a averages to 2 at w = 1 and to 6 at w = 2, and keeps 6 beyond its
+    # last size; b's single value counts from w = 4.
+    expect_equal(total$value, c(2, 6, 16))
+    # A series at a single repeated size also keeps its average beyond it.
+    single <- data.frame(w = c(2, 2, 4), value = c(1, 3, 10),
+                         Species = c("a", "a", "b"))
+    out <- add_total_line(single, cumulative = TRUE)
+    expect_equal(out$value[out$Species == "Total"], c(2, 12))
+})
+
 test_that("add_total_line groups by the columns it is told to", {
     plot_dat <- data.frame(w = rep(c(1, 2), 4), value = 1:8,
                            Species = rep(c("a", "b"), each = 2),
