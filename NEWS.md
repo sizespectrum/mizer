@@ -88,6 +88,19 @@
 
 ## New features
 
+- Rate-array setters and assignment functions accept `species` to override or
+  reset selected species while leaving the others under parameter-driven
+  calculation (#666). This includes maturity, reproductive allocation,
+  selectivity and catchability. Existing whole-array overrides retain their
+  meaning. The predation kernel can still only be set or reset as a whole, so
+  that projections stay on the fast Fourier-transform route; give a single
+  species a different kernel through its kernel parameters instead.
+- `rate_overrides()` reports the overridden rates and species, the retained
+  parameter inputs, and reset calls. Model summaries and printed species
+  parameters also show these overrides (#506). Parameter values and their
+  given/calculated provenance are retained; an input can still contribute to
+  other rates. Frozen-change diagnostics identify the affected species.
+
 - mizer now needs ggplot2 3.5.0 or later, which it uses to fit the y axis of a
   zoomed plot when the plot is drawn (#564).
 - Plot limits now only set the visible window (#564). `wlim`, `llim`, `tlim`
@@ -290,6 +303,13 @@
   returning `Inf`, which would have kept such a run from ever converging. A
   species that is present but has no reproduction is still reported as going
   extinct immediately.
+
+- `renameSpecies()` now also renames the species in a predation kernel set by
+  hand, so that `pred_kernel()` no longer returns it with the old names.
+- Changing the species parameter `n` no longer warns that the change to the
+  resource parameter `n` has not taken effect when the resource rate has been
+  set by hand. Changing a resource parameter with `resource_params<-()` still
+  warns when the array it feeds has been set by hand.
 
 - `setPredKernel(reset = TRUE)` now removes a predation kernel that had been
   set by hand, rather than only removing the comment that protected it (#608).

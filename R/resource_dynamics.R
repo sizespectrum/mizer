@@ -122,7 +122,8 @@ resource_params <- function(params) {
 
     # Warn about the changes that cannot take effect because the array they
     # feed has been set by hand, before the change is applied.
-    with_info_level(signal_frozen_changes(params, changed))
+    with_info_level(signal_frozen_changes(
+        params, changed, derived_from = "resource parameters"))
 
     params@resource_params <- value
     params@time_modified <- lubridate::now()

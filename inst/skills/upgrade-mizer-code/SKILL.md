@@ -106,6 +106,7 @@ function` — carry no such quote, so match those rows on the function name.
 
 | Symptom | Cause | Section |
 |---|---|---|
+| Printed output includes `"Manual rate overrides (parameters retained for reset):"` | summaries and species-parameter tables now expose manual overrides and their species | Summaries expose manual rate overrides |
 | `return_data = TRUE` contains sizes, times or values outside plot limits, or a zoomed `plotCDF()` no longer ends at 1 | plot limits now only change the viewport; CDF integration uses explicit `min_w`/`max_w` or `min_l`/`max_l` bounds | Plot limits only change the visible window |
 | An unnormalised `plotCDF(min_w = ..., max_w = ...)` ends below `getBiomass()` with the same bounds, in a model of edition 1 or 2 | CDF bounds are exact, while the summaries of such a model count whole boundary bins unless given `exact_bounds = TRUE` | Plot limits only change the visible window |
 | `plotCDF()` values of a model with bin averaging differ slightly from an earlier version | each bin is now weighted as `sizeIntegral(exact_bounds = TRUE)` weights it, not at its geometric centre | Plot limits only change the visible window |

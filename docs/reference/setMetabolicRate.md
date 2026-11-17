@@ -13,11 +13,18 @@ for a full explanation of when to reach for which level of the model.
 ## Usage
 
 ``` r
-setMetabolicRate(object, metab = NULL, p = deprecated(), reset = FALSE, ...)
+setMetabolicRate(
+  object,
+  metab = NULL,
+  p = deprecated(),
+  reset = FALSE,
+  ...,
+  species = NULL
+)
 
 metab(params)
 
-metab(params) <- value
+metab(params, species = NULL) <- value
 ```
 
 ## Arguments
@@ -46,12 +53,22 @@ metab(params) <- value
   If set to TRUE, then the metabolic rate will be reset to the value
   calculated from the species parameters, even if it was previously
   overwritten with a custom value. If set to FALSE (default) then a
-  recalculation from the species parameters will take place only if no
-  custom value has been set.
+  recalculation takes place for species without a custom value.
 
 - ...:
 
   Unused
+
+- species:
+
+  Optional character vector of species to override or reset. Omit to
+  override or reset the whole array. Values may be full arrays or arrays
+  containing only the selected species. For a single species its values
+  without the species dimension are also accepted: a vector, or a gear x
+  size matrix for the selectivity. Other species keep their existing
+  override status. See
+  [`rate_overrides()`](https://sizespectrum.org/mizer/reference/rate_overrides.md)
+  to inspect overrides.
 
 - params:
 
@@ -88,14 +105,17 @@ where \\f_c\\ is the critical feeding level taken from the `fc` column
 in the species parameter data frame. If the critical feeding level is
 not specified, a default of \\f_c = 0.2\\ is used.
 
-If the `metab` slot has a comment and `reset = FALSE`, then a
-recalculation from the species parameters is suppressed and a message is
-issued if the recalculated values would differ from the stored ones.
+With `reset = FALSE`, manually overridden species are preserved while
+the other species are recalculated. A message is issued if recalculation
+would change protected values. See
+[`rate_overrides()`](https://sizespectrum.org/mizer/reference/rate_overrides.md)
+to inspect overrides.
 
 ## See also
 
 Other functions for setting parameters:
 [`gear_params()`](https://sizespectrum.org/mizer/reference/gear_params.md),
+[`rate_overrides()`](https://sizespectrum.org/mizer/reference/rate_overrides.md),
 [`setExtDiffusion()`](https://sizespectrum.org/mizer/reference/setExtDiffusion.md),
 [`setExtEncounter()`](https://sizespectrum.org/mizer/reference/setExtEncounter.md),
 [`setExtMort()`](https://sizespectrum.org/mizer/reference/setExtMort.md),

@@ -142,7 +142,8 @@ additionally averaged over the prey bin (a trapezoid fold), so that the
 predation rate returned by
 [`getPredRate()`](https://sizespectrum.org/mizer/reference/getPredRate.md)
 is the prey-bin average that the predation-mortality sink needs to be
-second order. The default remains the first-order scheme so that
+second order. This is the default for a model of defaults edition 3 or
+later. Models of earlier editions keep the first-order scheme, so that
 existing models are unaffected. Enable it with
 `second_order_w(params) <- TRUE` (see
 [`second_order_w()`](https://sizespectrum.org/mizer/reference/second_order_w.md)),
@@ -155,6 +156,7 @@ the mathematical details.
 
 Other functions for setting parameters:
 [`gear_params()`](https://sizespectrum.org/mizer/reference/gear_params.md),
+[`rate_overrides()`](https://sizespectrum.org/mizer/reference/rate_overrides.md),
 [`setExtDiffusion()`](https://sizespectrum.org/mizer/reference/setExtDiffusion.md),
 [`setExtEncounter()`](https://sizespectrum.org/mizer/reference/setExtEncounter.md),
 [`setExtMort()`](https://sizespectrum.org/mizer/reference/setExtMort.md),

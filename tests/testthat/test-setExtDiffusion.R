@@ -139,3 +139,32 @@ test_that("setExtDiffusion bin_average path matches the analytic bin average", {
     p1 <- setExtDiffusion(params)
     expect_false(isTRUE(all.equal(p1@ext_diffusion, p2@ext_diffusion)))
 })
+
+
+test_that("ext_diffusion overrides and resets selected species only", {
+    withr::local_options(mizer_info_level = 0)
+    for (high_order in c(FALSE, TRUE)) {
+        original <- NS_params_small
+        second_order_w(original) <- high_order
+        params <- original
+        custom <- ext_diffusion(params)["Cod", ] * 0.5 + 0.01
+        ext_diffusion(params, species = "Cod") <- custom
+        species_params(params)["Herring", "D_ext"] <- 0.75
+        control <- original
+        species_params(control)["Herring", "D_ext"] <- 0.75
+        expect_equal(ext_diffusion(params)["Herring", ],
+                     ext_diffusion(control)["Herring", ], ignore_attr = TRUE)
+        expect_equal(ext_diffusion(params)["Cod", ], custom, ignore_attr = TRUE)
+        params <- setParams(params)
+        expect_equal(ext_diffusion(params)["Cod", ], custom, ignore_attr = TRUE)
+
+        # Equal-valued assignments also establish ownership.
+        ext_diffusion(params, species = "Sprat") <- ext_diffusion(params)["Sprat", ]
+        params <- setExtDiffusion(params, reset = TRUE, species = "Cod")
+        expect_equal(ext_diffusion(params)["Cod", ],
+                     ext_diffusion(original)["Cod", ], ignore_attr = TRUE)
+        expect_equal(rate_overrides(params)$species, "Sprat")
+        params <- setExtDiffusion(params, reset = TRUE)
+        expect_equal(nrow(rate_overrides(params)), 0L)
+    }
+})

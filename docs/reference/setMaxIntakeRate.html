@@ -25,7 +25,7 @@ to reach for which level of the model.'><meta property="og:image" content="https
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0.9003</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -111,11 +111,11 @@ to reach for which level of the model.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">setMaxIntakeRate</span><span class="op">(</span><span class="va">params</span>, intake_max <span class="op">=</span> <span class="cn">NULL</span>, reset <span class="op">=</span> <span class="cn">FALSE</span>, <span class="va">...</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">setMaxIntakeRate</span><span class="op">(</span><span class="va">params</span>, intake_max <span class="op">=</span> <span class="cn">NULL</span>, reset <span class="op">=</span> <span class="cn">FALSE</span>, <span class="va">...</span>, species <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">intake_max</span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">intake_max</span><span class="op">(</span><span class="va">params</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">value</span></span></code></pre></div>
+<span><span class="fu">intake_max</span><span class="op">(</span><span class="va">params</span>, species <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">value</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -136,12 +136,21 @@ described in the section "Setting maximum intake rate".</p></dd>
 <dd><p>If set to TRUE, then the intake rate will be reset to the value
 calculated from the species parameters, even if it was previously
 overwritten with a custom value. If set to FALSE (default) then a
-recalculation from the species parameters will take place only if no
-custom value has been set.</p></dd>
+recalculation takes place for species without a custom value.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
 <dd><p>Unused</p></dd>
+
+
+<dt id="arg-species">species<a class="anchor" aria-label="anchor" href="#arg-species"></a></dt>
+<dd><p>Optional character vector of species to override or reset.
+Omit to override or reset the whole array. Values may be full arrays or
+arrays containing only the selected species. For a single species its
+values without the species dimension are also accepted: a vector, or a
+gear x size matrix for the selectivity. Other species keep their existing
+override status.
+See <code><a href="rate_overrides.html">rate_overrides()</a></code> to inspect overrides.</p></dd>
 
 
 <dt id="arg-value">value<a class="anchor" aria-label="anchor" href="#arg-value"></a></dt>
@@ -172,14 +181,15 @@ calculated by the <code><a href="get_h_default.html">get_h_default()</a></code> 
 supplied, a default of \(n_i = 3/4\) is used.</p>
 <p>If \(h_i\) is set to <code>Inf</code>, fish of species i will consume all encountered
 food.</p>
-<p>If the <code>intake_max</code> slot has a comment and <code>reset = FALSE</code>, then a
-recalculation from the species parameters is suppressed and a message is
-issued if the recalculated values would differ from the stored ones.</p>
+<p>With <code>reset = FALSE</code>, manually overridden species are preserved while the
+other species are recalculated. A message is issued if recalculation would
+change protected values. See <code><a href="rate_overrides.html">rate_overrides()</a></code> to inspect overrides.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p>Other functions for setting parameters:
 <code><a href="gear_params.html">gear_params()</a></code>,
+<code><a href="rate_overrides.html">rate_overrides()</a></code>,
 <code><a href="setExtDiffusion.html">setExtDiffusion()</a></code>,
 <code><a href="setExtEncounter.html">setExtEncounter()</a></code>,
 <code><a href="setExtMort.html">setExtMort()</a></code>,

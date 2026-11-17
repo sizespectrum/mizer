@@ -12,11 +12,17 @@ for a full explanation of when to reach for which level of the model.
 ## Usage
 
 ``` r
-setExtEncounter(params, ext_encounter = NULL, reset = FALSE, ...)
+setExtEncounter(
+  params,
+  ext_encounter = NULL,
+  reset = FALSE,
+  ...,
+  species = NULL
+)
 
 ext_encounter(params)
 
-ext_encounter(params) <- value
+ext_encounter(params, species = NULL) <- value
 ```
 
 ## Arguments
@@ -37,12 +43,22 @@ ext_encounter(params) <- value
   If set to TRUE, then the external encounter rate will be reset to the
   value calculated from the species parameters, even if it was
   previously overwritten with a custom value. If set to FALSE (default)
-  then a recalculation from the species parameters will take place only
-  if no custom value has been set.
+  then a recalculation takes place for species without a custom value.
 
 - ...:
 
   Unused
+
+- species:
+
+  Optional character vector of species to override or reset. Omit to
+  override or reset the whole array. Values may be full arrays or arrays
+  containing only the selected species. For a single species its values
+  without the species dimension are also accepted: a vector, or a gear x
+  size matrix for the selectivity. Other species keep their existing
+  override status. See
+  [`rate_overrides()`](https://sizespectrum.org/mizer/reference/rate_overrides.md)
+  to inspect overrides.
 
 - value:
 
@@ -72,14 +88,17 @@ the `E_ext` column of the species parameter data frame, which defaults
 to 0. The exponent \\n_i\\ is taken from the `n` column of the species
 parameter data frame.
 
-If the `ext_encounter` slot has a comment and `reset = FALSE`, then a
-recalculation from the species parameters is suppressed and a message is
-issued if the recalculated values would differ from the stored ones.
+With `reset = FALSE`, manually overridden species are preserved while
+the other species are recalculated. A message is issued if recalculation
+would change protected values. See
+[`rate_overrides()`](https://sizespectrum.org/mizer/reference/rate_overrides.md)
+to inspect overrides.
 
 ## See also
 
 Other functions for setting parameters:
 [`gear_params()`](https://sizespectrum.org/mizer/reference/gear_params.md),
+[`rate_overrides()`](https://sizespectrum.org/mizer/reference/rate_overrides.md),
 [`setExtDiffusion()`](https://sizespectrum.org/mizer/reference/setExtDiffusion.md),
 [`setExtMort()`](https://sizespectrum.org/mizer/reference/setExtMort.md),
 [`setFishing()`](https://sizespectrum.org/mizer/reference/setFishing.md),

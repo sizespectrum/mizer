@@ -534,3 +534,13 @@ test_that("setPredKernel() pads the kernels of a model switched to edition 3 (#6
                            linear_kernel_sum(params, prey)),
               1e-8)
 })
+
+test_that("setPredKernel() sets the kernel only for all species together", {
+    params <- NS_params_small
+    pk <- pred_kernel(params)
+    expect_error(setPredKernel(params, pred_kernel = pk, species = "Cod"),
+                 "all species together")
+    expect_error(setPredKernel(params, reset = TRUE, species = "Cod"),
+                 "all species together")
+    expect_error(pred_kernel(params, species = "Cod") <- pk, "unused argument")
+})

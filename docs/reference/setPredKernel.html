@@ -27,7 +27,7 @@ to reach for which level of the model.'><meta property="og:image" content="https
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0.9003</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -229,8 +229,9 @@ cost, because the integration is performed once here and the rate functions
 themselves are unchanged. The predation kernel is additionally averaged over
 the prey bin (a trapezoid fold), so that the predation rate returned by
 <code><a href="getPredRate.html">getPredRate()</a></code> is the prey-bin average that the predation-mortality sink
-needs to be second order. The default remains the first-order scheme so that
-existing models are unaffected. Enable it with <code>second_order_w(params) &lt;- TRUE</code> (see <code><a href="second_order_w.html">second_order_w()</a></code>), which also turns on the other bin-averaged
+needs to be second order. This is the default for a model of defaults
+edition 3 or later. Models of earlier editions keep the first-order scheme,
+so that existing models are unaffected. Enable it with <code>second_order_w(params) &lt;- TRUE</code> (see <code><a href="second_order_w.html">second_order_w()</a></code>), which also turns on the other bin-averaged
 rate quadratures so the whole model stays consistent. See the
 <code><a href="../articles/fft.html">vignette("fft")</a></code> for the mathematical details.</p>
     </div>
@@ -238,6 +239,7 @@ rate quadratures so the whole model stays consistent. See the
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p>Other functions for setting parameters:
 <code><a href="gear_params.html">gear_params()</a></code>,
+<code><a href="rate_overrides.html">rate_overrides()</a></code>,
 <code><a href="setExtDiffusion.html">setExtDiffusion()</a></code>,
 <code><a href="setExtEncounter.html">setExtEncounter()</a></code>,
 <code><a href="setExtMort.html">setExtMort()</a></code>,

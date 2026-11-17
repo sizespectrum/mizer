@@ -23,9 +23,9 @@
 #' species parameter data frame, which defaults to 0. The exponent \eqn{n_i} is
 #' taken from the `n` column of the species parameter data frame.
 #'
-#' If the `ext_encounter` slot has a comment and `reset = FALSE`, then a
-#' recalculation from the species parameters is suppressed and a message is
-#' issued if the recalculated values would differ from the stored ones.
+#' With `reset = FALSE`, manually overridden species are preserved while the
+#' other species are recalculated. A message is issued if recalculation would
+#' change protected values. See [rate_overrides()] to inspect overrides.
 #'
 #' @param params MizerParams
 #' @param ext_encounter Optional. An array (species x size) holding the external
@@ -36,8 +36,14 @@
 #'   If set to TRUE, then the external encounter rate will be reset to the value
 #'   calculated from the species parameters, even if it was previously
 #'   overwritten with a custom value. If set to FALSE (default) then a
-#'   recalculation from the species parameters will take place only if no
-#'   custom value has been set.
+#'   recalculation takes place for species without a custom value.
+#' @param species Optional character vector of species to override or reset.
+#'   Omit to override or reset the whole array. Values may be full arrays or
+#'   arrays containing only the selected species. For a single species its
+#'   values without the species dimension are also accepted: a vector, or a
+#'   gear x size matrix for the selectivity. Other species keep their existing
+#'   override status.
+#'   See [rate_overrides()] to inspect overrides.
 #' @param ... Unused
 #'
 #' @return `setExtEncounter()`: A MizerParams object with updated external encounter
@@ -58,12 +64,12 @@
 #'
 #' # Change the external encounter rate in the params object
 #' ext_encounter(params) <- allo_encounter
-setExtEncounter <- function(params, ext_encounter = NULL, reset = FALSE, ...) {
+setExtEncounter <- function(params, ext_encounter = NULL, reset = FALSE, ..., species = NULL) {
     UseMethod("setExtEncounter")
 }
 #' @export
 setExtEncounter.MizerParams <- function(params, ext_encounter = NULL,
-                                        reset = FALSE, ...) {
+                                        reset = FALSE, ..., species = NULL) {
     assert_that(is.flag(reset))
 
     if (reset) {
@@ -73,10 +79,12 @@ setExtEncounter.MizerParams <- function(params, ext_encounter = NULL,
                     "calculated from the species parameters.")
             ext_encounter <- NULL
         }
-        comment(params@ext_encounter) <- NULL
+        params <- reset_rate_override(params, "ext_encounter", species)
     }
 
     # If ext_encounter array is supplied, check it, store it and return
+    ext_encounter <- prepare_rate_value(params, "ext_encounter", ext_encounter, species)
+
     if (!is.null(ext_encounter)) {
         if (is.null(comment(ext_encounter))) {
             if (is.null(comment(params@ext_encounter))) {
@@ -88,7 +96,7 @@ setExtEncounter.MizerParams <- function(params, ext_encounter = NULL,
         assert_that(is.array(ext_encounter),
                     identical(dim(ext_encounter), dim(params@ext_encounter)))
         params@ext_encounter[] <- ext_encounter
-        comment(params@ext_encounter) <- comment(ext_encounter)
+        params@ext_encounter <- copy_override_marker(params@ext_encounter, ext_encounter)
 
         params@time_modified <- lubridate::now()
         return(params)
@@ -101,14 +109,7 @@ setExtEncounter.MizerParams <- function(params, ext_encounter = NULL,
                                  params@w, function(x, y) y^x),
                            1, params@species_params[["E_ext"]], "*")
 
-    # Prevent overwriting slot if it has been commented
-    if (!is.null(comment(params@ext_encounter))) {
-        if (different(ext_encounter, params@ext_encounter)) {
-            signal_not_recalculated("ext_encounter", "external encounter rate",
-                               "setExtEncounter(params, reset = TRUE)")
-        }
-        return(params)
-    }
+    ext_encounter <- preserve_rate_overrides(params, "ext_encounter", ext_encounter)
     params@ext_encounter[] <- ext_encounter
 
     params@time_modified <- lubridate::now()
@@ -133,6 +134,11 @@ ext_encounter.MizerParams <- function(params) {
 #' @rdname setExtEncounter
 #' @param value ext_encounter
 #' @export
-`ext_encounter<-` <- function(params, value) {
-    setExtEncounter(params, ext_encounter = value)
+`ext_encounter<-` <- function(params, species = NULL, value) {
+    # Preserve direct two-argument calls to the replacement function.
+    if (missing(value)) {
+        value <- species
+        species <- NULL
+    }
+    setExtEncounter(params, ext_encounter = value, species = species)
 }

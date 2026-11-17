@@ -131,6 +131,17 @@ setPredKernel.MizerParams <- function(params,
                           pred_kernel = NULL,
                           reset = FALSE, ...) {
     assert_that(is.flag(reset))
+    # Unlike the other rate setters, this one takes no `species` argument. A
+    # kernel set by hand for some species only would need explicit sums over
+    # the kernel for those species at every time step, rather than the Fourier
+    # transform used for the others, which would slow down every projection.
+    if (!is.null(list(...)[["species"]])) {
+        stop("The predation kernel can only be set or reset for all species ",
+             "together, so `species` can not be used here. To change the ",
+             "kernel of one species, change its kernel parameters instead, ",
+             "for example with ",
+             "`given_species_params(params)[\"Cod\", \"beta\"] <- 200`.")
+    }
 
     # Which quadrature to use for the Fourier-transformed kernels is controlled
     # by the `bin_average` entry of the `second_order_w` slot, the single switch

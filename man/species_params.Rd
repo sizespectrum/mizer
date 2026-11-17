@@ -370,6 +370,7 @@ yourself, use the default \code{recalculate = TRUE}.
 
 Other functions for setting parameters:
 \code{\link[=gear_params]{gear_params()}},
+\code{\link[=rate_overrides]{rate_overrides()}},
 \code{\link[=setExtDiffusion]{setExtDiffusion()}},
 \code{\link[=setExtEncounter]{setExtEncounter()}},
 \code{\link[=setExtMort]{setExtMort()}},

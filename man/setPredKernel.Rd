@@ -152,6 +152,7 @@ params<- setPredKernel(params, pred_kernel = pk)
 \seealso{
 Other functions for setting parameters:
 \code{\link[=gear_params]{gear_params()}},
+\code{\link[=rate_overrides]{rate_overrides()}},
 \code{\link[=setExtDiffusion]{setExtDiffusion()}},
 \code{\link[=setExtEncounter]{setExtEncounter()}},
 \code{\link[=setExtMort]{setExtMort()}},

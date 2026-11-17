@@ -150,6 +150,7 @@ reference:
     for how to do this.
   contents:
   - species_params
+  - rate_overrides
   - record_given_species_params
   - reconcileSpeciesParams
   - gear_params

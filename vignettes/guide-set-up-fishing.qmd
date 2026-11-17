@@ -156,12 +156,41 @@ leave your array untouched (you will see a message saying so). To discard the
 hand-set array and rebuild from `gear_params`, call
 `setFishing(params, reset = TRUE)`.
 
+To override just one species across the gears, supply `species`. The remaining
+species continue to follow `gear_params`:
+
+```{r eval=FALSE}
+sel <- selectivity(params)[, "Cod", , drop = FALSE]
+sel["Otter", "Cod", ] <- my_curve
+selectivity(params, species = "Cod") <- sel
+params <- setFishing(params, species = "Cod", reset = TRUE)
+```
+
+The reset restores both selectivity and catchability for Cod while retaining
+other species' overrides. [`rate_overrides(params)`](../reference/rate_overrides.html) lists the protected species,
+retained parameter inputs, and reset calls.
+
+Cod's protected values are tied to the gear names, so they stay with their
+gears when you later change `gear_params`: reordering the gears keeps them, and
+the values for a gear you remove go with it. A gear you add for Cod is
+calculated from its gear parameters once, when it first appears, and from then
+on it is protected like Cod's other gears: a later change to its parameters
+does not reach Cod's arrays, and mizer says so. Reset Cod to let all its gears
+follow `gear_params` again.
+
+An array set without `species` is frozen as a whole and keeps the gears it was
+set with, even if a gear is no longer in `gear_params`, and the other fishing
+array then uses the same gears. An array you supply must have those gears too,
+in any order: mizer matches them by name. To change the gears of a frozen
+array, supply both arrays together, or reset them with
+`setFishing(params, reset = TRUE)`.
+
 ---
 
 ## setFishing()
 
 `setFishing(params, selectivity = NULL, catchability = NULL, reset = FALSE,
-initial_effort = NULL, ...)` recomputes the fishing setup after a change.
+initial_effort = NULL, ..., species = NULL)` recomputes the fishing setup after a change.
 Assigning `gear_params(params) <- ...` already triggers recalculation, so you
 usually only call `setFishing()` directly when supplying a `selectivity` or
 `catchability` **array**, setting a baseline effort, or rebuilding from scratch:

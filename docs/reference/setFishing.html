@@ -13,7 +13,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0.9003</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -99,16 +99,17 @@
 <span>  catchability <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  reset <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  initial_effort <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  <span class="va">...</span></span>
+<span>  <span class="va">...</span>,</span>
+<span>  species <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">catchability</span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">catchability</span><span class="op">(</span><span class="va">params</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">value</span></span>
+<span><span class="fu">catchability</span><span class="op">(</span><span class="va">params</span>, species <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">value</span></span>
 <span></span>
 <span><span class="fu">selectivity</span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">selectivity</span><span class="op">(</span><span class="va">params</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">value</span></span></code></pre></div>
+<span><span class="fu">selectivity</span><span class="op">(</span><span class="va">params</span>, species <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">value</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -133,8 +134,7 @@ each species by each gear, \(Q_{g,i}\).</p></dd>
 <dd><p>If set to TRUE, then both <code>catchability</code> and <code>selectivity</code> will
 be reset to the values calculated from the gear parameters, even if it was
 previously overwritten with a custom value. If set to FALSE (default) then
-a recalculation from the gear parameters will take place only if no custom
-value has been set.</p></dd>
+recalculation takes place for species without a custom value.</p></dd>
 
 
 <dt id="arg-initial-effort">initial_effort<a class="anchor" aria-label="anchor" href="#arg-initial-effort"></a></dt>
@@ -145,6 +145,16 @@ a vector, must be named by gear.</p></dd>
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
 <dd><p>Unused</p></dd>
+
+
+<dt id="arg-species">species<a class="anchor" aria-label="anchor" href="#arg-species"></a></dt>
+<dd><p>Optional character vector of species to override or reset.
+Omit to override or reset the whole array. Values may be full arrays or
+arrays containing only the selected species. For a single species its
+values without the species dimension are also accepted: a vector, or a
+gear x size matrix for the selectivity. Other species keep their existing
+override status.
+See <code><a href="rate_overrides.html">rate_overrides()</a></code> to inspect overrides.</p></dd>
 
 
 <dt id="arg-value">value<a class="anchor" aria-label="anchor" href="#arg-value"></a></dt>
@@ -248,6 +258,7 @@ an effort that varies through time.</p>
     <div class="dont-index"><p><code><a href="gear_params.html">gear_params()</a></code></p>
 <p>Other functions for setting parameters:
 <code><a href="gear_params.html">gear_params()</a></code>,
+<code><a href="rate_overrides.html">rate_overrides()</a></code>,
 <code><a href="setExtDiffusion.html">setExtDiffusion()</a></code>,
 <code><a href="setExtEncounter.html">setExtEncounter()</a></code>,
 <code><a href="setExtMort.html">setExtMort()</a></code>,

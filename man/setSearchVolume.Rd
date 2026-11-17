@@ -6,11 +6,11 @@
 \alias{search_vol<-}
 \title{Set search volume}
 \usage{
-setSearchVolume(params, search_vol = NULL, reset = FALSE, ...)
+setSearchVolume(params, search_vol = NULL, reset = FALSE, ..., species = NULL)
 
 search_vol(params)
 
-search_vol(params) <- value
+search_vol(params, species = NULL) <- value
 }
 \arguments{
 \item{params}{MizerParams}
@@ -22,10 +22,17 @@ the section "Setting search volume".}
 \item{reset}{If set to TRUE, then the search volume will be reset to the
 value calculated from the species parameters, even if it was previously
 overwritten with a custom value. If set to FALSE (default) then a
-recalculation from the species parameters will take place only if no custom
-value has been set.}
+recalculation takes place for species without a custom value.}
 
 \item{...}{Unused}
+
+\item{species}{Optional character vector of species to override or reset.
+Omit to override or reset the whole array. Values may be full arrays or
+arrays containing only the selected species. For a single species its
+values without the species dimension are also accepted: a vector, or a
+gear x size matrix for the selectivity. Other species keep their existing
+override status.
+See \code{\link[=rate_overrides]{rate_overrides()}} to inspect overrides.}
 
 \item{value}{search_vol}
 }
@@ -70,9 +77,9 @@ supplied, a default of \code{lambda - 2 + n} is used. Note that only
 for predators of size \eqn{w = 1} gram is the value of the species parameter
 \eqn{\gamma_i} the same as the value of the search volume \eqn{\gamma_i(w)}.
 
-If the \code{search_vol} slot has a comment and \code{reset = FALSE}, then a
-recalculation from the species parameters is suppressed and a message is
-issued if the recalculated values would differ from the stored ones.
+With \code{reset = FALSE}, manually overridden species are preserved while the
+other species are recalculated. A message is issued if recalculation would
+change protected values. See \code{\link[=rate_overrides]{rate_overrides()}} to inspect overrides.
 }
 
 \examples{
@@ -87,6 +94,7 @@ search_vol(params)["Cod", 1:5]
 \seealso{
 Other functions for setting parameters:
 \code{\link[=gear_params]{gear_params()}},
+\code{\link[=rate_overrides]{rate_overrides()}},
 \code{\link[=setExtDiffusion]{setExtDiffusion()}},
 \code{\link[=setExtEncounter]{setExtEncounter()}},
 \code{\link[=setExtMort]{setExtMort()}},

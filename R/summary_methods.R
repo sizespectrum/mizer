@@ -1231,6 +1231,7 @@ summary.MizerParams <- function(object, ...) {
         cat("Created: ", format(md$time_created), "\n", sep = "")
     if (!is.null(md$time_modified))
         cat("Modified: ", format(md$time_modified), "\n", sep = "")
+    print_rate_overrides(rate_overrides(params))
     cat("Consumer size spectrum:\n")
     cat("\tminimum size:\t", signif(min(params@w)), "\n", sep = "")
     cat("\tmaximum size:\t", signif(max(params@w)), "\n", sep = "")

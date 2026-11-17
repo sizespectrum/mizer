@@ -23,9 +23,9 @@
 #' species parameter data frame, which defaults to 0. The exponent
 #' \eqn{n_i + 1} uses the `n` column of the species parameter data frame.
 #'
-#' If the `ext_diffusion` slot has a comment and `reset = FALSE`, then a
-#' recalculation from the species parameters is suppressed and a message is
-#' issued if the recalculated values would differ from the stored ones.
+#' With `reset = FALSE`, manually overridden species are preserved while the
+#' other species are recalculated. A message is issued if recalculation would
+#' change protected values. See [rate_overrides()] to inspect overrides.
 #'
 #' @param params MizerParams
 #' @param ext_diffusion Optional. An array (species x size) holding the
@@ -36,22 +36,28 @@
 #'   If set to TRUE, then the external diffusion rate will be reset to the
 #'   value calculated from the species parameters, even if it was previously
 #'   overwritten with a custom value. If set to FALSE (default) then a
-#'   recalculation from the species parameters will take place only if no
-#'   custom value has been set.
+#'   recalculation takes place for species without a custom value.
+#' @param species Optional character vector of species to override or reset.
+#'   Omit to override or reset the whole array. Values may be full arrays or
+#'   arrays containing only the selected species. For a single species its
+#'   values without the species dimension are also accepted: a vector, or a
+#'   gear x size matrix for the selectivity. Other species keep their existing
+#'   override status.
+#'   See [rate_overrides()] to inspect overrides.
 #' @param ... Unused
 #'
 #' @return `setExtDiffusion()`: A MizerParams object with updated external
 #'   diffusion rate.
 #' @export
 #' @family functions for setting parameters
-setExtDiffusion <- function(params, ext_diffusion = NULL, reset = FALSE, ...) {
+setExtDiffusion <- function(params, ext_diffusion = NULL, reset = FALSE, ..., species = NULL) {
     UseMethod("setExtDiffusion")
 }
 #' @rdname setExtDiffusion
 #' @usage NULL
 #' @export
 setExtDiffusion.MizerParams <- function(params, ext_diffusion = NULL,
-                                        reset = FALSE, ...) {
+                                        reset = FALSE, ..., species = NULL) {
     assert_that(is.flag(reset))
 
     if (reset) {
@@ -61,10 +67,12 @@ setExtDiffusion.MizerParams <- function(params, ext_diffusion = NULL,
                     "calculated from the species parameters.")
             ext_diffusion <- NULL
         }
-        comment(params@ext_diffusion) <- NULL
+        params <- reset_rate_override(params, "ext_diffusion", species)
     }
 
     # If ext_diffusion array is supplied, check it, store it and return
+    ext_diffusion <- prepare_rate_value(params, "ext_diffusion", ext_diffusion, species)
+
     if (!is.null(ext_diffusion)) {
         if (is.null(comment(ext_diffusion))) {
             if (is.null(comment(params@ext_diffusion))) {
@@ -76,7 +84,7 @@ setExtDiffusion.MizerParams <- function(params, ext_diffusion = NULL,
         assert_that(is.array(ext_diffusion),
                     identical(dim(ext_diffusion), dim(params@ext_diffusion)))
         params@ext_diffusion[] <- ext_diffusion
-        comment(params@ext_diffusion) <- comment(ext_diffusion)
+        params@ext_diffusion <- copy_override_marker(params@ext_diffusion, ext_diffusion)
 
         params@time_modified <- lubridate::now()
         return(params)
@@ -104,14 +112,7 @@ setExtDiffusion.MizerParams <- function(params, ext_diffusion = NULL,
                                1, params@species_params[["D_ext"]], "*")
     }
 
-    # Prevent overwriting slot if it has been commented
-    if (!is.null(comment(params@ext_diffusion))) {
-        if (different(ext_diffusion, params@ext_diffusion)) {
-            signal_not_recalculated("ext_diffusion", "external diffusion rate",
-                               "setExtDiffusion(params, reset = TRUE)")
-        }
-        return(params)
-    }
+    ext_diffusion <- preserve_rate_overrides(params, "ext_diffusion", ext_diffusion)
     params@ext_diffusion[] <- ext_diffusion
 
     params@time_modified <- lubridate::now()
@@ -131,6 +132,11 @@ ext_diffusion <- function(params) {
 #' @rdname setExtDiffusion
 #' @param value ext_diffusion
 #' @export
-`ext_diffusion<-` <- function(params, value) {
-    setExtDiffusion(params, ext_diffusion = value)
+`ext_diffusion<-` <- function(params, species = NULL, value) {
+    # Preserve direct two-argument calls to the replacement function.
+    if (missing(value)) {
+        value <- species
+        species <- NULL
+    }
+    setExtDiffusion(params, ext_diffusion = value, species = species)
 }

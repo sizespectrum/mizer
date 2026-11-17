@@ -631,3 +631,144 @@ test_that("$ on gear_params does not partially match column names", {
     # Exact matches are unaffected
     expect_identical(unname(gp$catchability), gp[["catchability"]])
 })
+
+
+test_that("fishing overrides protect species slices across gears", {
+    withr::local_options(mizer_info_level = 0)
+    for (high in c(FALSE, TRUE)) {
+        p <- NS_params_small
+        second_order_w(p) <- high
+        original <- p
+        sel <- selectivity(p)[, "Cod", , drop = FALSE] * 0.5
+        selectivity(p, species = "Cod") <- sel
+        catchability(p, species = "Cod") <- rep(0.03, nrow(catchability(p)))
+        gp <- gear_params(p)
+        gp[gp$species == "Herring", "catchability"] <- 0.07
+        gear_params(p) <- gp
+        expect_equal(catchability(p)[, "Cod"], rep(0.03, 3), ignore_attr = TRUE)
+        expect_true(any(catchability(p)[, "Herring"] == 0.07))
+        expect_equal(selectivity(p)[, "Cod", , drop = FALSE], sel, ignore_attr = TRUE)
+        p <- setFishing(p, species = "Cod", reset = TRUE)
+        expect_equal(selectivity(p), selectivity(original), ignore_attr = TRUE)
+        expect_equal(catchability(p)[, "Cod"], catchability(original)[, "Cod"],
+                     ignore_attr = TRUE)
+        expect_equal(nrow(rate_overrides(p)), 0L)
+    }
+})
+
+test_that("fishing overrides follow the gears by name when gears are reordered", {
+    withr::local_options(mizer_info_level = 0)
+    p <- NS_params_small
+    selectivity(p, species = "Cod") <- selectivity(p)[, "Cod", ]
+    catchability(p, species = "Cod") <- catchability(p)[, "Cod"]
+    gp <- gear_params(p)
+    gp <- gp[rev(seq_len(nrow(gp))), ]
+    expect_no_message(gear_params(p) <- gp)
+    control <- NS_params_small
+    gear_params(control) <- gp
+    expect_equal(selectivity(p), selectivity(control), ignore_attr = TRUE)
+    expect_equal(catchability(p), catchability(control), ignore_attr = TRUE)
+    expect_equal(getFMort(p), getFMort(NS_params_small), ignore_attr = TRUE)
+    expect_equal(rate_overrides(p)$species, c("Cod", "Cod"))
+})
+
+test_that("fishing overrides survive removing a species that leaves a gear unused", {
+    withr::local_options(mizer_info_level = 0)
+    # Herring is the only species caught by the Pelagic gear
+    # Overrides of the whole arrays keep their gears, as they always have
+    p <- NS_params_small
+    selectivity(p) <- selectivity(p)
+    catchability(p) <- catchability(p)
+    q <- setFishing(removeSpecies(p, "Herring"))
+    expect_true(validObject(q))
+    expect_equal(selectivity(q),
+                 selectivity(p)[, c("Sprat", "Cod"), , drop = FALSE],
+                 ignore_attr = TRUE)
+    expect_equal(catchability(q), catchability(p)[, c("Sprat", "Cod")],
+                 ignore_attr = TRUE)
+    expect_equal(getFMort(q), getFMort(p)[c("Sprat", "Cod"), ],
+                 ignore_attr = TRUE)
+    # Overrides of single species keep their values on the remaining gears
+    p <- NS_params_small
+    selectivity(p, species = "Cod") <- selectivity(p)[, "Cod", ] * 0.5
+    catchability(p, species = "Cod") <- catchability(p)[, "Cod"] * 2
+    q <- setFishing(removeSpecies(p, "Herring"))
+    expect_true(validObject(q))
+    expect_identical(dimnames(selectivity(q))$gear, c("Industrial", "Otter"))
+    expect_identical(dimnames(catchability(q))$gear, c("Industrial", "Otter"))
+    expect_equal(selectivity(q)[, "Cod", ],
+                 selectivity(p)[c("Industrial", "Otter"), "Cod", ])
+    expect_equal(catchability(q)[, "Cod"],
+                 catchability(p)[c("Industrial", "Otter"), "Cod"])
+    expect_equal(getFMort(q), getFMort(p)[c("Sprat", "Cod"), ],
+                 ignore_attr = TRUE)
+})
+
+test_that("supplied fishing arrays share the gears of a frozen array", {
+    withr::local_options(mizer_info_level = 0)
+    gp <- gear_params(NS_params_small)
+    p <- NS_params_small
+    selectivity(p) <- selectivity(p)
+    # The selectivity, frozen as a whole, keeps its gear order
+    suppressMessages(gear_params(p) <- gp[rev(seq_len(nrow(gp))), ])
+    gears <- dimnames(selectivity(p))$gear
+    expect_identical(dimnames(catchability(p))$gear, gears)
+    # so a catchability set for one species uses the same gears
+    q <- p
+    catchability(q, species = "Cod") <- catchability(q)[, "Cod"] * 2
+    expect_true(validObject(q))
+    expect_identical(dimnames(catchability(q))$gear, gears)
+    expect_equal(catchability(q)[, "Cod"], catchability(p)[, "Cod"] * 2)
+    # and a whole catchability in another gear order is matched by name
+    c2 <- catchability(NS_params_small) * 3
+    c2 <- c2[rev(rownames(c2)), ]
+    q <- setFishing(p, catchability = c2)
+    expect_true(validObject(q))
+    expect_identical(dimnames(catchability(q))$gear, gears)
+    expect_equal(catchability(q)[gears, ], c2[gears, ])
+    # A gear that is not among them is an error that names the frozen array
+    c3 <- c2
+    rownames(c3)[1] <- "wrong"
+    expect_error(setFishing(p, catchability = c3),
+                 "because the selectivity has been set manually as a whole")
+})
+
+test_that("a replacement that does not fit a frozen array is rejected", {
+    withr::local_options(mizer_info_level = 0)
+    gp <- gear_params(NS_params_small)
+    longline <- gp[gp$species == "Cod", ]
+    longline$gear <- "Longline"
+    p <- NS_params_small
+    selectivity(p) <- selectivity(p)
+    catchability(p) <- catchability(p)
+    # Both arrays are frozen as a whole and keep their three gears
+    suppressMessages(gear_params(p) <- rbind(gp, longline))
+    expect_identical(dim(catchability(p))[[1]], 3L)
+    s4 <- calc_selectivity(p)
+    expect_error(setFishing(p, selectivity = s4),
+                 "catchability has been set manually")
+    # Supplying both arrays brings in the new gear
+    c4 <- matrix(0, nrow = 4, ncol = 3, dimnames = dimnames(s4)[1:2])
+    c4[rownames(catchability(p)), ] <- catchability(p)
+    c4["Longline", "Cod"] <- 0.5
+    q <- setFishing(p, selectivity = s4, catchability = c4)
+    expect_true(validObject(q))
+    expect_identical(dimnames(catchability(q))$gear, dimnames(s4)$gear)
+})
+
+test_that("a new gear for an overridden species is calculated once", {
+    withr::local_options(mizer_info_level = 0)
+    gp <- gear_params(NS_params_small)
+    longline <- gp[gp$species == "Cod", ]
+    longline$gear <- "Longline"
+    longline$catchability <- 0.123
+    p <- NS_params_small
+    catchability(p, species = "Cod") <- catchability(p)[, "Cod"]
+    gear_params(p) <- rbind(gp, longline)
+    expect_equal(catchability(p)["Longline", "Cod"], 0.123)
+    # From then on it is protected like Cod's other gears
+    gp <- gear_params(p)
+    gp[gp$gear == "Longline", "catchability"] <- 0.456
+    expect_message(gear_params(p) <- gp, "catchability for Cod has been set")
+    expect_equal(catchability(p)["Longline", "Cod"], 0.123)
+})

@@ -256,3 +256,32 @@ test_that("setExtMort validates dimensions and deprecated z0 argument", {
                    "deprecated")
     expect_equal(p@mu_b, NS_params_small@mu_b, ignore_attr = TRUE)
 })
+
+
+test_that("ext_mort overrides and resets selected species only", {
+    withr::local_options(mizer_info_level = 0)
+    for (high_order in c(FALSE, TRUE)) {
+        original <- NS_params_small
+        second_order_w(original) <- high_order
+        params <- original
+        custom <- ext_mort(params)["Cod", ] * 0.5 + 0.01
+        ext_mort(params, species = "Cod") <- custom
+        species_params(params)["Herring", "z0"] <- 0.75
+        control <- original
+        species_params(control)["Herring", "z0"] <- 0.75
+        expect_equal(ext_mort(params)["Herring", ],
+                     ext_mort(control)["Herring", ], ignore_attr = TRUE)
+        expect_equal(ext_mort(params)["Cod", ], custom, ignore_attr = TRUE)
+        params <- setParams(params)
+        expect_equal(ext_mort(params)["Cod", ], custom, ignore_attr = TRUE)
+
+        # Equal-valued assignments also establish ownership.
+        ext_mort(params, species = "Sprat") <- ext_mort(params)["Sprat", ]
+        params <- setExtMort(params, reset = TRUE, species = "Cod")
+        expect_equal(ext_mort(params)["Cod", ],
+                     ext_mort(original)["Cod", ], ignore_attr = TRUE)
+        expect_equal(rate_overrides(params)$species, "Sprat")
+        params <- setExtMort(params, reset = TRUE)
+        expect_equal(nrow(rate_overrides(params)), 0L)
+    }
+})

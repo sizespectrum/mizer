@@ -19,12 +19,13 @@ setExtMort(
   z0exp = params@resource_params$n - 1,
   reset = FALSE,
   z0 = deprecated(),
-  ...
+  ...,
+  species = NULL
 )
 
 ext_mort(params)
 
-ext_mort(params) <- value
+ext_mort(params, species = NULL) <- value
 ```
 
 ## Arguments
@@ -66,6 +67,17 @@ ext_mort(params) <- value
 - ...:
 
   Unused
+
+- species:
+
+  Optional character vector of species to override or reset. Omit to
+  override or reset the whole array. Values may be full arrays or arrays
+  containing only the selected species. For a single species its values
+  without the species dimension are also accepted: a vector, or a gear x
+  size matrix for the selectivity. Other species keep their existing
+  override status. See
+  [`rate_overrides()`](https://sizespectrum.org/mizer/reference/rate_overrides.md)
+  to inspect overrides.
 
 - value:
 
@@ -126,6 +138,7 @@ applied only to the auto-calculated power-law default; a user-supplied
 
 Other functions for setting parameters:
 [`gear_params()`](https://sizespectrum.org/mizer/reference/gear_params.md),
+[`rate_overrides()`](https://sizespectrum.org/mizer/reference/rate_overrides.md),
 [`setExtDiffusion()`](https://sizespectrum.org/mizer/reference/setExtDiffusion.md),
 [`setExtEncounter()`](https://sizespectrum.org/mizer/reference/setExtEncounter.md),
 [`setFishing()`](https://sizespectrum.org/mizer/reference/setFishing.md),

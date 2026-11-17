@@ -74,6 +74,9 @@ package.
 | The package's results are unchanged when the model is switched to `second_order_w = TRUE`, or a diagnostic is out by a constant factor | the extension's own integrals ignore the `bin_average` flag | Working under both numerical schemes |
 | A component's state advances twice as far per step, or its `dynamics_fun` double-counts, under `method = "second_order"` (`"tr_bdf2"`) or `"predictor_corrector"` | the second-order steppers call `dynamics_fun` twice per step, from the same start-of-step state | Working under both numerical schemes |
 | A method the package defines is never called, and its name starts with `get` | the `get`-prefixed accessors are plain aliases now; dispatch happens on the bare name | Methods on the renamed rate-array accessors |
+| `R CMD check` reports an S3 generic/method inconsistency for a `catchability<-`, `selectivity<-` or `maturity<-` method, or `selectivity(params, species = "Cod") <- x` stops with "unused argument" on a model of the package | these replacement generics gained a `species` argument before `value` | Methods on the rate setters and their replacement functions |
+| `metab(params, species = "Cod") <- x` freezes the whole array on a model of the package, or `setMetabolicRate(params, species = "Cod", reset = TRUE)` resets all species | the package's method on the setter does not pass `...` on | Methods on the rate setters and their replacement functions |
+| The package treats a rate array as wholly set by hand because it has a comment, although only some species were overridden | rate arrays can be overridden for selected species | Methods on the rate setters and their replacement functions |
 | `steady.MyClass` runs but `tuneSteadyState()` ignores it | the new names are separate generics | Methods on the steady-state finders |
 | The package removes a species parameter column by writing into `params@species_params` | supported route exists since 3.3.1 | Withdrawing a species parameter column |
 | The package declares the current `gamma` as a given species parameter to stop it moving | the default is measured on mizer's own reference state now | The `gamma`/`f0` workaround can go |
@@ -539,6 +542,36 @@ leaving a method that looks live and is not.
 A method exported with `@method getExtMort myExtension` still appears in
 `NAMESPACE` and still passes `R CMD check`, so nothing will point this out for
 you. Grep the package for method definitions whose name starts with `get`.
+
+### Methods on the rate setters and their replacement functions
+
+A rate array can now be set by hand for selected species only, with the other
+species still calculated from their parameters, for example
+`metab(params, species = "Cod") <- my_rate`. For that, the rate setters
+`setMetabolicRate()`, `setSearchVolume()`, `setMaxIntakeRate()`,
+`setExtMort()`, `setExtEncounter()`, `setExtDiffusion()`, `setReproduction()`
+and `setFishing()` gained a `species` argument after `...`, and so did the
+replacement functions that call them.
+
+- A method on one of these setters that has `...` and calls `NextMethod()`
+  passes `species` on without any change. A method that calls the
+  `MizerParams` method, or another setter, directly must pass `...` along too.
+  Otherwise the user's `species` is dropped without a word, and the whole array
+  is frozen or reset instead of the rows of the species the user named.
+- `catchability<-()`, `selectivity<-()` and `maturity<-()` are generics, and
+  their arguments are now `(params, species = NULL, value)`. A method with the
+  old arguments `(params, value)` fails the S3 generic/method consistency check
+  of `R CMD check` and stops with "unused argument" when a user supplies
+  `species`. Add `species = NULL` before `value` and pass it on.
+- A comment on a rate array no longer means that the whole array was set by
+  hand: the attribute `mizer_override_species` may restrict it to some species.
+  Code that reads `comment()` to decide whether a rate follows the species
+  parameters should call `rate_overrides(params)` instead, which lists the
+  overridden rates by species.
+
+The predation kernel is not affected. It can still only be set as a whole, so
+`comment(params@pred_kernel)` keeps its meaning and `convolve_pred_kernel()`
+keeps its behaviour.
 
 ### Methods on the steady-state finders
 

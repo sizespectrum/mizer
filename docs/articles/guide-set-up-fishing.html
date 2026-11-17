@@ -39,7 +39,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0.9003</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -280,11 +280,21 @@
 <span><span class="fu"><a href="../reference/setFishing.html">selectivity</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">sel</span>                 <span class="co"># triggers recalculation via setFishing()</span></span></code></pre></div>
 </div>
 <p>A direct assignment here is for shapes you cannot obtain from a selectivity function. Setting an array by hand <strong>freezes</strong> it: mizer marks it as manual and stops recalculating it from <code>gear_params</code>, so later edits to the gear table leave your array untouched (you will see a message saying so). To discard the hand-set array and rebuild from <code>gear_params</code>, call <code>setFishing(params, reset = TRUE)</code>.</p>
-<hr></section><section class="level2"><h2 id="setfishing">setFishing()<a class="anchor" aria-label="anchor" href="#setfishing"></a>
-</h2>
-<p><code>setFishing(params, selectivity = NULL, catchability = NULL, reset = FALSE, initial_effort = NULL, ...)</code> recomputes the fishing setup after a change. Assigning <code>gear_params(params) &lt;- ...</code> already triggers recalculation, so you usually only call <code><a href="../reference/setFishing.html">setFishing()</a></code> directly when supplying a <code>selectivity</code> or <code>catchability</code> <strong>array</strong>, setting a baseline effort, or rebuilding from scratch:</p>
+<p>To override just one species across the gears, supply <code>species</code>. The remaining species continue to follow <code>gear_params</code>:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">sel</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/setFishing.html">selectivity</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">[</span>, <span class="st">"Cod"</span>, , drop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">]</span></span>
+<span><span class="va">sel</span><span class="op">[</span><span class="st">"Otter"</span>, <span class="st">"Cod"</span>, <span class="op">]</span> <span class="op">&lt;-</span> <span class="va">my_curve</span></span>
+<span><span class="fu"><a href="../reference/setFishing.html">selectivity</a></span><span class="op">(</span><span class="va">params</span>, species <span class="op">=</span> <span class="st">"Cod"</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">sel</span></span>
+<span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/setFishing.html">setFishing</a></span><span class="op">(</span><span class="va">params</span>, species <span class="op">=</span> <span class="st">"Cod"</span>, reset <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+</div>
+<p>The reset restores both selectivity and catchability for Cod while retaining other species’ overrides. <a href="../reference/rate_overrides.html"><code>rate_overrides(params)</code></a> lists the protected species, retained parameter inputs, and reset calls.</p>
+<p>Cod’s protected values are tied to the gear names, so they stay with their gears when you later change <code>gear_params</code>: reordering the gears keeps them, a new gear is calculated for Cod as for any other species, and the values for a gear you remove go with it. An array set without <code>species</code> is frozen as a whole and keeps the gears it was set with, even if a gear is no longer in <code>gear_params</code>; the other fishing array then uses the same gears.</p>
+<hr></section><section class="level2"><h2 id="setfishing">setFishing()<a class="anchor" aria-label="anchor" href="#setfishing"></a>
+</h2>
+<p><code>setFishing(params, selectivity = NULL, catchability = NULL, reset = FALSE, initial_effort = NULL, ..., species = NULL)</code> recomputes the fishing setup after a change. Assigning <code>gear_params(params) &lt;- ...</code> already triggers recalculation, so you usually only call <code><a href="../reference/setFishing.html">setFishing()</a></code> directly when supplying a <code>selectivity</code> or <code>catchability</code> <strong>array</strong>, setting a baseline effort, or rebuilding from scratch:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/setFishing.html">setFishing</a></span><span class="op">(</span><span class="va">params</span>, initial_effort <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>Otter <span class="op">=</span> <span class="fl">1</span>, Beam <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/setFishing.html">setFishing</a></span><span class="op">(</span><span class="va">params</span>, reset <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>   <span class="co"># rebuild arrays from gear_params</span></span></code></pre></div>
 </div>
@@ -312,12 +322,12 @@
 </tbody>
 </table>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/initial_effort.html">initial_effort</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>Industrial <span class="op">=</span> <span class="fl">0</span>, Pelagic <span class="op">=</span> <span class="fl">1</span>, Beam <span class="op">=</span> <span class="fl">0.5</span>, Otter <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span></code></pre></div>
 </div>
 <p>At run time, <code><a href="../reference/project.html">project()</a></code> accepts <code>effort</code> in four forms:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/project.html">project</a></span><span class="op">(</span><span class="va">params</span>, effort <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>                        <span class="co"># scalar: all gears, constant</span></span>
 <span><span class="fu"><a href="../reference/project.html">project</a></span><span class="op">(</span><span class="va">params</span>, effort <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>Otter <span class="op">=</span> <span class="fl">0.5</span>, Beam <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span> <span class="co"># named vector: per gear, constant</span></span>
 <span><span class="fu"><a href="../reference/project.html">project</a></span><span class="op">(</span><span class="va">params</span>, effort <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">0.5</span><span class="op">)</span><span class="op">)</span>        <span class="co"># vector in gear order, constant</span></span>
@@ -325,7 +335,7 @@
 </div>
 <p>For a time-varying scenario, build a <code>time × gear</code> array with numeric, increasing row names and gear column names:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">gears</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="fu"><a href="../reference/initial_effort.html">initial_effort</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">years</span> <span class="op">&lt;-</span> <span class="fl">2010</span><span class="op">:</span><span class="fl">2030</span></span>
 <span><span class="va">effort_array</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/array.html" class="external-link">array</a></span><span class="op">(</span><span class="fl">1</span>, dim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">years</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">gears</span><span class="op">)</span><span class="op">)</span>,</span>
@@ -346,7 +356,7 @@
 <hr></section><section class="level2"><h2 id="inspecting-the-fishing-setup">Inspecting the fishing setup<a class="anchor" aria-label="anchor" href="#inspecting-the-fishing-setup"></a>
 </h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/gear_params.html">gear_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>        <span class="co"># the gear table</span></span>
 <span><span class="fu"><a href="../reference/setFishing.html">catchability</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>       <span class="co"># Q array (gear × species)</span></span>
 <span><span class="fu"><a href="../reference/setFishing.html">selectivity</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span>        <span class="co"># S array (gear × species × size)</span></span>
@@ -358,13 +368,13 @@
 </div>
 <p><a href="../reference/getFMort.html"><code>getFMort()</code></a> and <a href="../reference/plotFMort.html"><code>plotFMort()</code></a> <strong>sum over gears</strong>, so a gear with a tiny catchability — a survey gear you fit against but do not want to fish with — is invisible in them. Inspect that gear with <a href="../reference/getFMortGear.html"><code>getFMortGear()</code></a>, slicing out its own mortality:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/getFMortGear.html">getFMortGear</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">[</span><span class="st">"Survey"</span>, , <span class="op">]</span>   <span class="co"># species × size, for one gear only</span></span></code></pre></div>
 </div>
 <hr></section><section class="level2"><h2 id="quick-reference">Quick reference<a class="anchor" aria-label="anchor" href="#quick-reference"></a>
 </h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># ── Gears and selectivity ─────────────────────────────────────────────────────</span></span>
 <span><span class="va">gp</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gear_params.html">gear_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span>
 <span><span class="va">gp</span><span class="op">$</span><span class="va">sel_func</span> <span class="op">&lt;-</span> <span class="st">"sigmoid_length"</span></span>

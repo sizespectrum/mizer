@@ -134,6 +134,21 @@ If the timestep has been checked and the report is unwanted, use
 `info_level = 0` for the call, or set `options(mizer_info_level = 0)`.
 
 
+### Summaries expose manual rate overrides
+
+`summary(params)` and printed `species_params(params)` now identify manually
+overridden rates and the affected species. This also applies to existing
+whole-array overrides. The parameter values are unchanged: they remain the
+inputs for a later reset and can still contribute to other rates or derivations.
+Code that captures printed output may need its expected text updated.
+
+Use `rate_overrides(params)` for a structured report. To remove an override
+for just one species, use the rate setter with `species = "Cod", reset = TRUE`,
+for example `setMetabolicRate(params, species = "Cod", reset = TRUE)`.
+Omitting `species` retains the whole-array reset. A `species_params()` table
+returned from an overridden model carries reporting metadata; numeric columns
+and their given/calculated provenance are unchanged.
+
 ### Plot limits only change the visible window
 
 `wlim`, `llim`, `tlim` and `ylim` now zoom the plot without filtering its data.

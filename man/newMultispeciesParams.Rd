@@ -404,9 +404,9 @@ supplied, a default of \code{lambda - 2 + n} is used. Note that only
 for predators of size \eqn{w = 1} gram is the value of the species parameter
 \eqn{\gamma_i} the same as the value of the search volume \eqn{\gamma_i(w)}.
 
-If the \code{search_vol} slot has a comment and \code{reset = FALSE}, then a
-recalculation from the species parameters is suppressed and a message is
-issued if the recalculated values would differ from the stored ones.
+With \code{reset = FALSE}, manually overridden species are preserved while the
+other species are recalculated. A message is issued if recalculation would
+change protected values. See \code{\link[=rate_overrides]{rate_overrides()}} to inspect overrides.
 }
 
 \section{Setting maximum intake rate}{
@@ -427,9 +427,9 @@ supplied, a default of \eqn{n_i = 3/4} is used.
 If \eqn{h_i} is set to \code{Inf}, fish of species i will consume all encountered
 food.
 
-If the \code{intake_max} slot has a comment and \code{reset = FALSE}, then a
-recalculation from the species parameters is suppressed and a message is
-issued if the recalculated values would differ from the stored ones.
+With \code{reset = FALSE}, manually overridden species are preserved while the
+other species are recalculated. A message is issued if recalculation would
+change protected values. See \code{\link[=rate_overrides]{rate_overrides()}} to inspect overrides.
 }
 
 \section{Setting metabolic rate}{
@@ -451,9 +451,9 @@ where \eqn{f_c} is the critical feeding level taken from the \code{fc} column
 in the species parameter data frame. If the critical feeding level is not
 specified, a default of \eqn{f_c = 0.2} is used.
 
-If the \code{metab} slot has a comment and \code{reset = FALSE}, then a recalculation
-from the species parameters is suppressed and a message is issued if the
-recalculated values would differ from the stored ones.
+With \code{reset = FALSE}, manually overridden species are preserved while the
+other species are recalculated. A message is issued if recalculation would
+change protected values. See \code{\link[=rate_overrides]{rate_overrides()}} to inspect overrides.
 }
 
 \section{Setting external mortality rate}{
@@ -514,9 +514,9 @@ The coefficient \eqn{E_{ext.i}} is taken from the \code{E_ext} column of the
 species parameter data frame, which defaults to 0. The exponent \eqn{n_i} is
 taken from the \code{n} column of the species parameter data frame.
 
-If the \code{ext_encounter} slot has a comment and \code{reset = FALSE}, then a
-recalculation from the species parameters is suppressed and a message is
-issued if the recalculated values would differ from the stored ones.
+With \code{reset = FALSE}, manually overridden species are preserved while the
+other species are recalculated. A message is issued if recalculation would
+change protected values. See \code{\link[=rate_overrides]{rate_overrides()}} to inspect overrides.
 }
 
 \section{Setting external diffusion rate}{
@@ -535,9 +535,9 @@ The coefficient \eqn{D_{ext.i}} is taken from the \code{D_ext} column of the
 species parameter data frame, which defaults to 0. The exponent
 \eqn{n_i + 1} uses the \code{n} column of the species parameter data frame.
 
-If the \code{ext_diffusion} slot has a comment and \code{reset = FALSE}, then a
-recalculation from the species parameters is suppressed and a message is
-issued if the recalculated values would differ from the stored ones.
+With \code{reset = FALSE}, manually overridden species are preserved while the
+other species are recalculated. A message is issued if recalculation would
+change protected values. See \code{\link[=rate_overrides]{rate_overrides()}} to inspect overrides.
 }
 
 \section{Setting reproduction}{

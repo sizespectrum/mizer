@@ -314,7 +314,12 @@ species_params <- function(object, ...) {
 #' @usage NULL
 #' @export
 species_params.MizerParams <- function(object, ...) {
-    object@species_params
+    sp <- object@species_params
+    # Reporting metadata for printing, always replaced so that it can not go
+    # stale. Validation strips it, so it never enters a model.
+    overrides <- rate_overrides(object)
+    attr(sp, "rate_overrides") <- if (nrow(overrides)) overrides
+    sp
 }
 
 #' @rdname species_params
@@ -374,6 +379,7 @@ species_params.species_params <- function(object, strict = FALSE, ...) {
 #' @usage NULL
 #' @export
 `species_params<-.MizerParams` <- function(object, recalculate = TRUE, value) {
+    attr(value, "rate_overrides") <- NULL
     # The columns the user actually handed us. `validSpeciesParams()` below
     # fills in defaults, and a default that the model does not already carry
     # would otherwise look like a column the user has just added and be
@@ -1386,6 +1392,7 @@ check_and_convert_species_params <- function(x) {
     out <- NextMethod("[")
     if (is.data.frame(out)) {
         class(out) <- class(x)
+        attr(out, "rate_overrides") <- attr(x, "rate_overrides", exact = TRUE)
     }
     out
 }
@@ -1407,6 +1414,15 @@ print.species_params <- function(x, ...) {
 
     if (length(extra_cols) > 0) {
         cat("With", length(extra_cols), "other parameters:", paste(extra_cols, collapse = ", "), "\n")
+    }
+    overrides <- attr(x, "rate_overrides", exact = TRUE)
+    if (!is.null(overrides)) {
+        overrides <- overrides[overrides$species %in% rownames(x) &
+                                   !overrides$rate %in%
+                                   c("selectivity", "catchability"), , drop = FALSE]
+        overrides$parameters <- lapply(overrides$parameters, intersect, names(x))
+        overrides <- overrides[lengths(overrides$parameters) > 0, , drop = FALSE]
+        print_rate_overrides(overrides)
     }
     invisible(x)
 }
@@ -1456,6 +1472,9 @@ given_species_params.data.frame <- function(object, strict = FALSE,
     assert_that(is.data.frame(object))
     # Convert a tibble back to an ordinary data frame
     sp <- as.data.frame(object, stringsAsFactors = FALSE)
+    # A table returned by `species_params()` carries a report of the rate
+    # overrides of the model it came from, which must not reach another model.
+    attr(sp, "rate_overrides") <- NULL
 
     if (check_misspellings) {
         check_species_params_misspellings(names(sp))
@@ -1677,7 +1696,11 @@ is.given_species_params <- function(x) {
         check_species_params_misspellings(new_cols)
         signal_ignored_changes(old_given, specified)
         signal_gear_params_changes(changed_names)
-        signal_frozen_changes(params, changed_names)
+        frozen_changes <- changed
+        for (col in withdrawn) {
+            frozen_changes[[col]] <- entry_has_value(old_given[[col]], no_sp)
+        }
+        signal_frozen_changes(params, frozen_changes)
     })
 
     params@given_species_params <- value

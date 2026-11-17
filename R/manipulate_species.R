@@ -123,6 +123,12 @@ copyParamsComments <- function(params, old_params) {
     comment(params) <- comment(old_params)
     for (slot in slotNames(params)) {
         comment(slot(params, slot)) <- comment(slot(old_params, slot))
+        if (slot %in% species_override_rates) {
+            selected <- intersect(rate_override_species(old_params, slot),
+                                  params@species_params$species)
+            slot(params, slot) <- mark_rate_override(
+                slot(params, slot), selected, params@species_params$species)
+        }
     }
     params
 }
@@ -549,9 +555,7 @@ removeSpecies.MizerParams <- function(params, species, compensate = FALSE,
     p@given_species_params <- p@given_species_params[, keep]
 
     # Preserve comments
-    for (slot in (slotNames(p))) {
-        comment(slot(p, slot)) <- comment(slot(params, slot))
-    }
+    p <- copyParamsComments(p, params)
 
     validObject(p)
 
@@ -784,6 +788,13 @@ renameSpecies.MizerParams <- function(params, replace, ...) {
     names(species) <- species
     species[to_replace] <- replace
     names(species) <- NULL
+    for (var in species_override_rates) {
+        selected <- attr(slot(params, var), "mizer_override_species", exact = TRUE)
+        if (is.null(selected)) next
+        renamed <- selected %in% to_replace
+        selected[renamed] <- replace[selected[renamed]]
+        attr(slot(params, var), "mizer_override_species") <- selected
+    }
     rownames(params@species_params) <- species
     params@species_params$species <- species
     rownames(params@given_species_params) <- species
@@ -822,8 +833,11 @@ renameSpecies.MizerParams <- function(params, replace, ...) {
         dimnames(params@ft_pred_kernel_e)$sp <- species
         dimnames(params@ft_pred_kernel_p)$sp <- species
         dimnames(params@ft_pred_kernel_d)$sp <- species
-    } else {
-        dimnames(params@pred_kernel)$sp <- species
+    }
+    # A kernel set by hand is stored alongside the Fourier-transformed
+    # kernels, so it is renamed whether or not those are present.
+    if (length(dim(params@pred_kernel)) == 3) {
+        dimnames(params@pred_kernel)[[1]] <- species
     }
     dimnames(params@mu_b)$sp <- species
     dimnames(params@ext_encounter)$sp <- species

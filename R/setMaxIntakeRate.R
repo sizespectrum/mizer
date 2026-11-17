@@ -25,9 +25,9 @@
 #' If \eqn{h_i} is set to `Inf`, fish of species i will consume all encountered
 #' food.
 #'
-#' If the `intake_max` slot has a comment and `reset = FALSE`, then a
-#' recalculation from the species parameters is suppressed and a message is
-#' issued if the recalculated values would differ from the stored ones.
+#' With `reset = FALSE`, manually overridden species are preserved while the
+#' other species are recalculated. A message is issued if recalculation would
+#' change protected values. See [rate_overrides()] to inspect overrides.
 #'
 #' @param params MizerParams
 #' @param intake_max Optional. An array (species x size) holding the maximum
@@ -37,8 +37,14 @@
 #'   If set to TRUE, then the intake rate will be reset to the value
 #'   calculated from the species parameters, even if it was previously
 #'   overwritten with a custom value. If set to FALSE (default) then a
-#'   recalculation from the species parameters will take place only if no
-#'   custom value has been set.
+#'   recalculation takes place for species without a custom value.
+#' @param species Optional character vector of species to override or reset.
+#'   Omit to override or reset the whole array. Values may be full arrays or
+#'   arrays containing only the selected species. For a single species its
+#'   values without the species dimension are also accepted: a vector, or a
+#'   gear x size matrix for the selectivity. Other species keep their existing
+#'   override status.
+#'   See [rate_overrides()] to inspect overrides.
 #' @param ... Unused
 #'
 #' @return `setMaxIntakeRate()`: A MizerParams object with updated maximum
@@ -54,11 +60,11 @@
 #' im["Cod", ] <- im["Cod", ] * 1.5
 #' params <- setMaxIntakeRate(NS_params, intake_max = im)
 #' intake_max(params)["Cod", 1:5]
-setMaxIntakeRate <- function(params, intake_max = NULL, reset = FALSE, ...) {
+setMaxIntakeRate <- function(params, intake_max = NULL, reset = FALSE, ..., species = NULL) {
     UseMethod("setMaxIntakeRate")
 }
 #' @export
-setMaxIntakeRate.MizerParams <- function(params, intake_max = NULL, reset = FALSE, ...) {
+setMaxIntakeRate.MizerParams <- function(params, intake_max = NULL, reset = FALSE, ..., species = NULL) {
     assert_that(is.flag(reset))
     species_params <- params@species_params
 
@@ -69,10 +75,12 @@ setMaxIntakeRate.MizerParams <- function(params, intake_max = NULL, reset = FALS
                     "calculated from the species parameters.")
             intake_max <- NULL
         }
-        comment(params@intake_max) <- NULL
+        params <- reset_rate_override(params, "intake_max", species)
     }
 
     # If intake_max array is supplied, check it, store it and return
+    intake_max <- prepare_rate_value(params, "intake_max", intake_max, species)
+
     if (!is.null(intake_max)) {
         if (is.null(comment(intake_max))) {
             if (is.null(comment(params@intake_max))) {
@@ -91,7 +99,7 @@ setMaxIntakeRate.MizerParams <- function(params, intake_max = NULL, reset = FALS
         }
         assert_that(all(intake_max >= 0))
         params@intake_max[] <- intake_max
-        comment(params@intake_max) <- comment(intake_max)
+        params@intake_max <- copy_override_marker(params@intake_max, intake_max)
 
         params@time_modified <- lubridate::now()
         return(params)
@@ -104,15 +112,7 @@ setMaxIntakeRate.MizerParams <- function(params, intake_max = NULL, reset = FALS
                               params@w, function(x, y) y^x),
                         1, params@species_params[["h"]], "*")
 
-    # Prevent overwriting slot if it has been commented
-    if (!is.null(comment(params@intake_max))) {
-        # Issue warning but only if a change was actually requested
-        if (different(intake_max, params@intake_max)) {
-            signal_not_recalculated("intake_max", "maximum intake rate",
-                               "setMaxIntakeRate(params, reset = TRUE)")
-        }
-        return(params)
-    }
+    intake_max <- preserve_rate_overrides(params, "intake_max", intake_max)
     params@intake_max[] <- intake_max
 
     params@time_modified <- lubridate::now()
@@ -137,6 +137,11 @@ intake_max.MizerParams <- function(params) {
 #' @rdname setMaxIntakeRate
 #' @param value intake_max
 #' @export
-`intake_max<-` <- function(params, value) {
-    setMaxIntakeRate(params, intake_max = value)
+`intake_max<-` <- function(params, species = NULL, value) {
+    # Preserve direct two-argument calls to the replacement function.
+    if (missing(value)) {
+        value <- species
+        species <- NULL
+    }
+    setMaxIntakeRate(params, intake_max = value, species = species)
 }

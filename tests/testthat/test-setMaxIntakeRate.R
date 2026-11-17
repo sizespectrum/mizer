@@ -71,3 +71,32 @@ test_that("setMaxIntakeRate validates manual arrays", {
     bad_values[1, 1] <- -1
     expect_error(setMaxIntakeRate(params, intake_max = bad_values))
 })
+
+
+test_that("intake_max overrides and resets selected species only", {
+    withr::local_options(mizer_info_level = 0)
+    for (high_order in c(FALSE, TRUE)) {
+        original <- NS_params_small
+        second_order_w(original) <- high_order
+        params <- original
+        custom <- intake_max(params)["Cod", ] * 0.5 + 0.01
+        intake_max(params, species = "Cod") <- custom
+        species_params(params)["Herring", "h"] <- 0.75
+        control <- original
+        species_params(control)["Herring", "h"] <- 0.75
+        expect_equal(intake_max(params)["Herring", ],
+                     intake_max(control)["Herring", ], ignore_attr = TRUE)
+        expect_equal(intake_max(params)["Cod", ], custom, ignore_attr = TRUE)
+        params <- setParams(params)
+        expect_equal(intake_max(params)["Cod", ], custom, ignore_attr = TRUE)
+
+        # Equal-valued assignments also establish ownership.
+        intake_max(params, species = "Sprat") <- intake_max(params)["Sprat", ]
+        params <- setMaxIntakeRate(params, reset = TRUE, species = "Cod")
+        expect_equal(intake_max(params)["Cod", ],
+                     intake_max(original)["Cod", ], ignore_attr = TRUE)
+        expect_equal(rate_overrides(params)$species, "Sprat")
+        params <- setMaxIntakeRate(params, reset = TRUE)
+        expect_equal(nrow(rate_overrides(params)), 0L)
+    }
+})
