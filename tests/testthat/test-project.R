@@ -561,6 +561,68 @@ test_that("project_simple matches project for one saved step", {
                  ignore_attr = TRUE)
 })
 
+test_that("Euler reselects its boundary from current custom diffusion", {
+    observed <- new.env(parent = emptyenv())
+    assign("boundary_test_growth", function(params, ...) {
+        growth <- params@initial_n * 0
+        growth[1, ] <- 1
+        growth
+    }, envir = .GlobalEnv)
+    assign("boundary_test_diffusion", function(params, n, n_other, t, ...) {
+        top <- support_top_idx(params)[1]
+        observed$times <- c(observed$times, t)
+        observed$clocks <- c(observed$clocks, n_other$clock)
+        observed$tail <- c(observed$tail, n[1, top + 1L])
+        diffusion <- n * 0
+        # Only Herring diffuses, and only during the middle Euler step.
+        if (n_other$clock > 0.0625 && n_other$clock < 0.1875) {
+            diffusion[2, top] <- 1
+        }
+        diffusion
+    }, envir = .GlobalEnv)
+    assign("boundary_test_clock", function(n_other, component, dt, ...) {
+        n_other[[component]] + dt
+    }, envir = .GlobalEnv)
+    withr::defer(rm(list = c("boundary_test_growth", "boundary_test_diffusion",
+                             "boundary_test_clock"), envir = .GlobalEnv))
+
+    for (flux in c("upwind", "van_leer", "centred")) {
+        for (bin_average in c(FALSE, TRUE)) {
+            p <- NS_params_small
+            second_order_w(p) <- c(flux = flux, bin_average = bin_average)
+            top <- support_top_idx(p)[1]
+            p@initial_n[] <- 0
+            p@initial_n[1, top] <- 1
+            p <- setComponent(p, "clock", initial_value = 0,
+                              dynamics_fun = "boundary_test_clock")
+            p <- setRateFunction(p, "EGrowth", "boundary_test_growth")
+            p <- setRateFunction(p, "Diffusion", "boundary_test_diffusion")
+            expect_true(all(p@ext_diffusion == 0))
+            observed$times <- observed$clocks <- observed$tail <- numeric()
+            dt <- 0.125
+            out <- project_simple(p, dt = dt, steps = 3, method = "euler",
+                                  info_level = 0)
+            expect_equal(observed$times, c(0, dt, 2 * dt))
+            expect_equal(observed$clocks, c(0, dt, 2 * dt))
+            expect_equal(out$n_other$clock, 3 * dt)
+            expect_equal(observed$tail[1], 0)
+            expect_equal(observed$tail[3], 0)
+            if (flux == "upwind") {
+                # No diffusion lets the legacy step fill Sprat's tail. The
+                # next step clears it because another species diffuses; once
+                # diffusion stops, the legacy behaviour returns immediately.
+                expect_gt(observed$tail[2], 0)
+                expect_gt(out$n[1, top + 1L], 0)
+            } else {
+                # Higher-order fluxes keep the hard boundary throughout,
+                # including both steps without diffusion.
+                expect_equal(observed$tail[2], 0)
+                expect_equal(unname(out$n[1, top + 1L]), 0)
+            }
+        }
+    }
+})
+
 test_that("project_simple returns rates from the final update step", {
     params <- NS_params_small
     dt <- 0.1
