@@ -106,8 +106,10 @@
 #'   recalculation takes place for species without a custom value.
 #' @param species Optional character vector of species to override or reset.
 #'   Omit to override or reset the whole array. Values may be full arrays or
-#'   arrays containing only the selected species; for one species a vector is
-#'   also accepted. Other species keep their existing override status.
+#'   arrays containing only the selected species. For a single species its
+#'   values without the species dimension are also accepted: a vector, or a
+#'   gear x size matrix for the selectivity. Other species keep their existing
+#'   override status.
 #'   See [rate_overrides()] to inspect overrides.
 #' @param ... Unused
 #'
@@ -220,9 +222,7 @@ setFishing.MizerParams <- function(params, selectivity = NULL, catchability = NU
     } else {
         selectivity <- calc_selectivity(params)
         selectivity <- preserve_rate_overrides(params, "selectivity", selectivity)
-        comment(selectivity) <- comment(params@selectivity)
-        attr(selectivity, "mizer_override_species") <-
-            attr(params@selectivity, "mizer_override_species")
+        selectivity <- copy_override_marker(selectivity, params@selectivity)
         params@selectivity <- selectivity
     }
 
@@ -258,9 +258,7 @@ setFishing.MizerParams <- function(params, selectivity = NULL, catchability = NU
                 gear_params$catchability[[g]]
         }
         catchability <- preserve_rate_overrides(params, "catchability", catchability)
-        comment(catchability) <- comment(params@catchability)
-        attr(catchability, "mizer_override_species") <-
-            attr(params@catchability, "mizer_override_species")
+        catchability <- copy_override_marker(catchability, params@catchability)
         params@catchability <- catchability
     }
 

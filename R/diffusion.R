@@ -144,7 +144,7 @@ projectDiffusion.MizerParams <- function(params, n, n_pp, n_other, t = 0,
         # I_d(w) = sum_prey theta_i * N_prey(w_p) * w_p^2 * dw_p
         # This is the same convolution as in mizerEncounter but with w_p^2 * dw_p
         # weighting instead of w_p * dw_p.
-        if (full_kernel_override(params)) {
+        if (!is.null(comment(params@pred_kernel))) {
             # The user has set a custom predation kernel that does not depend
             # only on the predator/prey size ratio, so we cannot use the FFT
             # method. Instead we sum over the prey-size dimension of the full

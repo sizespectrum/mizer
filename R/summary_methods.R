@@ -319,7 +319,7 @@ getEncounterByPrey.MizerParams <- function(params, n = initialN(params),
     # result must reproduce `mizerEncounter()` under both schemes.
 
     # If the user has set a custom kernel we can not use fft.
-    if (full_kernel_override(params)) {
+    if (!is.null(comment(params@pred_kernel))) {
         # pred_kernel is predator species x predator size x prey size
         # We want to multiply this by the prey abundance, which is
         # prey species by prey size, sum over prey size. We use matrix

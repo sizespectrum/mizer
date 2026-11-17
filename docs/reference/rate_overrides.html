@@ -117,7 +117,9 @@ other rates or derivations. Resource overrides have <code>NA</code> in <code>spe
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A data frame with one row per overridden rate and species, columns
 <code>rate</code>, <code>species</code>, <code>parameters</code> (a list of parameter names), and <code>reset</code>
-(a call restoring parameter-driven calculation for that species).</p>
+(a call restoring parameter-driven calculation for that species). The
+predation kernel can only be set as a whole, so its <code>reset</code> call
+restores the calculation for all species.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -140,10 +142,15 @@ other rates or derivations. Resource overrides have <code>NA</code> in <code>spe
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="va">NS_params</span></span>
-<span><span class="fu"><a href="setMetabolicRate.html">metab</a></span><span class="op">(</span><span class="va">params</span>, species <span class="op">=</span> <span class="st">"Cod"</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fl">0.5</span> <span class="op">*</span> <span class="fu"><a href="w.html">w</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">^</span><span class="fl">0.8</span></span>
-<span><span class="fu">rate_overrides</span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span>
-<span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="setMetabolicRate.html">setMetabolicRate</a></span><span class="op">(</span><span class="va">params</span>, species <span class="op">=</span> <span class="st">"Cod"</span>, reset <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="va">NS_params</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="setMetabolicRate.html">metab</a></span><span class="op">(</span><span class="va">params</span>, species <span class="op">=</span> <span class="st">"Cod"</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fl">0.5</span> <span class="op">*</span> <span class="fu"><a href="w.html">w</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">^</span><span class="fl">0.8</span></span></span>
+<span class="r-in"><span><span class="fu">rate_overrides</span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    rate species   parameters</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 metab     Cod ks, k, p....</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                                     reset</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 setMetabolicRate(params, reset = TRUE, species = "Cod")</span>
+<span class="r-in"><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="setMetabolicRate.html">setMetabolicRate</a></span><span class="op">(</span><span class="va">params</span>, species <span class="op">=</span> <span class="st">"Cod"</span>, reset <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+</code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
@@ -164,3 +171,4 @@ other rates or derivations. Resource overrides have <code>NA</code> in <code>spe
 
 
   </body></html>
+

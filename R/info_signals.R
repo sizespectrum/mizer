@@ -393,66 +393,67 @@ frozen_rate_params <- function() {
     )
 }
 
-#' Signal the changes to species parameters that cannot take effect
+#' Signal the changes to parameters that cannot take effect
 #'
 #' Goes through the rate arrays that can be frozen, see [frozen_rate_params()],
 #' and raises a [signal_frozen()] condition for each frozen array that one of
-#' the changed species parameters feeds. This is what turns "the model no
-#' longer follows the species parameters" into a warning the user sees at the
-#' moment they make the change. It is one of the diagnostics that only
-#' [given_species_params<-()] gives, see there.
+#' the changed parameters feeds. This is what turns "the model no longer
+#' follows the parameters" into a warning the user sees at the moment they
+#' make the change. It is one of the diagnostics that only
+#' [given_species_params<-()] and [resource_params<-()] give, see there.
+#'
+#' Only the arrays derived from the kind of parameters that changed are
+#' considered, so that a species parameter and a resource parameter that share
+#' a name, like `n`, are not mistaken for each other.
 #'
 #' @param params A \linkS4class{MizerParams} object, holding the rate arrays as
 #'   they are, that is, before the change is applied.
 #' @param changed A named list of logical vectors identifying the changed
-#'   species in each parameter column, or a character vector of column names
-#'   when the change applies to all species.
+#'   species in each parameter column, or a character vector of parameter
+#'   names when the change applies to all species.
+#' @param derived_from The kind of parameters that changed, as in the
+#'   `derived_from` entries of [frozen_rate_params()]: "species parameters"
+#'   (the default) or "resource parameters".
 #'
 #' @return `NULL` invisibly. Called for its side effect of signalling.
 #' @concept info signalling functions
-signal_frozen_changes <- function(params, changed) {
+signal_frozen_changes <- function(params, changed,
+                                  derived_from = "species parameters") {
     if (length(changed) == 0) {
         return(invisible(NULL))
     }
-    for (var in names(frozen_rate_params())) {
-        entry <- frozen_rate_params()[[var]]
-        if (is.null(comment(slot(params, var)))) {
+    entries <- frozen_rate_params()
+    all_species <- params@species_params$species
+    for (var in names(entries)) {
+        entry <- entries[[var]]
+        plural <- entry$derived_from %||% "species parameters"
+        if (plural != derived_from || is.null(comment(slot(params, var)))) {
             next
         }
-        if (!is.null(entry$derived_from)) next
         affected <- intersect(if (is.list(changed)) names(changed) else changed,
                               entry$params)
         selected <- rate_override_species(params, var)
         if (is.list(changed)) {
             affected <- affected[vapply(affected, function(col) {
-                any(changed[[col]][params@species_params$species %in% selected])
+                any(changed[[col]][all_species %in% selected])
             }, logical(1))]
         }
         if (length(affected) == 0) {
             next
         }
-        affected_species <- selected
-        if (is.list(changed)) {
-            mask <- Reduce(`|`, changed[affected])
-            affected_species <- intersect(
-                selected, params@species_params$species[mask])
-        }
-        species_text <- if (length(selected) < nrow(params@species_params))
-            paste0(" for ", toString(affected_species)) else ""
+        # Name the species only when some of them are not overridden
+        species_text <- ""
         reset_call <- entry$reset_call
-        if (nzchar(species_text)) {
-            selection <- paste(encodeString(affected_species, quote = '"'),
-                               collapse = ", ")
-            reset_call <- sub("reset = TRUE", paste0(
-                "reset = TRUE, species = c(", selection, ")"),
-                reset_call, fixed = TRUE)
+        if (length(selected) < length(all_species)) {
+            affected_species <- selected
+            if (is.list(changed)) {
+                mask <- Reduce(`|`, changed[affected])
+                affected_species <- intersect(selected, all_species[mask])
+            }
+            species_text <- paste0(" for ", toString(affected_species))
+            reset_call <- override_reset_call(params, var, affected_species)
         }
         # "species parameters" -> "species parameter" for a single one
-        plural <- if (is.null(entry$derived_from)) {
-            "species parameters"
-        } else {
-            entry$derived_from
-        }
         singular <- sub("s$", "", plural)
         signal_frozen(var, paste0(
             "Your change to the ",

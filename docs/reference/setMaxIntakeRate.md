@@ -46,8 +46,10 @@ intake_max(params, species = NULL) <- value
 
   Optional character vector of species to override or reset. Omit to
   override or reset the whole array. Values may be full arrays or arrays
-  containing only the selected species; for one species a vector is also
-  accepted. Other species keep their existing override status. See
+  containing only the selected species. For a single species its values
+  without the species dimension are also accepted: a vector, or a gear x
+  size matrix for the selectivity. Other species keep their existing
+  override status. See
   [`rate_overrides()`](https://sizespectrum.org/mizer/reference/rate_overrides.md)
   to inspect overrides.
 
@@ -112,10 +114,14 @@ Other functions for setting parameters:
 ``` r
 # Inspect the current maximum intake rate
 intake_max(NS_params)["Cod", 1:5]
+#>     0.001   0.00119   0.00142    0.0017   0.00203 
+#> 0.6148276 0.6917271 0.7782447 0.8755836 0.9850971 
 
 # Increase intake rate for Cod by 50%
 im <- intake_max(NS_params)
 im["Cod", ] <- im["Cod", ] * 1.5
 params <- setMaxIntakeRate(NS_params, intake_max = im)
 intake_max(params)["Cod", 1:5]
+#>     0.001   0.00119   0.00142    0.0017   0.00203 
+#> 0.9222414 1.0375906 1.1673671 1.3133754 1.4776457 
 ```

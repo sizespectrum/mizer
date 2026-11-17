@@ -535,40 +535,12 @@ test_that("setPredKernel() pads the kernels of a model switched to edition 3 (#6
               1e-8)
 })
 
-
-test_that("partial kernels retain FFT quadrature for unoverridden species", {
-    withr::local_options(mizer_info_level = 0)
-    for (high in c(FALSE, TRUE)) {
-        p <- NS_params_small
-        second_order_w(p) <- high
-        p@use_predation_diffusion <- TRUE
-        pk <- pred_kernel(p) * 0.5
-        q <- setPredKernel(p, pred_kernel = pk, species = "Cod")
-        full <- setPredKernel(p, pred_kernel = pk)
-        f <- getFeedingLevel(p)
-        for (fun in c("mizerEncounter", "mizerPredRate", "mizerDiffusion")) {
-            evaluate <- function(params) get(fun)(
-                params, n = p@initial_n, n_pp = p@initial_n_pp,
-                n_other = p@initial_n_other, feeding_level = f)
-            actual <- evaluate(q)
-            expect_equal(actual[1:2, ], evaluate(p)[1:2, ], ignore_attr = TRUE)
-            expect_equal(actual[3, ], evaluate(full)[3, ], ignore_attr = TRUE)
-        }
-        total <- rowSums(getDiet(q, proportion = FALSE), dims = 2)
-        expect_equal(total, getEncounter(q) * (1 - getFeedingLevel(q)) *
-                         (initialN(q) > 0),
-                     ignore_attr = TRUE, tolerance = 1e-8)
-        expect_equal(encounter_kernel(q)[1:2, , ],
-                     encounter_kernel(p)[1:2, , ], ignore_attr = TRUE)
-        expect_equal(pred_kernel(q)["Cod", , ], pk["Cod", , ], ignore_attr = TRUE)
-        species_params(q)["Herring", "beta"] <- 200
-        control <- p
-        species_params(control)["Herring", "beta"] <- 200
-        expect_equal(getEncounter(q)["Herring", ],
-                     getEncounter(control)["Herring", ], ignore_attr = TRUE)
-        expect_equal(pred_kernel(q)["Cod", , ], pk["Cod", , ], ignore_attr = TRUE)
-        q <- setPredKernel(q, reset = TRUE, species = "Cod")
-        expect_equal(getEncounter(q), getEncounter(control), ignore_attr = TRUE)
-        expect_equal(nrow(rate_overrides(q)), 0L)
-    }
+test_that("setPredKernel() sets the kernel only for all species together", {
+    params <- NS_params_small
+    pk <- pred_kernel(params)
+    expect_error(setPredKernel(params, pred_kernel = pk, species = "Cod"),
+                 "all species together")
+    expect_error(setPredKernel(params, reset = TRUE, species = "Cod"),
+                 "all species together")
+    expect_error(pred_kernel(params, species = "Cod") <- pk, "unused argument")
 })

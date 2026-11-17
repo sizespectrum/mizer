@@ -209,3 +209,12 @@ test_that("fft rates have no wrap-around when the kernel extends below min_w_pp 
     expected <- linear_kernel_sum(params, Q, "predation") * params@ft_mask
     expect_lt(max_rel_diff(getPredRate(params), expected), 1e-8)
 })
+
+test_that("mizerPredRate() works on a model whose ft_mask has no dimnames", {
+    # Models saved by earlier versions of mizer, NS_params among them, have an
+    # `ft_mask` without dimnames.
+    params <- NS_params_small
+    dimnames(params@ft_mask) <- NULL
+    expect_equal(getPredRate(params), getPredRate(NS_params_small),
+                 ignore_attr = TRUE)
+})

@@ -315,8 +315,10 @@ species_params <- function(object, ...) {
 #' @export
 species_params.MizerParams <- function(object, ...) {
     sp <- object@species_params
+    # Reporting metadata for printing, always replaced so that it can not go
+    # stale. Validation strips it, so it never enters a model.
     overrides <- rate_overrides(object)
-    if (nrow(overrides)) attr(sp, "rate_overrides") <- overrides
+    attr(sp, "rate_overrides") <- if (nrow(overrides)) overrides
     sp
 }
 
@@ -1470,6 +1472,9 @@ given_species_params.data.frame <- function(object, strict = FALSE,
     assert_that(is.data.frame(object))
     # Convert a tibble back to an ordinary data frame
     sp <- as.data.frame(object, stringsAsFactors = FALSE)
+    # A table returned by `species_params()` carries a report of the rate
+    # overrides of the model it came from, which must not reach another model.
+    attr(sp, "rate_overrides") <- NULL
 
     if (check_misspellings) {
         check_species_params_misspellings(names(sp))
@@ -1626,7 +1631,6 @@ is.given_species_params <- function(x) {
 #' @usage NULL
 #' @export
 `given_species_params<-.MizerParams` <- function(object, value) {
-    attr(value, "rate_overrides") <- NULL
     params <- object
     # Worked out here, before the length/weight rules below rewrite `value`.
     # Only the columns the model does not have yet, so that a likely

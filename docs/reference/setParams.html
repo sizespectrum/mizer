@@ -45,7 +45,7 @@ discussion of how to use this function."><meta property="og:image" content="http
 
     <a class="navbar-brand me-2" href="../index.html">mizer</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.4.0.9003</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -189,6 +189,15 @@ predation kernel".</p></dd>
 <dd><p>Optional. An array (species x size) holding the search volume
 for each species at size. If not supplied, a default is set as described in
 the section "Setting search volume".</p></dd>
+
+    <dt><code>species</code></dt>
+<dd><p>Optional character vector of species to override or reset.
+Omit to override or reset the whole array. Values may be full arrays or
+arrays containing only the selected species. For a single species its
+values without the species dimension are also accepted: a vector, or a
+gear x size matrix for the selectivity. Other species keep their existing
+override status.
+See <code><a href="rate_overrides.html">rate_overrides()</a></code> to inspect overrides.</p></dd>
 
     <dt><code>intake_max</code></dt>
 <dd><p>Optional. An array (species x size) holding the maximum
@@ -436,9 +445,9 @@ calculated by the <code><a href="get_gamma_default.html">get_gamma_default()</a>
 supplied, a default of <code>lambda - 2 + n</code> is used. Note that only
 for predators of size \(w = 1\) gram is the value of the species parameter
 \(\gamma_i\) the same as the value of the search volume \(\gamma_i(w)\).</p>
-<p>If the <code>search_vol</code> slot has a comment and <code>reset = FALSE</code>, then a
-recalculation from the species parameters is suppressed and a message is
-issued if the recalculated values would differ from the stored ones.</p>
+<p>With <code>reset = FALSE</code>, manually overridden species are preserved while the
+other species are recalculated. A message is issued if recalculation would
+change protected values. See <code><a href="rate_overrides.html">rate_overrides()</a></code> to inspect overrides.</p>
     </div>
     <div class="section level2">
     <h2 id="setting-maximum-intake-rate">Setting maximum intake rate<a class="anchor" aria-label="anchor" href="#setting-maximum-intake-rate"></a></h2>
@@ -457,9 +466,9 @@ calculated by the <code><a href="get_h_default.html">get_h_default()</a></code> 
 supplied, a default of \(n_i = 3/4\) is used.</p>
 <p>If \(h_i\) is set to <code>Inf</code>, fish of species i will consume all encountered
 food.</p>
-<p>If the <code>intake_max</code> slot has a comment and <code>reset = FALSE</code>, then a
-recalculation from the species parameters is suppressed and a message is
-issued if the recalculated values would differ from the stored ones.</p>
+<p>With <code>reset = FALSE</code>, manually overridden species are preserved while the
+other species are recalculated. A message is issued if recalculation would
+change protected values. See <code><a href="rate_overrides.html">rate_overrides()</a></code> to inspect overrides.</p>
     </div>
     <div class="section level2">
     <h2 id="setting-metabolic-rate">Setting metabolic rate<a class="anchor" aria-label="anchor" href="#setting-metabolic-rate"></a></h2>
@@ -480,9 +489,9 @@ $$k_s = f_c h \alpha w_{mat}^{n-p},$$
 where \(f_c\) is the critical feeding level taken from the <code>fc</code> column
 in the species parameter data frame. If the critical feeding level is not
 specified, a default of \(f_c = 0.2\) is used.</p>
-<p>If the <code>metab</code> slot has a comment and <code>reset = FALSE</code>, then a recalculation
-from the species parameters is suppressed and a message is issued if the
-recalculated values would differ from the stored ones.</p>
+<p>With <code>reset = FALSE</code>, manually overridden species are preserved while the
+other species are recalculated. A message is issued if recalculation would
+change protected values. See <code><a href="rate_overrides.html">rate_overrides()</a></code> to inspect overrides.</p>
     </div>
     <div class="section level2">
     <h2 id="setting-external-mortality-rate">Setting external mortality rate<a class="anchor" aria-label="anchor" href="#setting-external-mortality-rate"></a></h2>
@@ -539,9 +548,9 @@ $$E_{ext.i}(w) = E_{ext.i}\, w^{n_i}.$$
 The coefficient \(E_{ext.i}\) is taken from the <code>E_ext</code> column of the
 species parameter data frame, which defaults to 0. The exponent \(n_i\) is
 taken from the <code>n</code> column of the species parameter data frame.</p>
-<p>If the <code>ext_encounter</code> slot has a comment and <code>reset = FALSE</code>, then a
-recalculation from the species parameters is suppressed and a message is
-issued if the recalculated values would differ from the stored ones.</p>
+<p>With <code>reset = FALSE</code>, manually overridden species are preserved while the
+other species are recalculated. A message is issued if recalculation would
+change protected values. See <code><a href="rate_overrides.html">rate_overrides()</a></code> to inspect overrides.</p>
     </div>
     <div class="section level2">
     <h2 id="setting-external-diffusion-rate">Setting external diffusion rate<a class="anchor" aria-label="anchor" href="#setting-external-diffusion-rate"></a></h2>
@@ -557,9 +566,9 @@ $$D_{ext.i}(w) = D_{ext.i}\, w^{n_i+1}.$$
 The coefficient \(D_{ext.i}\) is taken from the <code>D_ext</code> column of the
 species parameter data frame, which defaults to 0. The exponent
 \(n_i + 1\) uses the <code>n</code> column of the species parameter data frame.</p>
-<p>If the <code>ext_diffusion</code> slot has a comment and <code>reset = FALSE</code>, then a
-recalculation from the species parameters is suppressed and a message is
-issued if the recalculated values would differ from the stored ones.</p>
+<p>With <code>reset = FALSE</code>, manually overridden species are preserved while the
+other species are recalculated. A message is issued if recalculation would
+change protected values. See <code><a href="rate_overrides.html">rate_overrides()</a></code> to inspect overrides.</p>
     </div>
     <div class="section level2">
     <h2 id="setting-reproduction">Setting reproduction<a class="anchor" aria-label="anchor" href="#setting-reproduction"></a></h2>
@@ -746,6 +755,7 @@ an effort that varies through time.</p>
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p>Other functions for setting parameters:
 <code><a href="gear_params.html">gear_params()</a></code>,
+<code><a href="rate_overrides.html">rate_overrides()</a></code>,
 <code><a href="setExtDiffusion.html">setExtDiffusion()</a></code>,
 <code><a href="setExtEncounter.html">setExtEncounter()</a></code>,
 <code><a href="setExtMort.html">setExtMort()</a></code>,

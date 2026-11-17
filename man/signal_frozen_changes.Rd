@@ -2,17 +2,21 @@
 % Please edit documentation in R/info_signals.R
 \name{signal_frozen_changes}
 \alias{signal_frozen_changes}
-\title{Signal the changes to species parameters that cannot take effect}
+\title{Signal the changes to parameters that cannot take effect}
 \usage{
-signal_frozen_changes(params, changed)
+signal_frozen_changes(params, changed, derived_from = "species parameters")
 }
 \arguments{
 \item{params}{A \linkS4class{MizerParams} object, holding the rate arrays as
 they are, that is, before the change is applied.}
 
 \item{changed}{A named list of logical vectors identifying the changed
-species in each parameter column, or a character vector of column names
-when the change applies to all species.}
+species in each parameter column, or a character vector of parameter
+names when the change applies to all species.}
+
+\item{derived_from}{The kind of parameters that changed, as in the
+\code{derived_from} entries of \code{\link[=frozen_rate_params]{frozen_rate_params()}}: "species parameters"
+(the default) or "resource parameters".}
 }
 \value{
 \code{NULL} invisibly. Called for its side effect of signalling.
@@ -20,9 +24,14 @@ when the change applies to all species.}
 \description{
 Goes through the rate arrays that can be frozen, see \code{\link[=frozen_rate_params]{frozen_rate_params()}},
 and raises a \code{\link[=signal_frozen]{signal_frozen()}} condition for each frozen array that one of
-the changed species parameters feeds. This is what turns "the model no
-longer follows the species parameters" into a warning the user sees at the
-moment they make the change. It is one of the diagnostics that only
-\code{\link[=given_species_params<-]{given_species_params<-()}} gives, see there.
+the changed parameters feeds. This is what turns "the model no longer
+follows the parameters" into a warning the user sees at the moment they
+make the change. It is one of the diagnostics that only
+\code{\link[=given_species_params<-]{given_species_params<-()}} and \code{\link[=resource_params<-]{resource_params<-()}} give, see there.
+}
+\details{
+Only the arrays derived from the kind of parameters that changed are
+considered, so that a species parameter and a resource parameter that share
+a name, like \code{n}, are not mistaken for each other.
 }
 \concept{info signalling functions}

@@ -62,8 +62,10 @@ selectivity(params, species = NULL) <- value
 
   Optional character vector of species to override or reset. Omit to
   override or reset the whole array. Values may be full arrays or arrays
-  containing only the selected species; for one species a vector is also
-  accepted. Other species keep their existing override status. See
+  containing only the selected species. For a single species its values
+  without the species dimension are also accepted: a vector, or a gear x
+  size matrix for the selectivity. Other species keep their existing
+  override status. See
   [`rate_overrides()`](https://sizespectrum.org/mizer/reference/rate_overrides.md)
   to inspect overrides.
 
@@ -213,6 +215,17 @@ Other functions for setting parameters:
 # Halve the initial fishing effort for all gears
 params <- setFishing(NS_params, initial_effort = 0.5)
 initial_effort(params)
+#> Industrial    Pelagic       Beam      Otter 
+#>        0.5        0.5        0.5        0.5 
 str(catchability(NS_params))
+#>  num [1:4, 1:12] 1 0 0 0 1 0 0 0 1 0 ...
+#>  - attr(*, "dimnames")=List of 2
+#>   ..$ gear: chr [1:4] "Industrial" "Pelagic" "Beam" "Otter"
+#>   ..$ sp  : chr [1:12] "Sprat" "Sandeel" "N.pout" "Herring" ...
 str(selectivity(NS_params))
+#>  num [1:4, 1:12, 1:100] 0 0 0 0 0 0 0 0 0 0 ...
+#>  - attr(*, "dimnames")=List of 3
+#>   ..$ gear: chr [1:4] "Industrial" "Pelagic" "Beam" "Otter"
+#>   ..$ sp  : chr [1:12] "Sprat" "Sandeel" "N.pout" "Herring" ...
+#>   ..$ w   : chr [1:100] "0.001" "0.00119" "0.00142" "0.0017" ...
 ```

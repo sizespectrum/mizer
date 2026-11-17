@@ -39,8 +39,10 @@
 #'   recalculation takes place for species without a custom value.
 #' @param species Optional character vector of species to override or reset.
 #'   Omit to override or reset the whole array. Values may be full arrays or
-#'   arrays containing only the selected species; for one species a vector is
-#'   also accepted. Other species keep their existing override status.
+#'   arrays containing only the selected species. For a single species its
+#'   values without the species dimension are also accepted: a vector, or a
+#'   gear x size matrix for the selectivity. Other species keep their existing
+#'   override status.
 #'   See [rate_overrides()] to inspect overrides.
 #' @param ... Unused
 #'
@@ -82,9 +84,7 @@ setExtDiffusion.MizerParams <- function(params, ext_diffusion = NULL,
         assert_that(is.array(ext_diffusion),
                     identical(dim(ext_diffusion), dim(params@ext_diffusion)))
         params@ext_diffusion[] <- ext_diffusion
-        comment(params@ext_diffusion) <- comment(ext_diffusion)
-        attr(params@ext_diffusion, "mizer_override_species") <-
-            attr(ext_diffusion, "mizer_override_species")
+        params@ext_diffusion <- copy_override_marker(params@ext_diffusion, ext_diffusion)
 
         params@time_modified <- lubridate::now()
         return(params)

@@ -72,8 +72,10 @@ ext_mort(params, species = NULL) <- value
 
   Optional character vector of species to override or reset. Omit to
   override or reset the whole array. Values may be full arrays or arrays
-  containing only the selected species; for one species a vector is also
-  accepted. Other species keep their existing override status. See
+  containing only the selected species. For a single species its values
+  without the species dimension are also accepted: a vector, or a gear x
+  size matrix for the selectivity. Other species keep their existing
+  override status. See
   [`rate_overrides()`](https://sizespectrum.org/mizer/reference/rate_overrides.md)
   to inspect overrides.
 
@@ -154,6 +156,14 @@ Other functions for setting parameters:
 
 ``` r
 params <- newMultispeciesParams(NS_species_params)
+#> ℹ No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.
+#> ℹ No `b` column so using the isometric default b = 3 in w = a l^b.
+#> ℹ No h provided for some species, so using age at maturity to calculate it.
+#> ℹ Because you have n != p, the default value for `h` is not very good.
+#> ℹ Because the age at maturity is not known, I need to fall back to using
+#> von Bertalanffy parameters, where available.
+#> ℹ Using z0 = z0pre * w_inf ^ z0exp for calculated z0 values.
+#> ℹ Using f0, h, lambda, kappa and the predation kernel to calculate gamma.
 
 #### Setting allometric death rate #######################
 

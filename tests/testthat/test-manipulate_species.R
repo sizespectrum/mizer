@@ -817,3 +817,12 @@ test_that("rate override ownership follows renamed and removed species", {
     expect_equal(nrow(rate_overrides(q)), 0L)
     expect_null(comment(q@metab))
 })
+
+test_that("renameSpecies() renames a predation kernel set by hand", {
+    withr::local_options(mizer_info_level = 0)
+    params <- NS_params_small
+    pred_kernel(params) <- pred_kernel(params)
+    params <- renameSpecies(params, c(Cod = "Atlantic cod"))
+    expect_equal(dimnames(pred_kernel(params))[[1]],
+                 c("Sprat", "Herring", "Atlantic cod"))
+})

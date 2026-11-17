@@ -46,8 +46,10 @@ search_vol(params, species = NULL) <- value
 
   Optional character vector of species to override or reset. Omit to
   override or reset the whole array. Values may be full arrays or arrays
-  containing only the selected species; for one species a vector is also
-  accepted. Other species keep their existing override status. See
+  containing only the selected species. For a single species its values
+  without the species dimension are also accepted: a vector, or a gear x
+  size matrix for the selectivity. Other species keep their existing
+  override status. See
   [`rate_overrides()`](https://sizespectrum.org/mizer/reference/rate_overrides.md)
   to inspect overrides.
 
@@ -120,9 +122,13 @@ Other functions for setting parameters:
 ``` r
 # Inspect the current search volume
 search_vol(NS_params)["Cod", 1:5]
+#>        0.001      0.00119      0.00142       0.0017      0.00203 
+#> 6.365796e-13 7.332810e-13 8.446721e-13 9.729844e-13 1.120788e-12 
 
 # Double the search volume for all species
 sv <- search_vol(NS_params) * 2
 params <- setSearchVolume(NS_params, search_vol = sv)
 search_vol(params)["Cod", 1:5]
+#>        0.001      0.00119      0.00142       0.0017      0.00203 
+#> 1.273159e-12 1.466562e-12 1.689344e-12 1.945969e-12 2.241577e-12 
 ```

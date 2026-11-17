@@ -1970,3 +1970,17 @@ test_that("frozen-change diagnostics identify only overridden species", {
     species_params(p)["Herring", "ks"] <- 3
     expect_null(attr(p@species_params, "rate_overrides"))
 })
+
+test_that("the rate override report does not travel to other models", {
+    withr::local_options(mizer_info_level = 0)
+    p <- NS_params_small
+    metab(p, species = "Cod") <- metab(p)["Cod", ]
+    sp <- species_params(p)
+    expect_s3_class(attr(sp, "rate_overrides"), "data.frame")
+    expect_null(attr(validSpeciesParams(sp), "rate_overrides"))
+    expect_null(attr(validGivenSpeciesParams(sp), "rate_overrides"))
+    # A stale report stored in a model is replaced whenever the table is read
+    q <- NS_params_small
+    attr(q@species_params, "rate_overrides") <- attr(sp, "rate_overrides")
+    expect_null(attr(species_params(q), "rate_overrides"))
+})

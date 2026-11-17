@@ -12,7 +12,9 @@ rate_overrides(params)
 \value{
 A data frame with one row per overridden rate and species, columns
 \code{rate}, \code{species}, \code{parameters} (a list of parameter names), and \code{reset}
-(a call restoring parameter-driven calculation for that species).
+(a call restoring parameter-driven calculation for that species). The
+predation kernel can only be set as a whole, so its \code{reset} call
+restores the calculation for all species.
 }
 \description{
 Reports the species whose rate arrays have been set manually. The listed

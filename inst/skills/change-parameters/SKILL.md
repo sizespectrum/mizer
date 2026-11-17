@@ -588,14 +588,23 @@ params <- setMetabolicRate(params, species = "Cod", reset = TRUE)
 ```
 
 The same `species` argument works for every species-indexed rate setter and
-assignment function, including `pred_kernel()`, `maturity()`, `repro_prop()`,
-`selectivity()` and `catchability()`. Supply a full array or an array with only
-the selected species in the order given by `species`, retaining the other
-dimensions (including the gear dimension for fishing). A vector is accepted
-for one species if it has exactly the number of entries in that species'
-slice. Omitting `species` retains the whole-array assignment/reset behaviour.
-`setReproduction()` resets both maturity and reproductive allocation for the
-selected species; `setFishing()` resets both fishing arrays for them.
+assignment function except the predation kernel, including `maturity()`,
+`repro_prop()`, `selectivity()` and `catchability()`. Supply a full array or an
+array with only the selected species in the order given by `species`, retaining
+the other dimensions (including the gear dimension for fishing). For a single
+species you can also leave out the species dimension: supply a vector, or a
+gear x size matrix such as `selectivity(params)[, "Cod", ]`. Omitting `species`
+retains the whole-array assignment/reset behaviour. `setReproduction()` resets
+both maturity and reproductive allocation for the selected species;
+`setFishing()` resets both fishing arrays for them.
+
+The predation kernel can only be set or reset as a whole. Mizer evaluates the
+kernel by Fourier transform, which works only for a kernel that depends on the
+predator/prey mass ratio, so a kernel set by hand for some species would need
+slower explicit sums at every time step of every projection. To give one
+species a different kernel, change its kernel parameters instead, for example
+`given_species_params(params)["Cod", "beta"] <- 200`, or give it a kernel
+function of its own with `pred_kernel_type`.
 
 ```r
 rate_overrides(params)

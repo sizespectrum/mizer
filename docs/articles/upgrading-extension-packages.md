@@ -105,7 +105,6 @@ within it if it does anything else.
   `.onLoad()`) from it.
 
 ``` r
-
 # BEFORE:
 .onLoad <- function(libname, pkgname) {
     mizer::registerExtension(pkgname, requirement = "sizespectrum/myExtension")
@@ -128,7 +127,6 @@ An extension class is now an ordinary entry in the object’s S3 class
 vector, so nothing has to be declared. Delete
 
 ``` r
-
 setClass("myExtension", contains = "MizerParams")
 setClass("myExtensionSim", contains = "MizerSim")
 ```
@@ -138,7 +136,6 @@ wiped by `rm(list = ls())` or by the `cleanEx()` that `R CMD check` runs
 before every example, delete that too:
 
 ``` r
-
 setClass("myExtension", contains = "MizerParams", where = globalenv())
 ```
 
@@ -158,7 +155,6 @@ still there.
 Rewrite the roxygen block that documented the extension class:
 
 ``` r
-
 #' myExtension extension classes
 #'
 #' S3 extension classes for [MizerParams] and [MizerSim] that enable S3 dispatch
@@ -193,7 +189,6 @@ Every constructor and setup function should
 2.  call `coerceToExtensionClass(params)`, for a dispatching extension.
 
 ``` r
-
 params <- mizer::recordExtension(
     params, "myExtension",
     version = as.character(utils::packageVersion("myExtension")),
@@ -214,7 +209,6 @@ objects have to be upgraded to S3 and re-saved. Run this once, per
 object:
 
 ``` r
-
 library(mizer)
 load("data/my_params.rda")
 
@@ -235,7 +229,6 @@ save(my_params, file = "data/my_params.rda", compress = "bzip2")
 and update the documentation in `R/data.R`:
 
 ``` r
-
 #' @format A [myExtension-class] object.
 #'
 #' The object was created with [newMyExtensionParams()] and is stored in
@@ -267,7 +260,6 @@ mizer extension
 package](https://sizespectrum.org/mizer/articles/guide-create-extension-package.md):
 
 ``` r
-
 #' @exportS3Method utils::upgrade
 upgrade.myExtension <- function(object, ...) {
     # Detect old layout and migrate idempotently
@@ -306,7 +298,6 @@ upgrade.myExtension <- function(object, ...) {
 #### 10. Document, test and check
 
 ``` r
-
 devtools::document()   # updates NAMESPACE and man/*.Rd
 devtools::test()       # run test suite
 devtools::check()      # verify full package build and vignettes
@@ -333,8 +324,10 @@ of the second-order stepper `"second_order"`, an alias for `"tr_bdf2"`,
 or the superseded `"predictor_corrector"`. Both default to the
 first-order choice, which is why this is easy to miss: an extension that
 ignores them looks correct, passes its own tests, and is then silently
-wrong for the user who switches them on. Aim to work under all of them,
-and where you cannot, say so out loud.
+wrong for the user who switches them on. That user need not do it on
+purpose: a model created with defaults edition 3 or later is on the
+second-order scheme in size from the start. Aim to work under all of
+them, and where you cannot, say so out loud.
 
 **In size.** The rules are in the [guide to extending
 mizer](https://sizespectrum.org/mizer/articles/guide-extend-mizer.md),
@@ -417,7 +410,6 @@ quarter rather than a half.
 the object, so the setup function is the place to say so:
 
 ``` r
-
 if (isTRUE(second_order_w(params)[["bin_average"]])) {
     signal_info(
         "second_order_w",
@@ -438,6 +430,150 @@ that go through
 steady-state finders run the dynamics through an internal stepper, so
 [`tuneSteadyState(method = "second_order")`](https://sizespectrum.org/mizer/reference/tuneSteadyState.md)
 will not reach it.
+
+### Your own FFT convolutions
+
+Some extensions evaluate an encounter rate of their own — for a second
+resource, a size-structured prey component, a diet split by prey group —
+by copying the convolution from
+[`mizerEncounter()`](https://sizespectrum.org/mizer/reference/mizerEncounter.md):
+
+``` r
+avail_energy <- Re(base::t(mvfft(base::t(params@ft_pred_kernel_e) *
+                                     mvfft(base::t(prey)),
+                                 inverse = TRUE))) / length(params@w_full)
+avail_energy <- avail_energy[, idx_sp, drop = FALSE]
+```
+
+That convolution is circular: the part of a small predator’s kernel that
+reaches below the smallest size `min_w_pp` wraps around and picks up the
+largest fish at the top of the grid (mizer issue \#618). From defaults
+edition 3, mizer stores the Fourier-transformed kernels
+`ft_pred_kernel_e`, `ft_pred_kernel_p` and `ft_pred_kernel_d` on a
+zero-padded grid that is longer than
+[`w_full`](https://sizespectrum.org/mizer/reference/w.md), so for a
+model of that edition the code above fails with “non-conformable
+arrays”. For a model of edition 1 or 2 the kernels keep their old length
+and the code still runs, so the failure only shows up once a user works
+with an edition-3 model. Replace it with
+[`convolve_pred_kernel()`](https://sizespectrum.org/mizer/reference/convolve_pred_kernel.md),
+which reads the length of the grid from the kernels and pads the input
+to match:
+
+``` r
+avail_energy <- convolve_pred_kernel(params, prey)
+```
+
+It already returns only the predator sizes in `w`, so the `idx_sp`
+subsetting goes. A vector `prey` is used for every predator species,
+which is what a diet split by prey group needs: call it once per prey
+group. For a predation rate, pass the predator densities on `w` with
+`kernel = "predation"`; the result is on `w_full`. For a model of
+edition 1 or 2 it gives the same circular convolution as the code it
+replaces, so your extension keeps the results it had for those models.
+It also uses the bin-integrated kernels when `bin_average` is on,
+without any code of its own. This needs `mizer (>= 3.4.0.9002)` in
+`DESCRIPTION`.
+
+### The diet of a changed encounter rate
+
+[`getDiet()`](https://sizespectrum.org/mizer/reference/getDiet.md) and
+[`getTrophicLevel()`](https://sizespectrum.org/mizer/reference/getTrophicLevel.md)
+split the encounter rate between the food sources with the S3 generic
+[`getEncounterByPrey()`](https://sizespectrum.org/mizer/reference/getEncounterByPrey.md),
+and take the total from the model’s own encounter rate,
+[`getEncounter()`](https://sizespectrum.org/mizer/reference/getEncounter.md).
+If your package changes the encounter rate with a
+[`projectEncounter()`](https://sizespectrum.org/mizer/reference/mizerEncounter.md)
+method,
+[`getEncounterByPrey()`](https://sizespectrum.org/mizer/reference/getEncounterByPrey.md)
+does not know about the change, and the split no longer adds up to the
+total. Mizer then scales the contributions of all food sources in
+proportion and says so, with a message from
+[`getDiet()`](https://sizespectrum.org/mizer/reference/getDiet.md),
+[`plotDiet()`](https://sizespectrum.org/mizer/reference/plotDiet.md) or
+[`getTrophicLevel()`](https://sizespectrum.org/mizer/reference/getTrophicLevel.md).
+(Earlier versions ignored the change: the diet did not add up to what
+the predator consumed, and the trophic levels could be far too high.)
+The proportional split is exact only if your change affects all food
+sources equally. Even a change of the search volume does not, as soon as
+the model has an external encounter rate or a component with an
+encounter function.
+
+Give
+[`getEncounterByPrey()`](https://sizespectrum.org/mizer/reference/getEncounterByPrey.md)
+a method that makes the same change as your
+[`projectEncounter()`](https://sizespectrum.org/mizer/reference/mizerEncounter.md)
+method and calls
+[`NextMethod()`](https://rdrr.io/r/base/UseMethod.html):
+
+``` r
+#' @method projectEncounter myExtension
+#' @export
+projectEncounter.myExtension <- function(params, n, n_pp, n_other, t = 0, ...) {
+    params <- withMySearchVolume(params, t)
+    NextMethod()
+}
+
+#' @method getEncounterByPrey myExtension
+#' @export
+getEncounterByPrey.myExtension <- function(params, n, n_pp, n_other, t = 0,
+                                           ...) {
+    params <- withMySearchVolume(params, t)
+    NextMethod()
+}
+```
+
+If your change adds encounter of its own, a second resource for example,
+add it to the result of
+[`NextMethod()`](https://rdrr.io/r/base/UseMethod.html) as a food source
+of its own, named in the `prey` dimension, rather than spreading it over
+the existing ones:
+
+``` r
+getEncounterByPrey.myExtension <- function(params, n, n_pp, n_other, t = 0,
+                                           ...) {
+    by_prey <- NextMethod()
+    extra <- myResourceEncounter(params, n_other, t)  # species x size
+    dn <- dimnames(by_prey)
+    dn$prey <- c(dn$prey, "My resource")
+    array(c(by_prey, extra), dim = dim(by_prey) + c(0, 0, 1), dimnames = dn)
+}
+```
+
+[`getDiet()`](https://sizespectrum.org/mizer/reference/getDiet.md) then
+gives a column for it, and
+[`getTrophicLevel()`](https://sizespectrum.org/mizer/reference/getTrophicLevel.md),
+which only counts prey species and the resource in its numerator, treats
+it like the external encounter rate.
+
+[`getTrophicLevel()`](https://sizespectrum.org/mizer/reference/getTrophicLevel.md)
+takes from your method only how much food each prey species and the
+resource provide. It averages their trophic levels over prey sizes with
+the predation kernel stored in the model, so a change to which prey
+sizes are eaten reaches it only if the changed kernel is stored with
+[`setPredKernel()`](https://sizespectrum.org/mizer/reference/setPredKernel.md).
+If your package changes the kernel during the projection instead, for
+example with temperature, give
+[`getTrophicLevel()`](https://sizespectrum.org/mizer/reference/getTrophicLevel.md)
+a method that stores the kernel in force at time `t` with
+[`setPredKernel()`](https://sizespectrum.org/mizer/reference/setPredKernel.md)
+and calls [`NextMethod()`](https://rdrr.io/r/base/UseMethod.html).
+
+A [`getDiet()`](https://sizespectrum.org/mizer/reference/getDiet.md)
+method of your own that exists only to account for your change to the
+encounter rate is no longer needed: replace it with the
+[`getEncounterByPrey()`](https://sizespectrum.org/mizer/reference/getEncounterByPrey.md)
+method. If it calls
+[`NextMethod()`](https://rdrr.io/r/base/UseMethod.html) and then
+computes the diet itself, that call now gives the message even though
+its result is thrown away.
+[`getDiet()`](https://sizespectrum.org/mizer/reference/getDiet.md) also
+gained a `t` argument, and
+[`getDiet()`](https://sizespectrum.org/mizer/reference/getDiet.md) on a
+simulation passes the time of each saved step, so a method you keep must
+accept `t`, at least through `...`, and pass it on. This needs
+`mizer (>= 3.4.0.9003)` in `DESCRIPTION`.
 
 ### Methods on the renamed rate-array accessors
 
@@ -494,6 +630,49 @@ A method exported with `@method getExtMort myExtension` still appears in
 out for you. Grep the package for method definitions whose name starts
 with `get`.
 
+### Methods on the rate setters and their replacement functions
+
+A rate array can now be set by hand for selected species only, with the
+other species still calculated from their parameters, for example
+`metab(params, species = "Cod") <- my_rate`. For that, the rate setters
+[`setMetabolicRate()`](https://sizespectrum.org/mizer/reference/setMetabolicRate.md),
+[`setSearchVolume()`](https://sizespectrum.org/mizer/reference/setSearchVolume.md),
+[`setMaxIntakeRate()`](https://sizespectrum.org/mizer/reference/setMaxIntakeRate.md),
+[`setExtMort()`](https://sizespectrum.org/mizer/reference/setExtMort.md),
+[`setExtEncounter()`](https://sizespectrum.org/mizer/reference/setExtEncounter.md),
+[`setExtDiffusion()`](https://sizespectrum.org/mizer/reference/setExtDiffusion.md),
+[`setReproduction()`](https://sizespectrum.org/mizer/reference/setReproduction.md)
+and
+[`setFishing()`](https://sizespectrum.org/mizer/reference/setFishing.md)
+gained a `species` argument after `...`, and so did the replacement
+functions that call them.
+
+- A method on one of these setters that has `...` and calls
+  [`NextMethod()`](https://rdrr.io/r/base/UseMethod.html) passes
+  `species` on without any change. A method that calls the `MizerParams`
+  method, or another setter, directly must pass `...` along too.
+  Otherwise the user’s `species` is dropped without a word, and the
+  whole array is frozen or reset instead of the rows of the species the
+  user named.
+- `catchability<-()`, `selectivity<-()` and `maturity<-()` are generics,
+  and their arguments are now `(params, species = NULL, value)`. A
+  method with the old arguments `(params, value)` fails the S3
+  generic/method consistency check of `R CMD check` and stops with
+  “unused argument” when a user supplies `species`. Add `species = NULL`
+  before `value` and pass it on.
+- A comment on a rate array no longer means that the whole array was set
+  by hand: the attribute `mizer_override_species` may restrict it to
+  some species. Code that reads
+  [`comment()`](https://rdrr.io/r/base/comment.html) to decide whether a
+  rate follows the species parameters should call
+  [`rate_overrides(params)`](https://sizespectrum.org/mizer/reference/rate_overrides.md)
+  instead, which lists the overridden rates by species.
+
+The predation kernel is not affected. It can still only be set as a
+whole, so `comment(params@pred_kernel)` keeps its meaning and
+[`convolve_pred_kernel()`](https://sizespectrum.org/mizer/reference/convolve_pred_kernel.md)
+keeps its behaviour.
+
 ### Methods on the steady-state finders
 
 [`steady()`](https://sizespectrum.org/mizer/reference/superseded_steady.md)
@@ -532,7 +711,6 @@ by reaching into the slot, because until mizer 3.3.1 nothing else
 worked:
 
 ``` r
-
 params@species_params[["my_col"]] <- NULL   # old workaround — remove
 ```
 
@@ -541,7 +719,6 @@ The supported route is assignment, which also updates
 and triggers the rebuild:
 
 ``` r
-
 species_params(params)$my_col <- NULL
 ```
 
@@ -565,7 +742,6 @@ model was rebuilt, and worked around it by pinning the current `gamma`
 as a given species parameter. Drop the workaround:
 
 ``` r
-
 given_species_params(params)$gamma <- NULL
 ```
 
@@ -606,13 +782,13 @@ The cheatsheet articles became guides, and the extension material was
 resplit. Fix these wherever the package links them — `README`,
 vignettes, roxygen `@seealso`:
 
-| Old | New |
-|----|----|
-| `articles/creating-extension-packages.html` | `articles/guide-create-extension-package.html` |
-| `articles/using-extension-packages.html` | `articles/guide-use-extension-packages.html` |
-| `articles/extending-mizer.html` | `articles/guide-extend-mizer.html` |
-| `vignette("cheatsheet-…")` | `vignette("guide-…")` |
-| the `build-multispecies-model` skill | the [guide to building a mizer model](https://sizespectrum.org/mizer/articles/guide-build-model.md) |
+| Old                                         | New                                                                                                 |
+|---------------------------------------------|-----------------------------------------------------------------------------------------------------|
+| `articles/creating-extension-packages.html` | `articles/guide-create-extension-package.html`                                                      |
+| `articles/using-extension-packages.html`    | `articles/guide-use-extension-packages.html`                                                        |
+| `articles/extending-mizer.html`             | `articles/guide-extend-mizer.html`                                                                  |
+| `vignette("cheatsheet-…")`                  | `vignette("guide-…")`                                                                               |
+| the `build-multispecies-model` skill        | the [guide to building a mizer model](https://sizespectrum.org/mizer/articles/guide-build-model.md) |
 
 The website redirects the old addresses, but a
 [`vignette()`](https://rdrr.io/r/utils/vignette.html) call in your own

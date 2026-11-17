@@ -1,3 +1,12 @@
+# The rate arrays that can be overridden for selected species only. The
+# predation kernel is not among them: it can only be set as a whole, because a
+# kernel overridden for some species would need explicit sums over the kernel
+# for those species at every time step instead of the Fourier transform. The
+# resource arrays have no species dimension.
+species_override_rates <- c("intake_max", "search_vol", "metab", "mu_b",
+                            "ext_encounter", "ext_diffusion", "maturity",
+                            "psi", "selectivity", "catchability")
+
 # Species names, rather than row positions, survive reordering and subsetting.
 # An absent attribute on a commented array is the legacy whole-array override.
 rate_override_species <- function(params, var) {
@@ -48,12 +57,48 @@ mark_rate_override <- function(x, species, all_species) {
     x
 }
 
+# Copy the override marker, that is the freeze comment together with the
+# overridden species, from one array to another.
+copy_override_marker <- function(to, from) {
+    comment(to) <- comment(from)
+    attr(to, "mizer_override_species") <-
+        attr(from, "mizer_override_species", exact = TRUE)
+    to
+}
+
 reset_rate_override <- function(params, var, species) {
     selected <- check_override_species(params, species)
     remaining <- setdiff(rate_override_species(params, var), selected)
     slot(params, var) <- mark_rate_override(slot(params, var), remaining,
                                             params@species_params$species)
     params
+}
+
+# The call that makes the rate `var` follow its parameters again for
+# `species`. Without `species`, or for a rate that can only be overridden as a
+# whole, it is the call that resets the whole array.
+override_reset_call <- function(params, var, species = NULL) {
+    call <- frozen_rate_params()[[var]]$reset_call
+    if (is.null(species) || !var %in% species_override_rates ||
+            setequal(species, params@species_params$species)) {
+        return(call)
+    }
+    selection <- encodeString(species, quote = '"')
+    if (length(selection) > 1) {
+        selection <- paste0("c(", paste(selection, collapse = ", "), ")")
+    }
+    sub("reset = TRUE", paste0("reset = TRUE, species = ", selection), call,
+        fixed = TRUE)
+}
+
+# Non-species dimnames of a supplied value must match those of the rate array.
+check_other_dimnames <- function(dn, expected) {
+    for (d in seq_along(expected)) {
+        if (!is.null(dn[[d]]) && !identical(dn[[d]], expected[[d]])) {
+            stop("The gear and size dimnames must match ",
+                 "the existing rate array.")
+        }
+    }
 }
 
 # Expand a species-only value to the existing array shape. Full arrays remain
@@ -65,47 +110,52 @@ prepare_rate_value <- function(params, var, value, species) {
         attr(value, "mizer_override_species") <- NULL
         return(value)
     }
-    original <- switch(var,
-                       pred_kernel = pred_kernel(params),
-                       psi = repro_prop(params),
-                       slot(params, var))
-    original <- unclass_rate(original)
+    original <- unclass_rate(if (var == "psi") repro_prop(params) else
+        slot(params, var))
     expected <- rate_slice(original, var, species)
-    if (is.null(dim(value))) {
-        if (length(species) != 1L || length(value) != length(expected)) {
+    axis <- rate_species_dim(var)
+    if (identical(dim(value), dim(original))) {
+        dn <- dimnames(value)[[axis]]
+        if (!is.null(dn) && !identical(dn, dimnames(original)[[axis]])) {
+            stop("The species dimnames must match the model's species order.")
+        }
+        check_other_dimnames(dimnames(value)[-axis], dimnames(original)[-axis])
+        value <- rate_slice(value, var, species)
+    } else if (length(species) == 1L &&
+               length(value) == length(expected) &&
+               length(dim(value)) < length(dim(expected))) {
+        # The slice of a single species without its species dimension: a
+        # vector, or for the selectivity a gear x size matrix.
+        if (!is.null(dim(value))) {
+            if (!identical(dim(value), dim(expected)[-axis])) {
+                stop("The array dimensions must match the selected species ",
+                     "and size grid.")
+            }
+            check_other_dimnames(dimnames(value), dimnames(expected)[-axis])
+        }
+        value <- array(as.vector(value), dim = dim(expected),
+                       dimnames = dimnames(expected))
+    } else {
+        if (is.null(dim(value))) {
             stop("Supply an array for the selected species, ",
                  "or a full rate array.")
         }
-    } else if (identical(dim(value), dim(original))) {
-        dn <- dimnames(value)[[rate_species_dim(var)]]
-        original_names <- dimnames(original)[[rate_species_dim(var)]]
-        if (!is.null(dn) && !identical(dn, original_names)) {
-            stop("The species dimnames must match the model's species order.")
-        }
-        value <- rate_slice(value, var, species)
-    } else {
         if (!identical(dim(value), dim(expected))) {
             stop("The array dimensions must match the selected species ",
                  "and size grid.")
         }
-        dn <- dimnames(value)[[rate_species_dim(var)]]
+        dn <- dimnames(value)[[axis]]
         if (!is.null(dn) && !identical(dn, species)) {
             stop("The species dimnames must match `species` ",
                  "in the supplied order.")
         }
+        check_other_dimnames(dimnames(value)[-axis], dimnames(expected)[-axis])
     }
-    if (!is.null(dim(value))) {
-        axis <- rate_species_dim(var)
-        for (d in setdiff(seq_along(dim(expected)), axis)) {
-            dn <- dimnames(value)[[d]]
-            if (!is.null(dn) && !identical(dn, dimnames(expected)[[d]])) {
-                stop("The gear and size dimnames must match ",
-                     "the existing rate array.")
-            }
-        }
-    }
-    if (!is.numeric(value) || any(!is.finite(value))) {
-        stop("Manual rate values must be finite numbers.")
+    # Infinite values are allowed as they are for whole arrays: an infinite
+    # maximum intake rate, for example, means that all food is consumed. The
+    # setter's own checks apply to them in the same way.
+    if (!is.numeric(value) || anyNA(value)) {
+        stop("Manual rate values must be numbers, not NA.")
     }
     original <- replace_rate_slice(original, var, species, value)
     mark_rate_override(original,
@@ -123,20 +173,14 @@ preserve_rate_overrides <- function(params, var, value) {
     }
     dimnames(value) <- dimnames(slot(params, var))
     old <- rate_slice(slot(params, var), var, selected)
-    proposed <- rate_slice(value, var, selected)
-    if (different(old, proposed)) {
+    if (different(old, rate_slice(value, var, selected))) {
         entry <- frozen_rate_params()[[var]]
         quantity <- entry$quantity
-        reset_call <- entry$reset_call
         if (length(selected) < nrow(params@species_params)) {
             quantity <- paste0(quantity, " for ", toString(selected))
-            selection <- paste(encodeString(selected, quote = '"'),
-                               collapse = ", ")
-            replacement <- paste0("reset = TRUE, species = c(", selection, ")")
-            reset_call <- sub("reset = TRUE", replacement, reset_call,
-                              fixed = TRUE)
         }
-        signal_not_recalculated(var, quantity, reset_call,
+        signal_not_recalculated(var, quantity,
+                                override_reset_call(params, var, selected),
                                 entry$derived_from %||% "species parameters")
     }
     replace_rate_slice(value, var, selected, old)
@@ -152,7 +196,9 @@ preserve_rate_overrides <- function(params, var, value) {
 #' @param params A MizerParams object.
 #' @return A data frame with one row per overridden rate and species, columns
 #'   `rate`, `species`, `parameters` (a list of parameter names), and `reset`
-#'   (a call restoring parameter-driven calculation for that species).
+#'   (a call restoring parameter-driven calculation for that species). The
+#'   predation kernel can only be set as a whole, so its `reset` call
+#'   restores the calculation for all species.
 #' @export
 #' @family functions for setting parameters
 #' @examples
@@ -161,9 +207,10 @@ preserve_rate_overrides <- function(params, var, value) {
 #' rate_overrides(params)
 #' params <- setMetabolicRate(params, species = "Cod", reset = TRUE)
 rate_overrides <- function(params) {
+    entries <- frozen_rate_params()
     rows <- list()
-    for (var in names(frozen_rate_params())) {
-        entry <- frozen_rate_params()[[var]]
+    for (var in names(entries)) {
+        entry <- entries[[var]]
         if (is.null(comment(slot(params, var)))) next
         resource <- identical(entry$derived_from, "resource parameters")
         species <- if (resource) NA_character_ else
@@ -171,16 +218,11 @@ rate_overrides <- function(params) {
         columns <- if (resource) names(params@resource_params) else
             if (identical(entry$derived_from, "gear parameters"))
                 names(params@gear_params) else names(params@species_params)
+        rate <- switch(var, mu_b = "ext_mort", psi = "repro_prop",
+                       cc_pp = "resource_capacity", rr_pp = "resource_rate",
+                       var)
         for (sp in species) {
-            reset <- entry$reset_call
-            if (!is.na(sp)) {
-                selection <- paste0("reset = TRUE, species = ",
-                                    encodeString(sp, quote = '"'))
-                reset <- sub("reset = TRUE", selection, reset, fixed = TRUE)
-            }
-            rate <- switch(var, mu_b = "ext_mort", psi = "repro_prop",
-                           cc_pp = "resource_capacity", rr_pp = "resource_rate",
-                           var)
+            reset <- override_reset_call(params, var, if (!is.na(sp)) sp)
             parameters <- intersect(rate_input_parameters(params, var, sp),
                                     columns)
             row <- data.frame(rate = rate, species = sp,

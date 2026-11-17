@@ -164,8 +164,10 @@ recalculation takes place for species without a custom value.</p></dd>
 <dt id="arg-species">species<a class="anchor" aria-label="anchor" href="#arg-species"></a></dt>
 <dd><p>Optional character vector of species to override or reset.
 Omit to override or reset the whole array. Values may be full arrays or
-arrays containing only the selected species; for one species a vector is
-also accepted. Other species keep their existing override status.
+arrays containing only the selected species. For a single species its
+values without the species dimension are also accepted: a vector, or a
+gear x size matrix for the selectivity. Other species keep their existing
+override status.
 See <code><a href="rate_overrides.html">rate_overrides()</a></code> to inspect overrides.</p></dd>
 
 
@@ -227,12 +229,17 @@ change protected values. See <code><a href="rate_overrides.html">rate_overrides(
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># Inspect the current metabolic rate</span></span>
-<span><span class="fu">metab</span><span class="op">(</span><span class="va">NS_params</span><span class="op">)</span><span class="op">[</span><span class="st">"Cod"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span></span>
-<span></span>
-<span><span class="co"># Reset metabolic rate from species parameters</span></span>
-<span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu">setMetabolicRate</span><span class="op">(</span><span class="va">NS_params</span>, reset <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="fu">metab</span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">[</span><span class="st">"Cod"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Inspect the current metabolic rate</span></span></span>
+<span class="r-in"><span><span class="fu">metab</span><span class="op">(</span><span class="va">NS_params</span><span class="op">)</span><span class="op">[</span><span class="st">"Cod"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      0.001    0.00119    0.00142     0.0017    0.00203 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 0.09767498 0.11054111 0.12510202 0.14158096 0.16023056 </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Reset metabolic rate from species parameters</span></span></span>
+<span class="r-in"><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu">setMetabolicRate</span><span class="op">(</span><span class="va">NS_params</span>, reset <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">metab</span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">[</span><span class="st">"Cod"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      0.001    0.00119    0.00142     0.0017    0.00203 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 0.09767498 0.11054111 0.12510202 0.14158096 0.16023056 </span>
+</code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>

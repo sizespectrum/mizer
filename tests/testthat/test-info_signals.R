@@ -253,6 +253,18 @@ test_that("signal_frozen_changes() lists all the affected parameters", {
         "species parameters `ks`, `p` has not taken effect")
 })
 
+test_that("signal_frozen_changes() keeps species and resource parameters apart", {
+    params <- NS_params_small
+    comment(params@rr_pp) <- "set manually"
+    # The resource rate is fed by the resource parameter `n`, not by the
+    # species parameter of the same name
+    expect_silent(with_info_level(signal_frozen_changes(params, "n")))
+    expect_warning(
+        with_info_level(signal_frozen_changes(
+            params, "n", derived_from = "resource parameters")),
+        "resource parameter `n` has not taken effect because the resource rate")
+})
+
 # signal_ignored_changes() ----
 
 test_that("signal_ignored_changes() warns about a parameter that is overruled", {

@@ -28,11 +28,10 @@ convolve_pred_kernel(
 
 - params:
 
-  A MizerParams object. For a partially overridden kernel, explicit sums
-  are used for the overridden species and Fourier convolutions for the
-  others. A wholly custom kernel set with
-  [`setPredKernel()`](https://sizespectrum.org/mizer/reference/setPredKernel.md)
-  is not supported by this helper.
+  A MizerParams object whose predation kernel depends only on the
+  predator/prey mass ratio, i.e., one without a custom predation kernel
+  set with
+  [`setPredKernel()`](https://sizespectrum.org/mizer/reference/setPredKernel.md).
 
 - x:
 

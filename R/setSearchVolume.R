@@ -48,8 +48,10 @@
 #'   recalculation takes place for species without a custom value.
 #' @param species Optional character vector of species to override or reset.
 #'   Omit to override or reset the whole array. Values may be full arrays or
-#'   arrays containing only the selected species; for one species a vector is
-#'   also accepted. Other species keep their existing override status.
+#'   arrays containing only the selected species. For a single species its
+#'   values without the species dimension are also accepted: a vector, or a
+#'   gear x size matrix for the selectivity. Other species keep their existing
+#'   override status.
 #'   See [rate_overrides()] to inspect overrides.
 #' @param ... Unused
 #'
@@ -103,9 +105,7 @@ setSearchVolume.MizerParams <- function(params, search_vol = NULL, reset = FALSE
         }
         assert_that(all(search_vol >= 0))
         params@search_vol[] <- search_vol
-        comment(params@search_vol) <- comment(search_vol)
-        attr(params@search_vol, "mizer_override_species") <-
-            attr(search_vol, "mizer_override_species")
+        params@search_vol <- copy_override_marker(params@search_vol, search_vol)
 
         params@time_modified <- lubridate::now()
         return(params)

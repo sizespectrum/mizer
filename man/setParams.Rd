@@ -34,15 +34,17 @@ rather than a message, but it too is silenced by \code{info_level = 0}.}
 that holds the predation coefficient of each predator at size on each prey
 size. If not supplied, a default is set as described in section "Setting
 predation kernel".}
-    \item{\code{species}}{Optional character vector of species to override or reset.
-Omit to override or reset the whole array. Values may be full arrays or
-arrays containing only the selected species; for one species a vector is
-also accepted. Other species keep their existing override status.
-See \code{\link[=rate_overrides]{rate_overrides()}} to inspect overrides.}
     \item{\code{value}}{pred_kernel}
     \item{\code{search_vol}}{Optional. An array (species x size) holding the search volume
 for each species at size. If not supplied, a default is set as described in
 the section "Setting search volume".}
+    \item{\code{species}}{Optional character vector of species to override or reset.
+Omit to override or reset the whole array. Values may be full arrays or
+arrays containing only the selected species. For a single species its
+values without the species dimension are also accepted: a vector, or a
+gear x size matrix for the selectivity. Other species keep their existing
+override status.
+See \code{\link[=rate_overrides]{rate_overrides()}} to inspect overrides.}
     \item{\code{intake_max}}{Optional. An array (species x size) holding the maximum
 intake rate for each species at size. If not supplied, a default is set as
 described in the section "Setting maximum intake rate".}

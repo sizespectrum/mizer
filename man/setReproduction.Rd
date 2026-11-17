@@ -56,8 +56,10 @@ reproduction rate from the density-independent rate. Defaults to
 
 \item{species}{Optional character vector of species to override or reset.
 Omit to override or reset the whole array. Values may be full arrays or
-arrays containing only the selected species; for one species a vector is
-also accepted. Other species keep their existing override status.
+arrays containing only the selected species. For a single species its
+values without the species dimension are also accepted: a vector, or a
+gear x size matrix for the selectivity. Other species keep their existing
+override status.
 See \code{\link[=rate_overrides]{rate_overrides()}} to inspect overrides.}
 
 \item{value}{The desired new value for the respective parameter.}

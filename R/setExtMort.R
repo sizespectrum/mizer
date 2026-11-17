@@ -67,8 +67,10 @@
 #'   be confused with the species_parameter `z0`.
 #' @param species Optional character vector of species to override or reset.
 #'   Omit to override or reset the whole array. Values may be full arrays or
-#'   arrays containing only the selected species; for one species a vector is
-#'   also accepted. Other species keep their existing override status.
+#'   arrays containing only the selected species. For a single species its
+#'   values without the species dimension are also accepted: a vector, or a
+#'   gear x size matrix for the selectivity. Other species keep their existing
+#'   override status.
 #'   See [rate_overrides()] to inspect overrides.
 #' @param ... Unused
 #'
@@ -139,9 +141,7 @@ setExtMort.MizerParams <- function(params, ext_mort = NULL,
         assert_that(is.array(ext_mort),
                     identical(dim(ext_mort), dim(params@mu_b)))
         params@mu_b[] <- ext_mort
-        comment(params@mu_b) <- comment(ext_mort)
-        attr(params@mu_b, "mizer_override_species") <-
-            attr(ext_mort, "mizer_override_species")
+        params@mu_b <- copy_override_marker(params@mu_b, ext_mort)
 
         params@time_modified <- lubridate::now()
         return(params)

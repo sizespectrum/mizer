@@ -40,8 +40,10 @@
 #'   recalculation takes place for species without a custom value.
 #' @param species Optional character vector of species to override or reset.
 #'   Omit to override or reset the whole array. Values may be full arrays or
-#'   arrays containing only the selected species; for one species a vector is
-#'   also accepted. Other species keep their existing override status.
+#'   arrays containing only the selected species. For a single species its
+#'   values without the species dimension are also accepted: a vector, or a
+#'   gear x size matrix for the selectivity. Other species keep their existing
+#'   override status.
 #'   See [rate_overrides()] to inspect overrides.
 #' @param ... Unused
 #'
@@ -97,9 +99,7 @@ setMaxIntakeRate.MizerParams <- function(params, intake_max = NULL, reset = FALS
         }
         assert_that(all(intake_max >= 0))
         params@intake_max[] <- intake_max
-        comment(params@intake_max) <- comment(intake_max)
-        attr(params@intake_max, "mizer_override_species") <-
-            attr(intake_max, "mizer_override_species")
+        params@intake_max <- copy_override_marker(params@intake_max, intake_max)
 
         params@time_modified <- lubridate::now()
         return(params)

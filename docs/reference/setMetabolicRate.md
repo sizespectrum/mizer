@@ -63,8 +63,10 @@ metab(params, species = NULL) <- value
 
   Optional character vector of species to override or reset. Omit to
   override or reset the whole array. Values may be full arrays or arrays
-  containing only the selected species; for one species a vector is also
-  accepted. Other species keep their existing override status. See
+  containing only the selected species. For a single species its values
+  without the species dimension are also accepted: a vector, or a gear x
+  size matrix for the selectivity. Other species keep their existing
+  override status. See
   [`rate_overrides()`](https://sizespectrum.org/mizer/reference/rate_overrides.md)
   to inspect overrides.
 
@@ -132,8 +134,12 @@ Other functions for setting parameters:
 ``` r
 # Inspect the current metabolic rate
 metab(NS_params)["Cod", 1:5]
+#>      0.001    0.00119    0.00142     0.0017    0.00203 
+#> 0.09767498 0.11054111 0.12510202 0.14158096 0.16023056 
 
 # Reset metabolic rate from species parameters
 params <- setMetabolicRate(NS_params, reset = TRUE)
 metab(params)["Cod", 1:5]
+#>      0.001    0.00119    0.00142     0.0017    0.00203 
+#> 0.09767498 0.11054111 0.12510202 0.14158096 0.16023056 
 ```

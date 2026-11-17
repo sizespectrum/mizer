@@ -123,8 +123,7 @@ copyParamsComments <- function(params, old_params) {
     comment(params) <- comment(old_params)
     for (slot in slotNames(params)) {
         comment(slot(params, slot)) <- comment(slot(old_params, slot))
-        if (slot %in% names(frozen_rate_params()) &&
-            !slot %in% c("cc_pp", "rr_pp")) {
+        if (slot %in% species_override_rates) {
             selected <- intersect(rate_override_species(old_params, slot),
                                   params@species_params$species)
             slot(params, slot) <- mark_rate_override(
@@ -789,7 +788,7 @@ renameSpecies.MizerParams <- function(params, replace, ...) {
     names(species) <- species
     species[to_replace] <- replace
     names(species) <- NULL
-    for (var in names(frozen_rate_params())) {
+    for (var in species_override_rates) {
         selected <- attr(slot(params, var), "mizer_override_species", exact = TRUE)
         if (is.null(selected)) next
         renamed <- selected %in% to_replace
@@ -834,8 +833,11 @@ renameSpecies.MizerParams <- function(params, replace, ...) {
         dimnames(params@ft_pred_kernel_e)$sp <- species
         dimnames(params@ft_pred_kernel_p)$sp <- species
         dimnames(params@ft_pred_kernel_d)$sp <- species
-    } else {
-        dimnames(params@pred_kernel)$sp <- species
+    }
+    # A kernel set by hand is stored alongside the Fourier-transformed
+    # kernels, so it is renamed whether or not those are present.
+    if (length(dim(params@pred_kernel)) == 3) {
+        dimnames(params@pred_kernel)[[1]] <- species
     }
     dimnames(params@mu_b)$sp <- species
     dimnames(params@ext_encounter)$sp <- species

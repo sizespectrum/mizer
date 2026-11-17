@@ -129,10 +129,9 @@ does not depend on how mizer stores them.</p>
 
 
 <dl><dt id="arg-params">params<a class="anchor" aria-label="anchor" href="#arg-params"></a></dt>
-<dd><p>A MizerParams object. For a partially overridden kernel,
-explicit sums are used for the overridden species and Fourier
-convolutions for the others. A wholly custom kernel set with
-<code><a href="setPredKernel.html">setPredKernel()</a></code> is not supported by this helper.</p></dd>
+<dd><p>A MizerParams object whose predation kernel depends only on
+the predator/prey mass ratio, i.e., one without a custom predation kernel
+set with <code><a href="setPredKernel.html">setPredKernel()</a></code>.</p></dd>
 
 
 <dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
@@ -191,15 +190,16 @@ the smallest predators are credited with eating the largest prey.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="va">NS_params</span></span>
-<span><span class="co"># The rate at which each predator encounters resource biomass, per unit</span></span>
-<span><span class="co"># search volume</span></span>
-<span><span class="va">prey</span> <span class="op">&lt;-</span> <span class="fu"><a href="initialNResource-set.html">initialNResource</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span> <span class="op">*</span> <span class="fu"><a href="w.html">w_full</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span> <span class="op">*</span> <span class="fu"><a href="w.html">dw_full</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span>
-<span><span class="va">avail</span> <span class="op">&lt;-</span> <span class="fu">convolve_pred_kernel</span><span class="op">(</span><span class="va">params</span>, <span class="va">prey</span><span class="op">)</span></span>
-<span><span class="co"># Add the interaction with the resource and the search volume to get the</span></span>
-<span><span class="co"># resource part of the encounter rate</span></span>
-<span><span class="va">encounter_resource</span> <span class="op">&lt;-</span> <span class="va">avail</span> <span class="op">*</span> <span class="fu"><a href="species_params.html">species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">interaction_resource</span> <span class="op">*</span></span>
-<span>    <span class="fu"><a href="setSearchVolume.html">search_vol</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="va">NS_params</span></span></span>
+<span class="r-in"><span><span class="co"># The rate at which each predator encounters resource biomass, per unit</span></span></span>
+<span class="r-in"><span><span class="co"># search volume</span></span></span>
+<span class="r-in"><span><span class="va">prey</span> <span class="op">&lt;-</span> <span class="fu"><a href="initialNResource-set.html">initialNResource</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span> <span class="op">*</span> <span class="fu"><a href="w.html">w_full</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span> <span class="op">*</span> <span class="fu"><a href="w.html">dw_full</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">avail</span> <span class="op">&lt;-</span> <span class="fu">convolve_pred_kernel</span><span class="op">(</span><span class="va">params</span>, <span class="va">prey</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># Add the interaction with the resource and the search volume to get the</span></span></span>
+<span class="r-in"><span><span class="co"># resource part of the encounter rate</span></span></span>
+<span class="r-in"><span><span class="va">encounter_resource</span> <span class="op">&lt;-</span> <span class="va">avail</span> <span class="op">*</span> <span class="fu"><a href="species_params.html">species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">$</span><span class="va">interaction_resource</span> <span class="op">*</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="setSearchVolume.html">search_vol</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span></span></span>
+</code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
@@ -220,3 +220,4 @@ the smallest predators are credited with eating the largest prey.</p>
 
 
   </body></html>
+

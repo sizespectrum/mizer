@@ -12,11 +12,11 @@ for a full explanation of when to reach for which level of the model.
 ## Usage
 
 ``` r
-setPredKernel(params, pred_kernel = NULL, reset = FALSE, ..., species = NULL)
+setPredKernel(params, pred_kernel = NULL, reset = FALSE, ...)
 
 pred_kernel(params)
 
-pred_kernel(params, species = NULL) <- value
+pred_kernel(params) <- value
 ```
 
 ## Arguments
@@ -37,20 +37,12 @@ pred_kernel(params, species = NULL) <- value
   If set to TRUE, then the predation kernel will be reset to the value
   calculated from the species parameters, even if it was previously
   overwritten with a custom value. If set to FALSE (default) then a
-  recalculation takes place for species without a custom value.
+  recalculation from the species parameters will take place only if no
+  custom value has been set.
 
 - ...:
 
   Unused
-
-- species:
-
-  Optional character vector of species to override or reset. Omit to
-  override or reset the whole array. Values may be full arrays or arrays
-  containing only the selected species; for one species a vector is also
-  accepted. Other species keep their existing override status. See
-  [`rate_overrides()`](https://sizespectrum.org/mizer/reference/rate_overrides.md)
-  to inspect overrides.
 
 - value:
 
@@ -193,6 +185,7 @@ species_params(params)$ppmr_max <- 4000
 species_params(params)$ppmr_min <- 200
 species_params(params)$pred_kernel_type <- "box"
 plot(w_full(params), pred_kernel(params)["Cod", 100, ], type="l", log="x")
+
 
 ## If you need a kernel that depends also on prey size you need to define
 # it yourself.

@@ -132,8 +132,10 @@
 #' @param value The desired new value for the respective parameter.
 #' @param species Optional character vector of species to override or reset.
 #'   Omit to override or reset the whole array. Values may be full arrays or
-#'   arrays containing only the selected species; for one species a vector is
-#'   also accepted. Other species keep their existing override status.
+#'   arrays containing only the selected species. For a single species its
+#'   values without the species dimension are also accepted: a vector, or a
+#'   gear x size matrix for the selectivity. Other species keep their existing
+#'   override status.
 #'   See [rate_overrides()] to inspect overrides.
 #' @param ... Unused
 #'
@@ -286,9 +288,7 @@ setReproduction.MizerParams <- function(params, maturity = NULL,
     }
 
     params@maturity[] <- maturity
-    comment(params@maturity) <- comment(maturity)
-    attr(params@maturity, "mizer_override_species") <-
-        attr(maturity, "mizer_override_species")
+    params@maturity <- copy_override_marker(params@maturity, maturity)
 
     # set reproduction proportion ----
     if (!is.null(repro_prop)) {
@@ -347,9 +347,7 @@ setReproduction.MizerParams <- function(params, maturity = NULL,
         params@psi[] <- psi
     } else {
         params@psi[] <- psi
-        comment(params@psi) <- comment(repro_prop)
-        attr(params@psi, "mizer_override_species") <-
-            attr(repro_prop, "mizer_override_species")
+        params@psi <- copy_override_marker(params@psi, repro_prop)
     }
 
     # If no erepro (reproductive efficiency), then set to 1

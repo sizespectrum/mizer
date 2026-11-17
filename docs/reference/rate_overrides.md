@@ -21,7 +21,9 @@ rate_overrides(params)
 
 A data frame with one row per overridden rate and species, columns
 `rate`, `species`, `parameters` (a list of parameter names), and `reset`
-(a call restoring parameter-driven calculation for that species).
+(a call restoring parameter-driven calculation for that species). The
+predation kernel can only be set as a whole, so its `reset` call
+restores the calculation for all species.
 
 ## See also
 
@@ -47,5 +49,9 @@ Other functions for setting parameters:
 params <- NS_params
 metab(params, species = "Cod") <- 0.5 * w(params)^0.8
 rate_overrides(params)
+#>    rate species   parameters
+#> 1 metab     Cod ks, k, p....
+#>                                                     reset
+#> 1 setMetabolicRate(params, reset = TRUE, species = "Cod")
 params <- setMetabolicRate(params, species = "Cod", reset = TRUE)
 ```

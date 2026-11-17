@@ -308,7 +308,7 @@ projectEncounter.MizerParams <- function(params, n, n_pp, n_other,
 
     # If the the user has set a custom pred_kernel we can not use fft.
     # In this case we use the code from mizer version 0.3
-    if (full_kernel_override(params)) {
+    if (!is.null(comment(params@pred_kernel))) {
         # n_eff_prey is the total prey abundance by size exposed to each
         # predator (prey not broken into species - here we are just working out
         # how much a predator eats - not which species are being eaten - that is
@@ -662,7 +662,7 @@ projectPredRate.MizerParams <- function(params, n, n_pp, n_other, t = 0,
 
     # If the the user has set a custom pred_kernel we can not use fft.
     # In this case we use the code from mizer version 0.3
-    if (full_kernel_override(params)) {
+    if (!is.null(comment(params@pred_kernel))) {
         n_total_in_size_bins <- sweep(n, 2, params@dw, '*', check.margin = FALSE)
         # The next line is a bottle neck
         pred_rate <- sweep(params@pred_kernel, c(1, 2),
@@ -683,10 +683,7 @@ projectPredRate.MizerParams <- function(params, n, n_pp, n_other, t = 0,
     # should be 0
     pred_rate[pred_rate < 1e-18] <- 0
 
-    mask <- params@ft_mask
-    selected <- rate_override_species(params, "pred_kernel")
-    mask[selected, ] <- 1
-    return(pred_rate * mask)
+    return(pred_rate * params@ft_mask)
 }
 
 #' @rdname mizerPredRate

@@ -6,11 +6,11 @@
 \alias{pred_kernel<-}
 \title{Set predation kernel}
 \usage{
-setPredKernel(params, pred_kernel = NULL, reset = FALSE, ..., species = NULL)
+setPredKernel(params, pred_kernel = NULL, reset = FALSE, ...)
 
 pred_kernel(params)
 
-pred_kernel(params, species = NULL) <- value
+pred_kernel(params) <- value
 }
 \arguments{
 \item{params}{A MizerParams object}
@@ -23,15 +23,10 @@ predation kernel".}
 \item{reset}{If set to TRUE, then the predation kernel will be reset to the
 value calculated from the species parameters, even if it was previously
 overwritten with a custom value. If set to FALSE (default) then a
-recalculation takes place for species without a custom value.}
+recalculation from the species parameters will take place only if no custom
+value has been set.}
 
 \item{...}{Unused}
-
-\item{species}{Optional character vector of species to override or reset.
-Omit to override or reset the whole array. Values may be full arrays or
-arrays containing only the selected species; for one species a vector is
-also accepted. Other species keep their existing override status.
-See \code{\link[=rate_overrides]{rate_overrides()}} to inspect overrides.}
 
 \item{value}{pred_kernel}
 }

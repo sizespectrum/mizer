@@ -29,6 +29,16 @@ test_that("We can set and get resource parameters", {
     expect_identical(resource_params(params), rp2)
 })
 
+test_that("resource_params<- warns about a change to a frozen resource array", {
+    params <- NS_params_small
+    comment(params@cc_pp) <- "set manually"
+    rp <- resource_params(params)
+    rp$kappa <- rp$kappa * 2
+    expect_warning(suppressMessages(resource_params(params) <- rp),
+                   "resource parameter `kappa` has not taken effect")
+    expect_equal(params@cc_pp, NS_params_small@cc_pp, ignore_attr = TRUE)
+})
+
 test_that("resource_params<- updates `time_modified`", {
     params <- NS_params_small
     resource_params(params) <- resource_params(NS_params_small)

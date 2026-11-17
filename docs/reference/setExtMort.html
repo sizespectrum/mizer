@@ -172,8 +172,10 @@ be confused with the species_parameter <code>z0</code>.</p></dd>
 <dt id="arg-species">species<a class="anchor" aria-label="anchor" href="#arg-species"></a></dt>
 <dd><p>Optional character vector of species to override or reset.
 Omit to override or reset the whole array. Values may be full arrays or
-arrays containing only the selected species; for one species a vector is
-also accepted. Other species keep their existing override status.
+arrays containing only the selected species. For a single species its
+values without the species dimension are also accepted: a vector, or a
+gear x size matrix for the selectivity. Other species keep their existing
+override status.
 See <code><a href="rate_overrides.html">rate_overrides()</a></code> to inspect overrides.</p></dd>
 
 
@@ -249,19 +251,28 @@ user-supplied <code>ext_mort</code> array is left untouched.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="newMultispeciesParams.html">newMultispeciesParams</a></span><span class="op">(</span><span class="va">NS_species_params</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co">#### Setting allometric death rate #######################</span></span>
-<span></span>
-<span><span class="co"># Set coefficient for each species. Here we choose 0.1 for each species</span></span>
-<span><span class="va">z0pre</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="fu"><a href="species_params.html">species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Multiply by power of size with exponent, here chosen to be -1/4</span></span>
-<span><span class="co"># The outer() function makes it an array species x size</span></span>
-<span><span class="va">allo_mort</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/outer.html" class="external-link">outer</a></span><span class="op">(</span><span class="va">z0pre</span>, <span class="fu"><a href="w.html">w</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">^</span><span class="op">(</span><span class="op">-</span><span class="fl">1</span><span class="op">/</span><span class="fl">4</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Change the external mortality rate in the params object</span></span>
-<span><span class="fu">ext_mort</span><span class="op">(</span><span class="va">params</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">allo_mort</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="newMultispeciesParams.html">newMultispeciesParams</a></span><span class="op">(</span><span class="va">NS_species_params</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `a` column so using a = 0.01 in w = a l^b, with w in g and l in cm.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No `b` column so using the isometric default b = 3 in w = a l^b.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> No h provided for some species, so using age at maturity to calculate it.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> Because you have n != p, the default value for `h` is not very good.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> Because the age at maturity is not known, I need to fall back to using</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> von Bertalanffy parameters, where available.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> Using z0 = z0pre * w_inf ^ z0exp for calculated z0 values.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> Using f0, h, lambda, kappa and the predation kernel to calculate gamma.</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">#### Setting allometric death rate #######################</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Set coefficient for each species. Here we choose 0.1 for each species</span></span></span>
+<span class="r-in"><span><span class="va">z0pre</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="fu"><a href="species_params.html">species_params</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Multiply by power of size with exponent, here chosen to be -1/4</span></span></span>
+<span class="r-in"><span><span class="co"># The outer() function makes it an array species x size</span></span></span>
+<span class="r-in"><span><span class="va">allo_mort</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/outer.html" class="external-link">outer</a></span><span class="op">(</span><span class="va">z0pre</span>, <span class="fu"><a href="w.html">w</a></span><span class="op">(</span><span class="va">params</span><span class="op">)</span><span class="op">^</span><span class="op">(</span><span class="op">-</span><span class="fl">1</span><span class="op">/</span><span class="fl">4</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Change the external mortality rate in the params object</span></span></span>
+<span class="r-in"><span><span class="fu">ext_mort</span><span class="op">(</span><span class="va">params</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">allo_mort</span></span></span>
+</code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>

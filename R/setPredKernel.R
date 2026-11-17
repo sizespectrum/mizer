@@ -96,12 +96,8 @@
 #'   If set to TRUE, then the predation kernel will be reset to the
 #'   value calculated from the species parameters, even if it was previously
 #'   overwritten with a custom value. If set to FALSE (default) then a
-#'   recalculation takes place for species without a custom value.
-#' @param species Optional character vector of species to override or reset.
-#'   Omit to override or reset the whole array. Values may be full arrays or
-#'   arrays containing only the selected species; for one species a vector is
-#'   also accepted. Other species keep their existing override status.
-#'   See [rate_overrides()] to inspect overrides.
+#'   recalculation from the species parameters will take place only if no custom
+#'   value has been set.
 #' @param ... Unused
 #'
 #' @return `setPredKernel()`: A MizerParams object with updated predation kernel.
@@ -127,14 +123,25 @@
 #' pk["Herring", , ] <- sweep(pk["Herring", , ], 2,
 #'                            params@w_full, "*")
 #' params<- setPredKernel(params, pred_kernel = pk)
-setPredKernel <- function(params, pred_kernel = NULL, reset = FALSE, ..., species = NULL) {
+setPredKernel <- function(params, pred_kernel = NULL, reset = FALSE, ...) {
     UseMethod("setPredKernel")
 }
 #' @export
 setPredKernel.MizerParams <- function(params,
                           pred_kernel = NULL,
-                          reset = FALSE, ..., species = NULL) {
+                          reset = FALSE, ...) {
     assert_that(is.flag(reset))
+    # Unlike the other rate setters, this one takes no `species` argument. A
+    # kernel set by hand for some species only would need explicit sums over
+    # the kernel for those species at every time step, rather than the Fourier
+    # transform used for the others, which would slow down every projection.
+    if (!is.null(list(...)[["species"]])) {
+        stop("The predation kernel can only be set or reset for all species ",
+             "together, so `species` can not be used here. To change the ",
+             "kernel of one species, change its kernel parameters instead, ",
+             "for example with ",
+             "`given_species_params(params)[\"Cod\", \"beta\"] <- 200`.")
+    }
 
     # Which quadrature to use for the Fourier-transformed kernels is controlled
     # by the `bin_average` entry of the `second_order_w` slot, the single switch
@@ -150,14 +157,14 @@ setPredKernel.MizerParams <- function(params,
                     "calculated from the species parameters.")
             pred_kernel <- NULL
         }
-        # Keep explicitly stored slices only while some species still own them.
-        params <- reset_rate_override(params, "pred_kernel", species)
-        if (!length(rate_override_species(params, "pred_kernel"))) {
-            params@pred_kernel <- array()
-        }
+        # Discard any explicitly stored kernel, not just its comment. The
+        # rate functions decide whether to use the stored kernel by looking
+        # at its comment, while `pred_kernel()` and `encounter_kernel()` look
+        # at its dimensions, so leaving the array in place would have them
+        # report a kernel that the model no longer uses (issue #608).
+        params@pred_kernel <- array()
     }
 
-    pred_kernel <- prepare_rate_value(params, "pred_kernel", pred_kernel, species)
     if (!is.null(pred_kernel)) {
         if (is.null(comment(pred_kernel))) {
             if (is.null(comment(params@pred_kernel))) {
@@ -183,7 +190,7 @@ setPredKernel.MizerParams <- function(params,
                  w_prey = signif(params@w_full, 3))
         params@pred_kernel <- pred_kernel
         params@time_modified <- lubridate::now()
-        if (full_kernel_override(params)) return(params)
+        return(params)
     }
 
     ## Set a pred kernel dependent on predator/prey size ratio only
@@ -317,7 +324,7 @@ setPredKernel.MizerParams <- function(params,
     }
 
     # Prevent resetting if full slot has been commented
-    if (full_kernel_override(params)) {
+    if (!is.null(comment(params@pred_kernel))) {
         # Issue warning but only if a change was actually requested
         if (different(ft_pred_kernel_e, params@ft_pred_kernel_e) ||
             different(ft_pred_kernel_p, params@ft_pred_kernel_p) ||
@@ -348,7 +355,9 @@ pred_kernel.MizerParams <- function(params) {
     # usually the predation kernel is not stored in the MizerParams object,
     # but rather only the Fourier coefficients needed for fast calculation of
     # the convolution integrals.
-    if (full_kernel_override(params)) return(params@pred_kernel)
+    if (length(dim(params@pred_kernel)) > 1) {
+        return(params@pred_kernel)
+    }
     species_params <- default_pred_kernel_params(params@species_params)
     pred_kernel_type <- species_params$pred_kernel_type
     no_sp <- nrow(species_params)
@@ -360,12 +369,7 @@ pred_kernel.MizerParams <- function(params) {
     phis <- get_phi(species_params, ppmr)
     # Do not allow feeding at own size
     phis[, 1] <- 0
-    result <- expand_kernel_offsets(phis, params, species_params$species)
-    selected <- rate_override_species(params, "pred_kernel")
-    if (length(selected)) result <- replace_rate_slice(
-        result, "pred_kernel", selected,
-        rate_slice(params@pred_kernel, "pred_kernel", selected))
-    result
+    expand_kernel_offsets(phis, params, species_params$species)
 }
 
 #' Expand kernel weights indexed by grid offset into a full kernel array
@@ -441,7 +445,9 @@ expand_kernel_offsets <- function(phis, params, species) {
 encounter_kernel <- function(params) {
     # A kernel that is stored explicitly is used as-is by mizerEncounter(),
     # which weights it with the plain `w * dw`, so it is already consistent.
-    if (full_kernel_override(params)) return(params@pred_kernel)
+    if (length(dim(params@pred_kernel)) > 1) {
+        return(params@pred_kernel)
+    }
     if (!isTRUE(params@second_order_w[["bin_average"]])) {
         return(pred_kernel(params))
     }
@@ -450,12 +456,7 @@ encounter_kernel <- function(params) {
     # transform. Only the offsets within the grid are used.
     phis <- Re(base::t(mvfft(base::t(params@ft_pred_kernel_e),
                              inverse = TRUE))) / ncol(params@ft_pred_kernel_e)
-    result <- expand_kernel_offsets(phis, params, params@species_params$species)
-    selected <- rate_override_species(params, "pred_kernel")
-    if (length(selected)) result <- replace_rate_slice(
-        result, "pred_kernel", selected,
-        rate_slice(params@pred_kernel, "pred_kernel", selected))
-    result
+    expand_kernel_offsets(phis, params, params@species_params$species)
 }
 
 #' Sum over the predation kernel
@@ -500,10 +501,9 @@ encounter_kernel <- function(params) {
 #' smallest size in `w_full(params)` wraps around to the largest sizes, so that
 #' the smallest predators are credited with eating the largest prey.
 #'
-#' @param params A MizerParams object. For a partially overridden kernel,
-#'   explicit sums are used for the overridden species and Fourier
-#'   convolutions for the others. A wholly custom kernel set with
-#'   [setPredKernel()] is not supported by this helper.
+#' @param params A MizerParams object whose predation kernel depends only on
+#'   the predator/prey mass ratio, i.e., one without a custom predation kernel
+#'   set with [setPredKernel()].
 #' @param x For `kernel = "encounter"` or `"diffusion"`, a matrix (species x
 #'   size in `w_full(params)`) of prey densities, or a vector with one entry per
 #'   size in `w_full(params)` that is used for every species. For
@@ -530,7 +530,7 @@ convolve_pred_kernel <- function(params, x,
                                  kernel = c("encounter", "predation",
                                             "diffusion")) {
     kernel <- match.arg(kernel)
-    if (full_kernel_override(params)) {
+    if (!is.null(comment(params@pred_kernel))) {
         stop("The model has a custom predation kernel, which mizer uses ",
              "directly rather than through its Fourier transform.")
     }
@@ -582,17 +582,6 @@ convolve_pred_kernel <- function(params, x,
     } else {
         out <- base::t(conv[idx_sp, , drop = FALSE])
         dimnames(out) <- list(sp = species, w = signif(params@w, 3))
-    }
-    selected <- rate_override_species(params, "pred_kernel")
-    for (sp in selected) {
-        i <- match(sp, species)
-        weights <- if (is.null(dim(x))) x else x[i, ]
-        phi <- matrix(params@pred_kernel[i, , ], nrow = no_w)
-        out[i, ] <- if (kernel == "predation") {
-            as.vector(weights %*% phi)
-        } else {
-            as.vector(phi %*% weights)
-        }
     }
     out
 }
@@ -651,13 +640,8 @@ pred_kernel_fft_length <- function(no_w_full, no_w, edition, phis = NULL) {
 #' @rdname setPredKernel
 #' @param value pred_kernel
 #' @export
-`pred_kernel<-` <- function(params, species = NULL, value) {
-    # Preserve direct two-argument calls to the replacement function.
-    if (missing(value)) {
-        value <- species
-        species <- NULL
-    }
-    setPredKernel(params, pred_kernel = value, species = species)
+`pred_kernel<-` <- function(params, value) {
+    setPredKernel(params, pred_kernel = value)
 }
 
 #' Set defaults for predation kernel parameters
@@ -775,10 +759,4 @@ get_phi <- function(species_params, ppmr) {
         phis[i, ] <- phi
     }
     return(phis)
-}
-
-# Runtime strategy is independent of the prose attached to the kernel.
-full_kernel_override <- function(params) {
-    length(rate_override_species(params, "pred_kernel")) ==
-        nrow(params@species_params)
 }

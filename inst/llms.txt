@@ -813,7 +813,7 @@ are collected along with mizer’s own.
 - [`signal_frozen()`](https://sizespectrum.org/mizer/reference/signal_frozen.md)
   : Signal that a change the user made cannot take effect
 - [`signal_frozen_changes()`](https://sizespectrum.org/mizer/reference/signal_frozen_changes.md)
-  : Signal the changes to species parameters that cannot take effect
+  : Signal the changes to parameters that cannot take effect
 - [`signal_ignored_changes()`](https://sizespectrum.org/mizer/reference/signal_ignored_changes.md)
   : Signal the changes that are ignored because another parameter was
   given

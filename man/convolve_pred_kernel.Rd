@@ -11,10 +11,9 @@ convolve_pred_kernel(
 )
 }
 \arguments{
-\item{params}{A MizerParams object. For a partially overridden kernel,
-explicit sums are used for the overridden species and Fourier
-convolutions for the others. A wholly custom kernel set with
-\code{\link[=setPredKernel]{setPredKernel()}} is not supported by this helper.}
+\item{params}{A MizerParams object whose predation kernel depends only on
+the predator/prey mass ratio, i.e., one without a custom predation kernel
+set with \code{\link[=setPredKernel]{setPredKernel()}}.}
 
 \item{x}{For \code{kernel = "encounter"} or \code{"diffusion"}, a matrix (species x
 size in \code{w_full(params)}) of prey densities, or a vector with one entry per

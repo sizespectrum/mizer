@@ -102,6 +102,17 @@ setParams(
       each species at size. If not supplied, a default is set as
       described in the section "Setting search volume".
 
+  `species`
+
+  :   Optional character vector of species to override or reset. Omit to
+      override or reset the whole array. Values may be full arrays or
+      arrays containing only the selected species. For a single species
+      its values without the species dimension are also accepted: a
+      vector, or a gear x size matrix for the selectivity. Other species
+      keep their existing override status. See
+      [`rate_overrides()`](https://sizespectrum.org/mizer/reference/rate_overrides.md)
+      to inspect overrides.
+
   `intake_max`
 
   :   Optional. An array (species x size) holding the maximum intake
@@ -410,9 +421,11 @@ function. If the `q` column is not supplied, a default of
 gram is the value of the species parameter \\\gamma_i\\ the same as the
 value of the search volume \\\gamma_i(w)\\.
 
-If the `search_vol` slot has a comment and `reset = FALSE`, then a
-recalculation from the species parameters is suppressed and a message is
-issued if the recalculated values would differ from the stored ones.
+With `reset = FALSE`, manually overridden species are preserved while
+the other species are recalculated. A message is issued if recalculation
+would change protected values. See
+[`rate_overrides()`](https://sizespectrum.org/mizer/reference/rate_overrides.md)
+to inspect overrides.
 
 ## Setting maximum intake rate
 
@@ -434,9 +447,11 @@ is used.
 If \\h_i\\ is set to `Inf`, fish of species i will consume all
 encountered food.
 
-If the `intake_max` slot has a comment and `reset = FALSE`, then a
-recalculation from the species parameters is suppressed and a message is
-issued if the recalculated values would differ from the stored ones.
+With `reset = FALSE`, manually overridden species are preserved while
+the other species are recalculated. A message is issued if recalculation
+would change protected values. See
+[`rate_overrides()`](https://sizespectrum.org/mizer/reference/rate_overrides.md)
+to inspect overrides.
 
 ## Setting metabolic rate
 
@@ -458,9 +473,11 @@ where \\f_c\\ is the critical feeding level taken from the `fc` column
 in the species parameter data frame. If the critical feeding level is
 not specified, a default of \\f_c = 0.2\\ is used.
 
-If the `metab` slot has a comment and `reset = FALSE`, then a
-recalculation from the species parameters is suppressed and a message is
-issued if the recalculated values would differ from the stored ones.
+With `reset = FALSE`, manually overridden species are preserved while
+the other species are recalculated. A message is issued if recalculation
+would change protected values. See
+[`rate_overrides()`](https://sizespectrum.org/mizer/reference/rate_overrides.md)
+to inspect overrides.
 
 ## Setting external mortality rate
 
@@ -523,9 +540,11 @@ the `E_ext` column of the species parameter data frame, which defaults
 to 0. The exponent \\n_i\\ is taken from the `n` column of the species
 parameter data frame.
 
-If the `ext_encounter` slot has a comment and `reset = FALSE`, then a
-recalculation from the species parameters is suppressed and a message is
-issued if the recalculated values would differ from the stored ones.
+With `reset = FALSE`, manually overridden species are preserved while
+the other species are recalculated. A message is issued if recalculation
+would change protected values. See
+[`rate_overrides()`](https://sizespectrum.org/mizer/reference/rate_overrides.md)
+to inspect overrides.
 
 ## Setting external diffusion rate
 
@@ -543,9 +562,11 @@ the `D_ext` column of the species parameter data frame, which defaults
 to 0. The exponent \\n_i + 1\\ uses the `n` column of the species
 parameter data frame.
 
-If the `ext_diffusion` slot has a comment and `reset = FALSE`, then a
-recalculation from the species parameters is suppressed and a message is
-issued if the recalculated values would differ from the stored ones.
+With `reset = FALSE`, manually overridden species are preserved while
+the other species are recalculated. A message is issued if recalculation
+would change protected values. See
+[`rate_overrides()`](https://sizespectrum.org/mizer/reference/rate_overrides.md)
+to inspect overrides.
 
 ## Setting reproduction
 
@@ -757,6 +778,7 @@ where it is also possible to specify an effort that varies through time.
 
 Other functions for setting parameters:
 [`gear_params()`](https://sizespectrum.org/mizer/reference/gear_params.md),
+[`rate_overrides()`](https://sizespectrum.org/mizer/reference/rate_overrides.md),
 [`setExtDiffusion()`](https://sizespectrum.org/mizer/reference/setExtDiffusion.md),
 [`setExtEncounter()`](https://sizespectrum.org/mizer/reference/setExtEncounter.md),
 [`setExtMort()`](https://sizespectrum.org/mizer/reference/setExtMort.md),
