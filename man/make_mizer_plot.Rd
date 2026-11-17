@@ -19,5 +19,7 @@ The \code{plot} object with the tooltip stored as an attribute and
 \description{
 Attaches the tooltip information to a ggplot object and adds the
 \code{"mizer_plot"} class so that \code{\link[=plotHover]{plotHover()}} knows which aesthetics to show.
+It also gives the plot the layout that fits an open end of its y limits to
+the data visible within its x limits when the plot is built.
 }
 \keyword{internal}

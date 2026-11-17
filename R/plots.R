@@ -258,6 +258,8 @@ make_linesize <- function(levels, highlight) {
 #'
 #' Attaches the tooltip information to a ggplot object and adds the
 #' `"mizer_plot"` class so that [plotHover()] knows which aesthetics to show.
+#' It also gives the plot the layout that fits an open end of its y limits to
+#' the data visible within its x limits when the plot is built.
 #'
 #' @param plot A ggplot object.
 #' @param tooltip Character vector of variable names to include in the plotly
@@ -266,6 +268,7 @@ make_linesize <- function(levels, highlight) {
 #'   `"mizer_plot"` prepended to its class.
 #' @keywords internal
 make_mizer_plot <- function(plot, tooltip) {
+    plot <- with_mizer_layout(plot)
     attr(plot, "mizer_tooltip") <- tooltip
     class(plot) <- unique(c("mizer_plot", class(plot)))
     plot
@@ -374,7 +377,7 @@ plotHover.mizer_plot <- function(x = ggplot2::last_plot(), ...,
                                      "all") {
     class(x) <- setdiff(class(x), "mizer_plot")
     widget <- withCallingHandlers(
-        plotly::ggplotly(x, ..., tooltip = tooltip),
+        plotly::ggplotly(hover_viewport(x), ..., tooltip = tooltip),
         warning = function(w) {
             if (grepl("transformation introduced infinite values",
                       conditionMessage(w))) {
@@ -1582,24 +1585,18 @@ plotYieldGear.MizerSim <- function(object,
     linesize <- make_linesize(species_levels, highlight)
     xtrans <- if (log_axes$log_x) "log10" else "identity"
     ytrans <- if (log_axes$log_y) "log10" else "identity"
-    viewport <- plot_viewport(
-        drop_nonpositive_limits(tlim, xtrans),
-        drop_nonpositive_limits(ylim, ytrans), xtrans, ytrans,
-        list(viewport_source("Year", "Yield", group = c("Species", "Gear"))))
-    p <- make_mizer_plot(
+    make_mizer_plot(
         ggplot(ym) +
             geom_line(aes(x = Year, y = Yield, colour = Species,
                           linetype = Gear, linewidth = Legend)) +
             scale_y_continuous(trans = ytrans, name = "Yield [g]") +
             scale_x_continuous(trans = xtrans) +
-            coord_cartesian(xlim = viewport$x,
-                            ylim = viewport_ylim(viewport, ym)) +
+            coord_cartesian(xlim = drop_nonpositive_limits(tlim, xtrans),
+                            ylim = drop_nonpositive_limits(ylim, ytrans)) +
             scale_colour_manual(values = params@linecolour[species_levels]) +
             scale_discrete_manual("linewidth", values = linesize),
         c("Species", "Gear", "Year", "Yield")
     )
-    attr(p, "mizer_viewport") <- viewport
-    p
 }
 
 #' @rdname plotYieldGear
@@ -2174,11 +2171,13 @@ plot_cdf <- function(params, power, normalise, log_x, log_y, wlim, llim,
     series <- abundance_series(params, params@initial_n, params@initial_n_pp,
                                power = 0, x = params@w, x_full = params@w_full,
                                background = background)
+    # A total includes every contributor, whichever curves are drawn.
+    contributors <- if (total) unique(series$Species) else shown
     cdf_dat <- prepare_spectra_cdf_data(series, params, power,
                                         min_w = min_w, max_w = max_w,
-                                        min_l = min_l, max_l = max_l)
-    # A total includes every contributor, whichever curves are drawn.
-    if (!total) cdf_dat <- cdf_dat[cdf_dat$Species %in% shown, , drop = FALSE]
+                                        min_l = min_l, max_l = max_l,
+                                        contributors = contributors)
+    cdf_dat <- cdf_dat[cdf_dat$Species %in% contributors, , drop = FALSE]
     cdf_dat <- convert_plot_size_axis(cdf_dat, params, size_axis)
     if (total) {
         cdf_dat <- add_total_line(cdf_dat, x_var = plot_size_x_var(size_axis),
@@ -2223,9 +2222,15 @@ check_cdf_bounds <- function(min_w, max_w, min_l, max_l) {
 # of a curve is the integral that getBiomass() or getN() reports over the same
 # range with `exact_bounds = TRUE`, in both numerical schemes. A cumulative
 # value belongs on the upper edge of the part of its bin inside the range.
+#
+# Length bounds convert to different weights for each species and for the
+# resource, so they can be in order for some and crossed for others. Only the
+# `contributors`, the series that are drawn or summed into a total, must have
+# them in order; any other series gets zero weights and is discarded.
 prepare_spectra_cdf_data <- function(series, params, power,
                                      min_w = 0, max_w = Inf,
-                                     min_l = NULL, max_l = NULL) {
+                                     min_l = NULL, max_l = NULL,
+                                     contributors = unique(series$Species)) {
     check_cdf_bounds(min_w, max_w, min_l, max_l)
     bins <- lapply(c(FALSE, TRUE), function(resource) {
         w <- if (resource) params@w_full else params@w
@@ -2233,7 +2238,10 @@ prepare_spectra_cdf_data <- function(series, params, power,
         limits <- size_range_limits(params, min_w = min_w, max_w = max_w,
                                     min_l = min_l, max_l = max_l,
                                     resource = resource)
-        if (any(limits$min_w >= limits$max_w)) {
+        row_names <- if (resource) "Resource" else
+            as.character(params@species_params$species)
+        checked <- row_names %in% contributors
+        if (any(limits$min_w[checked] >= limits$max_w[checked])) {
             stop("Each CDF lower integration bound must be less than ",
                  "its upper bound.")
         }

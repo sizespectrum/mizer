@@ -152,137 +152,218 @@ plot_spec_scales <- function(spec) {
 }
 
 # Limits only move the viewport; they never remove data. An end of the y
-# viewport that the caller leaves as NA is fitted to what is visible inside the
+# viewport that the caller leaves open is fitted to what is visible inside the
 # x viewport, as it was when limits filtered the data. Otherwise zooming in on
 # x would leave the y axis spanning values that are no longer in view.
 #
-# The viewport records the requested limits and every data source drawn on the
-# plot, so that addPlot() can refit the open ends when it adds a layer. A
-# source names its columns by role: `y` lists every column that sets a height,
-# `group` every column that separates one line from another, `stack` marks
-# stacked areas and `include` holds values that are always shown, such as the
-# zero line of a relative plot. `data = NULL` refers to the plot's own data.
-plot_viewport <- function(xlim, ylim, xtrans, ytrans, sources) {
-    list(x = xlim, y = ylim, xtrans = xtrans, ytrans = ytrans,
-         sources = sources)
+# The fit happens when the plot is built, so it sees what is actually drawn:
+# every layer, including those a user adds with `+` after mizer has returned
+# the plot, after stats and positions have run (so stacked areas reach the top
+# of the stack ggplot2 draws) and separately for each free y scale of a facet.
+# ggplot2 (>= 3.5.0) builds a plot with the Layout object stored in it, so every
+# mizer plot carries a MizerLayout; earlier versions ignore it and choose the y
+# range from all of the data.
+mizer_layout_cache <- new.env(parent = emptyenv())
+
+mizer_layout <- function() {
+    if (is.null(mizer_layout_cache$layout)) {
+        mizer_layout_cache$layout <-
+            if (utils::packageVersion("ggplot2") >= "3.5.0") {
+                new_mizer_layout()
+            } else {
+                FALSE
+            }
+    }
+    if (isFALSE(mizer_layout_cache$layout)) NULL else mizer_layout_cache$layout
 }
 
-viewport_source <- function(x, y, group = character(), data = NULL,
-                            stack = FALSE, include = numeric()) {
-    list(data = data, x = x, y = y, group = group, stack = stack,
-         include = include)
+# Created when first needed rather than when mizer is built, so that it extends
+# the Layout of the installed ggplot2.
+new_mizer_layout <- function() {
+    parent <- get("Layout", envir = asNamespace("ggplot2"))
+    ggproto("MizerLayout", parent,
+        train_position = function(self, data, x_scale, y_scale) {
+            ggproto_parent(parent, self)$train_position(data, x_scale, y_scale)
+            # The last training sees the data as drawn.
+            self$position_data <- data
+        },
+        # The first hook that knows the layers, which tell lines from points.
+        # Guides are made from the panel parameters, so fit before that.
+        setup_panel_guides = function(self, guides, layers) {
+            fit_panel_ylim(self, layers)
+            ggproto_parent(parent, self)$setup_panel_guides(guides, layers)
+        }
+    )
 }
 
-viewport_ylim <- function(viewport, plot_data) {
-    ylim <- viewport$y
-    if (!anyNA(ylim) || all(is.na(viewport$x))) return(ylim)
-    values <- unlist(lapply(viewport$sources, function(source) {
-        visible_values(source$data %||% plot_data, source, viewport)
-    }))
-    if (identical(viewport$ytrans, "log10")) values <- values[values > 0]
-    values <- values[is.finite(values)]
-    if (length(values) == 0) return(ylim)
-    fitted <- ylim
-    fitted[is.na(ylim)] <- range(values)[is.na(ylim)]
-    # An open end cannot cross a requested one; leave it to ggplot2.
-    if (fitted[1] > fitted[2]) return(ylim)
-    fitted
+with_mizer_layout <- function(plot) {
+    layout <- mizer_layout()
+    if (!is.null(layout)) plot$layout <- layout
+    plot
 }
 
-# The heights a source shows inside the x viewport: its vertices there and the
-# points where its lines cross the edges. Lines are straight on the transformed
-# axes, so the crossings are interpolated on those axes.
-visible_values <- function(data, source, viewport) {
-    if (nrow(data) == 0) return(source$include)
-    to_axis <- function(v, trans) {
-        if (identical(trans, "log10")) suppressWarnings(log10(v)) else v
+# Refit the open ends of the y limits of each panel to the heights visible in
+# its x range. Panels sharing a y scale share the fit, so a fixed scale stays
+# fixed across facets.
+fit_panel_ylim <- function(layout, layers) {
+    coord <- layout$coord
+    if (!inherits(coord, "CoordCartesian") || inherits(coord, "CoordFlip")) {
+        return(invisible())
     }
-    edges <- to_axis(viewport$x, viewport$xtrans)
-    lower <- if (is.na(edges[1])) -Inf else edges[1]
-    upper <- if (is.na(edges[2])) Inf else edges[2]
-    crossings <- edges[!is.na(edges)]
-    x <- data[[source$x]]
-    heights <- lapply(source$y, function(var) data[[var]])
-    group <- if (length(source$group) > 0) {
-        interaction(data[source$group], drop = TRUE)
-    } else {
-        factor(rep(1L, nrow(data)))
+    xlim <- coord$limits$x %||% c(NA, NA)
+    ylim <- coord$limits$y %||% c(NA, NA)
+    # Without an x limit everything is visible, so ggplot2 chooses.
+    if (all(is.na(xlim)) || !anyNA(ylim)) return(invisible())
+    scales_y <- layout$panel_scales_y
+    if (length(scales_y) == 0 || scales_y[[1]]$is_discrete() ||
+            layout$panel_scales_x[[1]]$is_discrete()) {
+        return(invisible())
     }
-    if (isTRUE(source$stack)) {
-        # Stacked areas reach the sum of their values at each x.
-        x_levels <- sort(unique(x))
-        heights <- list(vapply(split(heights[[1]],
-                                     factor(x, levels = x_levels)),
-                               sum, numeric(1), na.rm = TRUE))
-        x <- x_levels
-        group <- factor(rep(1L, length(x)))
-    }
-    x <- to_axis(x, viewport$xtrans)
-    values <- numeric(0)
-    for (height in heights) {
-        y <- to_axis(height, viewport$ytrans)
-        ok <- is.finite(x) & is.finite(y)
-        values <- c(values, y[ok & x >= lower & x <= upper])
-        if (length(crossings) == 0) next
-        for (rows in split(which(ok), group[ok])) {
-            if (length(unique(x[rows])) < 2) next
-            values <- c(values, stats::approx(x[rows], y[rows],
-                                              xout = crossings,
-                                              ties = mean)$y)
+    x_aes <- layout$panel_scales_x[[1]]$aesthetics
+    y_aes <- scales_y[[1]]$aesthetics
+    path <- vapply(layers, function(layer) {
+        inherits(layer$geom, c("GeomPath", "GeomRibbon", "GeomSmooth"))
+    }, logical(1))
+    panels <- layout$layout
+    data <- layout$position_data
+    values <- rep(list(numeric()), length(scales_y))
+    for (i in seq_len(nrow(panels))) {
+        window <- layout$panel_params[[i]]$x.range
+        s <- panels$SCALE_Y[[i]]
+        for (l in seq_along(data)) {
+            d <- data[[l]][data[[l]]$PANEL == panels$PANEL[[i]], ,
+                           drop = FALSE]
+            visible <- visible_heights(d, window, x_aes, y_aes, path[[l]])
+            values[[s]] <- c(values[[s]], visible)
         }
     }
-    values <- values[is.finite(values)]
-    if (identical(viewport$ytrans, "log10")) values <- 10^values
-    c(values, source$include)
+    fitted <- FALSE
+    for (s in seq_along(scales_y)) {
+        trans <- scales_y[[s]]$get_transformation()
+        limits <- fit_open_limits(values[[s]], ylim, trans$transform,
+                                  trans$inverse)
+        if (is.null(limits)) next
+        fitted_coord <- ggproto(NULL, coord,
+                                limits = list(x = coord$limits$x, y = limits))
+        for (i in which(panels$SCALE_Y == s)) {
+            scale_x <- layout$panel_scales_x[[panels$SCALE_X[[i]]]]
+            layout$panel_params[[i]] <- fitted_coord$setup_panel_params(
+                scale_x, scales_y[[s]], params = layout$coord_params)
+        }
+        fitted <- TRUE
+    }
+    if (!fitted) return(invisible())
+    if (!is.null(layout$facet$setup_panel_params)) {
+        layout$panel_params <-
+            layout$facet$setup_panel_params(layout$panel_params, coord)
+    }
+    # For plotHover(), whose conversion does not use this Layout.
+    layout$fitted_panel_params <- layout$panel_params
+    invisible()
 }
 
-# The source describing a specification's own data.
-plot_spec_source <- function(spec) {
-    vars <- spec$variables
-    mode <- spec$options$mode
-    style <- if (mode == "ordinary") spec$options$style else "line"
-    y <- switch(style,
-                ribbon = c(vars$value, "ymin", "ymax"),
-                envelope = c("ymin", "ymax"),
-                vars$value)
-    group <- unique(c(vars$group, vars$legend, vars$model, vars$frame,
-                      spec$options$wrap_var))
-    viewport_source(x = vars$x, y = y, group = group,
-                    stack = style == "area",
-                    include = if (mode == "relative" || style == "area") 0)
+# The y limits in data space with their open ends replaced by the range of
+# `values`, which are on the scale that `transform` maps to and `inverse` maps
+# back from. NULL when there is nothing to fit or an open end would cross a
+# requested one.
+fit_open_limits <- function(values, ylim, transform, inverse) {
+    if (length(values) == 0) return(NULL)
+    requested <- suppressWarnings(transform(ylim))
+    fitted <- range(values)
+    fitted[!is.na(requested)] <- requested[!is.na(requested)]
+    if (fitted[1] > fitted[2]) return(NULL)
+    limits <- inverse(fitted)
+    limits[!is.na(ylim)] <- ylim[!is.na(ylim)]
+    limits
 }
 
-# Added layers share the existing viewport. Only supplied endpoints change it,
-# and the open ends of the y viewport are refitted to include `source`. The
-# plot is returned with a new coordinate system; the caller's is not modified.
-set_plot_viewport <- function(plot, xlim = c(NA, NA), ylim = c(NA, NA),
-                              source = NULL) {
+# The heights that the layer data `d` shows inside the x range `window`, both
+# on the transformed scales: every height of a row reaching into the window,
+# such as a vertex, a reference line or a rectangle, and for a layer drawn as
+# a line or band the heights where its segments cross the edges of the window.
+# Segments join consecutive rows of a group in the order in which they are
+# drawn, and are straight on the transformed scales.
+visible_heights <- function(d, window, x_aes, y_aes, path) {
+    y_cols <- intersect(y_aes, names(d))
+    if (nrow(d) == 0 || length(y_cols) == 0) return(numeric())
+    x_cols <- intersect(x_aes, names(d))
+    if (length(x_cols) == 0) {
+        inside <- rep(TRUE, nrow(d))
+    } else {
+        # An infinite position is drawn at the edge of the panel.
+        xs <- lapply(d[x_cols], function(v) {
+            v[v == -Inf] <- window[[1]]
+            v[v == Inf] <- window[[2]]
+            v
+        })
+        lo <- do.call(pmin, c(unname(xs), na.rm = TRUE))
+        hi <- do.call(pmax, c(unname(xs), na.rm = TRUE))
+        inside <- !is.na(lo) & lo <= window[[2]] & hi >= window[[1]]
+    }
+    values <- unlist(d[inside, y_cols], use.names = FALSE)
+    if (path && "x" %in% x_cols && nrow(d) > 1) {
+        n <- nrow(d)
+        x1 <- d$x[-n]
+        x2 <- d$x[-1]
+        joined <- if ("group" %in% names(d)) {
+            d$group[-n] == d$group[-1]
+        } else {
+            rep(TRUE, n - 1)
+        }
+        for (edge in window[is.finite(window)]) {
+            cross <- joined & x1 != x2 & (x1 - edge) * (x2 - edge) <= 0
+            cross[is.na(cross)] <- FALSE
+            if (!any(cross)) next
+            t <- (edge - x1[cross]) / (x2[cross] - x1[cross])
+            for (col in y_cols) {
+                y1 <- d[[col]][-n][cross]
+                y2 <- d[[col]][-1][cross]
+                values <- c(values, y1 + t * (y2 - y1))
+            }
+        }
+    }
+    values[is.finite(values)]
+}
+
+# plotly converts a ggplot with its own copy of ggplot2's build, which does not
+# use the plot's Layout and so would not fit the y limits to the visible data.
+# Build the plot here instead and hand plotly the fitted panels through the
+# facet, which ggplot2 (>= 4.0.0) lets adjust the panel parameters.
+hover_viewport <- function(plot) {
+    if (!inherits(plot$layout, "MizerLayout") ||
+            is.null(plot$facet$setup_panel_params) ||
+            all(is.na(plot$coordinates$limits$x %||% NA))) {
+        return(plot)
+    }
+    panel_params <- ggplot_build(plot)$layout$fitted_panel_params
+    if (is.null(panel_params)) return(plot)
+    plot$facet <- facet_with_panel_params(plot$facet, panel_params)
+    plot
+}
+
+# A separate function so that the method's environment holds only the panel
+# parameters, not the plot it is attached to.
+facet_with_panel_params <- function(facet, panel_params) {
+    ggproto(NULL, facet,
+            setup_panel_params = function(self, ...) panel_params)
+}
+
+# Added layers share the existing viewport. Only supplied endpoints change it;
+# the open ends of the y limits are fitted when the plot is built. The plot is
+# returned with a new coordinate system; the caller's is not modified.
+set_plot_viewport <- function(plot, xlim = c(NA, NA), ylim = c(NA, NA)) {
     assert_that(length(xlim) == 2, length(ylim) == 2)
     coord <- plot$coordinates
     merge_limits <- function(existing, requested, axis) {
+        existing <- existing %||% c(NA, NA)
         existing[!is.na(requested)] <- requested[!is.na(requested)]
         if (plot_axis_is_log(plot, axis)) {
             existing <- drop_nonpositive_limits(existing, "log10")
         }
         existing
     }
-    viewport <- attr(plot, "mizer_viewport")
-    if (is.null(viewport)) {
-        # A plot mizer did not lay out: its other layers are unknown, so only
-        # the supplied endpoints change.
-        limits <- list(
-            x = merge_limits(coord$limits$x %||% c(NA, NA), xlim, "x"),
-            y = merge_limits(coord$limits$y %||% c(NA, NA), ylim, "y")
-        )
-    } else {
-        viewport$x <- merge_limits(viewport$x, xlim, "x")
-        viewport$y <- merge_limits(viewport$y, ylim, "y")
-        if (!is.null(source)) {
-            viewport$sources <- c(viewport$sources, list(source))
-        }
-        limits <- list(x = viewport$x, y = viewport_ylim(viewport, plot$data))
-        attr(plot, "mizer_viewport") <- viewport
-    }
+    limits <- list(x = merge_limits(coord$limits$x, xlim, "x"),
+                   y = merge_limits(coord$limits$y, ylim, "y"))
     plot$coordinates <- ggproto(NULL, coord, limits = limits)
     plot
 }
@@ -309,10 +390,6 @@ render_plot_spec <- function(spec) {
     }
     if (mode != "ordinary") frame$LineSpec <- frame[[vars$legend]]
     spec$data <- frame
-    viewport <- plot_viewport(spec$limits$x, spec$limits$y,
-                              spec$scales$x, spec$scales$y,
-                              list(plot_spec_source(spec)))
-    spec$limits$y <- viewport_ylim(viewport, frame)
 
     p <- ggplot(frame, plot_spec_mapping(spec)) + plot_spec_scales(spec) +
         plot_spec_layers(spec, legend_levels)
@@ -320,9 +397,7 @@ render_plot_spec <- function(spec) {
     if (!is.null(wrap_var)) {
         p <- p + facet_wrap(wrap_var, scales = spec$options$wrap_scale)
     }
-    p <- make_mizer_plot(p, plot_spec_tooltip(spec))
-    attr(p, "mizer_viewport") <- viewport
-    p
+    make_mizer_plot(p, plot_spec_tooltip(spec))
 }
 
 # Preserve mapping order: ggplotly uses it to order the hover fields.
@@ -441,14 +516,11 @@ render_plotly_spec <- function(spec) {
         )
         shown_legends <- c(shown_legends, legend)
     }
-    viewport <- plot_viewport(spec$limits$x, spec$limits$y,
-                              spec$scales$x, spec$scales$y,
-                              list(plot_spec_source(spec)))
     p <- plotly::layout(
         p,
         xaxis = plotly_axis(df[[vars$x]], spec$limits$x,
                             spec$scales$x == "log10", spec$labels$x),
-        yaxis = plotly_axis(df[[vars$value]], viewport_ylim(viewport, df),
+        yaxis = plotly_axis(df[[vars$value]], animation_ylim(spec),
                             spec$scales$y == "log10", spec$labels$y),
         legend = list(traceorder = "normal")
     )
@@ -456,4 +528,33 @@ render_plotly_spec <- function(spec) {
                                 transition = spec$options$transition_duration,
                                 easing = spec$options$easing)
     stable_plotly_ids(p)
+}
+
+# An animation draws only its own lines, without stacks, facets or added
+# layers, so its open y limits are fitted to its data directly: to the heights
+# that any frame shows between the x limits, which plotly draws without
+# expansion. add_lines() joins each trace in the order of x.
+animation_ylim <- function(spec) {
+    vars <- spec$variables
+    xlim <- spec$limits$x
+    ylim <- spec$limits$y
+    if (all(is.na(xlim)) || !anyNA(ylim)) return(ylim)
+    to_axis <- function(v, trans) {
+        if (identical(trans, "log10")) suppressWarnings(log10(v)) else v
+    }
+    df <- spec$data
+    d <- data.frame(
+        x = to_axis(df[[vars$x]], spec$scales$x),
+        y = to_axis(df[[vars$value]], spec$scales$y),
+        group = interaction(df[unique(c(vars$group, vars$frame))], drop = TRUE)
+    )
+    d <- d[order(d$group, d$x), , drop = FALSE]
+    window <- to_axis(xlim, spec$scales$x)
+    window[is.na(window)] <- c(-Inf, Inf)[is.na(window)]
+    values <- visible_heights(d, window, "x", "y", path = TRUE)
+    log_y <- identical(spec$scales$y, "log10")
+    fit_open_limits(values, ylim,
+                    transform = function(v) to_axis(v, spec$scales$y),
+                    inverse = if (log_y) function(v) 10^v else identity) %||%
+        ylim
 }

@@ -178,27 +178,54 @@ test_that("viewport limits preserve vertices and agree with hover ranges", {
     vdiffr::expect_doppelganger("Viewport keeps crossing lines", p)
 })
 
+# The y range of each panel of a built plot.
+built_panels <- function(p) ggplot2::ggplot_build(p)$layout$panel_params
+# ggplot2's default expansion of a continuous range, 5% at each end.
+expand5 <- function(r) r + c(-1, 1) * 0.05 * diff(r)
+# Two facet panels that are flat at the edges of the window x in [3, 5], at
+# heights 1 and 3 and at 100 and 300, and rise steeply outside it.
+two_panel_data <- function() {
+    shape <- c(1000, 1, 1, 2, 3, 3, 1000)
+    data.frame(x = rep(1:7, 2), y = c(shape, 100 * shape),
+               fish = rep(c("Cod", "Sprat"), each = 7),
+               panel = rep(c("a", "b"), each = 7))
+}
+# Plots carry their own Layout only from ggplot2 3.5.0.
+skip_without_plot_layout <- function() {
+    skip_if(utils::packageVersion("ggplot2") < "3.5.0",
+            "ggplot2 < 3.5.0 does not build with the plot's Layout")
+}
+
 test_that("an open end of the y viewport is fitted to the visible data", {
-    # y = x on log-log axes: the line crosses x = 2 and x = 50 at y = 2 and 50.
+    skip_without_plot_layout()
+    # y = x on log-log axes, so the line crosses the edges of the visible x
+    # range at the heights of those edges.
     data <- data.frame(x = c(1, 10, 100), y = c(1, 10, 100), fish = "Cod")
     spec <- new_plot_spec(data, NS_params_small, x_var = "x", y_var = "y",
                           group_var = "fish", xtrans = "log10",
                           ytrans = "log10", xlim = c(2, 50))
     p <- render_plot_spec(spec)
-    expect_equal(p$coordinates$limits$y, c(2, 50))
+    # The plot keeps its limits and data; the fit is made when it is built.
+    expect_equal(p$coordinates$limits$y, c(NA, NA))
     expect_equal(p$data$y, data$y)
+    panel <- built_panels(p)[[1]]
+    expect_equal(panel$y.range, expand5(panel$x.range))
     # A requested end is kept; only the open one is fitted.
     spec$limits$y <- c(1, NA)
-    expect_equal(render_plot_spec(spec)$coordinates$limits$y, c(1, 50))
+    panel <- built_panels(render_plot_spec(spec))[[1]]
+    expect_equal(panel$y.range, expand5(c(0, panel$x.range[2])))
     # Without an x limit everything is visible, so ggplot2 chooses.
     spec$limits <- list(x = c(NA, NA), y = c(NA, NA))
-    expect_equal(render_plot_spec(spec)$coordinates$limits$y, c(NA, NA))
+    built <- ggplot2::ggplot_build(render_plot_spec(spec))
+    expect_null(built$layout$fitted_panel_params)
     # An open end that would cross a requested one is left to ggplot2.
     spec$limits <- list(x = c(2, 50), y = c(NA, 1))
-    expect_equal(render_plot_spec(spec)$coordinates$limits$y, c(NA, 1))
+    built <- ggplot2::ggplot_build(render_plot_spec(spec))
+    expect_null(built$layout$fitted_panel_params)
 })
 
 test_that("fitted viewports keep reference lines, bands and stacks in view", {
+    skip_without_plot_layout()
     first <- new_plot_spec(
         data.frame(x = 1:4, y = c(1, 2, 3, 4), fish = "Cod"),
         NS_params_small, x_var = "x", y_var = "y", group_var = "fish",
@@ -207,41 +234,109 @@ test_that("fitted viewports keep reference lines, bands and stacks in view", {
     second$data$y <- c(1.1, 2.2, 3.3, 4.4)
     # The zero line of a relative plot stays visible.
     rel <- render_plot_spec(relative_plot_specs(first, second))
-    expect_equal(rel$coordinates$limits$y[1], 0)
-    # Stacked areas reach the sum of the groups.
+    expect_equal(built_panels(rel)[[1]]$y.range,
+                 expand5(c(0, max(rel$data$rel_diff))))
+    # Stacked areas reach the top of the stack, here y = 2x.
     stacked <- new_plot_spec(
         data.frame(x = rep(1:4, 2), y = rep(1:4, 2),
                    fish = rep(c("Cod", "Sprat"), each = 4)),
         NS_params_small, x_var = "x", y_var = "y", group_var = "fish",
         xlim = c(2, 3), style = "area")
-    expect_equal(render_plot_spec(stacked)$coordinates$limits$y, c(0, 6))
-    # Both edges of a band count.
+    panel <- built_panels(render_plot_spec(stacked))[[1]]
+    expect_equal(panel$y.range, expand5(c(0, 2 * panel$x.range[2])))
+    # Both edges of a band count, here at y = x - 1 and y = x + 1.
     band <- new_plot_spec(
         data.frame(x = 1:4, y = 1:4, ymin = 0:3, ymax = 2:5, fish = "Cod"),
         NS_params_small, x_var = "x", y_var = "y", group_var = "fish",
         xlim = c(2, 3), style = "ribbon")
-    expect_equal(render_plot_spec(band)$coordinates$limits$y, c(1, 4))
+    panel <- built_panels(render_plot_spec(band))[[1]]
+    expect_equal(panel$y.range, expand5(panel$x.range + c(-1, 1)))
 })
 
-test_that("added layers refit the viewport without changing the input plot", {
+test_that("stacked areas on different size grids are fitted as drawn", {
+    skip_without_plot_layout()
+    # ggplot2 aligns the two flat series before stacking them, so the stack
+    # reaches 200 although no x value is shared.
+    stacked <- new_plot_spec(
+        data.frame(x = c(1:10, 1:10 + 0.5), y = 100,
+                   fish = rep(c("Cod", "Sprat"), each = 10)),
+        NS_params_small, x_var = "x", y_var = "y", group_var = "fish",
+        xlim = c(3, 8), style = "area")
+    expect_equal(built_panels(render_plot_spec(stacked))[[1]]$y.range,
+                 expand5(c(0, 200)))
+})
+
+test_that("layers added with ggplot2 are fitted when the plot is built", {
+    skip_without_plot_layout()
     base <- render_plot_spec(new_plot_spec(
         data.frame(x = 1:4, y = c(1, 2, 3, 4), fish = "Cod"),
         NS_params_small, x_var = "x", y_var = "y", group_var = "fish",
         xlim = c(2, 3)))
-    before <- base$coordinates$limits
-    added <- data.frame(x = 1:4, y = c(100, 5, 6, 100), fish = "Sprat")
-    p <- set_plot_viewport(base, source = viewport_source(
-        "x", "y", group = "fish", data = added))
-    expect_equal(p$coordinates$limits$y, c(2, 6))
-    expect_identical(base$coordinates$limits, before)
-    # A wider window takes in more of both layers.
-    p <- set_plot_viewport(p, xlim = c(1, 3))
-    expect_equal(p$coordinates$limits$y, c(1, 100))
-    # Plots that mizer did not lay out only take the supplied endpoints.
-    plain <- ggplot2::ggplot(added, ggplot2::aes(x, y)) +
+    window <- built_panels(base)[[1]]$x.range
+    # A reference line stays in view.
+    panel <- built_panels(base + ggplot2::geom_hline(yintercept = 10))[[1]]
+    expect_equal(panel$y.range, expand5(c(window[1], 10)))
+    # Only the visible part of an added line counts, up to where it crosses
+    # the edge of the window.
+    added <- data.frame(x = 1:4, y = c(100, 5, 6, 100))
+    line <- base + ggplot2::geom_line(ggplot2::aes(x, y), data = added,
+                                      inherit.aes = FALSE)
+    crossing <- 6 + (window[2] - 3) * (100 - 6)
+    expect_equal(built_panels(line)[[1]]$y.range,
+                 expand5(c(window[1], crossing)))
+    # Points are not joined across the edge.
+    points <- base + ggplot2::geom_point(ggplot2::aes(x, y), data = added,
+                                         inherit.aes = FALSE)
+    expect_equal(built_panels(points)[[1]]$y.range, expand5(c(window[1], 6)))
+})
+
+test_that("each free y scale of a facet is fitted on its own", {
+    skip_without_plot_layout()
+    spec <- new_plot_spec(two_panel_data(), NS_params_small, x_var = "x", y_var = "y",
+                          group_var = "fish", xlim = c(3, 5),
+                          wrap_var = "panel", wrap_scale = "free_y")
+    panels <- built_panels(render_plot_spec(spec))
+    expect_equal(panels[[1]]$y.range, expand5(c(1, 3)))
+    expect_equal(panels[[2]]$y.range, expand5(c(100, 300)))
+    # A fixed scale stays shared by the panels.
+    spec$options$wrap_scale <- "fixed"
+    panels <- built_panels(render_plot_spec(spec))
+    expect_equal(panels[[1]]$y.range, expand5(c(1, 300)))
+    expect_equal(panels[[2]]$y.range, expand5(c(1, 300)))
+})
+
+test_that("plotHover() shows the ranges fitted when the plot is built", {
+    skip_if(utils::packageVersion("ggplot2") < "4.0.0",
+            "ggplot2 < 4.0.0 cannot hand panel parameters to plotly")
+    p <- render_plot_spec(new_plot_spec(
+        two_panel_data(), NS_params_small, x_var = "x", y_var = "y", group_var = "fish",
+        xlim = c(3, 5), wrap_var = "panel", wrap_scale = "free_y")) +
+        ggplot2::geom_hline(yintercept = 10)
+    panels <- built_panels(p)
+    hover <- plotly::plotly_build(plotHover(p))
+    expect_equal(hover$x$layout$yaxis$range, panels[[1]]$y.range)
+    expect_equal(hover$x$layout$yaxis2$range, panels[[2]]$y.range)
+    # The plot's own facet still leaves the panel parameters to the build.
+    expect_identical(p$facet$setup_panel_params(list("unchanged"), NULL),
+                     list("unchanged"))
+})
+
+test_that("set_plot_viewport() only changes the supplied endpoints", {
+    base <- render_plot_spec(new_plot_spec(
+        data.frame(x = 1:4, y = c(1, 2, 3, 4), fish = "Cod"),
+        NS_params_small, x_var = "x", y_var = "y", group_var = "fish",
+        xlim = c(2, 3)))
+    p <- set_plot_viewport(base, xlim = c(1, NA), ylim = c(NA, 5))
+    expect_equal(p$coordinates$limits, list(x = c(1, 3), y = c(NA, 5)))
+    # The input plot is not modified.
+    expect_equal(base$coordinates$limits$x, c(2, 3))
+    # Plots that mizer did not lay out are not fitted.
+    plain <- ggplot2::ggplot(data.frame(x = 1:4, y = c(100, 5, 6, 100)),
+                             ggplot2::aes(x, y)) +
         ggplot2::geom_line()
     plain <- set_plot_viewport(plain, xlim = c(2, 3))
     expect_equal(plain$coordinates$limits$y, c(NA, NA))
+    expect_null(ggplot2::ggplot_build(plain)$layout$fitted_panel_params)
 })
 
 test_that("animations fit an open y range to the visible sizes", {

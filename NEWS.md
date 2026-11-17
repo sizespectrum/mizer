@@ -93,9 +93,13 @@
   TRUE`, community totals, comparisons, relative differences and cumulative
   distributions are the same whatever window is shown, and a line that leaves
   the window is drawn up to its edge. An end of `ylim` that is left as `NA` is
-  fitted to the part of the data inside the window. Code that used the limits
-  to subset returned data needs updating; see the upgrade guide. Animations
-  still use `tlim` to choose their frames.
+  fitted, when the plot is drawn, to what is visible inside the window: every
+  layer, including those added afterwards with `+`, stacked areas up to the
+  top of the stack, and each free y scale of a faceted plot on its own. This
+  needs ggplot2 3.5.0 or later, and in `plotHover()` ggplot2 4.0.0 or later;
+  with earlier versions the open end covers all of the data. Code that used
+  the limits to subset returned data needs updating; see the upgrade guide.
+  Animations still use `tlim` to choose their frames.
 - `plotCDF()`, `plotCDF2()` and their `plotly…()` counterparts gain `min_w`,
   `max_w`, `min_l` and `max_l` to choose the size range a distribution is
   integrated over (#564). A bound that falls inside a size bin includes
@@ -105,7 +109,9 @@
   value. With bin averaging this replaces the weighting at the geometric bin
   centre, which changes the curves slightly. Without bounds a distribution
   covers the whole size grid, and a community total includes every species and
-  the resource whichever curves are drawn.
+  the resource whichever curves are drawn. Length bounds, which convert to a
+  different weight for each species and the resource, need only be in order
+  for the curves that are drawn or summed into a total.
 - New `getR0()` gives the lifetime reproductive output R0 of each species:
   the number of eggs that one recruit produces over its life, with growth,
   mortality, diffusion and reproductive investment held fixed (#632). It is

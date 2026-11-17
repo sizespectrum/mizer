@@ -2001,21 +2001,41 @@ test_that("CDF bounds validate, handle empty mass and reach every entry point", 
 })
 
 test_that("zooming the size or time axis fits the y axis to what is visible", {
+    skip_if(utils::packageVersion("ggplot2") < "3.5.0",
+            "ggplot2 < 3.5.0 does not build with the plot's Layout")
+    # Both plots have a logarithmic y axis.
     y_range <- function(p) {
-        ggplot2::ggplot_build(p)$layout$panel_params[[1]]$y.range
+        10^ggplot2::ggplot_build(p)$layout$panel_params[[1]]$y.range
     }
     full <- plotSpectra(NS_params_small)
     zoom <- plotSpectra(NS_params_small, wlim = c(1, 100))
-    expect_lt(diff(y_range(zoom)), diff(y_range(full)))
+    expect_lt(diff(log(y_range(zoom))), diff(log(y_range(full))))
     # The data are unchanged; only the window moved.
     expect_equal(zoom$data, full$data)
     visible <- full$data[full$data$w >= 1 & full$data$w <= 100, 2]
-    expect_lte(zoom$coordinates$limits$y[1], min(visible))
-    expect_gte(zoom$coordinates$limits$y[2], max(visible))
+    expect_lte(y_range(zoom)[1], min(visible))
+    expect_gte(y_range(zoom)[2], max(visible))
 
     bm <- plotBiomass(sim, tlim = c(2, 3))
     years <- bm$data$Year >= 2 & bm$data$Year <= 3
-    expect_equal(bm$coordinates$limits$y, range(bm$data[years, 2]))
+    expect_lt(diff(log(y_range(bm))), diff(log(y_range(plotBiomass(sim)))))
+    expect_lte(y_range(bm)[1], min(bm$data[years, 2]))
+    expect_gte(y_range(bm)[2], max(bm$data[years, 2]))
+})
+
+test_that("CDF bounds need only be in order for the curves they affect", {
+    # 10 cm is less than 100 g for each fish but not for the resource.
+    cdf <- plotCDF(NS_params_small, min_l = 10, max_w = 100,
+                   resource = FALSE, total = FALSE, return_data = TRUE)
+    expect_setequal(unique(cdf$Species),
+                    NS_params_small@species_params$species)
+    expect_error(plotCDF(NS_params_small, min_l = 10, max_w = 100,
+                         resource = TRUE, return_data = TRUE),
+                 "lower integration bound must be less than")
+    # A total sums the resource too, whichever curves are drawn.
+    expect_error(plotCDF(NS_params_small, min_l = 10, max_w = 100,
+                         resource = FALSE, total = TRUE, return_data = TRUE),
+                 "lower integration bound must be less than")
 })
 
 test_that("the end of a CDF is the getBiomass() integral over its range", {
