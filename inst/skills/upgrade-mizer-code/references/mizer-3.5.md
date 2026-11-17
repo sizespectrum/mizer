@@ -139,7 +139,9 @@ This applies to array plots, named plots, comparisons and relative plots.
 `return_data = TRUE` returns the same data with or without these limits, and
 community totals and cumulative distributions no longer depend on the window.
 Lines and areas can cross a window boundary without losing their neighbouring
-vertices. Animations still use `tlim` to choose their displayed frames.
+vertices, and an end of `ylim` left as `NA` is fitted to the part of each line
+inside the window, so zooming in on the size or time axis still rescales the
+value axis. Animations still use `tlim` to choose their displayed frames.
 
 Code that used plot limits to extract a subset of the returned data should
 subset that data explicitly. For biomass or abundance integrated over a size
@@ -164,3 +166,9 @@ resource sizes previously hidden by the spectrum plot's default window.
 Totals include all species and the resource regardless of which are displayed.
 A completed cumulative contribution stays constant beyond its last bin, so a
 community CDF on a length axis does not fall when one species' grid ends.
+
+The CDF bounds are exact: a bound inside a bin takes only the part of the bin
+on the selected side. The `min_w`/`max_w` of `getBiomass()` and the other
+summaries are not yet exact in that way: in a first-order model they include a
+whole bin whenever its left edge lies in the range. An unnormalised
+`plotCDF()` can therefore end below `getBiomass()` over the same range.

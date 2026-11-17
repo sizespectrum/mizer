@@ -264,7 +264,8 @@ dedicated `plot…()` functions below — share these optional arguments:
 
 `wlim`/`llim` (size axis), `tlim` (time axis) and `ylim` (value axis) only set the **visible
 window**: data outside the range is hidden but nothing is recomputed or
-removed from `return_data`. Limits also leave comparison and relative values
+removed from `return_data`. An end of `ylim` left as `NA` is fitted to the
+data inside the size or time window, so zooming in rescales the value axis. Limits also leave comparison and relative values
 and community totals unchanged. For animations, `tlim` chooses the displayed
 frames; it does not change the values calculated at those times. To change
 the underlying numbers — for example the size range that a biomass is summed
@@ -390,6 +391,11 @@ for the resource. The range is independent of whether the plot uses weight
 or length on its x axis. Bounds inside a bin include only the overlapping
 fraction of its width, under both numerical schemes. A normalised curve with
 no mass in the selected interval has `NA` values.
+
+These bounds are exact, unlike the `min_w`/`max_w` of `getBiomass()` and the
+other summaries, which in a first-order model include a whole bin whenever its
+left edge lies in the range. The end of an unnormalised curve can therefore be
+smaller than `getBiomass()` over the same range by up to one boundary bin.
 
 ```r
 plotCDF(params, biomass = TRUE, min_w = 10, max_w = 1000)

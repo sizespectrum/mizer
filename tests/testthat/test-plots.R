@@ -1974,3 +1974,50 @@ test_that("CDF bounds validate, handle empty mass and reach every entry point", 
     expect_s3_class(plotlyCDF(sim, min_w = 1, max_w = 100), "plotly")
     expect_s3_class(plotlyCDF2(sim, sim, min_l = 1, max_l = 10), "plotly")
 })
+
+test_that("zooming the size or time axis fits the y axis to what is visible", {
+    y_range <- function(p) {
+        ggplot2::ggplot_build(p)$layout$panel_params[[1]]$y.range
+    }
+    full <- plotSpectra(NS_params_small)
+    zoom <- plotSpectra(NS_params_small, wlim = c(1, 100))
+    expect_lt(diff(y_range(zoom)), diff(y_range(full)))
+    # The data are unchanged; only the window moved.
+    expect_equal(zoom$data, full$data)
+    visible <- full$data[full$data$w >= 1 & full$data$w <= 100, 2]
+    expect_lte(zoom$coordinates$limits$y[1], min(visible))
+    expect_gte(zoom$coordinates$limits$y[2], max(visible))
+
+    bm <- plotBiomass(sim, tlim = c(2, 3))
+    years <- bm$data$Year >= 2 & bm$data$Year <= 3
+    expect_equal(bm$coordinates$limits$y, range(bm$data[years, 2]))
+})
+
+test_that("CDF bounds are exact where getBiomass() includes whole bins", {
+    p <- NS_params_small
+    w <- p@w
+    cdf <- plotCDF(p, return_data = TRUE, normalise = FALSE, biomass = TRUE,
+                   background = FALSE, min_w = w[5], max_w = w[15])
+    ends <- c(tapply(cdf[[2]], cdf$Species, max)[p@species_params$species])
+    # A bound on a bin edge ends the CDF there; getBiomass(max_w = w[15]) still
+    # includes the bin that starts at w[15], as documented in ?plotCDF.
+    expect_equal(unname(ends),
+                 unname(getBiomass(p, min_w = w[5], max_w = w[14])))
+    expect_true(all(getBiomass(p, min_w = w[5], max_w = w[15]) >= ends))
+})
+
+test_that("a background species selected by name is drawn once", {
+    p <- NS_params_small
+    p@species_params$is_background <- p@species_params$species == "Sprat"
+    for (fun in list(plotSpectra, plotCDF)) {
+        dat <- fun(p, species = c("Sprat", "Cod"), resource = FALSE,
+                   return_data = TRUE)
+        sprat <- unique(dat[dat$Species == "Sprat", "Legend"])
+        expect_identical(sprat, "Background")
+        expect_false(anyDuplicated(dat[, c(1, 3)]) > 0)
+    }
+    # Without the background it keeps its own name, as before.
+    dat <- plotSpectra(p, species = c("Sprat", "Cod"), resource = FALSE,
+                       background = FALSE, return_data = TRUE)
+    expect_identical(unique(dat$Legend), c("Sprat", "Cod"))
+})

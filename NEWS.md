@@ -114,6 +114,9 @@
 
 ## Bug fixes
 
+- `plotSpectra()` no longer draws a background species twice, under its own
+  name and as "Background", when it is also selected by name. It is drawn once
+  as "Background", as in `plotCDF()` and the time-series plots (#564).
 - `plotDataFrame()` now warns about legend entries that have no colour in
   `params@linecolour` also when the legend comes from `legend_var`. Before,
   the warning looked only at a column called `Legend`, so it never fired for
