@@ -196,19 +196,8 @@ plotSpectra.MizerSim <- function(object, species = NULL,
     if (length(species) == 0 && !total && !resource) {
         stop("There is nothing to plot as no valid species have been selected.")
     }
-    if (missing(time_range)) {
-        time_range  <- max(as.numeric(dimnames(object@n)$time))
-    }
-    time_elements <- get_time_elements(object, time_range)
-    mean_fn <- mean
-    if (geometric_mean) {
-        mean_fn <- function(x) {
-            exp(mean(log(x)))
-        }
-    }
-    n <- apply(object@n[time_elements, , , drop = FALSE], c(2, 3), mean_fn)
-    n_pp <- apply(object@n_pp[time_elements, , drop = FALSE], 2, mean_fn)
-    plot_spectra(object@params, n = n, n_pp = n_pp,
+    abundance <- sim_mean_abundance(object, time_range, geometric_mean)
+    plot_spectra(object@params, n = abundance$n, n_pp = abundance$n_pp,
                  species = species, wlim = wlim, ylim = ylim,
                  llim = llim,
                  power = spectrum$power, biomass = spectrum$biomass,
@@ -318,35 +307,17 @@ plot_spectra <- function(params, n, n_pp,
         wlim[2] <- max(w_full_grid)
     }
 
-    species <- valid_species_arg(params, species)
     y_label <- spectra_y_label(power, size_axis, biomass = biomass,
                                per_log_size = per_log_size)
-    n <- sweep(n, 2, w_grid^power, "*")
-    # Select only the desired species
-    spec_n <- n[as.character(dimnames(n)[[1]]) %in% species, , drop = FALSE]
-    # Make data.frame for plot
-    plot_dat <- data.frame(w = rep(w_grid,
-                                   each = dim(spec_n)[[1]]),
-                           value = c(spec_n),
-                           Species = dimnames(spec_n)[[1]],
-                           Legend = dimnames(spec_n)[[1]])
-    if (resource) {
-        plot_dat <- rbind(plot_dat,
-                          data.frame(w = w_full_grid,
-                                     value = c(n_pp * w_full_grid^power),
-                                     Species = "Resource", Legend = "Resource"))
-    }
-    if (background && any(params@species_params$is_background)) {
-        back_n <- n[params@species_params$is_background, , drop = FALSE]
-        plot_dat <-
-            rbind(plot_dat,
-                  data.frame(w = rep(w_grid,
-                                     each = dim(back_n)[[1]]),
-                             value = c(back_n),
-                             Species = as.factor(dimnames(back_n)[[1]]),
-                             Legend = "Background")
-            )
-    }
+    series <- abundance_series(params, n, n_pp, power, w_grid, w_full_grid,
+                               background = background)
+    plot_dat <- series[series$Species %in%
+                           shown_series(params, species, resource, background),
+                       , drop = FALSE]
+    # Species first, then the resource, then the background.
+    block <- ifelse(plot_dat$Legend == "Background", 2,
+                    ifelse(plot_dat$Species == "Resource", 1, 0))
+    plot_dat <- plot_dat[order(block), , drop = FALSE]
     plot_dat <- plot_dat[plot_dat$value > 0, ]
     plot_dat <- convert_plot_spectrum_axis(plot_dat, params, size_axis, power,
                                            per_log_size = per_log_size)
@@ -355,25 +326,17 @@ plot_spectra <- function(params, n, n_pp,
         # whether or not it was selected for display, and the resource, whether
         # or not it is drawn. It is summed over the series as they are plotted,
         # which on a length axis means at equal length rather than at equal
-        # weight.
-        # `n` has already been multiplied by the power of weight above.
-        resource_dat <- data.frame(w = w_full_grid,
-                                   value = c(n_pp * w_full_grid^power),
-                                   Species = "Resource",
-                                   Legend = "Total")
-        total_dat <- rbind(data.frame(w = rep(w_grid, each = nrow(n)),
-                                      value = c(unclass(n)),
-                                      Species = rep(dimnames(n)[[1]],
-                                                    times = length(w_grid)),
-                                      Legend = "Total"),
-                           resource_dat)
-        # Zeros are kept here, unlike in the plotted data: they are part of
-        # each series and dropping them would let the interpolation bridge a
-        # gap that is really empty.
+        # weight. Zeros are kept here, unlike in the plotted data: they are
+        # part of each series and dropping them would let the interpolation
+        # bridge a gap that is really empty.
+        total_dat <- series
+        total_dat$Legend <- "Total"
         total_dat <- convert_plot_spectrum_axis(total_dat, params, size_axis,
                                                 power,
                                                 per_log_size = per_log_size)
-        total_dat <- add_total_line(total_dat)
+        total_dat <- add_total_line(total_dat,
+                                    x_var = plot_size_x_var(size_axis),
+                                    value_col = "value")
         total_dat <- total_dat[total_dat$Species == "Total" &
                                    total_dat$value > 0, ]
         plot_dat <- rbind(plot_dat, total_dat[, names(plot_dat), drop = FALSE])
@@ -389,6 +352,59 @@ plot_spectra <- function(params, n, n_pp,
                   ytrans = if (log_y) "log10" else "identity",
                   xlim = plot_size_xlim(wlim, size_axis, llim), ylim = ylim,
                   highlight = highlight, legend_var = "Legend")
+}
+
+# The abundances of a simulation averaged over `time_range` (by default the
+# final saved time), arithmetically or geometrically, as plotSpectra() and
+# plotCDF() show them.
+sim_mean_abundance <- function(sim, time_range, geometric_mean = FALSE) {
+    if (missing(time_range)) {
+        time_range <- max(as.numeric(dimnames(sim@n)$time))
+    }
+    time_elements <- get_time_elements(sim, time_range)
+    mean_fn <- if (geometric_mean) function(x) exp(mean(log(x))) else mean
+    list(n = apply(sim@n[time_elements, , , drop = FALSE], c(2, 3), mean_fn),
+         n_pp = apply(sim@n_pp[time_elements, , drop = FALSE], 2, mean_fn))
+}
+
+# One row for every size bin of every species and of the resource, holding the
+# abundance times `weight^power`. The rows are placed at `x` (`x_full` for the
+# resource) and the power of weight is evaluated at `weight` (`weight_full`):
+# a spectrum uses one grid for both, a cumulative distribution places rows on
+# the left bin edges but weights them where the scheme does. Background
+# species carry the "Background" legend when `background = TRUE`.
+abundance_series <- function(params, n, n_pp, power, x, x_full,
+                             weight = x, weight_full = x_full,
+                             background = TRUE) {
+    species <- as.character(params@species_params$species)
+    series <- rbind(
+        data.frame(w = rep(x, each = length(species)),
+                   value = c(sweep(unclass(n), 2, weight^power, "*")),
+                   Species = rep(species, times = length(x))),
+        data.frame(w = x_full, value = c(n_pp) * weight_full^power,
+                   Species = "Resource")
+    )
+    series$Legend <- series$Species
+    if (background) {
+        background_species <- species[params@species_params$is_background]
+        series$Legend[series$Species %in% background_species] <- "Background"
+    }
+    series
+}
+
+# The series a spectrum or cumulative plot draws: the selected species, every
+# background species when `background = TRUE` (once, under the "Background"
+# legend, even when it was also selected by name) and the resource when
+# `resource = TRUE`.
+shown_series <- function(params, species, resource, background) {
+    shown <- valid_species_arg(params, species)
+    if (background) {
+        species_params <- params@species_params
+        shown <- union(shown, as.character(
+            species_params$species[species_params$is_background]))
+    }
+    if (resource) shown <- c(shown, "Resource")
+    shown
 }
 
 #' Compare abundance and biomass spectra from two objects

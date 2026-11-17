@@ -779,7 +779,7 @@ test_that("the comparison methods honour highlight", {
 test_that("the array plots all share one preparation", {
     enc <- getEncounter(NS_params_small)
     prepared <- ArraySpeciesBySize_plot_data(
-        enc, species = "Cod", wlim = c(1, NA), total = TRUE, size_axis = "l")
+        enc, species = "Cod", total = TRUE, size_axis = "l")
     from_plot <- plot(enc, species = "Cod", wlim = c(1, NA), total = TRUE,
                       size_axis = "l", return_data = TRUE)
     expect_equal(from_plot, prepared)

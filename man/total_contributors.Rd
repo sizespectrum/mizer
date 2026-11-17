@@ -4,13 +4,10 @@
 \alias{total_contributors}
 \title{Assemble the contributors to the total of a species-by-size array}
 \usage{
-total_contributors(x, wlim = c(NA, NA))
+total_contributors(x)
 }
 \arguments{
 \item{x}{An \code{ArraySpeciesBySize} object.}
-
-\item{wlim}{Weight-axis viewport limits; retained for compatibility here
-and applied only by the renderer.}
 }
 \value{
 A data frame of plotting data holding every value in the array.

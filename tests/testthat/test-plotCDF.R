@@ -368,3 +368,16 @@ test_that("size viewports preserve returned data and totals", {
         }
     }
 })
+
+test_that("CDF bounds are exact where getBiomass() includes whole bins", {
+    p <- NS_params_small
+    w <- p@w
+    cdf <- plotCDF(p, return_data = TRUE, normalise = FALSE, biomass = TRUE,
+                   background = FALSE, min_w = w[5], max_w = w[15])
+    ends <- c(tapply(cdf[[2]], cdf$Species, max)[p@species_params$species])
+    # A bound on a bin edge ends the CDF there; getBiomass(max_w = w[15]) still
+    # includes the bin that starts at w[15], as documented in ?plotCDF.
+    expect_equal(unname(ends),
+                 unname(getBiomass(p, min_w = w[5], max_w = w[14])))
+    expect_true(all(getBiomass(p, min_w = w[5], max_w = w[15]) >= ends))
+})

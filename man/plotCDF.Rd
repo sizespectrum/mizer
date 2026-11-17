@@ -102,7 +102,14 @@ grams to integrate over. Defaults are 0 and \code{Inf}, covering the complete
 grid.
 A boundary inside a bin includes only the overlapping fraction of its
 width. Density is weighted at the left bin boundary in first-order models
-and at the geometric midpoint when bin averaging is enabled.}
+and at the geometric midpoint when bin averaging is enabled.
+
+The bounds are exact, which is not yet true of the \code{min_w} and \code{max_w} of
+\code{\link[=getBiomass]{getBiomass()}} and the other summary functions: in a first-order model
+they include a whole bin when its left edge lies in the range, so
+\code{getBiomass(params, max_w = w)} with \code{w} on a bin edge still includes the
+bin that starts at \code{w}, while a cumulative curve with \code{max_w = w} ends at
+\code{w}. With bin averaging the two also weight each bin slightly differently.}
 
 \item{min_l, max_l}{Optional single non-negative numbers giving the length
 range in centimetres to integrate over. Each overrides the corresponding

@@ -393,8 +393,7 @@ test_that("resource comparisons honour highlight", {
 
 test_that("plot() and the comparisons share one resource preparation", {
     mort <- getResourceMort(NS_params_small)
-    prepared <- ArrayResourceBySize_plot_data(mort, wlim = c(1e-5, NA),
-                                              size_axis = "l")
+    prepared <- ArrayResourceBySize_plot_data(mort, size_axis = "l")
     from_plot <- plot(mort, wlim = c(1e-5, NA), size_axis = "l",
                       return_data = TRUE)
     expect_equal(from_plot, prepared)

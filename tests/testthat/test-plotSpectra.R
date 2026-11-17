@@ -593,3 +593,33 @@ test_that("size viewports preserve returned data and totals", {
         }
     }
 })
+
+test_that("zooming the size axis fits the y axis to what is visible", {
+    y_range <- function(p) {
+        ggplot2::ggplot_build(p)$layout$panel_params[[1]]$y.range
+    }
+    full <- plotSpectra(NS_params_small)
+    zoom <- plotSpectra(NS_params_small, wlim = c(1, 100))
+    expect_lt(diff(y_range(zoom)), diff(y_range(full)))
+    # The data are unchanged; only the window moved.
+    expect_equal(zoom$data, full$data)
+    visible <- full$data[full$data$w >= 1 & full$data$w <= 100, 2]
+    expect_lte(zoom$coordinates$limits$y[1], min(visible))
+    expect_gte(zoom$coordinates$limits$y[2], max(visible))
+})
+
+test_that("a background species selected by name is drawn once", {
+    p <- NS_params_small
+    p@species_params$is_background <- p@species_params$species == "Sprat"
+    for (fun in list(plotSpectra, plotCDF)) {
+        dat <- fun(p, species = c("Sprat", "Cod"), resource = FALSE,
+                   return_data = TRUE)
+        sprat <- unique(dat[dat$Species == "Sprat", "Legend"])
+        expect_identical(sprat, "Background")
+        expect_false(anyDuplicated(dat[, c(1, 3)]) > 0)
+    }
+    # Without the background it keeps its own name, as before.
+    dat <- plotSpectra(p, species = c("Sprat", "Cod"), resource = FALSE,
+                       background = FALSE, return_data = TRUE)
+    expect_identical(unique(dat$Legend), c("Sprat", "Cod"))
+})

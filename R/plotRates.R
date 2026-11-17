@@ -160,10 +160,12 @@ plotFeedingLevel.MizerParams <- function(object, species = NULL,
 #' @param log_x,log_y Logical flags for log10 axes.
 #' @param log Optional base-R log argument string or boolean.
 #' @param wlim,llim Numeric vectors of length two giving the weight and length
-#'   limits.
+#'   viewport limits.
 #' @param size_axis Either `"w"` (weight) or `"l"` (length).
 #' @param return_data If `TRUE`, return the plotting data frame instead of the
 #'   plot.
+#' @param ylim Numeric vector of length two giving the y-axis viewport limits.
+#'   On a linear axis they are widened to show the whole interval from 0 to 1.
 #' @param ... Additional arguments passed to [plot.ArraySpeciesBySize()].
 #' @return A `mizer_plot` (ggplot2) object, or the plotting data frame if
 #'   `return_data = TRUE`.
@@ -171,7 +173,8 @@ plotFeedingLevel.MizerParams <- function(object, species = NULL,
 plot_feeding_level <- function(params, feed, species, highlight,
                                all.sizes, include_critical,
                                wlim, llim, size_axis, return_data,
-                               log_x = TRUE, log_y = FALSE, log = NULL, ...) {
+                               log_x = TRUE, log_y = FALSE, log = NULL,
+                               ylim = c(NA, NA), ...) {
     size_axis <- plot_size_axis(size_axis)
     log_axes <- parsePlotLog(log, log_x = log_x, log_y = log_y)
     log_x <- log_axes$log_x
@@ -181,7 +184,7 @@ plot_feeding_level <- function(params, feed, species, highlight,
         return(plot(feed, species = species, all.sizes = all.sizes,
                     highlight = highlight, wlim = wlim, llim = llim,
                     size_axis = size_axis, return_data = return_data,
-                    log_x = log_x, log_y = log_y, ...))
+                    log_x = log_x, log_y = log_y, ylim = ylim, ...))
     }
     crit <- getCriticalFeedingLevel(params)
     df_actual <- plot(feed, species = species, all.sizes = all.sizes,
@@ -200,16 +203,15 @@ plot_feeding_level <- function(params, feed, species, highlight,
     }
     p <- plot(feed, species = species, all.sizes = all.sizes,
               highlight = highlight, wlim = wlim, llim = llim,
-              size_axis = size_axis, log_x = log_x, log_y = log_y, ...)
+              size_axis = size_axis, log_x = log_x, log_y = log_y,
+              ylim = ylim, ...)
     p <- addPlot(p, crit, species = species, all.sizes = all.sizes,
                  wlim = wlim, llim = llim, size_axis = size_axis,
                  alpha = 0.5)
     if (!log_y) {
-        ylim <- list(...)$ylim %||% c(NA, NA)
-        feeding_level_ylim <- array_ylim(feed, ylim, log_y,
-                                         c(df_actual[[2]], df_crit[[2]]))
-        p$coordinates <- coord_cartesian(xlim = p$coordinates$limits$x,
-                                         ylim = feeding_level_ylim)
+        p <- set_plot_viewport(
+            p, ylim = array_ylim(feed, ylim, log_y,
+                                 c(df_actual[[2]], df_crit[[2]])))
     }
     p
 }

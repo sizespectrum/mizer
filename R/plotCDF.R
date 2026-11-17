@@ -31,6 +31,13 @@
 #'   A boundary inside a bin includes only the overlapping fraction of its
 #'   width. Density is weighted at the left bin boundary in first-order models
 #'   and at the geometric midpoint when bin averaging is enabled.
+#'
+#'   The bounds are exact, which is not yet true of the `min_w` and `max_w` of
+#'   [getBiomass()] and the other summary functions: in a first-order model
+#'   they include a whole bin when its left edge lies in the range, so
+#'   `getBiomass(params, max_w = w)` with `w` on a bin edge still includes the
+#'   bin that starts at `w`, while a cumulative curve with `max_w = w` ends at
+#'   `w`. With bin averaging the two also weight each bin slightly differently.
 #' @param min_l,max_l Optional single non-negative numbers giving the length
 #'   range in centimetres to integrate over. Each overrides the corresponding
 #'   weight bound, using each species' own length-weight relationship, including
@@ -124,8 +131,10 @@ plotCDF.MizerSim <- function(object, species = NULL,
                              geometric_mean = FALSE,
                              min_w = 0, max_w = Inf,
                              min_l = NULL, max_l = NULL, ...) {
-    params <- getParams(object, time_range = time_range,
-                        geometric_mean = geometric_mean)
+    abundance <- sim_mean_abundance(object, time_range, geometric_mean)
+    params <- object@params
+    params@initial_n[] <- abundance$n
+    params@initial_n_pp[] <- abundance$n_pp
     plotCDF(params, species = species, wlim = wlim, llim = llim, ylim = ylim,
             power = power, biomass = biomass, per_log_size = per_log_size,
             total = total, resource = resource, background = background,
@@ -176,49 +185,39 @@ plot_cdf <- function(params, power, normalise, log_x, log_y, wlim, llim,
                      total, resource, background,
                      min_w = 0, max_w = Inf, min_l = NULL, max_l = NULL) {
     params <- validParams(params)
-    selected <- valid_species_arg(params, species)
-    all_species <- as.character(params@species_params$species)
-    background_species <- all_species[params@species_params$is_background]
-    if (background) selected <- union(selected, background_species)
-    if (resource) selected <- c(selected, "Resource")
-    if (total) selected <- c(selected, "Total")
-
+    shown <- shown_series(params, species, resource, background)
+    if (total) shown <- c(shown, "Total")
+    # The density is weighted once, at the left bin edge or at the geometric
+    # bin centre according to bin_average; the rows stay on the left edges so
+    # that prepare_spectra_cdf_data() can find each bin.
     second_order <- isTRUE(params@second_order_w[["bin_average"]])
-    weights <- if (second_order) bin_midpoints(params) else params@w
-    plot_dat <- data.frame(w = rep(params@w, each = nrow(params@initial_n)),
-                           value = c(sweep(params@initial_n, 2, weights^power,
-                                           "*")),
-                           Species = rep(all_species, times = length(params@w)))
-    if (resource || total) {
-        weights <- if (second_order) bin_midpoints(params, w_full = TRUE) else
+    series <- abundance_series(
+        params, params@initial_n, params@initial_n_pp, power,
+        x = params@w, x_full = params@w_full,
+        weight = if (second_order) bin_midpoints(params) else params@w,
+        weight_full = if (second_order) {
+            bin_midpoints(params, w_full = TRUE)
+        } else {
             params@w_full
-        resource_dat <- data.frame(w = params@w_full,
-                                   value = params@initial_n_pp * weights^power,
-                                   Species = "Resource")
-        plot_dat <- rbind(plot_dat, resource_dat)
-    }
-    plot_dat$Legend <- plot_dat$Species
-    if (background) {
-        is_background <- plot_dat$Species %in% background_species
-        plot_dat$Legend[is_background] <- "Background"
-    }
-    if (!total) {
-        plot_dat <- plot_dat[plot_dat$Species %in% selected, , drop = FALSE]
-    }
-    cdf_dat <- prepare_spectra_cdf_data(plot_dat, params, normalise = FALSE,
+        },
+        background = background)
+    # A total includes every contributor, whichever curves are drawn.
+    if (!total) series <- series[series$Species %in% shown, , drop = FALSE]
+    cdf_dat <- prepare_spectra_cdf_data(series, params, normalise = FALSE,
                                         min_w = min_w, max_w = max_w,
                                         min_l = min_l, max_l = max_l)
     cdf_dat <- convert_plot_size_axis(cdf_dat, params, size_axis)
     if (total) {
-        cdf_dat <- add_total_line(cdf_dat, cumulative = TRUE)
+        cdf_dat <- add_total_line(cdf_dat, x_var = plot_size_x_var(size_axis),
+                                  value_col = "value", cumulative = TRUE)
     }
-    cdf_dat <- cdf_dat[cdf_dat$Species %in% selected, , drop = FALSE]
+    cdf_dat <- cdf_dat[cdf_dat$Species %in% shown, , drop = FALSE]
     if (nrow(cdf_dat) == 0) {
         stop("The CDF integration bounds do not overlap ",
              "the selected size grids.")
     }
     if (normalise) cdf_dat <- normalise_cdf(cdf_dat)
-    names(cdf_dat)[2] <- cdf_y_label(power, normalise)
+    names(cdf_dat)[names(cdf_dat) == "value"] <- cdf_y_label(power, normalise)
     if (return_data) return(cdf_dat)
 
     plotDataFrame(cdf_dat, params,
@@ -281,18 +280,19 @@ prepare_spectra_cdf_data <- function(plot_dat, params, normalise = TRUE,
     overlap <- pmax(0, upper - lower)
     full_bin <- lower == plot_dat$w & upper == plot_dat$w + widths
     overlap[full_bin] <- widths[full_bin]
-    plot_dat[[2]] <- plot_dat[[2]] * overlap
+    plot_dat$value <- plot_dat$value * overlap
     plot_dat$w <- upper
     plot_dat <- plot_dat[overlap > 0, , drop = FALSE]
     if (nrow(plot_dat) == 0) return(plot_dat)
-    plot_dat[[2]] <- stats::ave(plot_dat[[2]], plot_dat$Species, FUN = cumsum)
+    plot_dat$value <- stats::ave(plot_dat$value, plot_dat$Species,
+                                 FUN = cumsum)
     if (normalise) plot_dat <- normalise_cdf(plot_dat)
     plot_dat
 }
 
 normalise_cdf <- function(plot_dat) {
-    totals <- stats::ave(plot_dat[[2]], plot_dat$Species, FUN = max)
-    plot_dat[[2]] <- ifelse(totals > 0, plot_dat[[2]] / totals, NA_real_)
+    totals <- stats::ave(plot_dat$value, plot_dat$Species, FUN = max)
+    plot_dat$value <- ifelse(totals > 0, plot_dat$value / totals, NA_real_)
     plot_dat
 }
 
@@ -390,13 +390,13 @@ plotCDF2 <- function(object1, object2, name1 = "First", name2 = "Second",
     assert_that(is.flag(normalise),
                 length(wlim) == 2, length(llim) == 2, length(ylim) == 2)
 
-    cf1 <- plotCDF(object1, species = species, wlim = wlim,
+    cf1 <- plotCDF(object1, species = species,
                    power = power, total = total, resource = resource,
                    background = background, normalise = normalise,
                    size_axis = size_axis, return_data = TRUE,
                    min_w = min_w, max_w = max_w,
                    min_l = min_l, max_l = max_l, ...)
-    cf2 <- plotCDF(object2, species = species, wlim = wlim,
+    cf2 <- plotCDF(object2, species = species,
                    power = power, total = total, resource = resource,
                    background = background, normalise = normalise,
                    size_axis = size_axis, return_data = TRUE,

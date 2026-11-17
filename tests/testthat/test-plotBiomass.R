@@ -90,3 +90,9 @@ test_that("time viewports preserve returned data and totals", {
         expect_equal(zoom, full)
     }
 })
+
+test_that("zooming the time axis fits the y axis to the visible years", {
+    bm <- plotBiomass(sim, tlim = c(2, 3))
+    years <- bm$data$Year >= 2 & bm$data$Year <= 3
+    expect_equal(bm$coordinates$limits$y, range(bm$data[years, 2]))
+})

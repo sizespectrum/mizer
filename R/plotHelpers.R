@@ -86,12 +86,17 @@ proportion_ylim <- function(ylim, log_y, values) {
 #' @return `TRUE` if the plot's y axis uses a log10 transformation.
 #' @keywords internal
 plot_y_is_log <- function(plot) {
-    for (scale in plot$scales$scales) {
-        if ("y" %in% scale$aesthetics) {
-            return(identical(scale$trans$name, "log-10"))
-        }
-    }
-    FALSE
+    plot_axis_is_log(plot, "y")
+}
+
+# Whether a plot's x or y scale is log10. ggplot2 3.5 added
+# get_transformation(); earlier versions only have the `trans` field.
+plot_axis_is_log <- function(plot, axis) {
+    scale <- plot$scales$get_scales(axis)
+    if (is.null(scale)) return(FALSE)
+    transformation <- tryCatch(scale$get_transformation(),
+                               error = function(e) scale$trans)
+    identical(transformation$name, "log-10")
 }
 
 #' Y-axis limits an array's type calls for

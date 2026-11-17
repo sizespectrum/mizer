@@ -198,7 +198,7 @@ plot.ArrayResourceBySize <- function(x, return_data = FALSE,
                 length(ylim) == 2)
     params <- attr(x, "params")
 
-    plot_dat <- ArrayResourceBySize_plot_data(x, wlim = wlim, llim = llim,
+    plot_dat <- ArrayResourceBySize_plot_data(x,
                                               size_axis = size_axis,
                                               per_log_size = per_log_size)
 
@@ -218,35 +218,30 @@ plot.ArrayResourceBySize <- function(x, return_data = FALSE,
 
 #' The complete plotting data of a resource-by-size array
 #'
-#' The resource analogue of [ArraySpeciesBySize_plot_data()]: the weight limits,
-#' the conversion of the values and of the size coordinate onto the requested
-#' axis, and the length limits, all done with the array's own `params`. A
-#' resource array holds a single spectrum, so there is no selection, no
-#' background and no total to form.
+#' The resource analogue of [ArraySpeciesBySize_plot_data()]: the conversion
+#' of the values and of the size coordinate onto the requested axis, done with
+#' the array's own `params`. A resource array holds a single spectrum, so there
+#' is no selection, no background and no total to form. Viewport limits are
+#' applied only when rendering.
 #'
 #' @param x An `ArrayResourceBySize` object.
-#' @param wlim Weight-axis viewport limits; retained for compatibility here
-#'   and applied only by the renderer.
-#' @param llim Length-axis viewport limits; applied only by the renderer.
 #' @param size_axis Either `"w"` (weight) or `"l"` (length).
 #' @param per_log_size Whether to express a density per logarithmic size.
 #' @return A data frame with the size coordinate in its first column, the values
 #'   in its second, and `Species` and `Legend` columns.
 #' @keywords internal
-ArrayResourceBySize_plot_data <- function(x, wlim = c(NA, NA),
-                                          llim = c(NA, NA),
-                                          size_axis = "w",
+ArrayResourceBySize_plot_data <- function(x, size_axis = "w",
                                           per_log_size = NULL) {
     params <- attr(x, "params")
     size_axis <- plot_size_axis(size_axis)
-    plot_dat <- prepare_ArrayResourceBySize_plot_data(x, wlim = wlim)
+    plot_dat <- prepare_ArrayResourceBySize_plot_data(x)
     plot_dat <- convert_plot_density_axis(plot_dat, params, size_axis,
                                           density_wrt = array_density_wrt(x),
                                           per_log_size = per_log_size)
     plot_dat
 }
 
-prepare_ArrayResourceBySize_plot_data <- function(x, wlim = c(NA, NA)) {
+prepare_ArrayResourceBySize_plot_data <- function(x) {
     w <- get_ArrayResourceBySize_w(x)
     value_name <- attr(x, "value_name") %||% "value"
 
@@ -292,10 +287,10 @@ plot2.ArrayResourceBySize <- function(x, y, name1 = "First", name2 = "Second",
                              per_log_size = per_log_size)
     # Each array is prepared with its own model: the resource has its own
     # weight-length relationship too, see `resource_length_params()`.
-    plot_dat1 <- ArrayResourceBySize_plot_data(x, wlim = wlim, llim = llim,
+    plot_dat1 <- ArrayResourceBySize_plot_data(x,
                                                size_axis = size_axis,
                                                per_log_size = per_log_size)
-    plot_dat2 <- ArrayResourceBySize_plot_data(y, wlim = wlim, llim = llim,
+    plot_dat2 <- ArrayResourceBySize_plot_data(y,
                                                size_axis = size_axis,
                                                per_log_size = per_log_size)
 
@@ -334,10 +329,10 @@ plotRelative.ArrayResourceBySize <- function(x, y, species = NULL,
                 length(ylim) == 2)
 
     params <- attr(x, "params")
-    plot_dat1 <- ArrayResourceBySize_plot_data(x, wlim = wlim, llim = llim,
+    plot_dat1 <- ArrayResourceBySize_plot_data(x,
                                                size_axis = size_axis,
                                                per_log_size = per_log_size)
-    plot_dat2 <- ArrayResourceBySize_plot_data(y, wlim = wlim, llim = llim,
+    plot_dat2 <- ArrayResourceBySize_plot_data(y,
                                                size_axis = size_axis,
                                                per_log_size = per_log_size)
 
@@ -377,15 +372,16 @@ addPlot.ArrayResourceBySize <- function(plot, x, species = NULL,
     check_per_log_size(x, per_log_size)
 
     plot <- deep_copy(plot)
-    plot_dat <- ArrayResourceBySize_plot_data(x, wlim = wlim, llim = llim,
+    plot_dat <- ArrayResourceBySize_plot_data(x,
                                               size_axis = size_axis,
                                               per_log_size = per_log_size)
     x_var <- plot_size_x_var(size_axis)
     y_var <- names(plot_dat)[2]
     check_addPlot_compatible(plot, x_var = x_var, y_var = y_var,
                              units = array_units(x, size_axis, per_log_size))
-    plot <- set_plot_viewport(plot,
-                              xlim = plot_size_xlim(wlim, size_axis, llim))
+    plot <- set_plot_viewport(
+        plot, xlim = plot_size_xlim(wlim, size_axis, llim),
+        source = viewport_source(x_var, y_var, data = plot_dat))
 
     # A resource array is a single line, so there is nothing to distinguish by
     # colour. Mapping colour to the "Resource" legend level would rely on the

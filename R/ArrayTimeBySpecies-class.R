@@ -203,7 +203,7 @@ plot.ArrayTimeBySpecies <- function(x, species = NULL,
     }
     plot_dat <- prepare_ArrayTimeBySpecies_plot_data(
         x, species = species, tlim = tlim,
-        ylim = ylim, total = total, background = background, log_y = log_y)
+        total = total, background = background, log_y = log_y)
 
     if (return_data) return(plot_dat)
 
@@ -240,12 +240,15 @@ addPlot.ArrayTimeBySpecies <- function(plot, x, species = NULL,
     # Prepare all added values; limits apply to the shared viewport below.
     plot_dat <- prepare_ArrayTimeBySpecies_plot_data(
         x, species = species, tlim = tlim,
-        ylim = ylim, total = total, background = background,
+        total = total, background = background,
         log_y = plot_y_is_log(plot))
     y_var <- names(plot_dat)[[2]]
     check_addPlot_compatible(plot, x_var = "Year", y_var = y_var,
                              units = attr(x, "units"))
-    plot <- set_plot_viewport(plot, xlim = tlim, ylim = ylim)
+    plot <- set_plot_viewport(
+        plot, xlim = tlim, ylim = ylim,
+        source = viewport_source("Year", y_var, group = "Species",
+                                 data = plot_dat))
 
     mapping <- aes(x = .data[["Year"]], y = .data[[y_var]],
                    group = .data[["Species"]])
@@ -295,10 +298,10 @@ plot2.ArrayTimeBySpecies <- function(x, y, name1 = "First", name2 = "Second",
     y_label <- array_y_label(x, default = "Value")
     plot_dat1 <- prepare_ArrayTimeBySpecies_plot_data(
         x, species = species, tlim = tlim,
-        ylim = ylim, total = total, background = background, log_y = log_y)
+        total = total, background = background, log_y = log_y)
     plot_dat2 <- prepare_ArrayTimeBySpecies_plot_data(
         y, species = species, tlim = tlim,
-        ylim = ylim, total = total, background = background, log_y = log_y)
+        total = total, background = background, log_y = log_y)
 
     ylim <- array_ylim(x, ylim, log_y, c(plot_dat1[[2]], plot_dat2[[2]]))
 
@@ -351,9 +354,8 @@ plotRelative.ArrayTimeBySpecies <- function(x, y, species = NULL,
 #'
 #' @param x An `ArrayTimeBySpecies` object.
 #' @param species Character vector of species to include, or `NULL` for all.
-#' @param tlim Time-axis viewport limits, validated here.
-#' @param ylim Value-axis viewport limits; retained for compatibility here
-#'   and applied only by the renderer, without filtering the data.
+#' @param tlim Time-axis viewport limits. Only validated here; they are
+#'   applied when rendering, without filtering the data.
 #' @param total Whether to append the total, which is the total over every
 #'   species the array holds, whatever is drawn.
 #' @param background Whether background species are included.
@@ -366,7 +368,6 @@ plotRelative.ArrayTimeBySpecies <- function(x, y, species = NULL,
 #' @keywords internal
 prepare_ArrayTimeBySpecies_plot_data <- function(x, species = NULL,
                                                  tlim = c(NA, NA),
-                                                 ylim = c(NA, NA),
                                                  total = FALSE,
                                                  background = TRUE,
                                                  log_y = TRUE) {
@@ -397,14 +398,12 @@ prepare_ArrayTimeBySpecies_plot_data <- function(x, species = NULL,
 
     bm <- reshape2::melt(bm)
 
-    # Keep the log floor independent of viewport limits.
-    keep <- rep(TRUE, nrow(bm))
     if (isTRUE(log_y)) {
         # A hard floor rather than a plain `> 0`, so that a species that has
         # died out does not drag a logarithmic axis down by twenty decades.
-        keep <- keep & bm$value >= 1e-20
+        bm <- bm[bm$value >= 1e-20, ]
     }
-    bm <- bm[keep, c(1, 3, 2)]
+    bm <- bm[, c(1, 3, 2)]
     names(bm) <- c("Year", value_name, "Species")
 
     bkgrd_sp <- character(0)
