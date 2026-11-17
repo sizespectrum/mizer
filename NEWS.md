@@ -64,6 +64,27 @@
   editions 1 and 2, which include every model created with the default edition
   and every model saved with an earlier version of mizer, keep the first-order
   scheme, so their results do not change.
+- In a model of the new defaults edition 3, an integral over a size range
+  counts exactly the part of the bins at the ends of the range that lies
+  inside it. This applies to `sizeIntegral()` and to every summary built on
+  it that takes `min_w`, `max_w`, `min_l` or `max_l`: `getBiomass()`,
+  `getN()`, `getMeanWeight()`, `getMeanLength()`, `getMeanMaxWeight()` and
+  `getProportionOfLargeFish()`, and through the `biomass_cutoff` and
+  `number_cutoff` species parameters to `getBiomass(use_cutoff = TRUE)` and
+  the calibration and matching functions. Previously a boundary bin was
+  counted whole or not at all, according to whether its left edge was inside
+  the range, or under bin averaging at about half, wherever in the bin the
+  limit lay. Either way the result could be out by up to a whole bin and
+  jumped as a limit moved across a bin. Now, with bin averaging, the weighting
+  factor is interpolated linearly across the bin and integrated over the part
+  inside the range by the trapezoidal rule, and without it the left-edge
+  weighting factor is multiplied by the width of that part. Bins entirely
+  inside the range contribute exactly as before, an upper limit at or above
+  the largest grid point includes the whole last bin, and results over the
+  whole size range, including `getSSB()`, `getYield()` and `getYieldGear()`,
+  do not change. Models of editions 1 and 2 keep the left-edge rule. The new
+  `exact_bounds` argument of `sizeIntegral()`, which the summary functions
+  pass on, chooses either rule for any model.
 
 ## New features
 
@@ -80,6 +101,50 @@
   given/calculated provenance are retained; an input can still contribute to
   other rates. Frozen-change diagnostics identify the affected species.
 
+- mizer now needs ggplot2 3.5.0 or later, which it uses to fit the y axis of a
+  zoomed plot when the plot is drawn (#564).
+- Plot limits now only set the visible window (#564). `wlim`, `llim`, `tlim`
+  and `ylim` no longer remove data before it is plotted, so `return_data =
+  TRUE`, community totals, comparisons, relative differences and cumulative
+  distributions are the same whatever window is shown, and a line that leaves
+  the window is drawn up to its edge. An end of `ylim` that is left as `NA` is
+  fitted, when the plot is drawn, to what is visible inside the window: every
+  layer, including those added afterwards with `+`, stacked areas up to the
+  top of the stack, and each free y scale of a faceted plot on its own. In
+  `plotHover()` this needs ggplot2 4.0.0 or later; with ggplot2 3.5 the open
+  end of an interactive plot covers all of the data. Code that used
+  the limits to subset returned data needs updating; see the upgrade guide.
+  Animations still use `tlim` to choose their frames.
+- `plotCDF()`, `plotCDF2()` and their `plotly…()` counterparts gain `min_w`,
+  `max_w`, `min_l` and `max_l` to choose the size range a distribution is
+  integrated over (#564). A bound that falls inside a size bin includes
+  exactly the part of the bin below or above it, in both numerical schemes,
+  and each bin is weighted as `sizeIntegral(exact_bounds = TRUE)` weights it,
+  so an unnormalised curve ends at the matching `getBiomass()` or `getN()`
+  value. With bin averaging this replaces the weighting at the geometric bin
+  centre, which changes the curves slightly. Without bounds a distribution
+  covers the whole size grid, and a community total includes every species and
+  the resource whichever curves are drawn. Length bounds, which convert to a
+  different weight for each species and the resource, need only be in order
+  for the curves that are drawn or summed into a total.
+- New `getR0()` gives the lifetime reproductive output R0 of each species:
+  the number of eggs that one recruit produces over its life, with growth,
+  mortality, diffusion and reproductive investment held fixed (#632). It is
+  defined for an absent species too, where `getRDI() / getRequiredRDD()` is
+  0/0. With Beverton-Holt, Ricker or Shepherd density dependence, or with none,
+  recruitment at low abundance equals egg production, so a rare species
+  increases if and only if R0 > 1 and R0 answers whether an absent species can
+  invade. A custom RDD function whose slope at low egg production is not 1
+  moves that threshold: the species then increases if R0 times that slope
+  exceeds 1. The rates can be supplied, for example
+  `mort = getMort(other_params)` to separate the effect of food from that of
+  predation. It solves the discretised transport equation that `project()`
+  solves, so unlike the usual hand-written upwind recursion it is right with
+  the second-order flux schemes and with size diffusion. At a Beverton-Holt
+  steady state it is 1 / (1 - reproduction level), not 1.
+- New `getNPerRecruit()` gives the steady-state abundance per recruit that
+  `getR0()` is built on: the steady state that a recruitment of one
+  individual per year produces with the rates held fixed.
 - `getCourant()` reports the growth Courant numbers on the model's active
   size support. Projections with high-order flux now report large Courant
   numbers, and optional `subcycle = TRUE` advances consumers, resources and
@@ -112,6 +177,30 @@
   creating an extension package explains when this is needed (#598).
 
 ## Bug fixes
+
+- `plotPredMort()` and `plotFMort()` now pass further arguments such as
+  `ylim`, `y_ticks`, `total` or `background` on to the array plot instead of
+  ignoring them, and `plotPredMort()` keeps 0 as its lower limit only when no
+  `ylim` is given (#564).
+
+- `plotSpectra()` no longer draws a background species twice, under its own
+  name and as "Background", when it is also selected by name. It is drawn once
+  as "Background", as in `plotCDF()` and the time-series plots (#564).
+
+- `plotDataFrame()` now warns about legend entries that have no colour in
+  `params@linecolour` also when the legend comes from `legend_var`. Before,
+  the warning looked only at a column called `Legend`, so it never fired for
+  any other legend variable (#564).
+- Plotting size-resolved arrays with `total = TRUE` now works when columns
+  repeat a single size coordinate (#659). Repeated samples contribute only
+  once to the community total, with differing values at the same size averaged
+  within each species. The individual species' plotted values are preserved.
+
+- The `plotly…()` wrappers now pass `...` on to their plot functions (#564).
+  `plotlyYield()`, `plotlyYieldGear()`, `plotlyPredMort()`, `plotlyFMort()`
+  and `plotlySpectra()` used to drop them silently, so that for example
+  `plotlyFMort(sim, all.sizes = TRUE)` ignored `all.sizes`. All the wrappers
+  now forward their arguments in the same way.
 
 - Euler projection and steady-state drift diagnostics now share the rule for
   selecting the upper size boundary. The rule uses the current evaluated

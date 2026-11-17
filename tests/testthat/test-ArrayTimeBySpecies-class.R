@@ -111,7 +111,12 @@ test_that("plot2.ArrayTimeBySpecies compares compatible arrays", {
     expect_s3_class(p, "ggplot")
     expect_identical(levels(p$data$Model), c("Original", "Changed"))
     expect_true(all(p$data$Species %in% c("Cod", "Total")))
-    expect_true(all(p$data$Year >= years[2]))
+    expect_equal(p$coordinates$limits$x, c(years[2], years[4]))
+    # The zero year is still omitted on a logarithmic axis, independently of
+    # the viewport limits.
+    expect_equal(p$data, plot2(bio_small, bio_small, name1 = "Original",
+                               name2 = "Changed", species = "Cod",
+                               total = TRUE, log = "xy")$data)
     expect_true(all(p$data$Year <= years[4]))
     expect_identical(p$scales$get_scales("x")$trans$name, "log-10")
     expect_identical(p$scales$get_scales("y")$trans$name, "log-10")
@@ -142,7 +147,8 @@ test_that("plotRelative.ArrayTimeBySpecies plots symmetric relative difference",
                       tlim = c(years[2], years[4]))
     expect_s3_class(p, "ggplot")
     expect_true(all(p$data$Species %in% c("Cod", "Total")))
-    expect_true(all(p$data$Year >= years[2]))
+    expect_equal(p$coordinates$limits$x, c(years[2], years[4]))
+    expect_true(any(p$data$Year < years[2]))
     expect_true(all(p$data$Year <= years[4]))
     expect_true(all(abs(p$data$rel_diff - 2 / 3) < 1e-12))
     expect_identical(p$scales$get_scales("x")$trans$name, "identity")
@@ -184,15 +190,15 @@ test_that("ArrayTimeBySpecies has interactive plotly methods", {
     expect_s3_class(plotHover(bio_small), "plotly")
 })
 
-test_that("plot.ArrayTimeBySpecies time filtering works", {
+test_that("plot.ArrayTimeBySpecies time limits leave data unchanged", {
     t <- as.numeric(rownames(bio_small))
 
     mid <- median(t)
     df_start <- plot(bio_small, tlim = c(mid, NA), return_data = TRUE)
-    expect_true(all(df_start$Year >= mid))
+    expect_equal(df_start, plot(bio_small, return_data = TRUE))
 
     df_end <- plot(bio_small, tlim = c(NA, mid), return_data = TRUE)
-    expect_true(all(df_end$Year <= mid))
+    expect_equal(df_end, plot(bio_small, return_data = TRUE))
 
     expect_error(plot(bio_small, tlim = c(mid, mid - 1)),
                  "tlim\\[1\\] must be less than tlim\\[2\\]")
@@ -350,4 +356,26 @@ test_that("the time comparison methods honour highlight", {
     pr <- plotRelative(bio, doubled, highlight = "Cod")
     expect_gt(drawn_linewidth(pr, "Cod", NS_params_small, layer = 2),
               drawn_linewidth(pr, "Sprat", NS_params_small, layer = 2))
+})
+
+test_that("time-array comparisons retain all times and values when zoomed", {
+    x <- getBiomass(NS_sim_small)
+    for (fun in list(plot2, plotRelative)) {
+        full <- fun(x, x, total = TRUE)
+        zoom <- fun(x, x, total = TRUE, tlim = c(0.5, 2.5), ylim = c(1, 10))
+        expect_equal(zoom$data, full$data)
+        expect_equal(zoom$coordinates$limits$x, c(0.5, 2.5))
+        expect_equal(zoom$coordinates$limits$y, c(1, 10))
+    }
+})
+
+test_that("added time series use a shared viewport without filtering", {
+    x <- getBiomass(NS_sim_small)
+    base <- plot(x, tlim = c(0, 3), ylim = c(1, 1e20))
+    added <- addPlot(base, x, tlim = c(NA, 2.5), ylim = c(10, NA))
+    expect_equal(added$layers[[2]]$data, plot(x, return_data = TRUE))
+    expect_equal(added$coordinates$limits$x, c(0, 2.5))
+    expect_equal(added$coordinates$limits$y, c(10, 1e20))
+    expect_equal(base$coordinates$limits$x, c(0, 3))
+    expect_equal(base$coordinates$limits$y, c(1, 1e20))
 })

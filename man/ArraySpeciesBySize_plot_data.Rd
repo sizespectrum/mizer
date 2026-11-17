@@ -8,8 +8,6 @@ ArraySpeciesBySize_plot_data(
   x,
   species = NULL,
   all.sizes = FALSE,
-  wlim = c(NA, NA),
-  llim = c(NA, NA),
   total = FALSE,
   background = TRUE,
   size_axis = "w",
@@ -23,11 +21,6 @@ ArraySpeciesBySize_plot_data(
 
 \item{all.sizes}{If \code{FALSE}, values outside a species' size range are
 removed.}
-
-\item{wlim}{Numeric vector of length two giving the weight limits.}
-
-\item{llim}{Numeric vector of length two giving the length limits, applied
-only on a length axis.}
 
 \item{total}{Whether to append the total line, see \code{\link[=total_contributors]{total_contributors()}}.}
 
@@ -44,9 +37,9 @@ in its second, and \code{Species} and \code{Legend} columns.
 \description{
 Everything a plot of an \code{ArraySpeciesBySize} needs, prepared once: the
 species selection, the background grouping, the masking of sizes outside a
-species' own range, the weight limits, the conversion of the values and of
-the size coordinate onto the requested axis, the total line, and the length
-limits.
+species' own range, the conversion of the values and of
+the size coordinate onto the requested axis, and the total line. Viewport
+limits are applied only when rendering.
 }
 \details{
 All of it uses the array's \emph{own} \code{params}. That matters for the comparison

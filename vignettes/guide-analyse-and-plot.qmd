@@ -160,9 +160,15 @@ array class. Doing the sum by hand instead means getting all of that right
 yourself, silently and only for some users. Three things are worth knowing:
 
 - **The size range is an argument, not a subsetting step.** `min_w`/`max_w` or
-  `min_l`/`max_l` are passed through to [`get_size_range_array()`](../reference/get_size_range_array.html), which does the
-  length-weight conversion per species and accepts either a single number or one
-  value per species. Never subset the size grid by hand.
+  `min_l`/`max_l` accept either a single number or one value per species, and
+  lengths are converted to weights per species, as in [`get_size_range_array()`](../reference/get_size_range_array.html).
+  In a model of defaults edition 3 the bins at the two ends of the range count
+  only the part of them inside it, so the result changes smoothly as a limit
+  moves; models of earlier editions count each bin whole or not at all, by its
+  left edge. `exact_bounds = TRUE` or `FALSE` chooses either rule for any
+  model. Never subset the size grid by hand, and do not multiply by
+  `get_size_range_array()` yourself: that is the left-edge rule, and in an
+  edition-3 model it does not agree with `getBiomass()`.
 - **Pass the whole product to `weighting`.** If $K$ is a product of several
   size-dependent terms, build the combined product first — SSB uses
   `sweep(params@maturity, 2, params@w, "*")` (maturity $\times$ body weight),
@@ -272,8 +278,14 @@ dedicated `plot…()` functions below — share these optional arguments:
 | `log_x`, `log_y` | logical — log-scale the x or y axis |
 | `size_axis` | `"w"` (default) or `"l"` — plot against weight or against length |
 
-`wlim`/`llim` (size axis) and `ylim` (value axis) only set the **visible
-window**: data outside the range is hidden but nothing is recomputed. To change
+`wlim`/`llim` (size axis), `tlim` (time axis) and `ylim` (value axis) only set the **visible
+window**: data outside the range is hidden but nothing is recomputed or
+removed from `return_data`. An end of `ylim` left as `NA` is fitted to what
+is visible inside the size or time window, so zooming in rescales the value
+axis. The fit is made when the plot is drawn, so it also covers layers you add
+with `+` and gives each free y scale of a faceted plot its own range. Limits also leave comparison and relative values
+and community totals unchanged. For animations, `tlim` chooses the displayed
+frames; it does not change the values calculated at those times. To change
 the underlying numbers — for example the size range that a biomass is summed
 over — pass `min_w`/`max_w` (or `min_l`/`max_l`) to the `get…()` function
 instead, e.g. `plot(getBiomass(sim, min_w = 10))`.
@@ -385,6 +397,38 @@ measured differently from the fish: a fish of a given weight is about 3.7 times
 longer than a sphere of that weight. That gap at the resource-consumer boundary
 is real biology, not an artefact.
 
+### Cumulative distributions and their integration range
+
+[`plotCDF()`](../reference/plotCDF.html) integrates abundance or biomass over size; [`plotCDF2()`](../reference/plotCDF2.html) compares
+two such distributions. By default each curve is normalised to end at 1;
+`normalise = FALSE` shows the cumulative amount. Their `plotly…()` counterparts
+accept the same integration bounds.
+
+Use `min_w`/`max_w` (grams) or `min_l`/`max_l` (centimetres) to choose the
+integration range. These are scalar bounds; a length bound overrides the
+corresponding weight bound and is converted separately for every species and
+for the resource. The range is independent of whether the plot uses weight
+or length on its x axis. Bounds inside a bin include only the overlapping
+fraction of its width, under both numerical schemes. A normalised curve with
+no mass in the selected interval has `NA` values.
+
+Each bin is weighted exactly as `sizeIntegral()` weights it with
+`exact_bounds = TRUE`, so the end of an unnormalised curve is what
+`getBiomass()` (or `getN()` for `power = 0`) reports for the same range. In a
+model of defaults edition 3 that is their default; in a model of an earlier
+edition pass them `exact_bounds = TRUE` to compare, because by default they
+count a bin at an end of the range whole or not at all.
+
+```{r eval=FALSE}
+plotCDF(params, biomass = TRUE, min_w = 10, max_w = 1000)
+plotCDF(params, min_l = 5, max_l = 30, size_axis = "l")
+plotCDF(params, wlim = c(10, 1000)) # zoom into the full distribution
+```
+
+`wlim`, `llim` and `ylim` never select the integration range. A community total
+always includes every species and the resource over that range, independently
+of which curves are displayed; on a length axis it is summed at equal length.
+
 ### Which density a spectrum plot shows
 
 `plotSpectra()`, [`plotSpectra2()`](../reference/plotSpectra2.html) and [`animate()`](../reference/animate.html) describe the plotted quantity
@@ -400,7 +444,7 @@ table) and is still accepted.
 
 ### Cumulative distributions
 
-[`plotCDF(object, species, biomass, normalise)`](../reference/plotCDF.html) plots cumulative abundance or
+`plotCDF(object, species, biomass, normalise)` plots cumulative abundance or
 biomass over size — steadier than a density spectrum for eyeballing where
 biomass sits. `biomass = TRUE` (default) accumulates biomass, `biomass = FALSE`
 accumulates numbers; `normalise = FALSE` plots the cumulative total rather than

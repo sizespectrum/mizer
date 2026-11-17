@@ -203,16 +203,17 @@ plot.ArrayTimeBySpecies <- function(x, species = NULL,
     }
     plot_dat <- prepare_ArrayTimeBySpecies_plot_data(
         x, species = species, tlim = tlim,
-        ylim = ylim, total = total, background = background, log_y = log_y)
+        total = total, background = background, log_y = log_y)
 
     if (return_data) return(plot_dat)
 
     ylim <- array_ylim(x, ylim, log_y, plot_dat[[2]])
-    plotDataFrame(plot_dat, params, xlab = "Year", ylab = y_label,
-                  xtrans = if (log_x) "log10" else "identity",
-                  ytrans = if (log_y) "log10" else "identity",
-                  ylim = ylim, y_ticks = y_ticks, highlight = highlight,
-                  legend_var = "Legend")
+    render_plot_spec(species_plot_spec(
+        plot_dat, params, x_var = "Year", y_var = plot_data_value_var(plot_dat),
+        xlab = "Year", ylab = y_label,
+        xtrans = if (log_x) "log10" else "identity",
+        ytrans = if (log_y) "log10" else "identity",
+        xlim = tlim, ylim = ylim, y_ticks = y_ticks, highlight = highlight))
 }
 
 #' @rdname addPlot
@@ -237,14 +238,15 @@ addPlot.ArrayTimeBySpecies <- function(plot, x, species = NULL,
                 alpha <= 1)
 
     plot <- deep_copy(plot)
-    # Filter the added values the way the plot they are joining was filtered.
+    # Prepare all added values; limits apply to the shared viewport below.
     plot_dat <- prepare_ArrayTimeBySpecies_plot_data(
         x, species = species, tlim = tlim,
-        ylim = ylim, total = total, background = background,
+        total = total, background = background,
         log_y = plot_y_is_log(plot))
     y_var <- names(plot_dat)[[2]]
     check_addPlot_compatible(plot, x_var = "Year", y_var = y_var,
                              units = attr(x, "units"))
+    plot <- set_plot_viewport(plot, xlim = tlim, ylim = ylim)
 
     mapping <- aes(x = .data[["Year"]], y = .data[[y_var]],
                    group = .data[["Species"]])
@@ -294,20 +296,22 @@ plot2.ArrayTimeBySpecies <- function(x, y, name1 = "First", name2 = "Second",
     y_label <- array_y_label(x, default = "Value")
     plot_dat1 <- prepare_ArrayTimeBySpecies_plot_data(
         x, species = species, tlim = tlim,
-        ylim = ylim, total = total, background = background, log_y = log_y)
+        total = total, background = background, log_y = log_y)
     plot_dat2 <- prepare_ArrayTimeBySpecies_plot_data(
         y, species = species, tlim = tlim,
-        ylim = ylim, total = total, background = background, log_y = log_y)
+        total = total, background = background, log_y = log_y)
 
     ylim <- array_ylim(x, ylim, log_y, c(plot_dat1[[2]], plot_dat2[[2]]))
 
-    plotComparisonDataFrame(plot_dat1, plot_dat2, params,
-                            name1 = name1, name2 = name2,
-                            xlab = "Year", ylab = y_label,
-                            xtrans = if (log_x) "log10" else "identity",
-                            ytrans = if (log_y) "log10" else "identity",
-                            ylim = ylim, y_ticks = y_ticks,
-                            highlight = highlight, legend_var = "Legend")
+    first <- species_plot_spec(
+        plot_dat1, params, x_var = "Year",
+        y_var = plot_data_value_var(plot_dat1), xlab = "Year", ylab = y_label,
+        xtrans = if (log_x) "log10" else "identity",
+        ytrans = if (log_y) "log10" else "identity",
+        xlim = tlim, ylim = ylim, y_ticks = y_ticks, highlight = highlight)
+    second <- species_plot_spec(plot_dat2, params, x_var = "Year",
+                                y_var = plot_data_value_var(plot_dat2))
+    render_plot_spec(compare_plot_specs(first, second, name1, name2))
 }
 
 #' @rdname plotRelative
@@ -333,11 +337,14 @@ plotRelative.ArrayTimeBySpecies <- function(x, y, species = NULL,
         y, species = species, tlim = tlim,
         total = total, background = background, log_y = FALSE)
 
-    plotRelativeDataFrame(plot_dat1, plot_dat2, params,
-                          xlab = "Year",
-                          xtrans = if (log_x) "log10" else "identity",
-                          ylim = ylim, highlight = highlight,
-                          legend_var = "Legend")
+    first <- species_plot_spec(
+        plot_dat1, params, x_var = "Year",
+        y_var = plot_data_value_var(plot_dat1), xlab = "Year",
+        xtrans = if (log_x) "log10" else "identity",
+        xlim = tlim, ylim = ylim, highlight = highlight)
+    second <- species_plot_spec(plot_dat2, params, x_var = "Year",
+                                y_var = plot_data_value_var(plot_dat2))
+    render_plot_spec(relative_plot_specs(first, second))
 }
 
 #' The complete plotting data of a time-by-species array
@@ -350,9 +357,8 @@ plotRelative.ArrayTimeBySpecies <- function(x, y, species = NULL,
 #'
 #' @param x An `ArrayTimeBySpecies` object.
 #' @param species Character vector of species to include, or `NULL` for all.
-#' @param tlim Numeric vector of length two giving the time limits.
-#' @param ylim Numeric vector of length two giving the value limits. Values
-#'   outside them are dropped, as they cannot be seen anyway.
+#' @param tlim Time-axis viewport limits. Only validated here; they are
+#'   applied when rendering, without filtering the data.
 #' @param total Whether to append the total, which is the total over every
 #'   species the array holds, whatever is drawn.
 #' @param background Whether background species are included.
@@ -365,25 +371,14 @@ plotRelative.ArrayTimeBySpecies <- function(x, y, species = NULL,
 #' @keywords internal
 prepare_ArrayTimeBySpecies_plot_data <- function(x, species = NULL,
                                                  tlim = c(NA, NA),
-                                                 ylim = c(NA, NA),
                                                  total = FALSE,
                                                  background = TRUE,
                                                  log_y = TRUE) {
     value_name <- attr(x, "value_name") %||% "Value"
     params <- attr(x, "params")
 
-    # Filter to time range
-    t <- as.numeric(rownames(x))
-    if (any(is.na(t))) t <- seq_len(nrow(x))
     if (!is.na(tlim[1]) && !is.na(tlim[2]) && tlim[1] >= tlim[2]) {
         stop("tlim[1] must be less than tlim[2]")
-    }
-    if (!is.na(tlim[1])) {
-        x <- x[t >= tlim[1], , drop = FALSE]
-        t <- t[t >= tlim[1]]
-    }
-    if (!is.na(tlim[2])) {
-        x <- x[t <= tlim[2], , drop = FALSE]
     }
 
     all_species <- colnames(x)
@@ -406,15 +401,12 @@ prepare_ArrayTimeBySpecies_plot_data <- function(x, species = NULL,
 
     bm <- reshape2::melt(bm)
 
-    # Implement ylim; bring columns in desired order
-    keep <- (is.na(ylim[1]) | bm$value >= ylim[1]) &
-        (is.na(ylim[2]) | bm$value <= ylim[2])
     if (isTRUE(log_y)) {
         # A hard floor rather than a plain `> 0`, so that a species that has
         # died out does not drag a logarithmic axis down by twenty decades.
-        keep <- keep & bm$value >= 1e-20
+        bm <- bm[bm$value >= 1e-20, ]
     }
-    bm <- bm[keep, c(1, 3, 2)]
+    bm <- bm[, c(1, 3, 2)]
     names(bm) <- c("Year", value_name, "Species")
 
     bkgrd_sp <- character(0)

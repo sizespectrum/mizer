@@ -278,47 +278,21 @@ animate_plotly <- function(df, params, log_x, log_y, y_label,
         total_dat$legend_name <- "Total"
         df <- rbind(df, total_dat[, names(df), drop = FALSE])
     }
-    legend_name_order <- intersect(names(params@linecolour),
-                                   unique(df$legend_name))
-    sp_order <- unlist(lapply(legend_name_order, function(ln) {
-        intersect(names(params@linecolour),
-                  unique(df$Species[df$legend_name == ln]))
-    }))
-    p <- plotly::plot_ly()
-    shown_legend_names <- character(0)
-    for (sp in sp_order) {
-        df_sp <- df[df$Species == sp, , drop = FALSE]
-        ln <- unique(df_sp$legend_name)
-        col <- params@linecolour[[ln]]
-        showlegend <- !(ln %in% shown_legend_names)
-        shown_legend_names <- c(shown_legend_names, ln)
-        p <- plotly::add_lines(
-            p,
-            data = df_sp,
-            x = stats::as.formula(paste0("~", x_var)), y = ~value,
-            frame = ~time,
-            name = ln,
-            legendgroup = ln,
-            line = list(color = col, simplify = FALSE),
-            showlegend = showlegend
-        )
-    }
-    # A proportion is animated against the whole of the interval from 0 to 1,
-    # the same range a static plot of one shows, see `proportion_ylim()`.
     if (identical(type, "proportion")) {
         ylim <- proportion_ylim(ylim, log_y, df$value)
     }
-    p <- plotly::layout(p,
-                        xaxis = plotly_axis(
-                            df[[x_var]],
-                            plot_size_xlim(wlim, size_axis, llim),
-                            log_x, plot_size_xlab(size_axis)),
-                        yaxis = plotly_axis(df$value, ylim, log_y, y_label),
-                        legend = list(traceorder = "normal"))
-    p <- plotly::animation_opts(p, frame = frame_duration,
-                                transition = transition_duration,
-                                easing = easing)
-    stable_plotly_ids(p) # nolint: object_usage_linter.
+    spec <- new_plot_spec(
+        df, params, x_var = x_var, y_var = "value", group_var = "Species",
+        legend_var = "legend_name", frame_var = "time",
+        xlab = plot_size_xlab(size_axis), ylab = y_label,
+        xtrans = if (log_x) "log10" else "identity",
+        ytrans = if (log_y) "log10" else "identity",
+        xlim = plot_size_xlim(wlim, size_axis, llim), ylim = ylim,
+        options = list(frame_duration = frame_duration,
+                       transition_duration = transition_duration,
+                       easing = easing)
+    )
+    render_plotly_spec(spec)
 }
 
 plotly_axis <- function(values, limits, log_axis, title) {

@@ -25,7 +25,7 @@ Imports:
     assertthat,
     deSolve,
     dplyr,
-    ggplot2 (>= 3.4.0),
+    ggplot2 (>= 3.5.0),
     ggrepel,
     grid,
     lubridate,
@@ -73,6 +73,7 @@ Collate:
     'saveParams.R'
     'species_params.R'
     'getRequiredRDD.R'
+    'getR0.R'
     'setColours.R'
     'setInteraction.R'
     'setPredKernel.R'
@@ -107,6 +108,16 @@ Collate:
     'sizeIntegral.R'
     'summary_methods.R'
     'indicator_functions.R'
+    'plotSpec.R'
+    'plotDataFrame.R'
+    'plotHelpers.R'
+    'plotBiomass.R'
+    'plotYield.R'
+    'plotSpectra.R'
+    'plotCDF.R'
+    'plotRates.R'
+    'plotGrowthCurves.R'
+    'plotDiet.R'
     'plots.R'
     'plotBiomassObservedVsModel.R'
     'plotYieldObservedVsModel.R'

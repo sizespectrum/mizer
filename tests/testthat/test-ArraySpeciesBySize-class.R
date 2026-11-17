@@ -161,6 +161,44 @@ test_that("plot.ArraySpeciesBySize returns ggplot", {
     expect_true(is.numeric(df[[2]]))
 })
 
+test_that("array plot totals count repeated samples only once", {
+    x <- matrix(c(1, 2, 1, 2), nrow = 2,
+                dimnames = list(sp = c("a", "b"), w = c("1", "1")))
+    x <- ArraySpeciesBySize(x)
+    for (columns in list(1, 1:2)) {
+        selected <- x[, columns, drop = FALSE]
+        original <- plot(selected, all.sizes = TRUE, return_data = TRUE)
+        expect_no_warning(out <- plot(selected, total = TRUE,
+                                      all.sizes = TRUE, return_data = TRUE))
+        total <- out[out$Species == "Total", ]
+        expect_equal(total$w, 1)
+        expect_equal(total[[2]], 3)
+        expect_equal(out[out$Species != "Total", ], original)
+    }
+})
+
+test_that("array plot totals preserve repeated model size coordinates", {
+    for (average in c(FALSE, TRUE)) {
+        p <- NS_params_small
+        second_order_w(p) <- c(bin_average = average)
+        x <- getMort(p)
+        for (size_axis in c("w", "l")) {
+            single <- plot(x[, 5, drop = FALSE], total = TRUE,
+                           size_axis = size_axis, all.sizes = TRUE,
+                           return_data = TRUE)
+            expect_no_warning({
+                repeated <- plot(x[, c(5, 5), drop = FALSE], total = TRUE,
+                                 size_axis = size_axis, all.sizes = TRUE,
+                                 return_data = TRUE)
+            })
+            expect_equal(repeated[repeated$Species == "Total", ],
+                         single[single$Species == "Total", ],
+                         ignore_attr = TRUE)
+            expect_equal(nrow(repeated), nrow(single) + nrow(x))
+        }
+    }
+})
+
 test_that("length-axis array plots only transform number densities", {
     density <- initialN(NS_params_small)
     density_w <- plot(density, size_axis = "w", return_data = TRUE)
@@ -376,7 +414,7 @@ test_that("the total on a length axis interpolates onto a common grid", {
 test_that("a proportion is plotted against the whole of [0, 1]", {
     feeding_level <- getFeedingLevel(NS_params_small)
     expect_identical(array_type(feeding_level), "proportion")
-    expect_identical(plot(feeding_level)$scales$get_scales("y")$limits,
+    expect_identical(plot(feeding_level)$coordinates$limits$y,
                      c(0, 1))
 
     # A value above 1 is a real feature of the model and stays visible
@@ -384,24 +422,22 @@ test_that("a proportion is plotted against the whole of [0, 1]", {
                                     value_name = "Test proportion",
                                     type = "proportion",
                                     params = NS_params_small)
-    limits <- plot(above_one)$scales$get_scales("y")$limits
+    limits <- plot(above_one)$coordinates$limits$y
     expect_identical(limits[[1]], 0)
     # The sizes outside a species' size range are not plotted, so compare
     # against the values that are
     expect_gte(limits[[2]], max(plot(above_one, return_data = TRUE)[[2]]))
 
     # An explicit limit always wins, and a log axis is left alone
-    expect_identical(plot(feeding_level, ylim = c(0.1, 0.5))$scales$
-                         get_scales("y")$limits,
+    expect_identical(plot(feeding_level, ylim = c(0.1, 0.5))$coordinates$limits$y,
                      c(0.1, 0.5))
-    expect_identical(plot(feeding_level, ylim = c(NA, 0.5))$scales$
-                         get_scales("y")$limits,
+    expect_identical(plot(feeding_level, ylim = c(NA, 0.5))$coordinates$limits$y,
                      c(0, 0.5))
-    expect_equal(plot(feeding_level, log_y = TRUE)$scales$get_scales("y")$limits,
-                 c(NA_real_, NA_real_))
+    expect_equal(plot(feeding_level, log_y = TRUE)$coordinates$limits$y,
+                 c(NA, NA))
 
     # Values that are not a proportion are unaffected
-    expect_true(all(is.na(plot(enc_small)$scales$get_scales("y")$limits)))
+    expect_true(all(is.na(plot(enc_small)$coordinates$limits$y)))
 })
 
 test_that("comparisons reject two arrays that hold different types of value", {
@@ -448,7 +484,8 @@ test_that("plot2.ArraySpeciesBySize compares compatible arrays", {
     expect_s3_class(p, "ggplot")
     expect_identical(levels(p$data$Model), c("Original", "Changed"))
     expect_true(all(p$data$Species %in% c("Cod", "Total")))
-    expect_true(all(p$data$w >= 1))
+    expect_equal(p$coordinates$limits$x, c(1, NA))
+    expect_true(any(p$data$w < 1))
     expect_identical(p$scales$get_scales("x")$trans$name, "log-10")
     expect_identical(p$scales$get_scales("y")$trans$name, "log-10")
 
@@ -468,7 +505,8 @@ test_that("plotRelative.ArraySpeciesBySize plots symmetric relative difference",
                       background = FALSE, wlim = c(1, NA))
     expect_s3_class(p, "ggplot")
     expect_true(all(p$data$Species %in% c("Cod", "Total")))
-    expect_true(all(p$data$w >= 1))
+    expect_equal(p$coordinates$limits$x, c(1, NA))
+    expect_true(any(p$data$w < 1))
     expect_true(all(abs(p$data$rel_diff - 2 / 3) < 1e-12))
     expect_identical(p$scales$get_scales("x")$trans$name, "log-10")
 
@@ -779,7 +817,7 @@ test_that("the comparison methods honour highlight", {
 test_that("the array plots all share one preparation", {
     enc <- getEncounter(NS_params_small)
     prepared <- ArraySpeciesBySize_plot_data(
-        enc, species = "Cod", wlim = c(1, NA), total = TRUE, size_axis = "l")
+        enc, species = "Cod", total = TRUE, size_axis = "l")
     from_plot <- plot(enc, species = "Cod", wlim = c(1, NA), total = TRUE,
                       size_axis = "l", return_data = TRUE)
     expect_equal(from_plot, prepared)
@@ -913,4 +951,70 @@ test_that("rewrapping without params discards the model mapping", {
     expect_null(attr(x, "params"))
     expect_null(attr(x, "size_grid"))
     expect_equal(get_ArraySpeciesBySize_w(x), as.numeric(colnames(x)))
+})
+
+test_that("size array viewports preserve densities, totals and added data", {
+    for (second in c(FALSE, TRUE)) {
+        p <- NS_params_small
+        second_order_w(p) <- c(bin_average = second)
+        x <- initialN(p)
+        for (axis in c("w", "l")) {
+            full <- plot(x, total = TRUE, size_axis = axis, return_data = TRUE)
+            zoom <- plot(x, total = TRUE, size_axis = axis,
+                         wlim = c(1, 100), llim = c(5, 20), ylim = c(1, 10),
+                         return_data = TRUE)
+            expect_equal(zoom, full)
+            base <- plot(x, size_axis = axis)
+            added <- addPlot(base, x, size_axis = axis,
+                             wlim = c(1, 100), llim = c(5, 20))
+            expect_equal(added$layers[[2]]$data,
+                         plot(x, size_axis = axis, return_data = TRUE))
+            expect_equal(added$coordinates$limits$x,
+                         if (axis == "w") c(1, 100) else c(5, 20))
+            expect_true(all(is.na(base$coordinates$limits$x)))
+        }
+    }
+})
+
+test_that("a weight-axis comparison stays on the model's own grid", {
+    params <- plot_params_small
+    sim <- plot_sim_small
+    species <- c(1, 2)
+
+    enc <- getEncounter(NS_params_small)
+    doubled <- ArraySpeciesBySize(unclass_rate(enc) * 2,
+                                  value_name = attr(enc, "value_name"),
+                                  units = attr(enc, "units"),
+                                  params = NS_params_small)
+    p2 <- plot2(enc, doubled, all.sizes = TRUE)
+    expect_equal(sort(unique(p2$data$w)), sort(unname(NS_params_small@w)))
+
+    rel <- plotRelative(enc, doubled, all.sizes = TRUE)
+    expect_equal(sort(unique(rel$data$w)), sort(unname(NS_params_small@w)))
+    expect_equal(unique(round(rel$data$rel_diff, 12)), 2 / 3)
+})
+
+test_that("size-array plots retain length coordinates", {
+    params <- plot_params_small
+    sim <- plot_sim_small
+    species <- c(1, 2)
+    params_len <- params
+    params_len@species_params$a <- 0.01
+    params_len@species_params$b <- 3
+    sim_len <- sim
+    sim_len@params <- params_len
+    sp_rows <- rep(1:2, times = length(params_len@w))
+    lengths <- w2l(rep(params_len@w, each = 2),
+                   params_len@species_params[sp_rows, ])
+    llim <- stats::quantile(lengths, c(0.25, 0.75), names = FALSE)
+
+    expect_true("l" %in% names(plot(getPredMort(params_len),
+                                    species = species, size_axis = "l",
+                                    return_data = TRUE)))
+    rate_l_limited <- plot(getPredMort(params_len), species = species,
+                           size_axis = "l", llim = llim,
+                           return_data = TRUE)
+    expect_equal(rate_l_limited,
+                 plot(getPredMort(params_len), species = species,
+                      size_axis = "l", return_data = TRUE))
 })

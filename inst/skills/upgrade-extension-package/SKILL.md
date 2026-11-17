@@ -80,6 +80,7 @@ package.
 | `steady.MyClass` runs but `tuneSteadyState()` ignores it | the new names are separate generics | Methods on the steady-state finders |
 | The package removes a species parameter column by writing into `params@species_params` | supported route exists since 3.3.1 | Withdrawing a species parameter column |
 | The package declares the current `gamma` as a given species parameter to stop it moving | the default is measured on mizer's own reference state now | The `gamma`/`f0` workaround can go |
+| The package's array `plot()` method still drops data outside `wlim`, so its `return_data` and totals change with the window while mizer's own plots do not | mizer's plot limits now only set the visible window; `apply_wlim()` still filters | Plot limits only set the visible window |
 | Tests fail on message wording, or on a call that used to be silent | new reports and rephrased messages | Tests that match messages or assert silence |
 | Links to `articles/creating-extension-packages.html`, `articles/extending-mizer.html`, `vignette("cheatsheet-…")` | the articles were renamed to guides | Links to renamed articles and skills |
 
@@ -632,6 +633,28 @@ genuinely has no predation encounter in the reference state —
 `interaction_resource = 0`, or a kernel that does not overlap the resource —
 supply `gamma` explicitly: mizer now raises an error naming the species instead
 of deriving a nonsense value from the additive contribution.
+
+### Plot limits only set the visible window
+
+mizer's own plots no longer filter their data by `wlim`, `llim`, `tlim` or
+`ylim`. The limits are handed to the renderer, which shows only that window;
+`return_data = TRUE`, totals and comparisons are the same whatever the window,
+and an open end of `ylim` is fitted to what is visible inside it. That fit is
+made when the plot is drawn, by a layout that mizer's plotting functions attach
+to the plot, so a plot made with `plotDataFrame()` gets it, while a ggplot that
+a package builds itself takes its y range from all of its data.
+
+`apply_wlim()` is still exported and still filters, so an array `plot()` method
+that calls it keeps the old behaviour. To match mizer, drop the call and pass
+the limits on to `plotDataFrame()` instead:
+
+```r
+# BEFORE:
+plot_dat <- mizer::apply_wlim(plot_dat, wlim)
+plotDataFrame(plot_dat, params, xtrans = "log10")
+# AFTER:
+plotDataFrame(plot_dat, params, xtrans = "log10", xlim = wlim)
+```
 
 ### Tests that match messages or assert silence
 

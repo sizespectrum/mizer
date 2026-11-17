@@ -810,6 +810,7 @@ getSSB.MizerParams <- function(object) {
 #'   size range arguments in `...`). If FALSE (default), the specified size range
 #'   arguments are used, if provided, or the full size range of the species is used.
 #' @inheritDotParams get_size_range_array -params
+#' @inheritDotParams sizeIntegral exact_bounds
 #'
 #' @return If called with a MizerParams object, a named vector with the biomass
 #'   in grams for each species in the model. If called with a MizerSim object,
@@ -838,6 +839,7 @@ getBiomass.MizerSim <- function(object, use_cutoff = FALSE, ...) {
     if (use_cutoff && "biomass_cutoff" %in% names(params@species_params)) {
         sizeIntegral(object, weighting = params@w,
                      min_w = cutoff_min_w(params),
+                     exact_bounds = list(...)[["exact_bounds"]],
                      value_name = "Biomass", units = "g")
     } else {
         sizeIntegral(object, weighting = params@w, ...,
@@ -849,7 +851,8 @@ getBiomass.MizerParams <- function(object, use_cutoff = FALSE, ...) {
     params <- object
     if (use_cutoff && "biomass_cutoff" %in% names(params@species_params)) {
         sizeIntegral(params, weighting = params@w,
-                     min_w = cutoff_min_w(params))
+                     min_w = cutoff_min_w(params),
+                     exact_bounds = list(...)[["exact_bounds"]])
     } else {
         sizeIntegral(params, weighting = params@w, ...)
     }
@@ -865,6 +868,7 @@ getBiomass.MizerParams <- function(object, use_cutoff = FALSE, ...) {
 #'
 #' @param object An object of class `MizerParams` or `MizerSim`.
 #' @inheritDotParams get_size_range_array -params
+#' @inheritDotParams sizeIntegral exact_bounds
 #'
 #' @return If called with a MizerParams object, a named vector with the numbers
 #'   for each species in the model. If called with a MizerSim object, a
@@ -1082,6 +1086,12 @@ getGrowthCurves.MizerParams <- function(object,
 #' arguments. Either the size limits can be the same for all species or they
 #' can be specified as vectors with one value for each species in the model.
 #'
+#' A size bin is selected when its left edge, the grid point `w(params)`, lies
+#' within the size limits. This is the rule by which the summary functions
+#' select a size range in models of defaults editions 1 and 2. In a model of
+#' edition 3 they instead count the part of each bin that lies within the
+#' limits, see the section "The size range" in [sizeIntegral()].
+#'
 #' @param params MizerParams object
 #' @param min_w Smallest weight in size range. Defaults to smallest weight in
 #'   the model.
@@ -1112,30 +1122,68 @@ getGrowthCurves.MizerParams <- function(object,
 get_size_range_array <- function(params, min_w = min(params@w),
                                  max_w = max(params@w),
                                  min_l = NULL, max_l = NULL, ...) {
-    no_sp <- nrow(params@species_params)
-    if (!is.null(min_l) || !is.null(max_l)) {
-        if (any(!c("a", "b") %in% names(params@species_params))) {
-            stop("species_params slot must have columns 'a' and 'b' for ",
-                 "length-weight conversion")
+    limits <- size_range_limits(params, min_w = min_w, max_w = max_w,
+                                min_l = min_l, max_l = max_l)
+    size_n <- outer(limits$min_w, params@w, "<=") &
+        outer(limits$max_w, params@w, ">=")
+    dimnames(size_n) <- list(sp = params@species_params$species,
+                             w = signif(params@w, 3))
+    size_n
+}
+
+#' Weight limits of a size range
+#'
+#' Internal helper for [get_size_range_array()] and [size_integral_weights()]
+#' that turns the limits of a size range into a lower and an upper weight limit
+#' for each row of the size grid: one for each species, or a single one for the
+#' resource. A length limit takes precedence over the corresponding weight
+#' limit and is converted with the weight-length relationship \eqn{w = a l^b},
+#' using the species parameters `a` and `b` for the species and
+#' [resource_length_params()] for the resource.
+#'
+#' @param params A MizerParams object.
+#' @param min_w,max_w Weight limits, each a single number or one number for
+#'   each row.
+#' @param min_l,max_l Length limits, each `NULL`, a single number or one number
+#'   for each row.
+#' @param resource If `TRUE`, the limits are for the single row of the resource
+#'   grid rather than for the species.
+#' @return A list with entries `min_w` and `max_w`, each a vector with one
+#'   value for each row.
+#' @concept helper
+#' @keywords internal
+size_range_limits <- function(params, min_w, max_w, min_l = NULL, max_l = NULL,
+                              resource = FALSE) {
+    if (resource) {
+        no_sp <- 1
+        lw <- resource_length_params(params)
+    } else {
+        no_sp <- nrow(params@species_params)
+        if (!is.null(min_l) || !is.null(max_l)) {
+            if (any(!c("a", "b") %in% names(params@species_params))) {
+                stop("species_params slot must have columns 'a' and 'b' for ",
+                     "length-weight conversion")
+            }
+            if (anyNA(params@species_params[["a"]]) ||
+                anyNA(params@species_params[["b"]])) {
+                stop("There must be no NAs in the species_params columns ",
+                     "'a' and 'b'.")
+            }
         }
-        if (anyNA(params@species_params[["a"]]) ||
-            anyNA(params@species_params[["b"]])) {
-            stop("There must be no NAs in the species_params columns 'a' and 'b'.")
-        }
+        lw <- list(a = params@species_params[["a"]],
+                   b = params@species_params[["b"]])
     }
     if (!is.null(min_l)) {
         if (length(min_l) != 1 && length(min_l) != no_sp) {
             stop("min_l must be a single number or a vector with one value for each species.")
         }
-        min_w <- params@species_params[["a"]] *
-            min_l ^ params@species_params[["b"]]
+        min_w <- lw$a * min_l ^ lw$b
     }
     if (!is.null(max_l)) {
         if (length(max_l) != 1 && length(max_l) != no_sp) {
             stop("max_l must be a single number or a vector with one value for each species.")
         }
-        max_w <- params@species_params[["a"]] *
-            max_l ^ params@species_params[["b"]]
+        max_w <- lw$a * max_l ^ lw$b
     }
     if (length(min_w) == 1) {
         min_w <- rep(min_w, no_sp)
@@ -1147,12 +1195,7 @@ get_size_range_array <- function(params, min_w = min(params@w),
         stop("min_w and max_w must be a single number of a vector with one
              value for each species.")
     }
-    min_n <- t(sapply(min_w, function(x) params@w >= x))
-    max_n <- t(sapply(max_w, function(x) params@w <= x))
-    size_n <- min_n & max_n
-    dimnames(size_n) <- list(sp = params@species_params$species,
-                             w = signif(params@w, 3))
-    return(size_n)
+    list(min_w = min_w, max_w = max_w)
 }
 
 
