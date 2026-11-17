@@ -8,7 +8,6 @@ prepare_ArrayTimeBySpecies_plot_data(
   x,
   species = NULL,
   tlim = c(NA, NA),
-  ylim = c(NA, NA),
   total = FALSE,
   background = TRUE,
   log_y = TRUE
@@ -19,10 +18,8 @@ prepare_ArrayTimeBySpecies_plot_data(
 
 \item{species}{Character vector of species to include, or \code{NULL} for all.}
 
-\item{tlim}{Time-axis viewport limits, validated here.}
-
-\item{ylim}{Value-axis viewport limits; retained for compatibility here
-and applied only by the renderer, without filtering the data.}
+\item{tlim}{Time-axis viewport limits. Only validated here; they are
+applied when rendering, without filtering the data.}
 
 \item{total}{Whether to append the total, which is the total over every
 species the array holds, whatever is drawn.}

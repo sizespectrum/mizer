@@ -151,21 +151,139 @@ plot_spec_scales <- function(spec) {
          coord_cartesian(xlim = spec$limits$x, ylim = spec$limits$y))
 }
 
-# Added layers share the existing viewport. Only supplied endpoints change it;
-# all vertices remain available to ggplot and Plotly for clipping.
-set_plot_viewport <- function(plot, xlim = c(NA, NA), ylim = c(NA, NA)) {
-    for (axis in c("x", "y")) {
-        limits <- if (axis == "x") xlim else ylim
-        assert_that(length(limits) == 2)
-        if (all(is.na(limits))) next
-        existing <- plot$coordinates$limits[[axis]] %||% c(NA, NA)
-        existing[!is.na(limits)] <- limits[!is.na(limits)]
-        scale <- plot$scales$get_scales(axis)
-        if (!is.null(scale) && identical(scale$trans$name, "log-10")) {
+# Limits only move the viewport; they never remove data. An end of the y
+# viewport that the caller leaves as NA is fitted to what is visible inside the
+# x viewport, as it was when limits filtered the data. Otherwise zooming in on
+# x would leave the y axis spanning values that are no longer in view.
+#
+# The viewport records the requested limits and every data source drawn on the
+# plot, so that addPlot() can refit the open ends when it adds a layer. A
+# source names its columns by role: `y` lists every column that sets a height,
+# `group` every column that separates one line from another, `stack` marks
+# stacked areas and `include` holds values that are always shown, such as the
+# zero line of a relative plot. `data = NULL` refers to the plot's own data.
+plot_viewport <- function(xlim, ylim, xtrans, ytrans, sources) {
+    list(x = xlim, y = ylim, xtrans = xtrans, ytrans = ytrans,
+         sources = sources)
+}
+
+viewport_source <- function(x, y, group = character(), data = NULL,
+                            stack = FALSE, include = numeric()) {
+    list(data = data, x = x, y = y, group = group, stack = stack,
+         include = include)
+}
+
+viewport_ylim <- function(viewport, plot_data) {
+    ylim <- viewport$y
+    if (!anyNA(ylim) || all(is.na(viewport$x))) return(ylim)
+    values <- unlist(lapply(viewport$sources, function(source) {
+        visible_values(source$data %||% plot_data, source, viewport)
+    }))
+    if (identical(viewport$ytrans, "log10")) values <- values[values > 0]
+    values <- values[is.finite(values)]
+    if (length(values) == 0) return(ylim)
+    fitted <- ylim
+    fitted[is.na(ylim)] <- range(values)[is.na(ylim)]
+    # An open end cannot cross a requested one; leave it to ggplot2.
+    if (fitted[1] > fitted[2]) return(ylim)
+    fitted
+}
+
+# The heights a source shows inside the x viewport: its vertices there and the
+# points where its lines cross the edges. Lines are straight on the transformed
+# axes, so the crossings are interpolated on those axes.
+visible_values <- function(data, source, viewport) {
+    if (nrow(data) == 0) return(source$include)
+    to_axis <- function(v, trans) {
+        if (identical(trans, "log10")) suppressWarnings(log10(v)) else v
+    }
+    edges <- to_axis(viewport$x, viewport$xtrans)
+    lower <- if (is.na(edges[1])) -Inf else edges[1]
+    upper <- if (is.na(edges[2])) Inf else edges[2]
+    crossings <- edges[!is.na(edges)]
+    x <- data[[source$x]]
+    heights <- lapply(source$y, function(var) data[[var]])
+    group <- if (length(source$group) > 0) {
+        interaction(data[source$group], drop = TRUE)
+    } else {
+        factor(rep(1L, nrow(data)))
+    }
+    if (isTRUE(source$stack)) {
+        # Stacked areas reach the sum of their values at each x.
+        x_levels <- sort(unique(x))
+        heights <- list(vapply(split(heights[[1]],
+                                     factor(x, levels = x_levels)),
+                               sum, numeric(1), na.rm = TRUE))
+        x <- x_levels
+        group <- factor(rep(1L, length(x)))
+    }
+    x <- to_axis(x, viewport$xtrans)
+    values <- numeric(0)
+    for (height in heights) {
+        y <- to_axis(height, viewport$ytrans)
+        ok <- is.finite(x) & is.finite(y)
+        values <- c(values, y[ok & x >= lower & x <= upper])
+        if (length(crossings) == 0) next
+        for (rows in split(which(ok), group[ok])) {
+            if (length(unique(x[rows])) < 2) next
+            values <- c(values, stats::approx(x[rows], y[rows],
+                                              xout = crossings,
+                                              ties = mean)$y)
+        }
+    }
+    values <- values[is.finite(values)]
+    if (identical(viewport$ytrans, "log10")) values <- 10^values
+    c(values, source$include)
+}
+
+# The source describing a specification's own data.
+plot_spec_source <- function(spec) {
+    vars <- spec$variables
+    mode <- spec$options$mode
+    style <- if (mode == "ordinary") spec$options$style else "line"
+    y <- switch(style,
+                ribbon = c(vars$value, "ymin", "ymax"),
+                envelope = c("ymin", "ymax"),
+                vars$value)
+    group <- unique(c(vars$group, vars$legend, vars$model, vars$frame,
+                      spec$options$wrap_var))
+    viewport_source(x = vars$x, y = y, group = group,
+                    stack = style == "area",
+                    include = if (mode == "relative" || style == "area") 0)
+}
+
+# Added layers share the existing viewport. Only supplied endpoints change it,
+# and the open ends of the y viewport are refitted to include `source`. The
+# plot is returned with a new coordinate system; the caller's is not modified.
+set_plot_viewport <- function(plot, xlim = c(NA, NA), ylim = c(NA, NA),
+                              source = NULL) {
+    assert_that(length(xlim) == 2, length(ylim) == 2)
+    coord <- plot$coordinates
+    merge_limits <- function(existing, requested, axis) {
+        existing[!is.na(requested)] <- requested[!is.na(requested)]
+        if (plot_axis_is_log(plot, axis)) {
             existing <- drop_nonpositive_limits(existing, "log10")
         }
-        plot$coordinates$limits[[axis]] <- existing
+        existing
     }
+    viewport <- attr(plot, "mizer_viewport")
+    if (is.null(viewport)) {
+        # A plot mizer did not lay out: its other layers are unknown, so only
+        # the supplied endpoints change.
+        limits <- list(
+            x = merge_limits(coord$limits$x %||% c(NA, NA), xlim, "x"),
+            y = merge_limits(coord$limits$y %||% c(NA, NA), ylim, "y")
+        )
+    } else {
+        viewport$x <- merge_limits(viewport$x, xlim, "x")
+        viewport$y <- merge_limits(viewport$y, ylim, "y")
+        if (!is.null(source)) {
+            viewport$sources <- c(viewport$sources, list(source))
+        }
+        limits <- list(x = viewport$x, y = viewport_ylim(viewport, plot$data))
+        attr(plot, "mizer_viewport") <- viewport
+    }
+    plot$coordinates <- ggproto(NULL, coord, limits = limits)
     plot
 }
 
@@ -191,6 +309,10 @@ render_plot_spec <- function(spec) {
     }
     if (mode != "ordinary") frame$LineSpec <- frame[[vars$legend]]
     spec$data <- frame
+    viewport <- plot_viewport(spec$limits$x, spec$limits$y,
+                              spec$scales$x, spec$scales$y,
+                              list(plot_spec_source(spec)))
+    spec$limits$y <- viewport_ylim(viewport, frame)
 
     p <- ggplot(frame, plot_spec_mapping(spec)) + plot_spec_scales(spec) +
         plot_spec_layers(spec, legend_levels)
@@ -198,7 +320,9 @@ render_plot_spec <- function(spec) {
     if (!is.null(wrap_var)) {
         p <- p + facet_wrap(wrap_var, scales = spec$options$wrap_scale)
     }
-    make_mizer_plot(p, plot_spec_tooltip(spec))
+    p <- make_mizer_plot(p, plot_spec_tooltip(spec))
+    attr(p, "mizer_viewport") <- viewport
+    p
 }
 
 # Preserve mapping order: ggplotly uses it to order the hover fields.
@@ -317,11 +441,14 @@ render_plotly_spec <- function(spec) {
         )
         shown_legends <- c(shown_legends, legend)
     }
+    viewport <- plot_viewport(spec$limits$x, spec$limits$y,
+                              spec$scales$x, spec$scales$y,
+                              list(plot_spec_source(spec)))
     p <- plotly::layout(
         p,
         xaxis = plotly_axis(df[[vars$x]], spec$limits$x,
                             spec$scales$x == "log10", spec$labels$x),
-        yaxis = plotly_axis(df[[vars$value]], spec$limits$y,
+        yaxis = plotly_axis(df[[vars$value]], viewport_ylim(viewport, df),
                             spec$scales$y == "log10", spec$labels$y),
         legend = list(traceorder = "normal")
     )

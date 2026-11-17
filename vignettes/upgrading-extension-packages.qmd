@@ -581,6 +581,25 @@ genuinely has no predation encounter in the reference state —
 supply `gamma` explicitly: mizer now raises an error naming the species instead
 of deriving a nonsense value from the additive contribution.
 
+### Plot limits only set the visible window
+
+mizer's own plots no longer filter their data by `wlim`, `llim`, `tlim` or
+`ylim`. The limits are handed to the renderer, which shows only that window;
+`return_data = TRUE`, totals and comparisons are the same whatever the window,
+and an open end of `ylim` is fitted to the data inside it.
+
+[`apply_wlim()`](../reference/apply_wlim.html) is still exported and still filters, so an array [`plot()`](../reference/plot.html) method
+that calls it keeps the old behaviour. To match mizer, drop the call and pass
+the limits on to [`plotDataFrame()`](../reference/plotDataFrame.html) instead:
+
+```{r eval=FALSE}
+# BEFORE:
+plot_dat <- mizer::apply_wlim(plot_dat, wlim)
+plotDataFrame(plot_dat, params, xtrans = "log10")
+# AFTER:
+plotDataFrame(plot_dat, params, xtrans = "log10", xlim = wlim)
+```
+
 ### Tests that match messages or assert silence
 
 Rephrased messages and calls that used to be quiet break tests in any package,

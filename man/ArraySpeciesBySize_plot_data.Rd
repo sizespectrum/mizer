@@ -8,8 +8,6 @@ ArraySpeciesBySize_plot_data(
   x,
   species = NULL,
   all.sizes = FALSE,
-  wlim = c(NA, NA),
-  llim = c(NA, NA),
   total = FALSE,
   background = TRUE,
   size_axis = "w",
@@ -23,11 +21,6 @@ ArraySpeciesBySize_plot_data(
 
 \item{all.sizes}{If \code{FALSE}, values outside a species' size range are
 removed.}
-
-\item{wlim}{Weight-axis viewport limits; retained for compatibility here
-and applied only by the renderer.}
-
-\item{llim}{Length-axis viewport limits; applied only by the renderer.}
 
 \item{total}{Whether to append the total line, see \code{\link[=total_contributors]{total_contributors()}}.}
 

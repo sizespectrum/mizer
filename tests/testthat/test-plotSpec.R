@@ -177,3 +177,83 @@ test_that("viewport limits preserve vertices and agree with hover ranges", {
     skip_if_not_installed("vdiffr")
     vdiffr::expect_doppelganger("Viewport keeps crossing lines", p)
 })
+
+test_that("an open end of the y viewport is fitted to the visible data", {
+    # y = x on log-log axes: the line crosses x = 2 and x = 50 at y = 2 and 50.
+    data <- data.frame(x = c(1, 10, 100), y = c(1, 10, 100), fish = "Cod")
+    spec <- new_plot_spec(data, NS_params_small, x_var = "x", y_var = "y",
+                          group_var = "fish", xtrans = "log10",
+                          ytrans = "log10", xlim = c(2, 50))
+    p <- render_plot_spec(spec)
+    expect_equal(p$coordinates$limits$y, c(2, 50))
+    expect_equal(p$data$y, data$y)
+    # A requested end is kept; only the open one is fitted.
+    spec$limits$y <- c(1, NA)
+    expect_equal(render_plot_spec(spec)$coordinates$limits$y, c(1, 50))
+    # Without an x limit everything is visible, so ggplot2 chooses.
+    spec$limits <- list(x = c(NA, NA), y = c(NA, NA))
+    expect_equal(render_plot_spec(spec)$coordinates$limits$y, c(NA, NA))
+    # An open end that would cross a requested one is left to ggplot2.
+    spec$limits <- list(x = c(2, 50), y = c(NA, 1))
+    expect_equal(render_plot_spec(spec)$coordinates$limits$y, c(NA, 1))
+})
+
+test_that("fitted viewports keep reference lines, bands and stacks in view", {
+    first <- new_plot_spec(
+        data.frame(x = 1:4, y = c(1, 2, 3, 4), fish = "Cod"),
+        NS_params_small, x_var = "x", y_var = "y", group_var = "fish",
+        xlim = c(2, 3))
+    second <- first
+    second$data$y <- c(1.1, 2.2, 3.3, 4.4)
+    # The zero line of a relative plot stays visible.
+    rel <- render_plot_spec(relative_plot_specs(first, second))
+    expect_equal(rel$coordinates$limits$y[1], 0)
+    # Stacked areas reach the sum of the groups.
+    stacked <- new_plot_spec(
+        data.frame(x = rep(1:4, 2), y = rep(1:4, 2),
+                   fish = rep(c("Cod", "Sprat"), each = 4)),
+        NS_params_small, x_var = "x", y_var = "y", group_var = "fish",
+        xlim = c(2, 3), style = "area")
+    expect_equal(render_plot_spec(stacked)$coordinates$limits$y, c(0, 6))
+    # Both edges of a band count.
+    band <- new_plot_spec(
+        data.frame(x = 1:4, y = 1:4, ymin = 0:3, ymax = 2:5, fish = "Cod"),
+        NS_params_small, x_var = "x", y_var = "y", group_var = "fish",
+        xlim = c(2, 3), style = "ribbon")
+    expect_equal(render_plot_spec(band)$coordinates$limits$y, c(1, 4))
+})
+
+test_that("added layers refit the viewport without changing the input plot", {
+    base <- render_plot_spec(new_plot_spec(
+        data.frame(x = 1:4, y = c(1, 2, 3, 4), fish = "Cod"),
+        NS_params_small, x_var = "x", y_var = "y", group_var = "fish",
+        xlim = c(2, 3)))
+    before <- base$coordinates$limits
+    added <- data.frame(x = 1:4, y = c(100, 5, 6, 100), fish = "Sprat")
+    p <- set_plot_viewport(base, source = viewport_source(
+        "x", "y", group = "fish", data = added))
+    expect_equal(p$coordinates$limits$y, c(2, 6))
+    expect_identical(base$coordinates$limits, before)
+    # A wider window takes in more of both layers.
+    p <- set_plot_viewport(p, xlim = c(1, 3))
+    expect_equal(p$coordinates$limits$y, c(1, 100))
+    # Plots that mizer did not lay out only take the supplied endpoints.
+    plain <- ggplot2::ggplot(added, ggplot2::aes(x, y)) +
+        ggplot2::geom_line()
+    plain <- set_plot_viewport(plain, xlim = c(2, 3))
+    expect_equal(plain$coordinates$limits$y, c(NA, NA))
+})
+
+test_that("animations fit an open y range to the visible sizes", {
+    frame <- data.frame(step = rep(0:1, each = 3), fish = "Cod",
+                        response = c(1, 10, 1000, 2, 20, 2000),
+                        mass = rep(c(1, 10, 100), 2))
+    spec <- new_plot_spec(
+        frame, NS_params_small, x_var = "mass", y_var = "response",
+        group_var = "fish", frame_var = "step", xtrans = "log10",
+        ytrans = "log10", xlim = c(1, 10),
+        options = list(frame_duration = 1, transition_duration = 0,
+                       easing = "linear"))
+    built <- plotly::plotly_build(render_plotly_spec(spec))
+    expect_equal(built$x$layout$yaxis$range, log10(c(1, 20)))
+})

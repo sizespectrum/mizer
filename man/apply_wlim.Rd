@@ -17,7 +17,8 @@ The subset of \code{data} with \code{w} inside \code{wlim}.
 }
 \description{
 Internal helper that filters a plot data frame to the weight range given by
-\code{wlim}. It is exported so that extension packages (such as mizerMR) can reuse
-it in their own array \code{plot()} methods.
+\code{wlim}. mizer's own plots no longer filter by their limits, which only set
+the visible window, but the function stays exported for extension packages
+(such as mizerMR) that still call it in their own array \code{plot()} methods.
 }
 \keyword{internal}
