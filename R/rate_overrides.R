@@ -115,6 +115,12 @@ prepare_rate_value <- function(params, var, value, species) {
     expected <- rate_slice(original, var, species)
     axis <- rate_species_dim(var)
     if (identical(dim(value), dim(original))) {
+        gn <- dimnames(value)[[1]]
+        if (axis == 2L && !is.null(gn) && !anyDuplicated(gn) &&
+                setequal(gn, dimnames(original)[[1]])) {
+            # The same gears in another order are matched by name
+            value <- align_gears(value, dimnames(original)[[1]])
+        }
         dn <- dimnames(value)[[axis]]
         if (!is.null(dn) && !identical(dn, dimnames(original)[[axis]])) {
             stop("The species dimnames must match the model's species order.")
@@ -170,12 +176,23 @@ prepare_rate_value <- function(params, var, value, species) {
                        params@species_params$species)
 }
 
-# Index the given gears and species of a fishing array by name.
-fishing_index <- function(x, gears, species = dimnames(x)[[2]]) {
+# Index the given gears and species (all species if `NULL`) of a fishing
+# array by name.
+fishing_index <- function(x, gears, species = NULL) {
     index <- lapply(dim(x), seq_len)
     index[[1]] <- match(gears, dimnames(x)[[1]])
-    index[[2]] <- match(species, dimnames(x)[[2]])
+    if (!is.null(species)) index[[2]] <- match(species, dimnames(x)[[2]])
     index
+}
+
+fishing_slice <- function(x, gears, species = NULL) {
+    do.call(`[`, c(list(x), fishing_index(x, gears, species),
+                   list(drop = FALSE)))
+}
+
+replace_fishing_slice <- function(x, gears, species, value) {
+    do.call(`[<-`, c(list(x), fishing_index(x, gears, species),
+                     list(value = value)))
 }
 
 # Bring a fishing array calculated for the gears in the gear parameters onto
@@ -187,26 +204,51 @@ align_gears <- function(x, gears) {
     dn[[1]] <- gears
     out <- array(0, dim = c(length(gears), dim(x)[-1]), dimnames = dn)
     common <- intersect(gears, dimnames(x)[[1]])
-    values <- do.call(`[`, c(list(x), fishing_index(x, common),
-                             list(drop = FALSE)))
-    do.call(`[<-`, c(list(out), fishing_index(out, common),
-                     list(value = values)))
+    replace_fishing_slice(out, common, NULL, fishing_slice(x, common))
 }
 
-# The gear axis of a recalculated fishing array. The two fishing arrays must
-# share one. A fishing array set by hand as a whole keeps the gears it was set
-# with, as it did before arrays could be set for selected species, and the
-# other array follows it. Otherwise the gears are those in the gear
-# parameters. `vars` names the arrays whose stored gears may be kept.
+# The gear axis that both fishing arrays share. A stored fishing array that
+# has been set by hand as a whole keeps the gears it was set with, as it did
+# before arrays could be set for selected species, and the other array must
+# follow it. `vars` names the stored arrays that are not being replaced and so
+# can impose their gears. Without such an array the gears are `gear_names`,
+# those in the gear parameters. Returns the gears, together with the name of
+# the array that imposed them, if any.
 fishing_gears <- function(params, gear_names,
                           vars = c("selectivity", "catchability")) {
     for (var in vars) {
         if (length(rate_override_species(params, var)) ==
                 nrow(params@species_params)) {
-            return(dimnames(slot(params, var))[[1]])
+            return(list(gears = dimnames(slot(params, var))[[1]],
+                        set_by = var))
         }
     }
-    gear_names
+    list(gears = gear_names, set_by = NULL)
+}
+
+# Check that a fishing array supplied by the user has the gears `gears` and
+# put them into that order, matching by name. An array without gear names
+# must already be in that order. When a frozen array imposes the gears, an
+# array with other gears is rejected here, because the two arrays could not
+# fit together.
+fit_supplied_gears <- function(x, var, gears, set_by) {
+    gn <- dimnames(x)[[1]]
+    fits <- if (is.null(gn)) {
+        dim(x)[[1]] == length(gears)
+    } else {
+        !anyDuplicated(gn) && setequal(gn, gears)
+    }
+    if (!fits && !is.null(set_by) && set_by != var) {
+        stop("The gears of the ", var, " array must be ", toString(gears),
+             ", because the ", set_by, " has been set manually as a whole ",
+             "with these gears. Supply both arrays together, or call ",
+             "`setFishing(params, reset = TRUE)` to calculate them from the ",
+             "gear parameters again.")
+    }
+    if (fits && !is.null(gn) && !identical(gn, gears)) {
+        x <- copy_override_marker(align_gears(x, gears), x)
+    }
+    x
 }
 
 signal_kept_override <- function(params, var, selected) {
@@ -242,19 +284,13 @@ preserve_rate_overrides <- function(params, var, value, gears = NULL) {
     if (fishing) {
         common <- intersect(dimnames(value)[[1]], dimnames(old)[[1]])
         dropped <- setdiff(dimnames(old)[[1]], common)
-        kept <- do.call(`[`, c(list(old), fishing_index(old, common, selected),
-                               list(drop = FALSE)))
-        proposed <- do.call(`[`, c(list(value),
-                                   fishing_index(value, common, selected),
-                                   list(drop = FALSE)))
-        lost <- do.call(`[`, c(list(old),
-                               fishing_index(old, dropped, selected)))
-        if (different(kept, proposed) || any(lost != 0)) {
+        kept <- fishing_slice(old, common, selected)
+        lost <- fishing_slice(old, dropped, selected)
+        if (different(kept, fishing_slice(value, common, selected)) ||
+                any(lost != 0)) {
             signal_kept_override(params, var, selected)
         }
-        return(do.call(`[<-`, c(list(value),
-                                fishing_index(value, common, selected),
-                                list(value = kept))))
+        return(replace_fishing_slice(value, common, selected, kept))
     }
     if (!identical(dim(value), dim(old))) {
         stop("Reset the manual override of `", var,

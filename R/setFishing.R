@@ -176,8 +176,22 @@ setFishing.MizerParams <- function(params, selectivity = NULL, catchability = NU
         }
     }
 
+    # Both fishing arrays share one gear axis, which is decided here before
+    # either array is set. An array supplied without `species` replaces the
+    # stored one, so only a stored array that is not being replaced and has
+    # been set by hand as a whole can impose its gears.
+    replaced <- if (is.null(species)) {
+        c(if (!is.null(selectivity)) "selectivity",
+          if (!is.null(catchability)) "catchability")
+    }
+    resolved <- fishing_gears(params, gear_names,
+                              setdiff(c("selectivity", "catchability"),
+                                      replaced))
+    gears <- resolved$gears
+
     # The number of gears could be set by the catchability array
-    if (!is.null(catchability) && (dim(catchability)[[1]] != no_gears)) {
+    if ("catchability" %in% replaced && is.null(resolved$set_by) &&
+            dim(catchability)[[1]] != length(gears)) {
         if (is.null(selectivity)) {
             stop("The catchability array has changed the number of gears. ",
                  "Therefore you also need to supply a selectivity array.")
@@ -187,22 +201,24 @@ setFishing.MizerParams <- function(params, selectivity = NULL, catchability = NU
                  " gears via its dimnames.")
         }
         # change gear number and names
-        gear_names <- unique(dimnames(catchability)[[1]])
-        no_gears <- length(gear_names)
-        if (no_gears != dim(catchability)[[1]]) {
+        gears <- unique(dimnames(catchability)[[1]])
+        if (length(gears) != dim(catchability)[[1]]) {
             stop("The gear names provided via the dimnames of the ",
                  "catchability array need to be all different.")
         }
     }
+    no_gears <- length(gears)
 
     if (!is.null(selectivity)) {
+        selectivity <- fit_supplied_gears(selectivity, "selectivity", gears,
+                                          resolved$set_by)
         assert_that(length(dim(selectivity)) == 3,
                     dim(selectivity)[[1]] == no_gears,
                     dim(selectivity)[[2]] == no_sp,
                     dim(selectivity)[[3]] == no_w)
         dnames <- dimnames(selectivity)
         if (!is.null(dnames)) {
-            if (!identical(dnames[[1]], gear_names)) {
+            if (!identical(dnames[[1]], gears)) {
                 stop("The gear dimnames in the selectivity array do ",
                      "not match the gear names.")
             }
@@ -215,16 +231,11 @@ setFishing.MizerParams <- function(params, selectivity = NULL, catchability = NU
                         "selectivity array to agree with mizer conventions.")
             }
         }
-        dimnames(selectivity) <- list(gear = gear_names,
+        dimnames(selectivity) <- list(gear = gears,
                                       sp = sp_names,
                                       w = w_names)
         params@selectivity <- selectivity
     } else {
-        # A catchability supplied in this call sets the gears itself, so only
-        # a stored one can impose its gears on the selectivity.
-        gears <- fishing_gears(params, gear_names,
-                               c("selectivity",
-                                 if (is.null(catchability)) "catchability"))
         selectivity <- preserve_rate_overrides(params, "selectivity",
                                                calc_selectivity(params), gears)
         selectivity <- copy_override_marker(selectivity, params@selectivity)
@@ -232,12 +243,14 @@ setFishing.MizerParams <- function(params, selectivity = NULL, catchability = NU
     }
 
     if (!is.null(catchability)) {
+        catchability <- fit_supplied_gears(catchability, "catchability", gears,
+                                           resolved$set_by)
         assert_that(length(dim(catchability)) == 2,
                     dim(catchability)[[2]] == no_sp)
         # Check dimnames if they were provided, otherwise set them
         dnames <- dimnames(catchability)
         if (!is.null(dnames)) {
-            if (!identical(dnames[[1]], gear_names)) {
+            if (!identical(dnames[[1]], gears)) {
                 stop("The gear dimnames in the catchability array do ",
                      "not match the gear names.")
             }
@@ -246,13 +259,13 @@ setFishing.MizerParams <- function(params, selectivity = NULL, catchability = NU
                      "not match the species names.")
             }
         } else {
-            dimnames(catchability) <- list(gear = gear_names,
+            dimnames(catchability) <- list(gear = gears,
                                            sp = sp_names)
         }
         params@catchability <- catchability
     } else {
         catchability <-
-            array(0, dim = c(no_gears, no_sp),
+            array(0, dim = c(length(gear_names), no_sp),
                   dimnames = list(gear = gear_names,
                                   sp = sp_names
                   )
@@ -262,11 +275,21 @@ setFishing.MizerParams <- function(params, selectivity = NULL, catchability = NU
                           gear_params$species[[g]]]] <-
                 gear_params$catchability[[g]]
         }
-        catchability <- preserve_rate_overrides(
-            params, "catchability", catchability,
-            fishing_gears(params, gear_names))
+        catchability <- preserve_rate_overrides(params, "catchability",
+                                                catchability, gears)
         catchability <- copy_override_marker(catchability, params@catchability)
         params@catchability <- catchability
+    }
+
+    # Two stored arrays frozen with different gears can not be reconciled
+    if (!identical(dimnames(params@selectivity)[[1]],
+                   dimnames(params@catchability)[[1]])) {
+        stop("The selectivity and the catchability must have the same gears, ",
+             "but they have ", toString(dimnames(params@selectivity)[[1]]),
+             " and ", toString(dimnames(params@catchability)[[1]]), ". ",
+             "Supply both arrays together, or call ",
+             "`setFishing(params, reset = TRUE)` to calculate them from the ",
+             "gear parameters again.")
     }
 
     if (!is.null(initial_effort)) {
@@ -276,7 +299,7 @@ setFishing.MizerParams <- function(params, selectivity = NULL, catchability = NU
 
     # Get rid of any efforts for gears that no longer exist and set effort
     # for new gears to zero (done by `validEffortVector()`).
-    existing <- names(params@initial_effort) %in% gear_names
+    existing <- names(params@initial_effort) %in% gears
     params@initial_effort <- validEffortVector(params@initial_effort[existing],
                                                params)
     params@time_modified <- lubridate::now()

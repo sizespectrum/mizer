@@ -159,11 +159,19 @@ other species' overrides. `rate_overrides(params)` lists the protected species,
 retained parameter inputs, and reset calls.
 
 Cod's protected values are tied to the gear names, so they stay with their
-gears when you later change `gear_params`: reordering the gears keeps them, a
-new gear is calculated for Cod as for any other species, and the values for a
-gear you remove go with it. An array set without `species` is frozen as a
-whole and keeps the gears it was set with, even if a gear is no longer in
-`gear_params`; the other fishing array then uses the same gears.
+gears when you later change `gear_params`: reordering the gears keeps them, and
+the values for a gear you remove go with it. A gear you add for Cod is
+calculated from its gear parameters once, when it first appears, and from then
+on it is protected like Cod's other gears: a later change to its parameters
+does not reach Cod's arrays, and mizer says so. Reset Cod to let all its gears
+follow `gear_params` again.
+
+An array set without `species` is frozen as a whole and keeps the gears it was
+set with, even if a gear is no longer in `gear_params`, and the other fishing
+array then uses the same gears. An array you supply must have those gears too,
+in any order: mizer matches them by name. To change the gears of a frozen
+array, supply both arrays together, or reset them with
+`setFishing(params, reset = TRUE)`.
 
 ## setFishing()
 
