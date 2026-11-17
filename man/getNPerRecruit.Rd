@@ -55,7 +55,10 @@ The steady state is found by solving the same discretised transport
 equation that \code{\link[=project]{project()}} solves, with the scheme selected by
 \code{\link[=second_order_w]{second_order_w()}} and including size diffusion, so it is exact for the
 model's numerics. The abundance is held at zero above each species' \code{w_max},
-as in \code{\link[=project]{project()}}.
+as in \code{\link[=project]{project()}}. With the van Leer flux limiter this equation is nonlinear
+and is solved iteratively. If that iteration does not converge for some
+species, \code{getNPerRecruit()}, and with it \code{\link[=getR0]{getR0()}}, raises an error that
+names them rather than return an inaccurate result.
 
 The rates default to those in the initial state of \code{params}. A species that
 is absent from that state still has a growth and mortality rate, the ones a

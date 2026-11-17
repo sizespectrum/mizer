@@ -71,12 +71,12 @@
   the number of eggs that one recruit produces over its life, with growth,
   mortality, diffusion and reproductive investment held fixed (#632). It is
   defined for an absent species too, where `getRDI() / getRequiredRDD()` is
-  0/0. With Beverton-Holt density dependence, or with none, recruitment at low
-  abundance equals egg production, so a rare species increases if and only if
-  R0 > 1 and R0 answers whether an absent species can invade. A custom RDD
-  function whose recruitment at low abundance is a different multiple of egg
-  production moves that threshold: the species then increases if R0 times that
-  multiple exceeds 1. The rates can be supplied, for example
+  0/0. With Beverton-Holt, Ricker or Shepherd density dependence, or with none,
+  recruitment at low abundance equals egg production, so a rare species
+  increases if and only if R0 > 1 and R0 answers whether an absent species can
+  invade. A custom RDD function whose slope at low egg production is not 1
+  moves that threshold: the species then increases if R0 times that slope
+  exceeds 1. The rates can be supplied, for example
   `mort = getMort(other_params)` to separate the effect of food from that of
   predation. It solves the discretised transport equation that `project()`
   solves, so unlike the usual hand-written upwind recursion it is right with

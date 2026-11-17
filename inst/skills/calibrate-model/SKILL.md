@@ -223,10 +223,14 @@ reproduction parameters to the steady state:
 - with Beverton-Holt reproduction a steady state has
   R0 = 1 / (1 - `reproduction_level(params)`), not 1.
 
-A rare species increases if and only if its R0 is above 1, so `getR0()` also
-answers whether a species that is absent from a state could invade it. There
+With Beverton-Holt, Ricker or Shepherd density dependence, or with none, the
+recruitment at low abundance equals the egg production, so a rare species
+increases if and only if its R0 is above 1. `getR0()` then also answers whether
+a species that is absent from a state could invade it. There
 `getRDI(params) / getRequiredRDD(params)`, which equals R0 in a steady state,
-is 0/0. Each rate can be taken from another state, as in
+is 0/0. A custom RDD function whose slope s = dRDD/dRDI at RDI = 0 is not 1
+moves the threshold to s R0 > 1, and `getR0()` still returns R0, the egg
+output; with `constantRDD()` R0 does not decide whether the species persists. Each rate can be taken from another state, as in
 `getR0(params, mort = getMort(other_params))`, to separate the effect of food
 from that of predation. `getNPerRecruit(params)` returns the steady-state
 abundance per recruit that R0 is calculated from.

@@ -54,13 +54,12 @@ number of eggs that one recruit produces over its life, with growth,
 mortality, diffusion and the investment into reproduction held fixed.
 }
 \details{
-\eqn{R_0} decides whether a species can increase when it is rare: at low
-abundance a species grows if \eqn{R_0 > 1} and declines if \eqn{R_0 < 1}.
-It is the density-independent rate of egg production (see \code{\link[=getRDI]{getRDI()}}) of
-the abundance per recruit \eqn{n_1(w)} (see \code{\link[=getNPerRecruit]{getNPerRecruit()}}):
+\eqn{R_0} is the density-independent rate of egg production (see
+\code{\link[=getRDI]{getRDI()}}) of the abundance per recruit \eqn{n_1(w)} (see
+\code{\link[=getNPerRecruit]{getNPerRecruit()}}):
 \deqn{R_0 = \frac{\epsilon}{2 w_{min}} \int n_1(w) E_r(w) \psi(w) \, dw.}{R_0 = (\epsilon/(2 w_min)) \int n_1(w) E_r(w) \psi(w) dw.}
-It ignores the stock-recruitment relationship, which is exact at low
-abundance, where density dependence does not act.
+It counts eggs, not recruits, so it does not involve the stock-recruitment
+relationship.
 
 Both the abundance per recruit and the integral are calculated with the
 discretisation that \code{\link[=project]{project()}} uses, selected by \code{\link[=second_order_w]{second_order_w()}}, and
@@ -68,6 +67,24 @@ include size diffusion. A hand-written calculation that follows the
 first-order upwind recursion for the abundance per recruit is only right for
 the default scheme without diffusion.
 }
+\section{Invasion}{
+
+Whether a rare species increases depends on the recruits that its eggs
+produce, so it also depends on the stock-recruitment relationship at low
+abundance. With \code{\link[=BevertonHoltRDD]{BevertonHoltRDD()}}, \code{\link[=RickerRDD]{RickerRDD()}}, \code{\link[=SheperdRDD]{SheperdRDD()}} and
+\code{\link[=noRDD]{noRDD()}} the recruitment at low abundance equals the egg production, so a
+rare species grows if \eqn{R_0 > 1} and declines if \eqn{R_0 < 1}. This is
+how \eqn{R_0} tells whether a species that is absent from a state could
+invade it.
+
+A custom RDD function (see \code{\link[=setRateFunction]{setRateFunction()}}) can move this threshold.
+If its slope \eqn{s = dR_{dd} / dR_{di}} at \eqn{R_{di} = 0} is not 1, a
+rare species grows if \eqn{s R_0 > 1}, and \code{getR0()} still returns the egg
+output \eqn{R_0}, not \eqn{s R_0}. With \code{\link[=constantRDD]{constantRDD()}} the recruitment
+does not depend on the egg production at all, and \eqn{R_0} does not decide
+whether the species persists.
+}
+
 \section{Relation to the steady state}{
 
 In a steady state the recruitment is the one returned by

@@ -19,6 +19,7 @@ r0_params <- function(flux = "upwind", bin_average = FALSE,
 test_that("getR0() is RDI over required recruitment at a steady state", {
     schemes <- list(list("upwind", FALSE, FALSE),
                     list("upwind", FALSE, TRUE),
+                    list("van_leer", TRUE, FALSE),
                     list("van_leer", TRUE, TRUE),
                     list("centred", TRUE, TRUE))
     for (scheme in schemes) {
@@ -29,16 +30,38 @@ test_that("getR0() is RDI over required recruitment at a steady state", {
 })
 
 test_that("getR0() calibrates erepro to a steady state of project()", {
-    # The case the hand-written upwind recursion gets wrong
-    params <- r0_params("centred", TRUE, TRUE)
-    params <- setRateFunction(params, "RDD", "noRDD")
-    params@species_params$erepro <-
-        params@species_params$erepro / getR0(params)
-    expect_equal(getR0(params), c("Target species" = 1))
+    # The steady state and R0 come from the same fixed-rate solver, so only
+    # project() checks that it solves the transport equation. A 1% error in
+    # erepro moves the state by 1% over the year.
+    # Centred with diffusion is the case the hand-written upwind recursion gets
+    # wrong. Van Leer without diffusion is the case in which an unstable
+    # fixed-rate solve returned a spectrum that was not steady (#652).
+    schemes <- list(list("centred", TRUE, TRUE),
+                    list("van_leer", TRUE, FALSE))
+    for (scheme in schemes) {
+        params <- do.call(r0_params, scheme)
+        params <- setRateFunction(params, "RDD", "noRDD")
+        params@species_params$erepro <-
+            params@species_params$erepro / getR0(params)
+        expect_equal(getR0(params), c("Target species" = 1))
 
-    sim <- project(params, t_max = 1, t_save = 1, progress_bar = FALSE)
-    expect_equal(finalN(sim), initialN(params), tolerance = 1e-10,
-                 ignore_attr = TRUE)
+        sim <- project(params, t_max = 1, t_save = 1, progress_bar = FALSE,
+                       info_level = 0)
+        expect_equal(finalN(sim), initialN(params), tolerance = 1e-10,
+                     ignore_attr = TRUE)
+    }
+})
+
+test_that("getR0() agrees with a steady state found by Newton's method", {
+    # tuneSteadyState() finds this steady state without the fixed-rate solver
+    # that getNPerRecruit() uses (#652)
+    params <- single_sp_params
+    second_order_w(params) <- TRUE
+    params <- tuneSteadyState(params, solver = "newton", info_level = 0)
+    expect_equal(getR0(params), getRDI(params) / getRequiredRDD(params),
+                 tolerance = 1e-6)
+    expect_equal(getNPerRecruit(params) * getRequiredRDD(params),
+                 initialN(params), tolerance = 1e-6, ignore_attr = TRUE)
 })
 
 test_that("getR0() is 1 / (1 - r) at a Beverton-Holt steady state", {
@@ -77,6 +100,17 @@ test_that("getR0() uses the rates it is given", {
     expect_equal(getR0(params, e_repro = 2 * getERepro(params)), 2 * r0)
     # ... and falls as mortality rises
     expect_true(all(getR0(params, mort = 1.5 * getMort(params)) < r0))
+})
+
+test_that("getR0() counts eggs and does not use the RDD function", {
+    # With an RDD function of slope s at low egg production, a rare species
+    # grows if s * R0 > 1, but R0 itself stays the egg output.
+    assign("r0_test_half_rdd", function(rdi, ...) 0.5 * rdi,
+           envir = .GlobalEnv)
+    withr::defer(rm("r0_test_half_rdd", envir = .GlobalEnv))
+    params <- r0_params()
+    params_half <- setRateFunction(params, "RDD", "r0_test_half_rdd")
+    expect_identical(getR0(params_half), getR0(params))
 })
 
 test_that("getR0() selects species", {
