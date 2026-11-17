@@ -9,6 +9,7 @@ sizeIntegral(
   weighting = 1,
   n = NULL,
   ...,
+  exact_bounds = NULL,
   value_name = NULL,
   units = NULL
 )
@@ -24,8 +25,16 @@ species x size array. Defaults to the initial abundance \code{initialN(object)}
 for a \code{MizerParams} object and to the saved abundances \code{object@n} for a
 \code{MizerSim} object.}
 
-\item{...}{Arguments passed to \code{\link[=get_size_range_array]{get_size_range_array()}} to select the size
-range to integrate over, i.e. \code{min_w}, \code{max_w}, \code{min_l} and \code{max_l}.}
+\item{...}{Arguments selecting the size range to integrate over, i.e.
+\code{min_w}, \code{max_w}, \code{min_l} and \code{max_l}, as described in
+\code{\link[=get_size_range_array]{get_size_range_array()}}. See the section "The size range" below.}
+
+\item{exact_bounds}{Whether the bins at the ends of the size range contribute
+exactly the part of them that lies inside the range (\code{TRUE}) or are
+included or excluded whole according to their left edge (\code{FALSE}). The
+default \code{NULL} uses \code{TRUE} for a model of \code{\link[=defaults_edition]{defaults_edition()}} 3 or later
+and \code{FALSE} for earlier editions. See the section "The size range" in
+\code{\link[=sizeIntegral]{sizeIntegral()}}.}
 
 \item{value_name}{A string giving a human-readable name for the value, used
 when the result is wrapped in a mizer array class.}
@@ -91,6 +100,33 @@ named \code{"time"} is lined up with the times of the simulation rather than
 producing an outer product.
 }
 
+\section{The size range}{
+
+The integral runs over the size range given by \code{min_w}, \code{max_w}, \code{min_l} and
+\code{max_l}, with lengths converted to weights as described in
+\code{\link[=get_size_range_array]{get_size_range_array()}}. Bins that lie entirely inside the size range
+contribute in full and bins that lie entirely outside it not at all. How the
+bins at the two ends of the range are treated is decided by \code{exact_bounds}:
+\itemize{
+\item With \code{exact_bounds = TRUE}, the default for a model of
+\code{\link[=defaults_edition]{defaults_edition()}} 3 or later, each bin contributes exactly the part of
+it that lies inside the size range. When the model bin-averages its
+integrals (see \code{\link[=second_order_w]{second_order_w()}}), the weighting factor is interpolated
+linearly across the bin and integrated over the part inside the range by
+the trapezoidal rule. Otherwise the weighting factor at the left edge of
+the bin is multiplied by the width of that part. The integral therefore
+changes continuously as a limit moves through a bin. An upper limit at or
+above the largest grid point \code{max(w(params))} includes the whole of the
+last bin, so the default limits cover the whole size spectrum.
+\item With \code{exact_bounds = FALSE}, the default for models of editions 1
+and 2, the size range selects whole bins by their left edge, as
+\code{\link[=get_size_range_array]{get_size_range_array()}} does. When the model bin-averages its
+integrals, that selection is averaged together with the weighting
+factor, so that a bin at an end of the range counts about half,
+wherever in the bin the limit lies.
+}
+}
+
 \examples{
 # The biomass of each species, i.e. what getBiomass() does
 sizeIntegral(NS_params, weighting = NS_params@w)
@@ -100,6 +136,9 @@ sizeIntegral(NS_params, weighting = NS_params@w, min_w = 10, max_w = 1000)
 
 # The numbers of individuals larger than 10g
 sizeIntegral(NS_params, min_w = 10)
+
+# ... counting only the part above 10g of the bin that contains 10g
+sizeIntegral(NS_params, min_w = 10, exact_bounds = TRUE)
 
 # Spawning stock biomass: the weighting is the product maturity * w
 K <- sweep(NS_params@maturity, 2, NS_params@w, "*")
