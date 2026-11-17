@@ -288,8 +288,6 @@ animate_plotly <- function(df, params, log_x, log_y, y_label,
         xtrans = if (log_x) "log10" else "identity",
         ytrans = if (log_y) "log10" else "identity",
         xlim = plot_size_xlim(wlim, size_axis, llim), ylim = ylim,
-        density_wrt = density_target_measure(density_wrt, size_axis,
-                                             per_log_size),
         options = list(frame_duration = frame_duration,
                        transition_duration = transition_duration,
                        easing = easing)

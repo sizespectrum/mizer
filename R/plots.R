@@ -214,15 +214,8 @@ plotDataFrame <- function(frame, params, style = "line", xlab = waiver(),
         frame, params, legend_var = legend_var, style = style,
         xlab = xlab, ylab = ylab, xtrans = xtrans, ytrans = ytrans,
         xlim = xlim, ylim = ylim, y_ticks = y_ticks, highlight = highlight,
-        wrap_var = wrap_var, wrap_scale = wrap_scale,
-        # Preserve the legacy warning's use of Legend, even when another
-        # column supplies the legend aesthetic.
-        options = list(legend_warning_var = "Legend")
+        wrap_var = wrap_var, wrap_scale = wrap_scale
     )
-    if (!is.null(wrap_var) && !(wrap_var %in% names(frame))) {
-        stop("The `wrap_var` argument must be the name of a variable ",
-             "in the data frame.")
-    }
     render_plot_spec(spec)
 }
 
@@ -428,8 +421,6 @@ plotComparisonDataFrame <- function(frame1, frame2, params,
                                     legend_var = "Legend") {
     assert_that(is.data.frame(frame1), is.data.frame(frame2),
                 is(params, "MizerParams"))
-    names(frame2)[seq_len(min(3, ncol(frame2)))] <-
-        names(frame1)[seq_len(min(3, ncol(frame1)))]
     first <- legacy_plot_spec(
         frame1, params, legend_var = legend_var,
         xlab = xlab, ylab = ylab, xtrans = xtrans, ytrans = ytrans,
@@ -477,8 +468,6 @@ plotRelativeDataFrame <- function(frame1, frame2, params,
                                   interpolate = FALSE) {
     assert_that(is.data.frame(frame1), is.data.frame(frame2),
                 is(params, "MizerParams"))
-    names(frame2)[seq_len(min(3, ncol(frame2)))] <-
-        names(frame1)[seq_len(min(3, ncol(frame1)))]
     first <- legacy_plot_spec(
         frame1, params, legend_var = legend_var,
         xlab = xlab, xtrans = xtrans, xlim = xlim, ylim = ylim,

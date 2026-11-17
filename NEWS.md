@@ -67,9 +67,6 @@
 
 ## New features
 
-- Plotting uses a shared internal specification for ordinary, comparison,
-  relative and animated renderers (#564, first stage). Public plotting APIs,
-  returned data, limit semantics and CDF calculations are unchanged.
 - `getCourant()` reports the growth Courant numbers on the model's active
   size support. Projections with high-order flux now report large Courant
   numbers, and optional `subcycle = TRUE` advances consumers, resources and
@@ -103,6 +100,10 @@
 
 ## Bug fixes
 
+- `plotDataFrame()` now warns about legend entries that have no colour in
+  `params@linecolour` also when the legend comes from `legend_var`. Before,
+  the warning looked only at a column called `Legend`, so it never fired for
+  any other legend variable (#564).
 - Size-resolved array wrappers now retain the exact original size-grid mapping
   when subsetted (#650). Printing, summaries, data-frame conversion and plots
   work for sparse selections, and reordered or repeated columns keep the
