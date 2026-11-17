@@ -958,3 +958,187 @@ test_that("getFluxGradient for MizerSim matches the MizerParams method", {
                                  n_other = n_other_slice, t = t)
     expect_equal(fg_sim[1, , ], fg_params, ignore_attr = TRUE)
 })
+
+# Fixed rates let the boundary tests separate transport losses from mortality,
+# recruitment feedback and changes in food. Use the ordinary rate dispatch so
+# params getters, simulation getters and project() see exactly the same rates.
+local_flux_boundary_rates <- function(p, envir = parent.frame()) {
+    callbacks <- list(
+        flux_boundary_growth = function(params, ...) {
+            params@other_params$flux_growth
+        },
+        flux_boundary_diffusion = function(params, ...) {
+            params@other_params$flux_diffusion
+        },
+        flux_boundary_mort = function(params, ...) params@initial_n * 0,
+        flux_boundary_rdd = function(params, ...) {
+            rep(0.25, nrow(params@initial_n))
+        }
+    )
+    for (name in names(callbacks)) {
+        assign(name, callbacks[[name]], envir = .GlobalEnv)
+    }
+    withr::defer(rm(list = names(callbacks), envir = .GlobalEnv), envir = envir)
+    p@other_params$flux_growth <- outer(rep(0.1, 3), p@w)
+    p@other_params$flux_diffusion <- outer(rep(0.1, 3), p@w^2)
+    p <- setRateFunction(p, "EGrowth", "flux_boundary_growth")
+    p <- setRateFunction(p, "Diffusion", "flux_boundary_diffusion")
+    p <- setRateFunction(p, "Mort", "flux_boundary_mort")
+    setRateFunction(p, "RDD", "flux_boundary_rdd")
+}
+
+test_that("flux diagnostics retain upper losses without filling the tail", {
+    p0 <- local_flux_boundary_rates(NS_params_small)
+    for (scheme in c("upwind", "van_leer", "centred")) {
+        for (bin_average in c(FALSE, TRUE)) {
+            p <- p0
+            second_order_w(p) <- c(flux = scheme, bin_average = bin_average)
+            # Different egg sizes also exercise the recruitment boundary.
+            p@species_params$w_min[2] <- p@w[3]
+            p <- validParams(p)
+            top <- support_top_idx(p)
+            cells <- cbind(seq_len(nrow(p@initial_n)), top)
+            p@initial_n[] <- 0
+            p@initial_n[cells] <- 1 / p@dw[top]
+            n <- p@initial_n
+            outside <- col(n) > top
+            inside <- col(n) >= p@w_min_idx & !outside
+            r <- getRates(p)
+            raw <- -consumer_residual(p, n, p@initial_n_pp, p@initial_n_other,
+                                      p@initial_effort, rates = r)
+            outflow <- r$rdd - drop((raw * inside) %*% p@dw)
+            expect_true(all(outflow > 0))
+            # Cod reaches the final shared-grid bin; its outflow must also
+            # survive, although getFlux() has no node for that terminal face.
+            expect_equal(unname(top[3]), ncol(n))
+            flux <- getFlux(p)
+            gradient <- getFluxGradient(p)
+            sp <- which(top < ncol(n))
+            expect_equal(flux[cbind(sp, top[sp] + 1L)], outflow[sp],
+                         ignore_attr = TRUE)
+            expect_true(all(gradient[outside] == 0))
+            expect_true(all(gradient[col(n) < p@w_min_idx] == 0))
+            expect_equal(-gradient[inside], raw[inside], ignore_attr = TRUE)
+            expect_equal(-unclass(gradient), steady_rates(p)$dNdt,
+                         ignore_attr = TRUE)
+            expect_equal(drop(-unclass(gradient) %*% p@dw), r$rdd - outflow,
+                         ignore_attr = TRUE)
+            eggs <- cbind(seq_len(nrow(n)), p@w_min_idx)
+            expect_equal(flux[eggs], r$rdd, ignore_attr = TRUE)
+            # An empty retained cell below the top can fill by diffusion.
+            expect_true(all(gradient[cbind(seq_len(nrow(n)), top - 1L)] < 0))
+
+            dt <- 1e-6
+            sim <- project(p, t_max = dt, dt = dt, t_save = dt,
+                           method = "euler", progress_bar = FALSE,
+                           info_level = 0)
+            observed <- drop((finalN(sim) - n) %*% p@dw) / dt
+            expect_equal(observed, r$rdd - outflow, tolerance = 2e-6,
+                         ignore_attr = TRUE)
+            expect_true(all(finalN(sim)[outside] == 0))
+            expect_equal(getFlux(sim, time_range = c(0, 0))[1, , ], flux,
+                         ignore_attr = TRUE)
+            expect_equal(getFluxGradient(sim, time_range = c(0, 0))[1, , ],
+                         gradient, ignore_attr = TRUE)
+        }
+    }
+})
+
+test_that("getFlux excludes tail influx with the solver's original limiter", {
+    p0 <- local_flux_boundary_rates(NS_params_small)
+    for (scheme in c("upwind", "van_leer", "centred")) {
+        for (bin_average in c(FALSE, TRUE)) {
+            p <- p0
+            second_order_w(p) <- c(flux = scheme, bin_average = bin_average)
+            top <- support_top_idx(p)
+            n <- p@initial_n * 0
+            for (i in seq_len(nrow(n))) {
+                n[i, top[i] - 1L] <- 0.25 / p@dw[top[i]]
+                n[i, top[i]] <- 1 / p@dw[top[i]]
+                if (top[i] < ncol(n)) {
+                    n[i, top[i] + 1L] <- 2 / p@dw[top[i]]
+                }
+            }
+            # Preserve the supplied reconstruction history too. Clipping n
+            # before evaluating chi would incorrectly change the operator.
+            if (scheme != "upwind") attr(n, "chi") <- matrix(0.4, 3, ncol(n))
+            p@initial_n <- n
+            inside <- col(n) >= p@w_min_idx & col(n) <= top
+            r <- getRates(p)
+            raw <- -consumer_residual(p, n, p@initial_n_pp, p@initial_n_other,
+                                      p@initial_effort, rates = r)
+            expected_outflow <- r$rdd - drop((raw * inside) %*% p@dw)
+            sp <- which(top < ncol(n))
+            boundary <- cbind(sp, top[sp] + 1L)
+            flux <- getFlux(p)
+            expect_equal(flux[boundary], expected_outflow[sp],
+                         ignore_attr = TRUE)
+            expect_true(all(flux[boundary] > 0))
+            expect_equal(getFlux(p, power = 1)[boundary],
+                         flux[boundary] * p@w[top[sp] + 1L],
+                         ignore_attr = TRUE)
+
+            # PR #661 retains the algebraic rates of populated excluded bins,
+            # but not inflow into empty excluded bins. Fixing the boundary
+            # value of getFlux() must not change that chosen convention.
+            empty_tail <- col(n) > top & n == 0
+            gradient <- getFluxGradient(p)
+            expect_equal(-gradient[!empty_tail], raw[!empty_tail],
+                         ignore_attr = TRUE)
+            expect_true(all(gradient[empty_tail] == 0))
+            expect_equal(-unclass(gradient), steady_rates(p)$dNdt,
+                         ignore_attr = TRUE)
+
+            # Simulation slices do not store limiter history. Compare getters
+            # on exactly the same state without that transient attribute.
+            attr(p@initial_n, "chi") <- NULL
+            sim <- params_as_sim(p)
+            expect_equal(getFlux(sim)[1, , ], getFlux(p), ignore_attr = TRUE)
+            expect_equal(getFluxGradient(sim)[1, , ], getFluxGradient(p),
+                         ignore_attr = TRUE)
+        }
+    }
+})
+
+test_that("flux diagnostics share the evaluated global Euler boundary policy", {
+    p <- local_flux_boundary_rates(NS_params_small)
+    second_order_w(p) <- FALSE
+    top <- support_top_idx(p)[1]
+    p@initial_n[] <- 0
+    p@initial_n[1, top] <- 1
+    p@other_params$flux_diffusion[] <- 0
+    no_diffusion <- getFluxGradient(p)
+    boundary_flux <- getFlux(p)[1, top + 1L]
+    expect_gt(boundary_flux, 0)
+    expect_lt(no_diffusion[1, top + 1L], 0)
+    expect_equal(-unclass(no_diffusion), steady_rates(p)$dNdt,
+                 ignore_attr = TRUE)
+    dt <- 1e-6
+    sim <- project(p, t_max = dt, dt = dt, t_save = dt, method = "euler",
+                   progress_bar = FALSE, info_level = 0)
+    expect_equal(finalN(sim)[1, top + 1L] / dt,
+                 -no_diffusion[1, top + 1L], tolerance = 1e-5,
+                 ignore_attr = TRUE)
+
+    # Only a different species diffuses, through a custom function rather
+    # than ext_diffusion. That still selects the hard boundary for all species.
+    expect_true(all(p@ext_diffusion == 0))
+    p@other_params$flux_diffusion[2, top] <- 1
+    global_diffusion <- getFluxGradient(p)
+    expect_equal(unname(global_diffusion[1, top + 1L]), 0)
+    expect_equal(global_diffusion[1, top], no_diffusion[1, top])
+    expect_equal(getFlux(p)[1, top + 1L], boundary_flux)
+    sim <- params_as_sim(p)
+    expect_equal(getFluxGradient(sim)[1, , ], global_diffusion,
+                 ignore_attr = TRUE)
+
+    for (scheme in c("van_leer", "centred")) {
+        second_order_w(p) <- c(flux = scheme)
+        top <- support_top_idx(p)[1]
+        p@initial_n[] <- 0
+        p@initial_n[1, top] <- 1
+        p@other_params$flux_diffusion[] <- 0
+        expect_gt(getFlux(p)[1, top + 1L], 0)
+        expect_equal(unname(getFluxGradient(p)[1, top + 1L]), 0)
+    }
+})

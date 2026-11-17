@@ -35,6 +35,19 @@ euler_uses_hard_boundary <- function(diffusion, flux_limiter) {
     flux_limiter != "none" || any(diffusion > 0)
 }
 
+# Apply the diagnostic convention shared by flux gradients and steady drift.
+# Empty excluded bins cannot fill under the hard boundary. Populated excluded
+# bins retain their algebraic rates: their immediate removal by projection has
+# no finite instantaneous derivative. Never discard losses from retained bins.
+zero_empty_transport_tail <- function(value, params, n, diffusion,
+                                      flux_limiter) {
+    if (euler_uses_hard_boundary(diffusion, flux_limiter)) {
+        empty_tail <- n == 0 & col(n) > support_top_idx(params)
+        value[empty_tail] <- 0
+    }
+    value
+}
+
 #' Uniform log-size grid spacing
 #'
 #' The mizer size grid is geometric, so `x = log(w)` is uniformly spaced. This

@@ -139,6 +139,14 @@
 
 ## Bug fixes
 
+- `getFluxGradient()` no longer reports transport into empty excluded size
+  bins when projection holds them at zero (#681). It shares the steady-drift
+  boundary policy from #658, preserving outgoing losses, populated-tail
+  algebraic rates and the legacy upwind Euler behaviour without diffusion.
+  `getFlux()` now reports the solver's outgoing boundary flux even when the
+  supplied excluded tail is populated, without changing its limiter weights.
+  Recruitment is no longer counted as transport out of a bin below egg size.
+
 - `plotDataFrame()` now warns about legend entries that have no colour in
   `params@linecolour` also when the legend comes from `legend_var`. Before,
   the warning looked only at a column called `Legend`, so it never fired for

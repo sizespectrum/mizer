@@ -58,6 +58,14 @@ At the recruitment size, the flux is simply the recruitment rate
 \eqn{R_{dd,i}} (see \code{\link[=getRDD]{getRDD()}}). For sizes below the recruitment size
 the flux is zero.
 
+At the face just above a species' retained size support, the value is the
+outgoing loss through the absorbing boundary, not an increase in the
+excluded size class. Influx from an already populated excluded tail is
+omitted, as in the transport solver; the flux limiter still uses the supplied
+state. This boundary value is stored at the first excluded grid node, when
+there is one. The face above the final grid bin is not part of this array.
+Use \code{all.sizes = TRUE} when plotting to include the boundary face.
+
 The flux at weight \eqn{w} is multiplied by \eqn{w} raised to the \code{power}
 given by the \code{power} argument, similar to the \code{power} argument of
 \code{\link[=plotSpectra]{plotSpectra()}}. The default \code{power = 0} returns the flux of individuals

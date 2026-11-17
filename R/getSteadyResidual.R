@@ -463,11 +463,8 @@ steady_rates <- function(params, effort = params@initial_effort, dt = 1e-4,
 
     # Share Euler's boundary policy, using the already evaluated custom rates.
     # Preserve populated tails and every retained equation, including top loss.
-    if (euler_uses_hard_boundary(consumer_rates$diffusion,
-                                 flux_limiter_scheme(params))) {
-        empty_tail <- n == 0 & col(n) > support_top_idx(params)
-        dNdt[empty_tail] <- 0
-    }
+    dNdt <- zero_empty_transport_tail(dNdt, params, n, consumer_rates$diffusion,
+                                      flux_limiter_scheme(params))
 
     # Resource. Its dynamics function is a one-step map, so difference it.
     r <- mizer_rates_subset(params, n = n, n_pp = n_pp, n_other = n_other,

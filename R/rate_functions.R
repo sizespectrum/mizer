@@ -1209,6 +1209,14 @@ getRDD.MizerSim <- function(object, n, n_pp, n_other, t = 0,
 #' \eqn{R_{dd,i}} (see [getRDD()]). For sizes below the recruitment size
 #' the flux is zero.
 #'
+#' At the face just above a species' retained size support, the value is the
+#' outgoing loss through the absorbing boundary, not an increase in the
+#' excluded size class. Influx from an already populated excluded tail is
+#' omitted, as in the transport solver; the flux limiter still uses the supplied
+#' state. This boundary value is stored at the first excluded grid node, when
+#' there is one. The face above the final grid bin is not part of this array.
+#' Use `all.sizes = TRUE` when plotting to include the boundary face.
+#'
 #' The flux at weight \eqn{w} is multiplied by \eqn{w} raised to the `power`
 #' given by the `power` argument, similar to the `power` argument of
 #' [plotSpectra()]. The default `power = 0` returns the flux of individuals
@@ -1288,6 +1296,24 @@ getFlux.MizerParams <- function(object, n = initialN(object),
 #' @keywords internal
 flux_from_rates <- function(params, n, g, d, rdd, power = 0,
                              flux_limiter = "none") {
+    faces <- transport_fluxes(params, n, g, d, rdd, flux_limiter)
+    flux <- faces$inflow
+    top <- support_top_idx(params)
+    sp <- which(top < ncol(n))
+    # Report the outgoing boundary flux even if the supplied excluded tail is
+    # populated. Its algebraic inflow is a different quantity in that case.
+    flux[cbind(sp, top[sp] + 1L)] <- faces$outflow[cbind(sp, top[sp])]
+    if (power != 0) {
+        flux <- sweep(flux, 2, params@w^power, "*")
+    }
+    flux
+}
+
+# Inflow and outflow in each cell's algebraic transport equation. At the upper
+# cutoff the retained cell cannot read the excluded tail, matching c[top] = 0
+# in get_transport_coefs(). Keep the raw inflow of populated excluded cells:
+# this is the compatibility convention of the steady-drift diagnostic (#658).
+transport_fluxes <- function(params, n, g, d, rdd, flux_limiter) {
     no_sp <- nrow(params@species_params)
     no_w <- length(params@w)
     dw <- params@dw
@@ -1334,11 +1360,47 @@ flux_from_rates <- function(params, n, g, d, rdd, power = 0,
         flux[mask_below] <- 0
     }
 
-    if (power != 0) {
-        flux <- sweep(flux, 2, params@w^power, "*")
+    # Close the shared grid with a zero ghost cell. The terminal face uses the
+    # last growth rate and no high-order reconstruction, as in the solver.
+    if (flux_limiter == "none") {
+        terminal <- g[, no_w] * n[, no_w] +
+            0.5 * d[, no_w] * n[, no_w] / dw[no_w]
+    } else {
+        beta <- w[2] / w[1]
+        w_next <- c(w[-1], w[no_w] * beta)
+        terminal <- g[, no_w] * n[, no_w] +
+            0.5 * d[, no_w] * n[, no_w] / (h * w_next[no_w])
     }
+    outflow <- cbind(flux[, -1, drop = FALSE], terminal)
 
-    flux
+    # Only populated excluded neighbours change the ordinary face flux. Use
+    # the original limiter weights: zeroing the tail before reconstructing
+    # would change the retained operator, whereas the solver only cuts c[top].
+    top <- support_top_idx(params)
+    sp <- which(top < no_w)
+    cells <- cbind(sp, top[sp])
+    above <- cbind(sp, top[sp] + 1L)
+    populated <- n[above] != 0
+    cells <- cells[populated, , drop = FALSE]
+    above <- above[populated, , drop = FALSE]
+    if (flux_limiter == "none") {
+        outflow[cells] <- g[cells] * n[cells] +
+            0.5 * d[cells] * n[cells] / dw[cells[, 2]]
+    } else {
+        outflow[cells] <- g[above] * (1 - 0.5 * chi[above]) * n[cells] +
+            0.5 * d[cells] * n[cells] / (h * w[above[, 2]])
+    }
+    list(inflow = flux, outflow = outflow)
+}
+
+# Shared by both getFluxGradient() methods; the rates are evaluated only once.
+flux_gradient_from_rates <- function(params, n, g, d, rdd, flux_limiter) {
+    faces <- transport_fluxes(params, n, g, d, rdd, flux_limiter)
+    gradient <- sweep(faces$outflow - faces$inflow, 2, params@dw, "/")
+    gradient[col(n) < params@w_min_idx] <- 0
+    gradient <- zero_empty_transport_tail(gradient, params, n, d, flux_limiter)
+    dimnames(gradient) <- dimnames(params@metab)
+    gradient
 }
 
 #' Units string for the flux returned by [getFlux()]
@@ -1403,6 +1465,21 @@ getFlux.MizerSim <- function(object, n, n_pp, n_other, t, power = 0, ...,
 #' evaluated with the same scheme using the boundary condition
 #' \eqn{N_{K+1} = 0}.
 #'
+#' At a species' upper cutoff the outgoing loss is retained, but the gradient
+#' in an empty excluded bin is zero when transport holds that bin at zero.
+#' Thus differencing the whole [getFlux()] array without applying the support
+#' boundary does not give this diagnostic. Below recruitment size the gradient
+#' is zero.
+#'
+#' The boundary policy matches [getSteadyResidual()]: upwind Euler without any
+#' positive evaluated diffusion can populate excluded bins, so their gradients
+#' are retained. Populated excluded bins keep their algebraic transport rates,
+#' even with diffusion; the instantaneous removal of that tail by projection
+#' has no finite derivative. At such a populated boundary [getFlux()] reports
+#' the retained bin's outgoing flux, while the excluded bin's algebraic equation
+#' still uses its original inflow. These conventions also apply to simulations
+#' made with other time-stepping methods.
+#'
 #' @template param_object_dots
 #' @return
 #' * `MizerParams`: An `ArraySpeciesBySize` object (species x size) giving the
@@ -1435,37 +1512,11 @@ getFluxGradient.MizerParams <- function(object,
                                          t = 0, ...) {
     params <- validParams(object)
 
-    flux <- getFlux(params, n = n, n_pp = n_pp, n_other = n_other, t = t)
     g <- getEGrowth(params, n = n, n_pp = n_pp, n_other = n_other, t = t)
     d <- getDiffusion(params, n = n, n_pp = n_pp, n_other = n_other, t = t)
-
-    flux_lim <- flux_limiter_scheme(params)
-
-    no_sp <- nrow(params@species_params)
-    no_w <- length(params@w)
-    dw <- params@dw
-
-    # Upper boundary flux J_{K+1} with N[K+1] = 0: natural extension of each
-    # scheme's flux formula to the phantom bin above the grid.
-    if (flux_lim == "none") {
-        # Upwind: J_{K+1} = g_K N_K - (0 - d_K N_K) / (2 dw_K)
-        flux_upper <- g[, no_w] * n[, no_w] +
-            0.5 * d[, no_w] * n[, no_w] / dw[no_w]
-    } else {
-        # Log-size second-order: J_{K+1} = g_K N_K - (0 - d_K N_K) / (2 h w_{K+1})
-        # chi = 0 at the upper boundary (forced upwind there)
-        h <- log_dx(params)
-        beta <- params@w[2] / params@w[1]
-        w_Kp1 <- params@w[no_w] * beta
-        flux_upper <- g[, no_w] * n[, no_w] +
-            0.5 * d[, no_w] * n[, no_w] / (h * w_Kp1)
-    }
-
-    # (J[j+1] - J[j]) / dw[j]  for j = 1..K
-    flux_shifted <- cbind(flux[, 2:no_w, drop = FALSE], flux_upper)
-    gradient <- (flux_shifted - flux) /
-        matrix(dw, nrow = no_sp, ncol = no_w, byrow = TRUE)
-    dimnames(gradient) <- dimnames(params@metab)
+    rdd <- getRDD(params, n = n, n_pp = n_pp, n_other = n_other, t = t)
+    gradient <- flux_gradient_from_rates(params, n, g, d, rdd,
+                                         flux_limiter_scheme(params))
 
     ArraySpeciesBySize(gradient, value_name = "Flux gradient",
                        units = "g^-1/year", type = "density",
@@ -1476,7 +1527,7 @@ getFluxGradient.MizerParams <- function(object,
 #' @usage NULL
 #' @export
 getFluxGradient.MizerSim <- function(object, n, n_pp, n_other, t, ...,
-                                      time_range, drop = FALSE) {
+                                     time_range, drop = FALSE) {
     sim <- object
     if (missing(time_range) && !missing(t)) time_range <- t
 
@@ -1484,36 +1535,15 @@ getFluxGradient.MizerSim <- function(object, n, n_pp, n_other, t, ...,
     rates_fns <- projectRateFunctions(params)
     flux_lim <- flux_limiter_scheme(params)
 
-    no_w <- length(params@w)
-    dw <- params@dw
-
-    get_species_size_rate_from_sim(
-        sim, time_range, drop,
-        function(slice) {
-            r <- mizer_rates_subset(
-                params, n = slice$n, n_pp = slice$n_pp,
-                n_other = slice$n_other, t = slice$t, effort = slice$effort,
-                rates_fns = rates_fns,
-                targets = c("EGrowth", "Diffusion", "RDD"), ...)
-            no_sp <- nrow(slice$n)
-            flux <- flux_from_rates(params, n = slice$n,
-                                    g = r$e_growth, d = r$diffusion,
-                                    rdd = r$rdd, flux_limiter = flux_lim)
-            if (flux_lim == "none") {
-                flux_upper <- r$e_growth[, no_w] * slice$n[, no_w] +
-                    0.5 * r$diffusion[, no_w] * slice$n[, no_w] / dw[no_w]
-            } else {
-                h <- log_dx(params)
-                w_Kp1 <- params@w[no_w] * params@w[2] / params@w[1]
-                flux_upper <- r$e_growth[, no_w] * slice$n[, no_w] +
-                    0.5 * r$diffusion[, no_w] * slice$n[, no_w] / (h * w_Kp1)
-            }
-            flux_shifted <- cbind(flux[, 2:no_w, drop = FALSE], flux_upper)
-            gradient <- (flux_shifted - flux) /
-                matrix(dw, nrow = no_sp, ncol = no_w, byrow = TRUE)
-            dimnames(gradient) <- dimnames(params@metab)
-            gradient
-        },
-        value_name = "Flux gradient", units = "g^-1/year",
-        type = "density")
+    calculate <- function(slice) {
+        r <- mizer_rates_subset(params, n = slice$n, n_pp = slice$n_pp,
+                                n_other = slice$n_other, t = slice$t,
+                                effort = slice$effort, rates_fns = rates_fns,
+                                targets = c("EGrowth", "Diffusion", "RDD"), ...)
+        flux_gradient_from_rates(params, slice$n, r$e_growth,
+                                 r$diffusion, r$rdd, flux_lim)
+    }
+    get_species_size_rate_from_sim(sim, time_range, drop, calculate,
+                                   value_name = "Flux gradient",
+                                   units = "g^-1/year", type = "density")
 }

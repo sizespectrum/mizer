@@ -57,6 +57,22 @@ the largest size class through the upper boundary (\eqn{J_{K+1}}) is
 evaluated with the same scheme using the boundary condition
 \eqn{N_{K+1} = 0}.
 }
+\details{
+At a species' upper cutoff the outgoing loss is retained, but the gradient
+in an empty excluded bin is zero when transport holds that bin at zero.
+Thus differencing the whole \code{\link[=getFlux]{getFlux()}} array without applying the support
+boundary does not give this diagnostic. Below recruitment size the gradient
+is zero.
+
+The boundary policy matches \code{\link[=getSteadyResidual]{getSteadyResidual()}}: upwind Euler without any
+positive evaluated diffusion can populate excluded bins, so their gradients
+are retained. Populated excluded bins keep their algebraic transport rates,
+even with diffusion; the instantaneous removal of that tail by projection
+has no finite derivative. At such a populated boundary \code{\link[=getFlux]{getFlux()}} reports
+the retained bin's outgoing flux, while the excluded bin's algebraic equation
+still uses its original inflow. These conventions also apply to simulations
+made with other time-stepping methods.
+}
 \examples{
 \donttest{
 params <- NS_params
