@@ -67,6 +67,24 @@
 
 ## New features
 
+- New `getR0()` gives the lifetime reproductive output R0 of each species:
+  the number of eggs that one recruit produces over its life, with growth,
+  mortality, diffusion and reproductive investment held fixed (#632). It is
+  defined for an absent species too, where `getRDI() / getRequiredRDD()` is
+  0/0. With Beverton-Holt, Ricker or Shepherd density dependence, or with none,
+  recruitment at low abundance equals egg production, so a rare species
+  increases if and only if R0 > 1 and R0 answers whether an absent species can
+  invade. A custom RDD function whose slope at low egg production is not 1
+  moves that threshold: the species then increases if R0 times that slope
+  exceeds 1. The rates can be supplied, for example
+  `mort = getMort(other_params)` to separate the effect of food from that of
+  predation. It solves the discretised transport equation that `project()`
+  solves, so unlike the usual hand-written upwind recursion it is right with
+  the second-order flux schemes and with size diffusion. At a Beverton-Holt
+  steady state it is 1 / (1 - reproduction level), not 1.
+- New `getNPerRecruit()` gives the steady-state abundance per recruit that
+  `getR0()` is built on: the steady state that a recruitment of one
+  individual per year produces with the rates held fixed.
 - `getCourant()` reports the growth Courant numbers on the model's active
   size support. Projections with high-order flux now report large Courant
   numbers, and optional `subcycle = TRUE` advances consumers, resources and
