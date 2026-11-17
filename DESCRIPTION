@@ -107,6 +107,7 @@ Collate:
     'sizeIntegral.R'
     'summary_methods.R'
     'indicator_functions.R'
+    'plotSpec.R'
     'plots.R'
     'plotBiomassObservedVsModel.R'
     'plotYieldObservedVsModel.R'

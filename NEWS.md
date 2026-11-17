@@ -139,6 +139,10 @@
 
 ## Bug fixes
 
+- `plotDataFrame()` now warns about legend entries that have no colour in
+  `params@linecolour` also when the legend comes from `legend_var`. Before,
+  the warning looked only at a column called `Legend`, so it never fired for
+  any other legend variable (#564).
 - Plotting size-resolved arrays with `total = TRUE` now works when columns
   repeat a single size coordinate (#659). Repeated samples contribute only
   once to the community total, with differing values at the same size averaged

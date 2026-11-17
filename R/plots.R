@@ -210,108 +210,13 @@ plotDataFrame <- function(frame, params, style = "line", xlab = waiver(),
                           xlim = c(NA, NA), ylim = c(NA, NA),
                           y_ticks = 6, highlight = NULL, legend_var = NULL,
                           wrap_var = NULL, wrap_scale = NULL) {
-    assert_that(is.data.frame(frame),
-                is(params, "MizerParams"))
-    if (ncol(frame) < 3) {
-        stop("The data frame needs to have at least 3 variables.")
-    }
-
-    var_names <- names(frame)
-    x_var <- var_names[[1]]
-    y_var <- var_names[[2]]
-    group_var <- var_names[[3]]
-    if (is.null(legend_var)) {
-        frame$Legend <- frame[[group_var]]
-        legend_var <- "Legend"
-    } else {
-        if (!(legend_var %in% var_names)) {
-            stop("The `legend_var` argument must be the name of a variable ",
-                 "in the data frame.")
-        }
-    }
-
-    # Need to keep species in order for legend
-    legend_levels <-
-        intersect(names(params@linecolour), frame[[legend_var]])
-    frame[[legend_var]] <- factor(frame[[legend_var]], levels = legend_levels)
-
-    if (sum(is.na(frame$Legend))) {
-        warning("missing legend in params@linecolour, some groups won't be displayed")
-    }
-
-    linecolour <- params@linecolour[legend_levels]
-    linetype <- params@linetype[legend_levels]
-    linesize <- make_linesize(legend_levels, highlight)
-
-    xbreaks <- waiver()
-    if (xtrans == "log10") xbreaks <- log_breaks()
-    ybreaks <- waiver()
-    if (ytrans == "log10") ybreaks <- log_breaks(n = y_ticks)
-    xlim <- drop_nonpositive_limits(xlim, xtrans)
-    ylim <- drop_nonpositive_limits(ylim, ytrans)
-    frame <- drop_nonpositive_values(frame, x_var, xtrans)
-    frame <- drop_nonpositive_values(frame, y_var, ytrans)
-
-    # Set up axis limits. NA values mean auto-scale to data range.
-    # The reason why below `group = species` is included first in `ggplot()`
-    # is because that puts it first in the plotly tooltips, due to a bug in plotly.
-    p <- ggplot(frame, aes(group = .data[[group_var]])) +
-        scale_y_continuous(trans = ytrans, breaks = ybreaks,
-                           labels = prettyNum, name = ylab,
-                           limits = ylim) +
-        scale_x_continuous(trans = xtrans, breaks = xbreaks, name = xlab,
-                           limits = xlim)
-
-    switch(style,
-           "area" = {
-               p <- p +
-                   geom_area(aes(x = .data[[x_var]], y = .data[[y_var]],
-                                 fill = .data[[legend_var]])) +
-                   scale_fill_manual(values = linecolour)
-           },
-           "line" = ,
-           "ribbon" = ,
-           "envelope" = {
-               # A helper rather than an `aes()` written inline in the loop
-               # below, so that each layer gets its own binding of `yv`.
-               value_line <- function(yv) {
-                   geom_line(aes(x = .data[[x_var]], y = .data[[yv]],
-                                 colour = .data[[legend_var]],
-                                 linetype = .data[[legend_var]],
-                                 linewidth = .data[[legend_var]]))
-               }
-               if (style != "line") {
-                   check_band_vars(var_names, style)
-                   p <- p +
-                       geom_ribbon(aes(x = .data[[x_var]],
-                                       ymin = .data[["ymin"]],
-                                       ymax = .data[["ymax"]],
-                                       fill = .data[[legend_var]]),
-                                   alpha = 0.25, colour = NA) +
-                       scale_fill_manual(values = linecolour)
-               }
-               # "envelope" draws the two edges of the band in place of the
-               # value that lies inside it.
-               y_vars <- if (style == "envelope") c("ymax", "ymin") else y_var
-               for (yv in y_vars) p <- p + value_line(yv)
-               p <- p +
-                   scale_colour_manual(values = linecolour) +
-                   scale_linetype_manual(values = linetype) +
-                   scale_discrete_manual("linewidth", values = linesize)
-           },
-           stop("unknown style selected")
+    spec <- legacy_plot_spec(
+        frame, params, legend_var = legend_var, style = style,
+        xlab = xlab, ylab = ylab, xtrans = xtrans, ytrans = ytrans,
+        xlim = xlim, ylim = ylim, y_ticks = y_ticks, highlight = highlight,
+        wrap_var = wrap_var, wrap_scale = wrap_scale
     )
-
-    if (!is.null(wrap_var)) {
-        if (!(wrap_var %in% var_names)) {
-            stop("The `wrap_var` argument must be the name of a variable ",
-                 "in the data frame.")
-        }
-        p <- p + facet_wrap(wrap_var, scales = wrap_scale)
-    }
-
-    make_mizer_plot(p, mizer_tooltip_vars(frame, group_var, x_var, y_var,
-                                          legend_var))
+    render_plot_spec(spec)
 }
 
 #' Check that a data frame has the variables a band style needs
@@ -514,58 +419,15 @@ plotComparisonDataFrame <- function(frame1, frame2, params,
                                     xlim = c(NA, NA), ylim = c(NA, NA),
                                     y_ticks = 6, highlight = NULL,
                                     legend_var = "Legend") {
-    assert_that(is.data.frame(frame1),
-                is.data.frame(frame2),
+    assert_that(is.data.frame(frame1), is.data.frame(frame2),
                 is(params, "MizerParams"))
-
-    names(frame2)[seq_len(min(3, ncol(frame2)))] <-
-        names(frame1)[seq_len(min(3, ncol(frame1)))]
-    frame1$Model <- name1
-    frame2$Model <- name2
-    frame <- rbind(frame1, frame2)
-    frame$Model <- factor(frame$Model, levels = c(name1, name2))
-
-    var_names <- names(frame)
-    x_var <- var_names[[1]]
-    y_var <- var_names[[2]]
-    if (!(legend_var %in% var_names)) {
-        stop("The `legend_var` argument must be the name of a variable ",
-             "in the data frame.")
-    }
-    legend_levels <- intersect(names(params@linecolour), frame[[legend_var]])
-    frame[[legend_var]] <- factor(frame[[legend_var]], levels = legend_levels)
-    if (sum(is.na(frame[[legend_var]]))) {
-        warning("missing legend in params@linecolour, some groups won't be displayed")
-    }
-    linecolour <- params@linecolour[legend_levels]
-    linesize <- make_linesize(legend_levels, highlight)
-
-    xbreaks <- waiver()
-    if (xtrans == "log10") xbreaks <- log_breaks()
-    ybreaks <- waiver()
-    if (ytrans == "log10") ybreaks <- log_breaks(n = y_ticks)
-    xlim <- drop_nonpositive_limits(xlim, xtrans)
-    ylim <- drop_nonpositive_limits(ylim, ytrans)
-    frame <- drop_nonpositive_values(frame, x_var, xtrans)
-    frame <- drop_nonpositive_values(frame, y_var, ytrans)
-
-    frame$LineSpec <- frame[[legend_var]]
-    p <- ggplot(frame,
-                aes(group = interaction(.data[[legend_var]], .data[["Model"]]),
-                    colour = .data[[legend_var]])) +
-        scale_y_continuous(trans = ytrans, breaks = ybreaks,
-                           labels = prettyNum, name = ylab,
-                           limits = ylim) +
-        scale_x_continuous(trans = xtrans, breaks = xbreaks, name = xlab,
-                           limits = xlim) +
-        geom_line(aes(x = .data[[x_var]], y = .data[[y_var]],
-                      linetype = .data[["Model"]],
-                      linewidth = .data[["LineSpec"]])) +
-        scale_colour_manual(values = linecolour) +
-        scale_linetype_discrete(drop = FALSE) +
-        scale_discrete_manual("linewidth", values = linesize, guide = "none")
-    make_mizer_plot(p, mizer_tooltip_vars(frame, legend_var, x_var, y_var,
-                                          extra = "Model"))
+    first <- legacy_plot_spec(
+        frame1, params, legend_var = legend_var,
+        xlab = xlab, ylab = ylab, xtrans = xtrans, ytrans = ytrans,
+        xlim = xlim, ylim = ylim, y_ticks = y_ticks, highlight = highlight
+    )
+    second <- legacy_plot_spec(frame2, params, legend_var = legend_var)
+    render_plot_spec(compare_plot_specs(first, second, name1, name2))
 }
 
 #' Make a plot of the relative difference between two data frames
@@ -604,58 +466,15 @@ plotRelativeDataFrame <- function(frame1, frame2, params,
                                   highlight = NULL,
                                   legend_var = "Legend",
                                   interpolate = FALSE) {
-    assert_that(is.data.frame(frame1),
-                is.data.frame(frame2),
+    assert_that(is.data.frame(frame1), is.data.frame(frame2),
                 is(params, "MizerParams"))
-
-    names(frame2)[seq_len(min(3, ncol(frame2)))] <-
-        names(frame1)[seq_len(min(3, ncol(frame1)))]
-    var_names <- names(frame1)
-    x_var <- var_names[[1]]
-    y_var <- var_names[[2]]
-    group_var <- var_names[[3]]
-    if (!(legend_var %in% var_names)) {
-        stop("The `legend_var` argument must be the name of a variable ",
-             "in the data frame.")
-    }
-
-    by_vars <- unique(c(group_var, legend_var))
-    if (isTRUE(interpolate)) {
-        frame <- interpolate_relative_frames(frame1, frame2, x_var = x_var,
-                                             y_var = y_var, by_vars = by_vars)
-    } else {
-        frame <- dplyr::inner_join(frame1, frame2, by = c(x_var, by_vars),
-                                   suffix = c(".x", ".y"))
-    }
-    frame$rel_diff <- relative_difference(frame[[paste0(y_var, ".x")]],
-                                          frame[[paste0(y_var, ".y")]])
-    frame <- frame[is.finite(frame$rel_diff), ]
-
-    legend_levels <- intersect(names(params@linecolour), frame[[legend_var]])
-    frame[[legend_var]] <- factor(frame[[legend_var]], levels = legend_levels)
-    if (sum(is.na(frame[[legend_var]]))) {
-        warning("missing legend in params@linecolour, some groups won't be displayed")
-    }
-    linecolour <- params@linecolour[legend_levels]
-    linesize <- make_linesize(legend_levels, highlight)
-    frame$LineSpec <- frame[[legend_var]]
-
-    xbreaks <- waiver()
-    if (xtrans == "log10") xbreaks <- log_breaks()
-
-    p <- ggplot(frame, aes(group = .data[[group_var]])) +
-        scale_y_continuous(name = "Relative difference", limits = ylim) +
-        scale_x_continuous(trans = xtrans, breaks = xbreaks, name = xlab,
-                           limits = xlim) +
-        geom_hline(yintercept = 0, linetype = 1,
-                   colour = "dark grey", linewidth = 0.75) +
-        geom_line(aes(x = .data[[x_var]], y = .data[["rel_diff"]],
-                      colour = .data[[legend_var]],
-                      linewidth = .data[["LineSpec"]])) +
-        scale_colour_manual(values = linecolour) +
-        scale_discrete_manual("linewidth", values = linesize, guide = "none")
-    make_mizer_plot(p, mizer_tooltip_vars(frame, group_var, x_var, "rel_diff",
-                                          legend_var))
+    first <- legacy_plot_spec(
+        frame1, params, legend_var = legend_var,
+        xlab = xlab, xtrans = xtrans, xlim = xlim, ylim = ylim,
+        highlight = highlight
+    )
+    second <- legacy_plot_spec(frame2, params, legend_var = legend_var)
+    render_plot_spec(relative_plot_specs(first, second, interpolate))
 }
 
 #' Symmetric relative difference between two values
