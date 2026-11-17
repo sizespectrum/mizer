@@ -208,12 +208,14 @@ plot.ArrayResourceBySize <- function(x, return_data = FALSE,
                              per_log_size = per_log_size)
 
     ylim <- array_ylim(x, ylim, log_y, plot_dat[[2]])
-    plotDataFrame(plot_dat, params, xlab = plot_size_xlab(size_axis),
-                  ylab = y_label,
-                  xtrans = if (log_x) "log10" else "identity",
-                  ytrans = if (log_y) "log10" else "identity",
-                  xlim = plot_size_xlim(wlim, size_axis, llim), ylim = ylim,
-                  y_ticks = y_ticks, legend_var = "Legend")
+    render_plot_spec(species_plot_spec(
+        plot_dat, params, x_var = plot_size_x_var(size_axis),
+        y_var = plot_data_value_var(plot_dat),
+        xlab = plot_size_xlab(size_axis), ylab = y_label,
+        xtrans = if (log_x) "log10" else "identity",
+        ytrans = if (log_y) "log10" else "identity",
+        xlim = plot_size_xlim(wlim, size_axis, llim), ylim = ylim,
+        y_ticks = y_ticks))
 }
 
 #' The complete plotting data of a resource-by-size array
@@ -296,14 +298,18 @@ plot2.ArrayResourceBySize <- function(x, y, name1 = "First", name2 = "Second",
 
     ylim <- array_ylim(x, ylim, log_y, c(plot_dat1[[2]], plot_dat2[[2]]))
 
-    plotComparisonDataFrame(plot_dat1, plot_dat2, params,
-                            name1 = name1, name2 = name2,
-                            xlab = plot_size_xlab(size_axis), ylab = y_label,
-                            xtrans = if (log_x) "log10" else "identity",
-                            ytrans = if (log_y) "log10" else "identity",
-                            xlim = plot_size_xlim(wlim, size_axis, llim),
-                            ylim = ylim, highlight = highlight,
-                            y_ticks = y_ticks, legend_var = "Legend")
+    x_var <- plot_size_x_var(size_axis)
+    first <- species_plot_spec(
+        plot_dat1, params, x_var = x_var,
+        y_var = plot_data_value_var(plot_dat1),
+        xlab = plot_size_xlab(size_axis), ylab = y_label,
+        xtrans = if (log_x) "log10" else "identity",
+        ytrans = if (log_y) "log10" else "identity",
+        xlim = plot_size_xlim(wlim, size_axis, llim), ylim = ylim,
+        highlight = highlight, y_ticks = y_ticks)
+    second <- species_plot_spec(plot_dat2, params, x_var = x_var,
+                                y_var = plot_data_value_var(plot_dat2))
+    render_plot_spec(compare_plot_specs(first, second, name1, name2))
 }
 
 #' @rdname plotRelative
@@ -336,12 +342,17 @@ plotRelative.ArrayResourceBySize <- function(x, y, species = NULL,
                                                size_axis = size_axis,
                                                per_log_size = per_log_size)
 
-    plotRelativeDataFrame(plot_dat1, plot_dat2, params,
-                          xlab = plot_size_xlab(size_axis),
-                          xtrans = if (log_x) "log10" else "identity",
-                          xlim = plot_size_xlim(wlim, size_axis, llim),
-                          ylim = ylim, highlight = highlight,
-                          legend_var = "Legend", interpolate = TRUE)
+    x_var <- plot_size_x_var(size_axis)
+    first <- species_plot_spec(
+        plot_dat1, params, x_var = x_var,
+        y_var = plot_data_value_var(plot_dat1),
+        xlab = plot_size_xlab(size_axis),
+        xtrans = if (log_x) "log10" else "identity",
+        xlim = plot_size_xlim(wlim, size_axis, llim), ylim = ylim,
+        highlight = highlight)
+    second <- species_plot_spec(plot_dat2, params, x_var = x_var,
+                                y_var = plot_data_value_var(plot_dat2))
+    render_plot_spec(relative_plot_specs(first, second, interpolate = TRUE))
 }
 
 #' @rdname addPlot

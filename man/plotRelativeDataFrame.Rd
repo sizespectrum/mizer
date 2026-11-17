@@ -18,8 +18,9 @@ plotRelativeDataFrame(
 )
 }
 \arguments{
-\item{frame1, frame2}{Data frames sharing the same first three variables (x, y
-and grouping variable). The names of \code{frame1} are imposed on \code{frame2}.}
+\item{frame1, frame2}{Data frames whose first three variables are the x, y and
+grouping variables. The columns of \code{frame2} are matched to those of
+\code{frame1} by these roles and by \code{legend_var}, not by name.}
 
 \item{params}{A MizerParams object, used for the line colours.}
 

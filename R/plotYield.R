@@ -112,12 +112,13 @@ plotYield.MizerSim <- function(object, sim2 = NULL,
 
     if (return_data) return(ym)
 
-    plotDataFrame(ym, params,
-                  ylab = "Yield [g/year]",
-                  xtrans = ifelse(log_axes$log_x, "log10", "identity"),
-                  ytrans = ifelse(log_axes$log_y, "log10", "identity"),
-                  xlim = tlim, ylim = ylim,
-                  highlight = highlight, wrap_var = "Simulation")
+    ym$Legend <- ym$Species
+    render_plot_spec(species_plot_spec(
+        ym, params, x_var = "Year", y_var = "Yield", ylab = "Yield [g/year]",
+        xtrans = if (log_axes$log_x) "log10" else "identity",
+        ytrans = if (log_axes$log_y) "log10" else "identity",
+        xlim = tlim, ylim = ylim, highlight = highlight,
+        wrap_var = "Simulation"))
 }
 
 #' @rdname plotYield

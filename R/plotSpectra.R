@@ -346,12 +346,13 @@ plot_spectra <- function(params, n, n_pp,
     names(plot_dat)[2] <- y_label
     if (return_data) return(plot_dat)
 
-    plotDataFrame(plot_dat, params, xlab = plot_size_xlab(size_axis),
-                  ylab = y_label,
-                  xtrans = if (log_x) "log10" else "identity",
-                  ytrans = if (log_y) "log10" else "identity",
-                  xlim = plot_size_xlim(wlim, size_axis, llim), ylim = ylim,
-                  highlight = highlight, legend_var = "Legend")
+    render_plot_spec(species_plot_spec(
+        plot_dat, params, x_var = plot_size_x_var(size_axis), y_var = y_label,
+        xlab = plot_size_xlab(size_axis), ylab = y_label,
+        xtrans = if (log_x) "log10" else "identity",
+        ytrans = if (log_y) "log10" else "identity",
+        xlim = plot_size_xlim(wlim, size_axis, llim), ylim = ylim,
+        highlight = highlight))
 }
 
 # The abundances of a simulation averaged over `time_range` (by default the
@@ -458,28 +459,29 @@ plotSpectra2 <- function(object1, object2, name1 = "First", name2 = "Second",
     # it is a sum over species that each convert differently. It also means
     # `ylim` can be handed straight over, because the values it is applied to
     # are then the values it describes.
-    sf1 <- plotSpectra(object1, species = species, wlim = wlim, ylim = ylim,
+    sf1 <- plotSpectra(object1, species = species, ylim = ylim,
                        power = power, total = total, resource = resource,
                        background = background, size_axis = size_axis,
                        return_data = TRUE, ...)
-    sf2 <- plotSpectra(object2, species = species, wlim = wlim, ylim = ylim,
+    sf2 <- plotSpectra(object2, species = species, ylim = ylim,
                        power = power, total = total, resource = resource,
                        background = background, size_axis = size_axis,
                        return_data = TRUE, ...)
     params <- if (is(object1, "MizerSim")) object1@params else object1
 
-    plotComparisonDataFrame(sf1, sf2, params,
-                            name1 = name1, name2 = name2,
-                            xlab = plot_size_xlab(size_axis),
-                            ylab = spectra_y_label(
-                                power, size_axis,
-                                biomass = spectrum$biomass,
-                                per_log_size = spectrum$per_log_size),
-                            xtrans = if (log_x) "log10" else "identity",
-                            ytrans = if (log_y) "log10" else "identity",
-                            xlim = plot_size_xlim(wlim, size_axis, llim),
-                            ylim = ylim, highlight = highlight,
-                            legend_var = "Legend")
+    y_label <- spectra_y_label(power, size_axis, biomass = spectrum$biomass,
+                               per_log_size = spectrum$per_log_size)
+    x_var <- plot_size_x_var(size_axis)
+    first <- species_plot_spec(
+        sf1, params, x_var = x_var, y_var = plot_data_value_var(sf1),
+        xlab = plot_size_xlab(size_axis), ylab = y_label,
+        xtrans = if (log_x) "log10" else "identity",
+        ytrans = if (log_y) "log10" else "identity",
+        xlim = plot_size_xlim(wlim, size_axis, llim), ylim = ylim,
+        highlight = highlight)
+    second <- species_plot_spec(sf2, params, x_var = x_var,
+                                y_var = plot_data_value_var(sf2))
+    render_plot_spec(compare_plot_specs(first, second, name1, name2))
 }
 
 #' Resolve the power of weight multiplying a spectrum
@@ -637,11 +639,11 @@ plotSpectraRelative <- function(object1, object2,
 
     # As in `plotSpectra2()`, the conversion is left to `plotSpectra()` so that
     # the total is summed on the axis being plotted.
-    sf1 <- plotSpectra(object1, species = species, wlim = wlim,
+    sf1 <- plotSpectra(object1, species = species,
                        power = 1, total = total, resource = resource,
                        background = background, size_axis = size_axis,
                        return_data = TRUE, ...)
-    sf2 <- plotSpectra(object2, species = species, wlim = wlim,
+    sf2 <- plotSpectra(object2, species = species,
                        power = 1, total = total, resource = resource,
                        background = background, size_axis = size_axis,
                        return_data = TRUE, ...)
@@ -652,13 +654,16 @@ plotSpectraRelative <- function(object1, object2,
     # On a weight axis they already share one and nothing is approximated; on a
     # length axis they need not, because the two models can convert weight to
     # length differently.
-    plotRelativeDataFrame(sf1, sf2, params,
-                          xlab = plot_size_xlab(size_axis),
-                          xtrans = if (log_x) "log10" else "identity",
-                          xlim = plot_size_xlim(wlim, size_axis, llim),
-                          ylim = ylim,
-                          highlight = highlight,
-                          legend_var = "Legend", interpolate = TRUE)
+    x_var <- plot_size_x_var(size_axis)
+    first <- species_plot_spec(
+        sf1, params, x_var = x_var, y_var = plot_data_value_var(sf1),
+        xlab = plot_size_xlab(size_axis),
+        xtrans = if (log_x) "log10" else "identity",
+        xlim = plot_size_xlim(wlim, size_axis, llim), ylim = ylim,
+        highlight = highlight)
+    second <- species_plot_spec(sf2, params, x_var = x_var,
+                                y_var = plot_data_value_var(sf2))
+    render_plot_spec(relative_plot_specs(first, second, interpolate = TRUE))
 }
 
 #' @rdname plotSpectraRelative

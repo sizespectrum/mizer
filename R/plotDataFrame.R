@@ -321,8 +321,9 @@ plotly_forward <- function(plot_fun, tooltip = NULL, exclude = character(),
 #' the model the values came from. Doing it here instead would silently impose
 #' the first model's parameters on the second.
 #'
-#' @param frame1,frame2 Data frames sharing the same first three variables (x, y
-#'   and grouping variable). The names of `frame1` are imposed on `frame2`.
+#' @param frame1,frame2 Data frames whose first three variables are the x, y and
+#'   grouping variables. The columns of `frame2` are matched to those of
+#'   `frame1` by these roles and by `legend_var`, not by name.
 #' @param params A MizerParams object, used for the line colours.
 #' @param name1,name2 Labels for the two data frames, used in the linetype
 #'   legend.
@@ -366,8 +367,9 @@ plotComparisonDataFrame <- function(frame1, frame2, params,
 #' [plotComparisonDataFrame()] for why the preparation belongs to whatever
 #' produced each operand rather than here.
 #'
-#' @param frame1,frame2 Data frames sharing the same first three variables (x, y
-#'   and grouping variable). The names of `frame1` are imposed on `frame2`.
+#' @param frame1,frame2 Data frames whose first three variables are the x, y and
+#'   grouping variables. The columns of `frame2` are matched to those of
+#'   `frame1` by these roles and by `legend_var`, not by name.
 #' @param params A MizerParams object, used for the line colours.
 #' @param xlab Label for the x-axis.
 #' @param xtrans Transformation for the x-axis, e.g. `"log10"` or `"identity"`.

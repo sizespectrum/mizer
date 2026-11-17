@@ -220,13 +220,14 @@ plot_cdf <- function(params, power, normalise, log_x, log_y, wlim, llim,
     names(cdf_dat)[names(cdf_dat) == "value"] <- cdf_y_label(power, normalise)
     if (return_data) return(cdf_dat)
 
-    plotDataFrame(cdf_dat, params,
-                  xlab = plot_size_xlab(size_axis),
-                  ylab = cdf_y_label(power, normalise),
-                  xtrans = if (log_x) "log10" else "identity",
-                  ytrans = if (log_y) "log10" else "identity",
-                  xlim = plot_size_xlim(wlim, size_axis, llim), ylim = ylim,
-                  highlight = highlight, legend_var = "Legend")
+    y_label <- cdf_y_label(power, normalise)
+    render_plot_spec(species_plot_spec(
+        cdf_dat, params, x_var = plot_size_x_var(size_axis), y_var = y_label,
+        xlab = plot_size_xlab(size_axis), ylab = y_label,
+        xtrans = if (log_x) "log10" else "identity",
+        ytrans = if (log_y) "log10" else "identity",
+        xlim = plot_size_xlim(wlim, size_axis, llim), ylim = ylim,
+        highlight = highlight))
 }
 
 # Convert scalar integration bounds to weights for each contributing species.
@@ -404,15 +405,17 @@ plotCDF2 <- function(object1, object2, name1 = "First", name2 = "Second",
                    min_l = min_l, max_l = max_l, ...)
     params <- if (is(object1, "MizerSim")) object1@params else object1
 
-    plotComparisonDataFrame(cf1, cf2, params,
-                            name1 = name1, name2 = name2,
-                            xlab = plot_size_xlab(size_axis),
-                            ylab = cdf_y_label(power, normalise),
-                            xtrans = if (log_axes$log_x) "log10" else "identity",
-                            ytrans = if (log_axes$log_y) "log10" else "identity",
-                            xlim = plot_size_xlim(wlim, size_axis, llim),
-                            ylim = ylim, highlight = highlight,
-                            legend_var = "Legend")
+    y_label <- cdf_y_label(power, normalise)
+    x_var <- plot_size_x_var(size_axis)
+    first <- species_plot_spec(
+        cf1, params, x_var = x_var, y_var = y_label,
+        xlab = plot_size_xlab(size_axis), ylab = y_label,
+        xtrans = if (log_axes$log_x) "log10" else "identity",
+        ytrans = if (log_axes$log_y) "log10" else "identity",
+        xlim = plot_size_xlim(wlim, size_axis, llim), ylim = ylim,
+        highlight = highlight)
+    second <- species_plot_spec(cf2, params, x_var = x_var, y_var = y_label)
+    render_plot_spec(compare_plot_specs(first, second, name1, name2))
 }
 
 #' Resolve the power of weight for a cumulative distribution

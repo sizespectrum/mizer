@@ -64,7 +64,10 @@ in the same form as the base \code{\link[=plot]{plot()}} argument. For example, 
 \item{\code{time_range}}{The time range (either a vector of values, a vector
 of min and max time, or a single value) to average the fishing
 mortality over. Default is the final time step.}
-}}
+}
+
+Any other arguments, such as \code{ylim}, \code{y_ticks}, \code{total} or
+\code{background}, are passed on to the array's \code{\link[=plot]{plot()}} method.}
 }
 \value{
 A ggplot2 object, unless \code{return_data = TRUE}, in which case a data

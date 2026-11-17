@@ -114,6 +114,10 @@
 
 ## Bug fixes
 
+- `plotPredMort()` and `plotFMort()` now pass further arguments such as
+  `ylim`, `y_ticks`, `total` or `background` on to the array plot instead of
+  ignoring them, and `plotPredMort()` keeps 0 as its lower limit only when no
+  `ylim` is given (#564).
 - `plotSpectra()` no longer draws a background species twice, under its own
   name and as "Background", when it is also selected by name. It is drawn once
   as "Background", as in `plotCDF()` and the time-series plots (#564).

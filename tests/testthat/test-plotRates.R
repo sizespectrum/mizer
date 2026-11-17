@@ -209,3 +209,14 @@ test_that("critical feeding levels keep the requested viewport", {
     expect_equal(feeding$coordinates$limits$x, c(1, 100))
     expect_equal(feeding$coordinates$limits$y, c(0.2, 0.8))
 })
+
+test_that("mortality plots pass further plot arguments to the array plot", {
+    p <- plotPredMort(params)
+    expect_equal(p$coordinates$limits$y[1], 0)
+    p <- plotPredMort(params, ylim = c(1, 5))
+    expect_equal(p$coordinates$limits$y, c(1, 5))
+    p <- plotFMort(sim, ylim = c(0.1, 0.5), time_range = 1:2)
+    expect_equal(p$coordinates$limits$y, c(0.1, 0.5))
+    expect_true("Total" %in%
+                    plotFMort(params, total = TRUE, return_data = TRUE)$Species)
+})

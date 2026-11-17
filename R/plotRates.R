@@ -17,6 +17,14 @@ prepare_plot_rate <- function(object, getter, time_range, value_name, units,
                        representation = "average")
 }
 
+# Plot a mortality array, passing on any further plot arguments. A `ylim`
+# among them replaces `default_ylim`; arguments that only some methods use,
+# such as `time_range`, have already been consumed.
+plot_mortality <- function(rate, ..., default_ylim = c(NA, NA),
+                           ylim = default_ylim) {
+    plot(rate, ..., ylim = ylim)
+}
+
 #' Plot the feeding level of species by size
 #'
 #' After running a projection, plot the feeding level of each species by size.
@@ -261,6 +269,9 @@ plotlyFeedingLevel <- function(object, ...) {
 #'       mortality over. Default is the final time step.}
 #'   }
 #'
+#'   Any other arguments, such as `ylim`, `y_ticks`, `total` or
+#'   `background`, are passed on to the array's [plot()] method.
+#'
 #' @return  A ggplot2 object, unless `return_data = TRUE`, in which case a data
 #'   frame with the three variables 'w' (or 'l' if `size_axis = "l"`), 'value',
 #'   'Species' is returned.
@@ -302,12 +313,11 @@ plotPredMort.MizerSim <- function(object, species = NULL,
     pred_mort <- prepare_plot_rate(object, getPredMort, time_range,
                                     value_name = "Predation mortality",
                                     units = "1/year")
-    plot(pred_mort, species = species, all.sizes = all.sizes,
-         highlight = highlight, wlim = wlim, llim = llim,
-         log_x = log_x, log_y = log_y, log = log,
-         size_axis = size_axis,
-         return_data = return_data,
-         ylim = c(0, NA))
+    plot_mortality(pred_mort, species = species, all.sizes = all.sizes,
+                   highlight = highlight, wlim = wlim, llim = llim,
+                   log_x = log_x, log_y = log_y, log = log,
+                   size_axis = size_axis, return_data = return_data,
+                   default_ylim = c(0, NA), ...)
 }
 
 #' @rdname plotPredMort
@@ -322,11 +332,11 @@ plotPredMort.MizerParams <- function(object, species = NULL,
                          log_x = TRUE, log_y = FALSE, log = NULL,
                          ...) {
     size_axis <- plot_size_axis(size_axis)
-    plot(getPredMort(validParams(object)), species = species,
-         all.sizes = all.sizes, highlight = highlight,
-         log_x = log_x, log_y = log_y, log = log,
-         wlim = wlim, llim = llim, size_axis = size_axis,
-         return_data = return_data, ylim = c(0, NA))
+    plot_mortality(getPredMort(validParams(object)), species = species,
+                   all.sizes = all.sizes, highlight = highlight,
+                   log_x = log_x, log_y = log_y, log = log,
+                   wlim = wlim, llim = llim, size_axis = size_axis,
+                   return_data = return_data, default_ylim = c(0, NA), ...)
 }
 
 #' Alias for `plotPredMort()`
@@ -388,6 +398,9 @@ plotlyPredMort <- function(object, species = NULL,
 #'       of min and max time, or a single value) to average the fishing
 #'       mortality over. Default is the final time step.}
 #'   }
+#'
+#'   Any other arguments, such as `ylim`, `y_ticks`, `total` or
+#'   `background`, are passed on to the array's [plot()] method.
 #' @return A ggplot2 object, unless `return_data = TRUE`, in which case a data
 #'   frame with the three variables 'w' (or 'l' if `size_axis = "l"`), 'value',
 #'   'Species' is returned.
@@ -428,11 +441,10 @@ plotFMort.MizerSim <- function(object, species = NULL,
     size_axis <- plot_size_axis(size_axis)
     f <- prepare_plot_rate(object, getFMort, time_range,
                            value_name = "Fishing mortality", units = "1/year")
-    plot(f, species = species, all.sizes = all.sizes,
-         highlight = highlight, wlim = wlim, llim = llim,
-         log_x = log_x, log_y = log_y, log = log,
-         size_axis = size_axis,
-         return_data = return_data)
+    plot_mortality(f, species = species, all.sizes = all.sizes,
+                   highlight = highlight, wlim = wlim, llim = llim,
+                   log_x = log_x, log_y = log_y, log = log,
+                   size_axis = size_axis, return_data = return_data, ...)
 }
 
 #' @rdname plotFMort
@@ -447,11 +459,11 @@ plotFMort.MizerParams <- function(object, species = NULL,
                       log_x = TRUE, log_y = FALSE, log = NULL,
                       ...) {
     size_axis <- plot_size_axis(size_axis)
-    plot(getFMort(validParams(object)), species = species,
-         all.sizes = all.sizes, highlight = highlight,
-         log_x = log_x, log_y = log_y, log = log,
-         wlim = wlim, llim = llim, size_axis = size_axis,
-         return_data = return_data)
+    plot_mortality(getFMort(validParams(object)), species = species,
+                   all.sizes = all.sizes, highlight = highlight,
+                   log_x = log_x, log_y = log_y, log = log,
+                   wlim = wlim, llim = llim, size_axis = size_axis,
+                   return_data = return_data, ...)
 }
 
 #' @rdname plotFMort
