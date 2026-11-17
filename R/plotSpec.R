@@ -1,8 +1,10 @@
 # Internal plotting contract. Data arrive fully prepared: selection, totals,
 # density conversion and integration belong to the producer, not the renderer.
 # This is a plain list, never a new public class or a return_data schema.
-# Every renderer reads its columns through the named roles in `variables`;
-# column positions matter only to the public plotDataFrame() adapter.
+# Every renderer reads its columns through the named roles in `variables`.
+# Column positions matter only to the data-frame adapters (plotDataFrame() and
+# its comparison and relative counterparts) and to the public layout of the
+# data that `return_data = TRUE` returns, see plot_data_value_var().
 plot_spec_modes <- c("ordinary", "comparison", "relative")
 plot_spec_styles <- c("line", "area", "ribbon", "envelope")
 
@@ -40,6 +42,18 @@ new_plot_spec <- function(data, params, x_var, y_var, group_var,
          limits = list(x = xlim, y = ylim),
          tooltip = tooltip, options = options)
 }
+
+# Most mizer plots draw one line for each `Species`, coloured by its `Legend`
+# entry, so only the size or time coordinate and the value need naming.
+species_plot_spec <- function(data, params, x_var, y_var, ...) {
+    new_plot_spec(data, params, x_var = x_var, y_var = y_var,
+                  group_var = "Species", legend_var = "Legend", ...)
+}
+
+# The plotting data that `return_data = TRUE` returns keep their public layout,
+# with the value in the second column under its descriptive name. Producers
+# that do not set that name themselves look it up here.
+plot_data_value_var <- function(plot_dat) names(plot_dat)[[2]]
 
 # The positional contract is confined to the compatibility boundary. In
 # particular, keep the public column names and the automatic Legend column.

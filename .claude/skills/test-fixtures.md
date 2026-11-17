@@ -24,6 +24,12 @@ the `_small` suffix so they cannot shadow the built-in package datasets.
 - **`example_params()`** — a function building a 3-species model with differing
   egg sizes, length-weight parameters, a multi-gear `gear_params` and diffusion
   on one species.
+- **Plotting fixtures in `helper-plotting.R`** — `plot_params_small` uses the
+  same 3 species with numeric names and a 30-bin grid to preserve the plotting
+  snapshots. `plot_sim_small` and `plot_sim0_small` hold its 4 saved time steps
+  with effort 1 and 0; `plot_params_background_small` marks the first species
+  as background, and `plot_params_single_small` is a one-species model. All
+  are lazy and use edition 1.
 
 **Fixtures give 3 species and 4 time steps.** Any hardcoded species index
 (`[12, ]`) or time index (`times[10]`) must be valid for that.

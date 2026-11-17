@@ -208,11 +208,12 @@ plot.ArrayTimeBySpecies <- function(x, species = NULL,
     if (return_data) return(plot_dat)
 
     ylim <- array_ylim(x, ylim, log_y, plot_dat[[2]])
-    plotDataFrame(plot_dat, params, xlab = "Year", ylab = y_label,
-                  xtrans = if (log_x) "log10" else "identity",
-                  ytrans = if (log_y) "log10" else "identity",
-                  xlim = tlim, ylim = ylim, y_ticks = y_ticks,
-                  highlight = highlight, legend_var = "Legend")
+    render_plot_spec(species_plot_spec(
+        plot_dat, params, x_var = "Year", y_var = plot_data_value_var(plot_dat),
+        xlab = "Year", ylab = y_label,
+        xtrans = if (log_x) "log10" else "identity",
+        ytrans = if (log_y) "log10" else "identity",
+        xlim = tlim, ylim = ylim, y_ticks = y_ticks, highlight = highlight))
 }
 
 #' @rdname addPlot
@@ -302,13 +303,15 @@ plot2.ArrayTimeBySpecies <- function(x, y, name1 = "First", name2 = "Second",
 
     ylim <- array_ylim(x, ylim, log_y, c(plot_dat1[[2]], plot_dat2[[2]]))
 
-    plotComparisonDataFrame(plot_dat1, plot_dat2, params,
-                            name1 = name1, name2 = name2,
-                            xlab = "Year", ylab = y_label,
-                            xtrans = if (log_x) "log10" else "identity",
-                            ytrans = if (log_y) "log10" else "identity",
-                            xlim = tlim, ylim = ylim, y_ticks = y_ticks,
-                            highlight = highlight, legend_var = "Legend")
+    first <- species_plot_spec(
+        plot_dat1, params, x_var = "Year",
+        y_var = plot_data_value_var(plot_dat1), xlab = "Year", ylab = y_label,
+        xtrans = if (log_x) "log10" else "identity",
+        ytrans = if (log_y) "log10" else "identity",
+        xlim = tlim, ylim = ylim, y_ticks = y_ticks, highlight = highlight)
+    second <- species_plot_spec(plot_dat2, params, x_var = "Year",
+                                y_var = plot_data_value_var(plot_dat2))
+    render_plot_spec(compare_plot_specs(first, second, name1, name2))
 }
 
 #' @rdname plotRelative
@@ -334,11 +337,14 @@ plotRelative.ArrayTimeBySpecies <- function(x, y, species = NULL,
         y, species = species, tlim = tlim,
         total = total, background = background, log_y = FALSE)
 
-    plotRelativeDataFrame(plot_dat1, plot_dat2, params,
-                          xlab = "Year",
-                          xtrans = if (log_x) "log10" else "identity",
-                          xlim = tlim, ylim = ylim, highlight = highlight,
-                          legend_var = "Legend")
+    first <- species_plot_spec(
+        plot_dat1, params, x_var = "Year",
+        y_var = plot_data_value_var(plot_dat1), xlab = "Year",
+        xtrans = if (log_x) "log10" else "identity",
+        xlim = tlim, ylim = ylim, highlight = highlight)
+    second <- species_plot_spec(plot_dat2, params, x_var = "Year",
+                                y_var = plot_data_value_var(plot_dat2))
+    render_plot_spec(relative_plot_specs(first, second))
 }
 
 #' The complete plotting data of a time-by-species array

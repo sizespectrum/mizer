@@ -165,9 +165,15 @@
 
 ## Bug fixes
 
+- `plotPredMort()` and `plotFMort()` now pass further arguments such as
+  `ylim`, `y_ticks`, `total` or `background` on to the array plot instead of
+  ignoring them, and `plotPredMort()` keeps 0 as its lower limit only when no
+  `ylim` is given (#564).
+
 - `plotSpectra()` no longer draws a background species twice, under its own
   name and as "Background", when it is also selected by name. It is drawn once
   as "Background", as in `plotCDF()` and the time-series plots (#564).
+
 - `plotDataFrame()` now warns about legend entries that have no colour in
   `params@linecolour` also when the legend comes from `legend_var`. Before,
   the warning looked only at a column called `Legend`, so it never fired for
@@ -176,6 +182,12 @@
   repeat a single size coordinate (#659). Repeated samples contribute only
   once to the community total, with differing values at the same size averaged
   within each species. The individual species' plotted values are preserved.
+
+- The `plotly…()` wrappers now pass `...` on to their plot functions (#564).
+  `plotlyYield()`, `plotlyYieldGear()`, `plotlyPredMort()`, `plotlyFMort()`
+  and `plotlySpectra()` used to drop them silently, so that for example
+  `plotlyFMort(sim, all.sizes = TRUE)` ignored `all.sizes`. All the wrappers
+  now forward their arguments in the same way.
 
 - Euler projection and steady-state drift diagnostics now share the rule for
   selecting the upper size boundary. The rule uses the current evaluated
