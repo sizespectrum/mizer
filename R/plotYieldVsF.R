@@ -64,7 +64,11 @@
 #'   returned instead of the plot. Default FALSE.
 #' @param progress_bar If TRUE a text progress bar is shown while the fishing
 #'   mortalities are swept. Defaults to `interactive()`.
-#' @param ... Further arguments are passed on to [scanModel()].
+#' @param ... Further arguments are passed on to [scanModel()], for example
+#'   `t_max` or `distance_tol`.
+#' @param tol `r lifecycle::badge("deprecated")` Use `distance_tol` instead.
+#'   This was the name of the argument when `plotYieldVsF()` was part of
+#'   mizerExperimental.
 #'
 #' @return A ggplot2 object, or, if `return_data = TRUE`, the [MizerScan] object
 #'   holding the data. The fishing mortality giving the largest yield is
@@ -94,7 +98,8 @@ plotYieldVsF <- function(params, species, F_range,
                          log = NULL,
                          return_data = FALSE,
                          progress_bar = interactive(),
-                         ...) {
+                         ...,
+                         tol = lifecycle::deprecated()) {
     params <- validParams(params)
     # Resolved here rather than left to the setter, so that a mistyped species
     # or a species argument selecting more than one is caught before any
@@ -113,15 +118,32 @@ plotYieldVsF <- function(params, species, F_range,
     }
     assert_that(is.numeric(F_range), length(F_range) >= 2)
 
-    scan <- scanModel(params, scan_values = F_range,
-                      set_func = scanFishingMortality(species, gear = gear),
-                      value_func = getYield,
-                      species = species,
-                      # Sweep outwards from where the model already sits, so
-                      # that neither arm has to travel through the other.
-                      current_scan_value = "auto",
-                      progress_bar = progress_bar,
-                      ...)
+    scan_yield <- function(...) {
+        scanModel(params, scan_values = F_range,
+                  set_func = scanFishingMortality(species, gear = gear),
+                  value_func = getYield,
+                  species = species,
+                  # Sweep outwards from where the model already sits, so
+                  # that neither arm has to travel through the other.
+                  current_scan_value = "auto",
+                  progress_bar = progress_bar,
+                  ...)
+    }
+    # In mizerExperimental this function had a `tol` argument, which it passed
+    # to projectToSteady() as the same distance tolerance that scanModel()
+    # calls `distance_tol`. Left in `...` it would reach
+    # project_until_settled(), which rejects the old name.
+    if (lifecycle::is_present(tol)) {
+        if ("distance_tol" %in% names(list(...))) {
+            stop("`tol` is the old name of `distance_tol`, so give only ",
+                 "`distance_tol`.")
+        }
+        lifecycle::deprecate_warn("3.5.0", "plotYieldVsF(tol)",
+                                  "plotYieldVsF(distance_tol)")
+        scan <- scan_yield(..., distance_tol = tol)
+    } else {
+        scan <- scan_yield(...)
+    }
 
     if (return_data) return(scan)
 

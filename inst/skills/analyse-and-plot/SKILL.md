@@ -60,6 +60,22 @@ N(sim)["2010", "Cod", ]    # size vector for Cod in year 2010
 finalN(sim)["Cod", ]       # size vector for Cod at the final time step
 ```
 
+
+Size subsetting keeps the original coordinates and bin widths of wrapped
+arrays, including sparse, reordered and repeated selections. When bin
+averaging is enabled, a bin average stays at its original bin centre;
+selecting distant columns does not create wider bins between them. The same
+holds for time slices and resource arrays.
+Keep matrix or array dimensions with `drop = FALSE` when you want to retain
+the specialised printing, summaries and plotting methods:
+
+```r
+mort <- getPredMort(params)
+selected <- mort[, c(10, 20, 30), drop = FALSE]
+as.data.frame(selected)                 # original sizes, in selection order
+plot(selected)
+```
+
 ## Summary functions
 
 These functions compute derived quantities from abundances. All accept `MizerSim` or

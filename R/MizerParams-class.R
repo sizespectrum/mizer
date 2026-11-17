@@ -250,6 +250,14 @@ validMizerParams <- function(object) {
         errors <- c(errors, msg)
     }
 
+    # defaults_edition must be a single number of at least 1
+    edition <- params@defaults_edition
+    if (!is.numeric(edition) || length(edition) != 1 || is.na(edition) ||
+        edition < 1) {
+        msg <- "defaults_edition must be a single number of at least 1"
+        errors <- c(errors, msg)
+    }
+
     # Should not have legacy r_max column (has been renamed to R_max)
     if ("r_max" %in% names(params@species_params)) {
         msg <- "The 'r_max' column in species_params should be called 'R_max'. You can use 'validParams()' to upgrade your params object."
@@ -344,17 +352,22 @@ validMizerParams <- function(object) {
 #'   [setPredKernel()].
 #' @slot ft_pred_kernel_e An array (species x log of predator/prey size ratio)
 #'   that holds the Fourier transform of the feeding kernel in a form
-#'   appropriate for evaluating the encounter rate integral. If this is NA
-#'   then the `pred_kernel` will be used to calculate the available
-#'   energy integral. Changed with [setPredKernel()].
+#'   appropriate for evaluating the encounter rate integral. In a model of
+#'   defaults edition 3 or later the kernel is zero-padded, so the second
+#'   dimension can be longer than `w_full`; use [convolve_pred_kernel()] rather
+#'   than this slot to evaluate the integral.
+#'   If this is NA then the `pred_kernel` will be used to calculate the
+#'   available energy integral. Changed with [setPredKernel()].
 #' @slot ft_pred_kernel_p An array (species x log of predator/prey size ratio)
 #'   that holds the Fourier transform of the feeding kernel in a form
-#'   appropriate for evaluating the predation mortality integral. If this is NA
+#'   appropriate for evaluating the predation mortality integral. Zero-padded
+#'   in the same way as `ft_pred_kernel_e`. If this is NA
 #'   then the `pred_kernel` will be used to calculate the integral.
 #'   Changed with [setPredKernel()].
 #' @slot ft_pred_kernel_d An array (species x log of predator/prey size ratio)
-#'   that holds the Fourier transform of the feeding kernel in a form
-#'   appropriate for evaluating the predation-diffusion integral (used when
+#'   that holds the Fourier transform of the feeding kernel, zero-padded in the
+#'   same way as `ft_pred_kernel_e`, in a form appropriate for evaluating the
+#'   predation-diffusion integral (used when
 #'   `use_predation_diffusion` is `TRUE`). It differs from `ft_pred_kernel_e`
 #'   only when `second_order_w[["bin_average"]]` is `TRUE`, where it carries the
 #'   extra power of prey size that the diffusion integrand needs; otherwise it
@@ -413,8 +426,10 @@ validMizerParams <- function(object) {
 #' @slot linetype A named vector of linetypes, named by species.
 #'   Used to give consistent line types in plots.
 #' @slot ft_mask An array (species x w_full) with zeros for weights larger than
-#'   the maximum weight of each species. Used to efficiently minimize
-#'   wrap-around errors in Fourier transform calculations.
+#'   the maximum weight of each species. Used to set the predation rate by
+#'   each species to zero on prey larger than its maximum weight. In a model
+#'   of defaults edition 1 or 2, whose convolutions are circular, this also
+#'   removes some of the wrap-around errors from the predation rate.
 #' @slot use_predation_diffusion A logical flag controlling whether predation-induced
 #'   diffusion is included when calculating rates with [mizerDiffusion()].
 #'   Defaults to `FALSE` to preserve the behaviour of previous mizer versions.
@@ -422,8 +437,14 @@ validMizerParams <- function(object) {
 #' @slot second_order_w A named list with entry `flux`
 #'   (the advective flux scheme: `"upwind"`, `"van_leer"`, or `"centred"`) and
 #'   logical entry `bin_average` (controls whether bin-averaging is used for
-#'   rates). Both default to the first-order setting to preserve the behaviour
-#'   of previous mizer versions.
+#'   rates). In a model of defaults edition 3 or later both default to the
+#'   second-order setting. In earlier editions they default to the first-order
+#'   setting, which preserves the behaviour of previous mizer versions. See
+#'   [second_order_w()].
+#' @slot defaults_edition The edition of default choices that was active when
+#'   the model was created, see [defaults_edition()]. Whenever mizer fills in a
+#'   default for the model it uses this edition, so that the model keeps
+#'   its defaults when a different edition becomes active.
 #'
 #' @seealso [project()] [MizerSim()]
 #'   [emptyParams()] [newMultispeciesParams()]
@@ -594,8 +615,11 @@ emptyParams <- function(species_params,
     gear_names <- unname(unique(gear_params$gear))
     mat1 <- array(0, dim = c(no_sp, no_w),
                   dimnames = list(sp = species_names, w = signif(w, 3)))
-    ft_pred_kernel <- array(NA, dim = c(no_sp, no_w_full),
-                            dimnames = list(sp = species_names, k = 1:no_w_full))
+    # The new model is of the edition that is active now and keeps it
+    edition <- defaults_edition()
+    no_k <- pred_kernel_fft_length(no_w_full, no_w, edition)
+    ft_pred_kernel <- array(NA, dim = c(no_sp, no_k),
+                            dimnames = list(sp = species_names, k = 1:no_k))
     ft_mask <- t(sapply(species_params$w_max, function(x) w_full < x))
 
     selectivity <- array(0, dim = c(length(gear_names), no_sp, no_w),
@@ -603,7 +627,7 @@ emptyParams <- function(species_params,
                                          w = signif(w, 3)))
     catchability <- array(0, dim = c(length(gear_names), no_sp),
                           dimnames = list(gear = gear_names, sp = species_names))
-    default_effort <- ifelse(defaults_edition() < 2, 0, 1)
+    default_effort <- ifelse(edition < 2, 0, 1)
     initial_effort <- rep(default_effort, length(gear_names))
     names(initial_effort) <- gear_names
 
@@ -748,7 +772,8 @@ emptyParams <- function(species_params,
             linetype = linetype,
             ft_mask = ft_mask,
             use_predation_diffusion = FALSE,
-            second_order_w = list(flux = "upwind", bin_average = FALSE)
+            second_order_w = default_second_order_w(edition),
+            defaults_edition = edition
         ),
         class = "MizerParams"
     )
@@ -1049,6 +1074,7 @@ validation_key <- function(params) {
                      params@ft_mask,
                      params@use_predation_diffusion,
                      params@second_order_w,
+                     params@defaults_edition,
                      length(params@rr_pp), length(params@cc_pp),
                      array_shapes,
                      as.character(params@mizer_version),
@@ -1088,12 +1114,37 @@ repair_params <- function(params) {
     wrong <- params@species_params$w_min < w_min * (1 - 1e-6) # The 1e-6 is to avoid rounding errors
     if (any(wrong)) {
         params@species_params$w_min[wrong] <- w_min
-        warning("The minimum weight of some species was smaller than the ",
-                "minimum weight of the weight grid in the model: ",
-                paste(params@species_params$species[wrong], collapse = ", "),
-                ". I have increased it to ", w_min, ". Before you can decrease ",
-                "it further you will need to expand the weight grid with ",
-                "`adjustSizeGrid()`.")
+        # The given value has to be raised too. Otherwise every rebuild of the
+        # species parameters from the given ones would bring it back and give
+        # this warning again, and once the grid had been widened with
+        # `adjustSizeGrid()` it would come back without any warning.
+        given_wrong <- which(params@given_species_params$w_min <
+                                 w_min * (1 - 1e-6))
+        if (length(given_wrong) > 0) {
+            params@given_species_params$w_min[given_wrong] <- w_min
+        }
+        # Keep any supplied egg lengths consistent with the clamp too, so a
+        # later validation or unrelated edit does not have to repair them.
+        # Use the model's a and b: they need not be given parameters.
+        if ("l_min" %in% names(params@species_params)) {
+            sel <- which(wrong & !is.na(params@species_params$l_min))
+            params@species_params$l_min[sel] <- w2l(w_min, params)[sel]
+        }
+        if ("l_min" %in% names(params@given_species_params)) {
+            given_lengths <- params@given_species_params$l_min
+            sel <- given_wrong[!is.na(given_lengths[given_wrong])]
+            params@given_species_params$l_min[sel] <- w2l(w_min, params)[sel]
+        }
+        msg <- paste0(
+            "The minimum weight of some species was smaller than the ",
+            "minimum weight of the weight grid in the model: ",
+            paste(params@species_params$species[wrong], collapse = ", "),
+            ". I have increased it to ", w_min, ". Before you can decrease ",
+            "it further you will need to expand the weight grid with ",
+            "`adjustSizeGrid()`."
+        )
+        signal_info("w_min", msg, level = 1, severity = "warning",
+                    unhandled = "show")
     }
     params@w_min_idx <- get_w_min_idx(params@species_params, params@w)
     # w_max should not be larger than the maximum weight of the model

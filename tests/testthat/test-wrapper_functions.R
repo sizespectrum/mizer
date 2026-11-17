@@ -29,6 +29,42 @@ test_that("newTraitParams perfect_scaling enables documented scaling switches", 
     expect_equal(max(p@w_full[p@initial_n_pp > 0]), max(p@w_full))
 })
 
+test_that("newTraitParams() does not freeze the resource capacity", {
+    # The capacity it constructs is exactly the balanced one, so there is
+    # nothing a freeze would protect.
+    p <- newTraitParams(no_sp = 3, info_level = 0)
+    expect_null(comment(p@cc_pp))
+    expect_no_warning(rebalanced <- setResource(p))
+    pos <- p@cc_pp > 0
+    expect_equal(rebalanced@cc_pp[pos] / p@cc_pp[pos], rep(1, sum(pos)),
+                 ignore_attr = TRUE)
+    expect_true(all(rebalanced@cc_pp[!pos] == 0))
+})
+
+test_that("newTraitParams() records the resource cutoff it applied", {
+    for (sow in c(FALSE, TRUE)) {
+        p <- newTraitParams(no_sp = 3, w_pp_cutoff = 5, second_order_w = sow,
+                            info_level = 0)
+        expect_equal(resource_params(p)$w_pp_cutoff, 5)
+        # So a recalculation of the capacity after a change of a resource
+        # parameter gives no resource above the cutoff.
+        empty <- p@cc_pp == 0
+        q <- setResource(p, lambda = 2.1, balance = FALSE)
+        expect_true(all(q@cc_pp[empty] == 0))
+        resource_params(p)$kappa <- 0.01
+        expect_true(all(p@cc_pp[empty] == 0))
+    }
+})
+
+test_that("newTraitParams() freezes only an external mortality that the species parameters do not give", {
+    p <- newTraitParams(no_sp = 3, info_level = 0)
+    expect_true(different(setExtMort(p, reset = TRUE)@mu_b, p@mu_b))
+    expect_false(is.null(comment(p@mu_b)))
+    # So a change to `z0` cannot take effect, and the user is told.
+    expect_warning(given_species_params(p)$z0 <- 0.5,
+                   "has not taken effect because the external mortality rate")
+})
+
 test_that("Produces errors and messages", {
     expect_error(newTraitParams(ext_mort_prop = 2),
                  "ext_mort_prop must be a number between 0 and 1")
@@ -156,12 +192,48 @@ test_that("Sets given_species_params", {
     expect_unchanged(p2, params)
 })
 
+test_that("newTraitParams uses the scheme of the defaults edition", {
+    withr::local_options(mizer_defaults_edition = 2)
+    expect_identical(second_order_w(newTraitParams(no_sp = 3, info_level = 0)),
+                     list(flux = "upwind", bin_average = FALSE))
+    withr::local_options(mizer_defaults_edition = 3)
+    params <- newTraitParams(no_sp = 3, info_level = 0)
+    expect_identical(second_order_w(params),
+                     list(flux = "van_leer", bin_average = TRUE))
+    p_true <- newTraitParams(no_sp = 3, second_order_w = TRUE, info_level = 0)
+    p_true@time_created <- params@time_created
+    p_true@time_modified <- params@time_modified
+    expect_equal(params, p_true)
+    expect_identical(
+        second_order_w(newTraitParams(no_sp = 3, second_order_w = FALSE,
+                                      info_level = 0)),
+        list(flux = "upwind", bin_average = FALSE))
+})
+
 # Community ----
 test_that("newCommunityParams works", {
     expect_message(newCommunityParams(z0 = 0.05, f0 = 0.5, info_level = 3),
                    "Using f0, h, lambda, kappa")
     expect_error(newCommunityParams(f0 = 1, gamma = 1, info_level = 0),
                  "`f0` must be finite and in the interval")
+})
+
+test_that("newCommunityParams uses the scheme of the defaults edition", {
+    withr::local_options(mizer_defaults_edition = 2)
+    expect_identical(second_order_w(newCommunityParams(info_level = 0)),
+                     list(flux = "upwind", bin_average = FALSE))
+    withr::local_options(mizer_defaults_edition = 3)
+    params <- newCommunityParams(info_level = 0)
+    expect_identical(second_order_w(params),
+                     list(flux = "van_leer", bin_average = TRUE))
+    p_true <- newCommunityParams(second_order_w = TRUE, info_level = 0)
+    p_true@time_created <- params@time_created
+    p_true@time_modified <- params@time_modified
+    expect_equal(params, p_true)
+    expect_identical(
+        second_order_w(newCommunityParams(second_order_w = FALSE,
+                                          info_level = 0)),
+        list(flux = "upwind", bin_average = FALSE))
 })
 
 test_that("newCommunityParams sets constant-reproduction community state", {

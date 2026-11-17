@@ -383,7 +383,8 @@ gear_params.gear_params <- function(object) {
 #' @usage NULL
 #' @export
 `gear_params<-.MizerParams` <- function(object, value) {
-    value <- validGearParams(value, object@species_params)
+    value <- validGearParams(value, object@species_params,
+                             edition = defaults_edition(object))
     object@gear_params <- value
     setFishing(object)
 }
@@ -641,7 +642,7 @@ initial_effort <- function(params) {
 #' * There must be a `sel_func` column. If a selectivity function is not
 #'   supplied, it will be set to "knife_edge".
 #' * There must be a `catchability` column. If a catchability is not supplied,
-#'   it will be set to 1.
+#'   it will be set to 1, or to 0.3 under defaults edition 2 or later.
 #' * All the parameters required by the selectivity functions must be provided.
 #'
 #' If gear_params is empty, then this function tries to find the necessary
@@ -651,7 +652,8 @@ initial_effort <- function(params) {
 #' * If there is no `gear` column or it is NA then a new gear named after the
 #'   species is introduced.
 #' * If there is no `sel_func` column or it is NA then `knife_edge` is used.
-#' * If there is no `catchability` column or it is NA then this is set to 1.
+#' * If there is no `catchability` column or it is NA then this is set to 1,
+#'   or to 0.3 under defaults edition 2 or later.
 #' * If the selectivity function is `knife_edge` and no `knife_edge_size` is
 #'   provided, it is set to `w_mat`.
 #'
@@ -661,17 +663,23 @@ initial_effort <- function(params) {
 #' When `gear_params` is `NULL` and there is no gear information in
 #' `species_params`, then a gear called `knife_edge_gear` is set up with a
 #' `knife_edge` selectivity for each species and a `knive_edge_size` equal to
-#' `w_mat`. Catchability is set to 0.3 for all species.
+#' `w_mat`. Catchability is set to the default described above for all
+#' species.
 #'
 #' @param gear_params Gear parameter data frame
 #' @param species_params Species parameter data frame
+#' @param edition The defaults edition that determines the default
+#'   `catchability`, see [defaults_edition()]. When the gear parameters are
+#'   for an existing model, this should be the edition of that model,
+#'   `defaults_edition(params)`. Defaults to the currently active edition.
 #' @return A valid gear parameter data frame
 #' @concept helper
 #' @seealso [gear_params()]
 #' @export
-validGearParams <- function(gear_params, species_params) {
+validGearParams <- function(gear_params, species_params,
+                            edition = defaults_edition()) {
 
-    catchability_default <- ifelse(defaults_edition() < 2, 1, 0.3)
+    catchability_default <- ifelse(edition < 2, 1, 0.3)
 
     # if no gear parameters are given, set up knife-edge gear
     if (is.null(gear_params) &&
@@ -846,7 +854,7 @@ validEffortVector <- function(effort, params) {
     }
 
     # Set any missing efforts to default
-    effort_default <- ifelse(defaults_edition() < 2, 0, 1)
+    effort_default <- ifelse(defaults_edition(params) < 2, 0, 1)
     missing <- setdiff(gear_names, names(effort))
     new <- rep(effort_default, length(missing))
     names(new) <- missing

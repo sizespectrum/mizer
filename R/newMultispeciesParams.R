@@ -40,7 +40,11 @@
 #'   existing object). The `flux` scheme governs time projection only, so the
 #'   robust first-order upwind scheme is used for the construction-time
 #'   steady-state solve and the chosen scheme is then activated for the returned
-#'   model. Defaults to `FALSE` (the first-order behaviour of previous mizer).
+#'   model. By default the model gets the scheme of the active
+#'   [defaults_edition()]: the second-order scheme, as with `TRUE`, from
+#'   edition 3 on, and the first-order scheme of previous mizer versions, as
+#'   with `FALSE`, in earlier editions. A value that sets only one of the two
+#'   entries leaves the other at the default of the edition.
 #' @param info_level Controls the amount of information messages that are shown
 #'   when the function sets default values for parameters. Higher levels lead
 #'   to more messages, `info_level = 0` gives silence. The default is taken
@@ -149,7 +153,7 @@ newMultispeciesParams <- function(
     selectivity = NULL,
     catchability = NULL,
     initial_effort = NULL,
-    second_order_w = FALSE,
+    second_order_w = NULL,
     info_level = default_info_level(),
     z0 = deprecated(),
     r_pp = deprecated()) {
@@ -187,20 +191,22 @@ newMultispeciesParams <- function(
                           max_w = max_w,
                           min_w_pp = min_w_pp)
 
-    # Resolve the requested second-order scheme. The `bin_average` choice is
-    # applied now, before the rest of the parameters are computed, so that the
-    # bin-averaged resource constructions (initial abundance, capacity, rate)
-    # and the encounter/mortality quadratures all honour it. We set the slot
-    # directly rather than via the `second_order_w<-` setter to avoid its extra
+    # Resolve the requested second-order scheme against the default scheme of
+    # the model's defaults edition. The `bin_average` choice is applied now,
+    # before the rest of the parameters are computed, so that the bin-averaged
+    # resource constructions (initial abundance, capacity, rate) and the
+    # encounter/mortality quadratures all honour it. We set the slot directly
+    # rather than via the `second_order_w<-` setter to avoid its extra
     # setParams() call here, since setParams() is run below anyway. The `flux`
     # scheme is deferred until the end (see below): it does not affect any
     # precomputed array, only time projection, and the construction-time
     # steady-state solve for the initial abundances is only robust with the
     # first-order upwind scheme.
     target_second_order_w <-
-        validate_second_order_w(params@second_order_w, second_order_w)
-    params@second_order_w[["bin_average"]] <-
-        target_second_order_w[["bin_average"]]
+        resolve_second_order_w(second_order_w, defaults_edition(params))
+    params@second_order_w <-
+        list(flux = "upwind",
+             bin_average = target_second_order_w[["bin_average"]])
 
     # Fill the slots ----
     if (is.null(interaction)) {

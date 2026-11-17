@@ -20,6 +20,9 @@ projectUntilSettled(
   progress_bar = TRUE,
   info_level = default_info_level(),
   method = c("euler", "predictor_corrector", "tr_bdf2"),
+  subcycle = FALSE,
+  max_courant = 1,
+  max_substeps = 10000,
   ...
 )
 }
@@ -103,6 +106,15 @@ default is taken from the \code{mizer_info_level} option, see
 
 \item{method}{The numerical method to use for the consumer density update.
 See \code{\link[=project]{project()}}.}
+
+\item{subcycle}{Whether to use coupled growth-Courant substeps, as in
+\code{\link[=project]{project()}}. Default \code{FALSE}.}
+
+\item{max_courant}{Positive growth Courant target, default 1; see
+\code{\link[=project]{project()}}.}
+
+\item{max_substeps}{Positive integer cap on substeps per requested \code{dt},
+default 10000; see \code{\link[=project]{project()}}.}
 
 \item{...}{Further arguments will be passed on to your distance function.}
 }

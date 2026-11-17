@@ -123,6 +123,85 @@ delayedAssign("NS_params_steady_small", suppressMessages(
                     progress_bar = FALSE, info_level = 0)
 ))
 
+# A two-species model whose feeding kernels reach far below the smallest
+# resource size `min_w_pp`, with abundant large fish at the top of the grid. Any
+# circular wrap-around in the FFT convolutions lets the larvae feed on those
+# large fish (issue #618), so it shows up clearly here. The convolutions are
+# zero-padded, and so free of wrap-around, only from defaults edition 3.
+# The first-order scheme is asked for explicitly, because edition 3 would
+# otherwise switch on bin-averaging (#503), and then the point-sampled
+# `pred_kernel()` that the tests store as a custom kernel is not the kernel the
+# rates use.
+kernel_below_grid_params <- function(bin_average = FALSE, edition = 3) {
+    sp <- data.frame(species = c("Small", "Large"), w_max = c(20, 2000),
+                     w_mat = c(4, 250), w_min = 1e-3, beta = c(200, 100),
+                     sigma = c(1.3, 1.5), k_vb = c(1, 0.5))
+    params <- withr::with_options(
+        list(mizer_defaults_edition = edition),
+        newMultispeciesParams(sp, no_w = 40, min_w_pp = 1e-6,
+                              second_order_w = FALSE, info_level = 0)
+    ) |>
+        suppressMessages()
+    if (bin_average) {
+        second_order_w(params) <- c(bin_average = TRUE)
+    }
+    big <- params@w > 500
+    params@initial_n["Large", big] <- params@initial_n["Large", big] * 100
+    params
+}
+
+# The sums that convolve_pred_kernel() evaluates by FFT, done directly. The
+# real-space kernel weights are recovered from the stored Fourier coefficients
+# and only offsets within the grid are summed over, so there is no wrap-around.
+# As for convolve_pred_kernel(), `x` is over w_full and the result over w for
+# the encounter and diffusion, and the other way round for the predation.
+linear_kernel_sum <- function(params, x, kernel = c("encounter", "predation",
+                                                   "diffusion")) {
+    kernel <- match.arg(kernel)
+    ft <- switch(kernel,
+                 encounter = params@ft_pred_kernel_e,
+                 predation = params@ft_pred_kernel_p,
+                 diffusion = params@ft_pred_kernel_d)
+    no_w <- length(params@w)
+    no_w_full <- length(params@w_full)
+    idx_sp <- (no_w_full - no_w + 1):no_w_full
+    no_k <- ncol(ft)
+    phi <- Re(t(mvfft(t(ft), inverse = TRUE))) / no_k
+    if (kernel == "predation") {
+        # The predation kernel is stored reversed: offset m sits at no_k - m + 1
+        phi <- cbind(phi[, 1], phi[, no_k:(no_k - no_w_full + 2), drop = FALSE])
+        out <- matrix(0, nrow = nrow(x), ncol = no_w_full)
+        for (i in seq_len(nrow(x))) {
+            for (j in seq_len(no_w_full)) {
+                # sum over predators k at or above the prey j
+                k <- idx_sp[idx_sp >= j]
+                out[i, j] <- sum(phi[i, k - j + 1] * x[i, k - idx_sp[1] + 1])
+            }
+        }
+    } else {
+        out <- matrix(0, nrow = nrow(x), ncol = no_w)
+        for (i in seq_len(nrow(x))) {
+            for (j in seq_len(no_w)) {
+                # sum over prey k at or below the predator idx_sp[j]
+                k <- 1:idx_sp[j]
+                out[i, j] <- sum(phi[i, idx_sp[j] - k + 1] * x[i, k])
+            }
+        }
+    }
+    out
+}
+
+# Largest elementwise relative difference between `object` and `expected`, over
+# the entries of `expected` that are not negligible compared to its largest.
+# Entries much smaller than the largest carry FFT round-off of relative size
+# about .Machine$double.eps / floor, hence the default floor.
+max_rel_diff <- function(object, expected, floor = 1e-6) {
+    object <- as.vector(object)
+    expected <- as.vector(expected)
+    keep <- abs(expected) > floor * max(abs(expected))
+    max(abs(object[keep] - expected[keep]) / abs(expected[keep]))
+}
+
 # Test that a MizerParams or MizerSim object has not changed except for the
 # time_modified and perhaps a reordering of the species_params columns.
 expect_unchanged <- function(object, expected) {
@@ -210,12 +289,15 @@ recalculation_moves <- function(params, times = 1) {
 # A two-species model on `no_w` size bins with bin averaging on and smooth
 # prescribed densities: a bump of large predators and a power-law resource,
 # both given as exact cell averages. Used to measure the order of convergence of
-# a rate under grid refinement, as in the second-order tests of mizerPredRate()
-# and mizerDiffusion() (#619).
-convergence_params <- function(no_w) {
+# a rate under grid refinement on the grids `nested_no_w`, as in the
+# second-order tests of the rate functions (#619). There is no metabolism, so
+# that the growth rate is positive. `w_max` sets the largest sizes of the two
+# species, and with them the top of the grid.
+convergence_params <- function(no_w, w_max = c(60, 6000)) {
     sp <- data.frame(species = c("Small", "Large"), w_inf = c(20, 2000),
-                     w_max = c(60, 6000), w_mat = c(4, 250), w_min = 0.001,
-                     beta = c(200, 100), sigma = c(1.3, 1.5), k_vb = c(1, 0.5))
+                     w_max = w_max, w_mat = c(4, 250), w_min = 0.001,
+                     beta = c(200, 100), sigma = c(1.3, 1.5), k_vb = c(1, 0.5),
+                     ks = 0)
     cell_average <- function(f, wl, wr, k = 32) {
         vapply(seq_along(wl), function(j) {
             x <- exp(seq(log(wl[j]), log(wr[j]), length.out = k + 1))
@@ -234,11 +316,61 @@ convergence_params <- function(no_w) {
     p
 }
 
-# The value at size `x` of a bin-averaged rate given on the bins with left edges
-# `w` and widths `dw`. A bin average lives at the bin centre, so interpolate
-# log-log between the centres.
-at_bin_centre <- function(rate, w, dw, x) {
-    exp(approx(log(sqrt(w * (w + dw))), log(rate), xout = log(x))$y)
+# Grid sizes for measuring an order of convergence. `no_w` nodes make
+# `no_w - 1` bins, so these halve the bin width exactly: every node of a
+# coarser grid is a node of each finer one, and every coarser bin is a union of
+# finer bins. 80, 160 and 320 nodes are not nested.
+nested_no_w <- c(81, 161, 321)
+
+# The order of convergence at each size in `x` of a bin-averaged rate. `rates`
+# holds its values on the nested grids of the params objects in `ps`, coarsest
+# first; use `full = TRUE` for a rate on `w_full`. On every grid the rate is
+# restricted to the bin of the coarsest grid that contains `x`, by the
+# `dw`-weighted mean of the bins inside it. The values then approximate the same
+# bin average and differ only by the error of the scheme. Interpolating them to
+# a fixed size instead adds an interpolation error of the same order, which
+# makes the estimate wander by several tenths from one size or grid to the next.
+bin_average_order <- function(rates, ps, x, full = FALSE) {
+    grid <- function(p) {
+        if (full) list(w = w_full(p), dw = dw_full(p))
+        else list(w = w(p), dw = dw(p))
+    }
+    coarse <- grid(ps[[1]])
+    order <- vapply(x, function(x) {
+        j <- findInterval(x, coarse$w)
+        lo <- coarse$w[j]
+        hi <- lo + coarse$dw[j]
+        v <- mapply(function(rate, p) {
+            g <- grid(p)
+            inside <- g$w >= lo * (1 - 1e-10) & g$w + g$dw <= hi * (1 + 1e-10)
+            if (abs(sum(g$dw[inside]) / (hi - lo) - 1) > 1e-8) {
+                stop("The grids are not nested.")
+            }
+            sum(rate[inside] * g$dw[inside]) / sum(g$dw[inside])
+        }, rates, ps)
+        convergence_order(v)
+    }, numeric(1))
+    setNames(order, x)
+}
+
+# The order of convergence at each size in `x` of a rate stored as point values
+# at the nodes. `rates` and `ps` are as for bin_average_order(). The rate is
+# read at the node of the coarsest grid nearest to `x`, which is a node of
+# every grid.
+point_value_order <- function(rates, ps, x) {
+    coarse <- w(ps[[1]])
+    order <- vapply(x, function(x) {
+        node <- coarse[which.min(abs(log(coarse / x)))]
+        v <- mapply(function(rate, p) {
+            i <- which.min(abs(log(w(p) / node)))
+            if (abs(w(p)[i] / node - 1) > 1e-10) {
+                stop("The grids are not nested.")
+            }
+            rate[i]
+        }, rates, ps)
+        convergence_order(v)
+    }, numeric(1))
+    setNames(order, x)
 }
 
 # The order of convergence from the values of a quantity on three grids an
@@ -246,4 +378,17 @@ at_bin_centre <- function(rate, w, dw, x) {
 # halves.
 convergence_order <- function(v) {
     log2(abs(v[2] - v[1]) / abs(v[3] - v[2]))
+}
+
+# Expect every order of convergence in `order` to be close to 2. The band is
+# two-sided because an estimate well above 2 is no evidence of second order:
+# it means that successive differences do not shrink geometrically.
+expect_second_order <- function(order) {
+    act <- quasi_label(rlang::enquo(order), arg = "order")
+    ok <- !is.na(act$val) & act$val > 1.8 & act$val < 2.2
+    expect(all(ok),
+           sprintf("%s is not in (1.8, 2.2) at %s.", act$lab,
+                   paste0(names(act$val)[!ok], ": ", round(act$val[!ok], 2),
+                          collapse = ", ")))
+    invisible(act$val)
 }

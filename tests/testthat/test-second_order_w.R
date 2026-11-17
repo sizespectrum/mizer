@@ -101,6 +101,36 @@ test_that("setting bin_average rebuilds the higher-order predation kernels", {
     expect_equal(p_hi@ft_pred_kernel_e, params@ft_pred_kernel_e)
 })
 
+test_that("default_second_order_w gives the scheme of the defaults edition", {
+    first <- list(flux = "upwind", bin_average = FALSE)
+    second <- list(flux = "van_leer", bin_average = TRUE)
+    expect_identical(default_second_order_w(1), first)
+    expect_identical(default_second_order_w(2), first)
+    expect_identical(default_second_order_w(3), second)
+    expect_identical(default_second_order_w(4), second)
+})
+
+test_that("resolve_second_order_w resolves against the edition's default", {
+    # NULL gives the default scheme of the edition
+    expect_identical(resolve_second_order_w(NULL, 2),
+                     list(flux = "upwind", bin_average = FALSE))
+    expect_identical(resolve_second_order_w(NULL, 3),
+                     list(flux = "van_leer", bin_average = TRUE))
+    # A single logical sets both entries in any edition
+    expect_identical(resolve_second_order_w(FALSE, 3),
+                     list(flux = "upwind", bin_average = FALSE))
+    expect_identical(resolve_second_order_w(TRUE, 1),
+                     list(flux = "van_leer", bin_average = TRUE))
+    # A value that sets one entry leaves the other at the edition's default
+    expect_identical(resolve_second_order_w("centred", 3),
+                     list(flux = "centred", bin_average = TRUE))
+    expect_identical(resolve_second_order_w("centred", 1),
+                     list(flux = "centred", bin_average = FALSE))
+    expect_identical(resolve_second_order_w(c(bin_average = FALSE), 3),
+                     list(flux = "van_leer", bin_average = FALSE))
+    expect_error(resolve_second_order_w("bogus", 3))
+})
+
 test_that("upgradeParams is idempotent for current-format second_order_w", {
     params <- NS_params_small
     params2 <- upgradeParams(params)

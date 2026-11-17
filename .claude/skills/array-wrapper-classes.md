@@ -76,6 +76,7 @@ is.ArraySpeciesBySize(enc * 2)         # FALSE (arithmetic returns plain matrix)
 - **`type`**: `"value"` (default amount/rate), `"density"` (per gram body weight), or `"proportion"` (fraction 0–1). Tells `plot()` whether to apply the Jacobian when plotting against length (`size_axis = "l"`) or to use a fixed [0, 1] y-axis.
 - **`representation`**: `"point"` (default, sampled at left bin edge) or `"average"` (finite-volume bin average). Bin averages are plotted at geometric bin midpoints when second-order quadrature (`second_order_w[["bin_average"]]`) is active.
 - **`params`**: A reference to `MizerParams`. Used by `plot()` for species colours, linetypes, and natural size ranges (`w_min` to `w_max`).
+- **`size_grid`**: Private metadata for size-resolved wrappers: a list with `grid` (`"w"` or `"w_full"`) and `index` (positions in that original grid). Shared helpers resolve the exact coordinates and bin geometry from `params`; size subsetting subsets the indices, including repeats, rather than inferring a new grid from labels or spacing. Carry this mapping through time slices and remove it with the other wrapper attributes in arithmetic. Older unsliced wrappers acquire it lazily.
 
 ### 5. `str()` safety
 

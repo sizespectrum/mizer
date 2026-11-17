@@ -121,8 +121,9 @@ cost, because the integration is performed once here and the rate functions
 themselves are unchanged. The predation kernel is additionally averaged over
 the prey bin (a trapezoid fold), so that the predation rate returned by
 \code{\link[=getPredRate]{getPredRate()}} is the prey-bin average that the predation-mortality sink
-needs to be second order. The default remains the first-order scheme so that
-existing models are unaffected. Enable it with \code{second_order_w(params) <- TRUE} (see \code{\link[=second_order_w]{second_order_w()}}), which also turns on the other bin-averaged
+needs to be second order. This is the default for a model of defaults
+edition 3 or later. Models of earlier editions keep the first-order scheme,
+so that existing models are unaffected. Enable it with \code{second_order_w(params) <- TRUE} (see \code{\link[=second_order_w]{second_order_w()}}), which also turns on the other bin-averaged
 rate quadratures so the whole model stays consistent. See the
 \code{vignette("fft")} for the mathematical details.
 }

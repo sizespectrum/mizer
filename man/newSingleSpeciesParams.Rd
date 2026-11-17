@@ -25,7 +25,7 @@ newSingleSpeciesParams(
   gamma = NA,
   ext_mort_prop = 0,
   reproduction_level = 0,
-  second_order_w = FALSE,
+  second_order_w = NULL,
   info_level = default_info_level(),
   R_factor = deprecated(),
   w_inf = deprecated(),
@@ -92,7 +92,9 @@ level of density dependence in reproduction, see \code{\link[=reproduction_level
 second-order numerical scheme for the new model, applied before the
 resource and abundance power laws are constructed so that they are built
 bin-averaged from the start. Accepts the same values as the
-\code{\link[=second_order_w]{second_order_w()}} setter. Defaults to \code{FALSE}. See
+\code{\link[=second_order_w]{second_order_w()}} setter. By default the model gets the scheme of the
+active \code{\link[=defaults_edition]{defaults_edition()}}: second order from edition 3 on, first order
+before. See
 \code{\link[=newMultispeciesParams]{newMultispeciesParams()}}.}
 
 \item{info_level}{Controls the amount of information messages that are shown.

@@ -36,7 +36,7 @@ newTraitParams(
   egg_size_scaling = FALSE,
   resource_scaling = FALSE,
   perfect_scaling = FALSE,
-  second_order_w = FALSE,
+  second_order_w = NULL,
   min_w_inf = deprecated(),
   max_w_inf = deprecated(),
   info_level = default_info_level(2)
@@ -145,7 +145,9 @@ particular all other scaling corrections are turned on.}
 second-order numerical scheme for the new model, applied before the
 resource and abundance power laws are constructed so that they are built
 bin-averaged from the start. Accepts the same values as the
-\code{\link[=second_order_w]{second_order_w()}} setter. Defaults to \code{FALSE}. See
+\code{\link[=second_order_w]{second_order_w()}} setter. By default the model gets the scheme of the
+active \code{\link[=defaults_edition]{defaults_edition()}}: second order from edition 3 on, first order
+before. See
 \code{\link[=newMultispeciesParams]{newMultispeciesParams()}}.}
 
 \item{min_w_inf}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} The argument has been
@@ -194,6 +196,17 @@ Otherwise all species have the same egg size.
 
 In addition to setting up the parameters, this function also sets up an
 initial condition that is close to steady state.
+
+The external mortality rate is not calculated from the species parameters
+\code{z0}, \code{z_ext} and \code{d}. Instead it is set so that, together with the
+predation mortality in the initial state, it gives a total mortality rate
+that is a power law in body size, of which a proportion \code{ext_mort_prop} is
+external mortality. Where the predation mortality alone already exceeds
+that power law, the external mortality rate is set to zero, unless
+\code{perfect_scaling = TRUE}. Because the species parameters can not reproduce
+it, this external mortality rate is marked as set manually, so changing
+\code{z0}, \code{z_ext} or \code{d} later has no effect unless you call
+\code{setExtMort(params, reset = TRUE)}, see \code{\link[=setExtMort]{setExtMort()}}.
 
 The search rate coefficient \code{gamma} is calculated using the expected
 feeding level, \code{f0}.

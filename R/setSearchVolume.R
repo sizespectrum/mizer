@@ -135,9 +135,13 @@ setSearchVolume.MizerParams <- function(params, search_vol = NULL, reset = FALSE
 #' @return The MizerParams object with any missing `q` filled in
 #' @noRd
 set_q_default <- function(params) {
-    q <- params@resource_params$lambda - 2 + params@species_params[["n"]]
-    params@species_params <-
-        set_species_param_default(params@species_params, "q", q)
+    if (!"q" %in% names(params@species_params) ||
+            any(is.na(params@species_params[["q"]]))) {
+        assert_that(is.number(params@resource_params$lambda))
+        q <- params@resource_params$lambda - 2 + params@species_params[["n"]]
+        params@species_params <-
+            set_species_param_default(params@species_params, "q", q)
+    }
     params
 }
 

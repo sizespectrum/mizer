@@ -74,8 +74,7 @@ test_that("plot.MizerScan() draws all three styles", {
                     "ggplot")
     expect_s3_class(plot(scan, mark_max = TRUE), "ggplot")
 
-    # A scan that has lost its params, as dplyr::filter() would leave it,
-    # cannot be plotted and says why.
+    # A scan that has lost its params cannot be plotted and says why.
     stripped <- scan
     attr(stripped, "params") <- NULL
     expect_error(plot(stripped), "lost its `params` attribute")

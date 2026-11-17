@@ -13,6 +13,28 @@ flux_limiter_scheme <- function(params) {
     if (flux == "upwind") "none" else flux
 }
 
+#' Whether Euler transport holds the excluded upper tail at zero
+#'
+#' Shared by Euler solver selection and the steady-state drift diagnostic.
+#' The legacy upwind Euler solver without positive diffusion can populate
+#' classes above the retained support. All other Euler paths clear them.
+#' Diffusion is checked across all species and sizes using the rates already
+#' evaluated at the current state, including custom rate functions; do not
+#' substitute a parameter slot or cache the result across time steps.
+#'
+#' This policy is specific to Euler. Predictor-corrector and TR-BDF2 always
+#' clear the excluded tail. It does not choose the support top or alter the
+#' outgoing flux from the last retained class.
+#'
+#' @param diffusion The evaluated species-by-size diffusion rate array.
+#' @param flux_limiter Internal flux scheme from `flux_limiter_scheme()`:
+#'   `"none"`, `"van_leer"` or `"centred"`.
+#' @return A single logical: whether Euler clears the excluded upper tail.
+#' @noRd
+euler_uses_hard_boundary <- function(diffusion, flux_limiter) {
+    flux_limiter != "none" || any(diffusion > 0)
+}
+
 #' Uniform log-size grid spacing
 #'
 #' The mizer size grid is geometric, so `x = log(w)` is uniformly spaced. This
@@ -53,10 +75,9 @@ log_dx <- function(params) {
 #' even when a frozen, food-limited or otherwise degenerate growth field is
 #' supplied (e.g. in the second-order time-steppers' frozen-rate solves).
 #'
-#' The dynamics impose this as the upper boundary condition (see
-#' `get_transport_coefs()`) so that abundance is held at zero above `w_max` even
-#' when diffusion would otherwise carry density past it, and the Newton solver
-#' solves on exactly this support.
+#' The transport solvers impose this boundary (see `get_transport_coefs()`),
+#' except for the legacy upwind Euler path without positive diffusion (see
+#' `euler_uses_hard_boundary()`). The Newton solver solves on this support.
 #'
 #' @param params A \linkS4class{MizerParams} object.
 #' @return A per-species integer vector of the top retained size-class index.
@@ -302,11 +323,17 @@ get_transport_coefs_upwind <- function(params, n, g, mu, dt, recruitment_flux,
     list(a = a, b = b, c = c, S = S)
 }
 
-# Flux limiter functions chi(r) of the smoothness ratio r. To add another
-# limiter, give it a name here and offer that name in the `flux_limiter`
-# argument of `project()`.
+# Flux limiter functions chi(r) of the smoothness ratio r = a / b of the
+# successive jumps a = delta_{j-1} and b = delta_j, written as functions of
+# a and b (with b != 0) so that the ratio is never formed. Above w_max the
+# density can decay to subnormal numbers, and a / b then overflows to Inf,
+# which turns the limiter into Inf / Inf = NaN (#630). For van Leer,
+# chi(r) = (r + |r|) / (1 + |r|) becomes the expression below, which lies in
+# [0, 2] however small b is and is exactly 0 when a and b differ in sign. To add
+# another limiter, give it a name here and offer that name in the
+# `flux_limiter` argument of `project()`.
 flux_limiter_funcs <- list(
-    van_leer = function(r) (r + abs(r)) / (1 + abs(r))
+    van_leer = function(a, b) (a * sign(b) + abs(a)) / (abs(a) + abs(b))
 )
 
 #' Frozen reconstruction weights at the size-bin faces
@@ -356,8 +383,13 @@ flux_limiter_chi <- function(params, n, g, flux_limiter) {
         jint <- 3:no_w
         num <- delta[, jint - 1, drop = FALSE]   # delta_{j-1}
         den <- delta[, jint, drop = FALSE]       # delta_j
-        r <- ifelse(den == 0, 0, num / den)      # upwind where the jump is 0
-        chi[, jint] <- limiter(r)
+        # Upwind (chi = 0) where a jump is zero or non-finite. A rejected
+        # Newton trial can contain Inf - Inf: keep that from becoming an NA
+        # subscript, so the non-finite residual reaches the root finder.
+        chi_int <- matrix(0, nrow = no_sp, ncol = length(jint))
+        nz <- is.finite(num) & is.finite(den) & den != 0
+        chi_int[nz] <- limiter(num[nz], den[nz])
+        chi[, jint] <- chi_int
     }
 
     # First-order upwind at and below the recruitment boundary, and at the first
@@ -372,4 +404,145 @@ flux_limiter_chi <- function(params, n, g, flux_limiter) {
         chi <- 0.5 * chi + 0.5 * chi_prev
     }
     chi
+}
+
+#' Growth Courant numbers on the consumer size grid
+#'
+#' Measures how far growth can transport fish through a size bin during `dt`.
+#' Each value is `dt / dw` times the larger positive growth velocity at the
+#' bin's inflow and outflow faces. The face convention follows the configured
+#' flux scheme: upwind uses `g[j - 1]` and `g[j]`, whereas the second-order
+#' schemes use `g[j]` and `g[j + 1]`. Recruitment replaces growth inflow at the
+#' egg boundary. Values outside the species' retained size support are zero;
+#' empty but reachable bins are included.
+#'
+#' A large value can indicate cell-scale oscillations with a high-order flux.
+#' The target used by [project()] is an advisory growth-based measure, not a
+#' universal stability or positivity bound. It does not measure mortality,
+#' diffusion or changes in rates during the step. The exact bin widths are
+#' used, not the approximation `w * log(w[2] / w[1])`.
+#'
+#' @param params A `MizerParams` object.
+#' @param dt Positive time interval in years. Default 1 gives the Courant
+#'   number per year, which scales linearly with the chosen interval.
+#' @param n Consumer number densities. Defaults to the initial state.
+#' @param n_pp Resource number densities. Defaults to the initial state.
+#' @param n_other Other component abundances. Defaults to the initial state.
+#' @param effort Fishing effort, as in [getRates()].
+#' @param t Time at which to calculate the rates, in years.
+#' @param e_growth Optional precomputed growth matrix, with the same dimensions
+#'   and, when present, species and size labels as `initialN(params)`. Must be
+#'   finite. If omitted, growth is obtained from [getRates()] at the supplied
+#'   state, respecting custom rate functions.
+#' @param ... Further arguments passed to the rate functions.
+#' @return An `ArraySpeciesBySize` containing dimensionless growth Courant
+#'   numbers. With no positive growth every entry is zero.
+#' @export
+#' @examples
+#' max(getCourant(NS_params, dt = 1 / 52))
+getCourant <- function(params, dt = 1, n = initialN(params),
+                       n_pp = initialNResource(params),
+                       n_other = initialNOther(params),
+                       effort = params@initial_effort, t = 0,
+                       e_growth = NULL, ...) {
+    params <- validParams(params)
+    if (!is.numeric(dt) || length(dt) != 1L || !is.finite(dt) || dt <= 0) {
+        stop("`dt` must be a finite positive number.")
+    }
+    if (is.null(e_growth)) {
+        e_growth <- getRates(params, n = n, n_pp = n_pp, n_other = n_other,
+                             effort = effort, t = t, ...)$e_growth
+    }
+    courant <- dt * growth_courant_rate(params, e_growth)
+    ArraySpeciesBySize(courant, value_name = "Growth Courant number",
+                       units = "", params = params)
+}
+
+# Shared by the diagnostic and the adaptive projection. This measures the
+# growth faces of the actual discrete operator; it never changes that operator.
+growth_courant_rate <- function(params, e_growth) {
+    if (!is.numeric(e_growth) || !is.matrix(e_growth) ||
+            !identical(dim(e_growth), dim(params@initial_n)) ||
+            any(!is.finite(e_growth))) {
+        stop("`e_growth` must be a finite matrix matching the consumer grid.")
+    }
+    for (axis in 1:2) {
+        labels <- dimnames(e_growth)[[axis]]
+        expected <- dimnames(params@initial_n)[[axis]]
+        if (!is.null(labels) && !identical(labels, expected)) {
+            stop("`e_growth` labels must match the consumer grid order.")
+        }
+    }
+    g <- pmax(e_growth, 0)
+    no_w <- ncol(g)
+    if (flux_limiter_scheme(params) == "none") {
+        inflow <- cbind(0, g[, -no_w, drop = FALSE])
+        outflow <- g
+    } else {
+        inflow <- g
+        outflow <- cbind(g[, -1, drop = FALSE], g[, no_w])
+    }
+    inflow[cbind(seq_len(nrow(g)), params@w_min_idx)] <- 0
+    courant <- sweep(pmax(inflow, outflow), 2, params@dw, "/")
+    outside <- col(g) < params@w_min_idx | col(g) > support_top_idx(params)
+    courant[outside] <- 0
+    if (any(!is.finite(courant))) {
+        stop("Growth Courant numbers are not finite on the consumer grid.")
+    }
+    dimnames(courant) <- dimnames(params@initial_n)
+    courant
+}
+
+check_courant_controls <- function(subcycle, max_courant, max_substeps) {
+    if (!is.logical(subcycle) || length(subcycle) != 1L || is.na(subcycle)) {
+        stop("`subcycle` must be TRUE or FALSE.")
+    }
+    if (!is.numeric(max_courant) || length(max_courant) != 1L ||
+            !is.finite(max_courant) || max_courant <= 0) {
+        stop("`max_courant` must be a finite positive number.")
+    }
+    if (!is.numeric(max_substeps) || length(max_substeps) != 1L ||
+            !is.finite(max_substeps) || max_substeps < 1 ||
+            max_substeps != trunc(max_substeps)) {
+        stop("`max_substeps` must be a finite positive integer.")
+    }
+    invisible(NULL)
+}
+
+# Report the first observed crossing, with enough context to act on it.
+signal_growth_courant <- function(params, courant_rate, dt, max_courant, t) {
+    rate_max <- max(courant_rate)
+    cell <- arrayInd(which.max(courant_rate), dim(courant_rate))
+    msg <- paste0(
+                  "Growth Courant number ", signif(dt * rate_max, 3),
+                  " exceeds the advisory target ", max_courant,
+                  " for ", params@species_params$species[cell[1]],
+                  " at size bin ", cell[2], " (w = ",
+                  signif(params@w[cell[2]], 4), " g), t = ",
+                  signif(t, 5), " years. The high-order flux can develop ",
+                  "cell-scale oscillations. The current-state suggestion ",
+                  "is `dt <= ", signif(max_courant / rate_max, 4),
+                  "`, or use `subcycle = TRUE`. This growth-based target ",
+                  "does not guarantee stability or positivity.")
+    signal_info("growth_courant", msg, level = 1, severity = "warning",
+                unhandled = "show")
+}
+
+# Re-evaluate this choice after every coupled substep: a forecast of the total
+# number needed at the current rates is not a count of steps actually taken.
+courant_substep <- function(remaining, rate_max, max_courant,
+                            taken, max_substeps, t) {
+    if (taken >= max_substeps) {
+        stop("Growth Courant subcycling exceeded `max_substeps` ",
+             "within one requested `dt`. Reduce `dt` or ",
+             "increase `max_substeps`.", call. = FALSE)
+    }
+    ratio <- remaining * rate_max / max_courant
+    needed <- max(1, ceiling(ratio * (1 - 16 * .Machine$double.eps)))
+    dt <- remaining / needed
+    if (!is.finite(dt) || dt <= 0 || t + dt == t) {
+        stop("Growth Courant substep is too small to advance time.",
+             call. = FALSE)
+    }
+    dt
 }

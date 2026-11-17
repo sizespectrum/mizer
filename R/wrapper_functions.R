@@ -97,7 +97,7 @@ newCommunityParams <- function(max_w = 1e6,
                                r_pp = 10,
                                knife_edge_size = 1000,
                                reproduction,
-                               second_order_w = FALSE,
+                               second_order_w = NULL,
                                info_level = default_info_level(2)) {
     # Collect the information signals raised while the model is built and
     # report them together at the end.
@@ -131,7 +131,9 @@ newCommunityParams <- function(max_w = 1e6,
     )
     # Build with the requested bin-averaging but the robust upwind flux; the
     # chosen flux scheme governs projection only and is activated at the end.
-    target_sow <- resolve_second_order_w(second_order_w)
+    # The model about to be built is of the active defaults edition.
+    target_sow <- resolve_second_order_w(second_order_w,
+                                         defaults_edition())
     params <-
         newMultispeciesParams(species_params, no_w = no_w, min_w_pp = min_w_pp,
                               p = p, n = n, lambda = lambda, min_w = min_w,
@@ -139,8 +141,9 @@ newCommunityParams <- function(max_w = 1e6,
                               resource_capacity = kappa,
                               resource_rate = r_pp,
                               w_pp_cutoff = w_pp_cutoff,
-                              second_order_w =
-                                  c(bin_average = target_sow[["bin_average"]]))
+                              second_order_w = list(
+                                  flux = "upwind",
+                                  bin_average = target_sow[["bin_average"]]))
 
     initial_n <- array(kappa * params@w ^ (-lambda),
                        dim = c(1, length(params@w)))
@@ -194,6 +197,17 @@ newCommunityParams <- function(max_w = 1e6,
 #'
 #' In addition to setting up the parameters, this function also sets up an
 #' initial condition that is close to steady state.
+#'
+#' The external mortality rate is not calculated from the species parameters
+#' `z0`, `z_ext` and `d`. Instead it is set so that, together with the
+#' predation mortality in the initial state, it gives a total mortality rate
+#' that is a power law in body size, of which a proportion `ext_mort_prop` is
+#' external mortality. Where the predation mortality alone already exceeds
+#' that power law, the external mortality rate is set to zero, unless
+#' `perfect_scaling = TRUE`. Because the species parameters can not reproduce
+#' it, this external mortality rate is marked as set manually, so changing
+#' `z0`, `z_ext` or `d` later has no effect unless you call
+#' `setExtMort(params, reset = TRUE)`, see [setExtMort()].
 #'
 #' The search rate coefficient `gamma` is calculated using the expected
 #' feeding level, `f0`.
@@ -294,7 +308,9 @@ newCommunityParams <- function(max_w = 1e6,
 #'   second-order numerical scheme for the new model, applied before the
 #'   resource and abundance power laws are constructed so that they are built
 #'   bin-averaged from the start. Accepts the same values as the
-#'   [second_order_w()] setter. Defaults to `FALSE`. See
+#'   [second_order_w()] setter. By default the model gets the scheme of the
+#'   active [defaults_edition()]: second order from edition 3 on, first order
+#'   before. See
 #'   [newMultispeciesParams()].
 #' @param min_w_inf `r lifecycle::badge("deprecated")` The argument has been
 #'   renamed to `min_w_max` to make it clearer that it refers to the maximum
@@ -344,7 +360,7 @@ newTraitParams <- function(no_sp = 11,
                            egg_size_scaling = FALSE,
                            resource_scaling = FALSE,
                            perfect_scaling = FALSE,
-                           second_order_w = FALSE,
+                           second_order_w = NULL,
                            min_w_inf = deprecated(),
                            max_w_inf = deprecated(),
                            info_level = default_info_level(2)) {
@@ -517,7 +533,9 @@ newTraitParams <- function(no_sp = 11,
     # Build with the requested bin-averaging but the robust upwind flux; the
     # chosen flux scheme is for projection only and is activated at the end,
     # after the construction-time steady-state solve below.
-    target_sow <- resolve_second_order_w(second_order_w)
+    # The model about to be built is of the active defaults edition.
+    target_sow <- resolve_second_order_w(second_order_w,
+                                         defaults_edition())
     params <-
         newMultispeciesParams(
             species_params,
@@ -532,7 +550,8 @@ newTraitParams <- function(no_sp = 11,
             p = p,
             min_w_pp = min_w_pp,
             resource_rate = r_pp,
-            second_order_w = c(bin_average = target_sow[["bin_average"]])
+            second_order_w = list(flux = "upwind",
+                                  bin_average = target_sow[["bin_average"]])
         )
 
     w <- params@w
@@ -623,17 +642,19 @@ newTraitParams <- function(no_sp = 11,
     }
     if (!perfect_scaling) {
         params@cc_pp[w_full >= w_pp_cutoff] <- 0
+        # The model was built with `w_pp_cutoff = max_w`. Record the cutoff
+        # actually applied, so that recalculating the capacity from the
+        # resource parameters keeps the resource below it.
+        params@resource_params$w_pp_cutoff <- min(w_pp_cutoff, max_w)
     }
     params@initial_n_pp <- params@cc_pp
 
     # The cc_pp factor needs to be higher than the desired steady state in
-    # order to compensate for predation mortality
+    # order to compensate for predation mortality. This is the capacity that
+    # `setResource()` balances to, so it is not frozen with a comment.
     m2_background <- getResourceMort(params)
     params@cc_pp <- (params@rr_pp + m2_background ) *
         params@initial_n_pp / params@rr_pp
-    comment(params@cc_pp) <- paste("Carrying capacity set higher than the",
-                                   "desired steady state in order to",
-                                   "compensate for predation mortality.")
 
     ## Setup external death ----
     m2 <- getPredMort(params)
@@ -648,10 +669,12 @@ newTraitParams <- function(no_sp = 11,
         if (!perfect_scaling && any(params@mu_b[i,] < 0)) {
             params@mu_b[i, params@mu_b[i,] < 0] <- 0
         }
-        comment(params@mu_b) <- paste("Background mortality is set so that in",
-                                      "combination with predation mortality",
-                                      "it gives a power-law mortality.")
     }
+    # Unlike cc_pp, this is not what `setExtMort()` would calculate from the
+    # species parameters, so it has to be frozen.
+    comment(params@mu_b) <- paste("Background mortality is set so that in",
+                                  "combination with predation mortality",
+                                  "it gives a power-law mortality.")
 
 
     ## Set reproduction to meet boundary condition ----

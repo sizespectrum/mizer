@@ -111,19 +111,155 @@ written after the fix can pass for reasons unconnected with it, and on this kind
 of upgrade — where the code was not visibly broken — that is easy to do without
 noticing.
 
-**Test the corners, not just the default.** The numerics have two switches, and
-both default to the first-order choice: [`second_order_w()`](../reference/second_order_w.html) selects the
-discretisation in size, and [`project()`](../reference/project.html)'s `method` argument the one in time. A
-test on the default path says nothing about the others, which is exactly how a
+**Test the corners, not just the default.** The numerics have two switches:
+[`second_order_w()`](../reference/second_order_w.html) selects the discretisation in size, and [`project()`](../reference/project.html)'s
+`method` argument the one in time. Both default to the first-order choice,
+except that a model created with defaults edition 3 or later is second order in
+size. A test on one path says nothing about the others, which is exactly how a
 hand-rolled integral survives a green test suite. Run the package's own fixture
-with `second_order_w(params) <- TRUE` and with `method = "tr_bdf2"` as well. If
-the package cannot support one of them, say so in its documentation rather than
-leaving the user to find out.
+with `second_order_w(params) <- TRUE`, with `second_order_w(params) <- FALSE`
+and with `method = "tr_bdf2"` as well. If the package cannot support one of
+them, say so in its documentation rather than leaving the user to find out.
 
 If the package is a mizer **extension** — it registers methods on mizer's
 generics, declares marker classes, or calls `registerExtension()` — do all of
 the above, then see the [Upgrading your extension package article](upgrading-extension-packages.html) for the parts that
 are specific to being an extension.
+
+---
+
+## Upgrading from mizer 3.4 to 3.5
+
+A model now remembers the edition of default choices it was created with. This
+changes nothing for code that never calls [`defaults_edition()`](../reference/defaults_edition.html). Code that does
+switch editions finds that the switch now applies only to models created
+afterwards. Models saved with mizer 3.4 are upgraded once more when they are
+first used. [`plotYieldVsF()`](../reference/plotYieldVsF.html) accepts the `tol` argument it had in
+mizerExperimental again, with a deprecation warning. On a model whose encounter
+rate has been changed, [`getDiet()`](../reference/getDiet.html) and [`getTrophicLevel()`](../reference/getTrophicLevel.html) now follow the
+change and say how they split it between the food sources. Projections with
+high-order flux now report large growth Courant numbers; they retain the
+previous fixed-step calculation unless subcycling is requested.
+
+### A model keeps the defaults edition it was created with
+
+`defaults_edition()` chooses the edition of the defaults that mizer fills in for
+parameters you do not supply. Until now the choice was global: whenever mizer
+filled in a default, for any model, it used the edition active at that moment.
+An existing model therefore picked up the new edition's defaults as soon as
+anything made mizer fill one in again, for example a change to a species
+parameter, which recalculates every species parameter that mizer calculated.
+
+Now the edition that is active when a model is created is recorded in the
+model, and mizer always uses the model's own edition for it. Results move only
+if your code activates one edition and then works with a model of another, most
+often a model created or loaded before the `defaults_edition()` call, or a
+model that comes with a package, such as [`NS_params`](../reference/NS_params.html), which is of edition 1.
+Such a model now gets the defaults of its own edition when
+
+- mizer recalculates a `gamma` that it calculated, where edition 2 takes
+  `interaction_resource` into account and edition 1 does not,
+- [`setReproduction()`](../reference/setReproduction.html) recalculates [`psi`](../reference/setReproduction.html), which edition 1 sets to 1 above
+  `w_repro_max`,
+- you assign gear parameters without a [`catchability`](../reference/setFishing.html),
+- you give `project()` or `initial_effort<-()` an effort that leaves out some
+  gears or contains `NA`,
+- [`addSpecies()`](../reference/addSpecies.html) adds species and gears to it,
+- [`get_initial_n()`](../reference/get_initial_n.html) calculates initial abundances for it.
+
+See the edition of a model with `defaults_edition(params)`. To give an existing
+model the defaults of a different edition, create it again with that edition
+active.
+
+A model saved with an earlier version of mizer does not record its edition, and
+mizer cannot tell from the model which edition was active when it was created.
+It treats every such model as edition 1, which was the default. If you created
+yours with edition 2 active, say so once after loading it:
+
+```{r eval=FALSE}
+defaults_edition(params) <- 2
+```
+
+This recalculates nothing; it only tells mizer which defaults to use for the
+model from now on.
+
+Recording the edition is a change to the structure of a model, so a model saved
+with mizer 3.4 is upgraded when it is first used, with the usual warning that it
+was created with an earlier version of mizer. [`readParams()`](../reference/saveParams.html) and [`readSim()`](../reference/saveParams.html) do
+the upgrade quietly. Reassign the result, `params <- validParams(params)`, to
+stop the warning, and save the model again to keep the upgraded version.
+
+### `plotYieldVsF()` accepts `tol` again
+
+When `plotYieldVsF()` moved to mizer from mizerExperimental in mizer 3.3, its
+`tol` argument became `distance_tol`, and in mizer 3.3 and 3.4 a call that
+still passed `tol` stopped with an error. It now runs, with a deprecation
+warning, and uses the value as `distance_tol`, which is what it always meant.
+Rename the argument to stop the warning:
+
+```{r eval=FALSE}
+# Old
+plotYieldVsF(params, "Cod", F_range = seq(0.2, 0.8, 0.02), tol = 1e-4)
+# New
+plotYieldVsF(params, "Cod", F_range = seq(0.2, 0.8, 0.02), distance_tol = 1e-4)
+```
+
+Giving both `tol` and `distance_tol` is an error.
+
+### `getDiet()` and `getTrophicLevel()` follow a changed encounter rate
+
+On a model whose encounter rate has been changed, by a function you registered
+with [`setRateFunction("Encounter", ...)`](../reference/setRateFunction.html) or by an extension package,
+`getDiet()`, [`plotDiet()`](../reference/plotDiet.html) and `getTrophicLevel()` now give a message that starts
+
+```
+The encounter rate has been changed by a custom encounter rate function or by an
+extension, and `getEncounterByPrey()` does not say how the change is shared
+between the food sources.
+```
+
+These functions used to ignore the change, so the diet did not add up to what
+the predators consumed and the trophic levels could be far off. They now take
+the total from the model's own encounter rate. What they cannot know is how
+your change is shared between the prey species, the resource and the other food
+sources, so they scale all of them in proportion. That is exact if your
+function multiplies the whole encounter rate by a factor, as a seasonal or
+temperature multiplier does, and the message is then nothing to act on. If your
+function adds food of its own, the extra food is spread over the existing food
+sources in the diet, or shown as "External" at sizes at which they provide
+nothing. Add it as a component with an `encounter_fun` instead, see
+[`setComponent()`](../reference/setComponent.html), and `getDiet()` shows it as a food source of its own. If the
+message comes from an extension package, a newer version of that package can
+supply the exact split.
+
+To silence the message, set `options(mizer_info_level = 0)` or wrap the call in
+`suppressMessages()`.
+
+### Projection reports large growth Courant numbers
+
+With van Leer or centred flux, `project()` and projection-based settling can
+now warn that the growth Courant number exceeds the advisory target. Existing
+scripts may see this warning even if they previously ran without a report.
+The default timestep calculation has not changed. The warning identifies a
+risk of alternating cell-scale numerical residuals, which small changes in
+total biomass can conceal.
+
+Inspect the current state with [`getCourant(params, dt = dt)`](../reference/getCourant.html), reduce `dt`, or
+enable coupled subcycling:
+
+```{r eval=FALSE}
+sim <- project(params, t_max = 20, dt = 1 / 52, method = "tr_bdf2",
+               subcycle = TRUE, max_courant = 1)
+```
+
+Subcycling advances fish, resources and other components together with
+smaller internal steps. It can substantially increase runtime. The stored
+settings carry over when continuing the simulation with `project(sim)`.
+The target is growth-based guidance, not a guarantee of stability or
+positivity for all dynamics. Check results under timestep refinement.
+
+If the timestep has been checked and the report is unwanted, use
+`info_level = 0` for the call, or set `options(mizer_info_level = 0)`.
 
 ---
 
@@ -140,7 +276,7 @@ reject, for a calibration run that a size class holding a trace of fish was
 holding up, and for a model that was rescaled with [`scaleModel()`](../reference/scaleModel.html) and then had
 its species parameters recalculated. `summary()` of a rate array now reports
 different numbers, because it used to describe sizes the species never reaches.
-A model loaded with [`readParams()`](../reference/saveParams.html) now has its species parameters reconciled,
+A model loaded with `readParams()` now has its species parameters reconciled,
 which changes nothing about the model but stops values that were written
 straight into the [`species_params`](../reference/species_params.html) slot from reverting later.
 Code that consumes the data returned by [`plotSpectra()`](../reference/plotSpectra.html) also needs the small
@@ -169,7 +305,7 @@ names(params)   # the slot names
 
 Models saved by an earlier version load and run as before; mizer converts them
 to the new representation when it meets them, and `readParams()` and
-[`readSim()`](../reference/saveParams.html) return converted objects.
+`readSim()` return converted objects.
 
 What no longer applies is R's S4 machinery. A model is not an S4 object, so:
 
@@ -231,7 +367,7 @@ base-class file, so existing saved models remain compatible.
 
 [`getMort()`](../reference/getMort.html) and [`getEncounter()`](../reference/getEncounter.html) add the result of every function listed in
 `params@other_mort` and `params@other_encounter`. Until now the only exported
-way to write into those lists was [`setComponent()`](../reference/setComponent.html), which needs a
+way to write into those lists was `setComponent()`, which needs a
 `dynamics_fun` and an `initial_value`, so an extension adding a term that
 depends on the model state but keeps no state of its own — a starvation or
 senescence mortality — had to assign into the slot directly. That still works,
@@ -288,7 +424,7 @@ on every assignment to `species_params()`. Where an extension's factor is zero
 for some species — a therMizer species sitting exactly on its `temp_min`,
 evaluated at the arbitrary `t = 0` the default calculation uses — the available
 energy came out as zero and the calculation failed outright. An encounter
-function registered with [`setRateFunction()`](../reference/setRateFunction.html) no longer enters these defaults
+function registered with `setRateFunction()` no longer enters these defaults
 either; if your model relied on that, supply `gamma` or `f0` explicitly.
 
 **Additive encounter contributions.** The [`ext_encounter`](../reference/setExtEncounter.html) array and every
@@ -375,7 +511,7 @@ manipulation that was the only thing that worked before.
 
 [`validSpeciesParams()`](../reference/validSpeciesParams.html) rejects a `w_mat25` that is not smaller than `w_mat`. It
 used to say that it had corrected that *by setting it to NA*, which described a
-step the user never saw: [`setReproduction()`](../reference/setReproduction.html) fills the default in straight
+step the user never saw: `setReproduction()` fills the default in straight
 afterwards. It now says it is
 `"marking it as missing so that its default will"` be used.
 
@@ -657,7 +793,8 @@ that specifies sizes as lengths, that changes the resource power law after
 constructing the model, or that lets mizer fill in a `gamma` or `f0` while
 carrying a hand-set search volume. Three interfaces change: the spectrum plots,
 the names of the steady-state finders, and the `"convergence"` attribute they
-attach. Everything else is a new report, and
+attach. A call to `plotYieldVsF()`, which moved here from mizerExperimental,
+breaks if it passes `tol`. Everything else is a new report, and
 `info_level = 0` silences the lot.
 
 ### `biomass` and `per_log_size` replace `power`
@@ -715,7 +852,7 @@ They are now converted with the `dw/dl = b w / l` Jacobian and labelled
 old one, they were per gram plotted against length.
 
 **Proportions.** `getFeedingLevel()`, [`getCriticalFeedingLevel()`](../reference/getCriticalFeedingLevel.html), [`maturity()`](../reference/setReproduction.html),
-[`repro_prop()`](../reference/setReproduction.html), [`psi()`](../reference/setReproduction.html) and [`resource_level()`](../reference/setResource.html) now declare themselves
+[`repro_prop()`](../reference/setReproduction.html), `psi()` and [`resource_level()`](../reference/setResource.html) now declare themselves
 proportions, and a plot of one shows the whole of the interval from 0 to 1 on a
 linear y axis, so the value can be read against the scale it belongs to. Three
 consequences:
@@ -1419,13 +1556,13 @@ nothing in this section changes anything.** Under the second-order scheme,
 several functions were hand-rolling a first-order sum over the size grid instead
 of using the model's own quadrature, and are now consistent with it:
 
-- **[`getDiet(proportion = FALSE)`](../reference/getDiet.html)** was applying the prey-bin quadrature twice,
+- **`getDiet(proportion = FALSE)`** was applying the prey-bin quadrature twice,
   making it uniformly too large by a factor `(1 + beta) / 2`, where `beta` is
-  the grid ratio — 9.7% for [`NS_params`](../reference/NS_params.html). Summing the diet over prey now
+  the grid ratio — 9.7% for `NS_params`. Summing the diet over prey now
   reproduces `getEncounter() * (1 - getFeedingLevel())` (#474).
   `getDiet(proportion = TRUE)`, the default, was unaffected: the factor was
   uniform and divided out.
-- **[`getTrophicLevel()`](../reference/getTrophicLevel.html)** built its numerator and denominator from different
+- **`getTrophicLevel()`** built its numerator and denominator from different
   quadratures, so reported trophic levels were off by up to 0.06. A predator
   whose prey all have trophic level 1 now comes out at exactly 2 (#474).
 - **[`getN(params, min_w = ...)`](../reference/getN.html)** now bin-averages the size-range window, so the
@@ -1505,7 +1642,7 @@ among the setters that `setParams()` calls, which it always did.
 Seventeen accessors that read a parameter or rate array back out of a `MizerParams` object had
 two interchangeable names. The bare name is now the one to use — it is the one
 that also has a replacement function, so the pair reads the same way in both
-directions ([`catchability(params)`](../reference/setFishing.html) and `catchability(params) <- value`,
+directions (`catchability(params)` and `catchability(params) <- value`,
 [`reproduction_level(params)`](../reference/setBevertonHolt.html) and `reproduction_level(params) <- value`). The
 `get`-prefixed names are superseded:
 
@@ -1560,6 +1697,53 @@ params <- mizerExperimental::matchYield(params)
 total yield summed over all species matched the total observation. If you were
 using it to set the scale of your model, use `calibrateBiomass()` with observed
 biomasses, or `scaleModel()` with a factor of your own choosing.
+
+### `plotYieldVsF()` has moved from mizerExperimental
+
+`plotYieldVsF()` used to be part of mizerExperimental. It is now part of mizer,
+rebuilt on the new [`scanModel()`](../reference/scanModel.html), and mizerExperimental 3.3 no longer has it.
+The `species`, `F_range`, `F_min`, `F_max`, `no_steps`, `t_max` and
+`distance_func` arguments work as before, but a call that set the tolerance
+stops with an error:
+
+```{r eval=FALSE}
+plotYieldVsF(params, "Cod", F_range = seq(0.2, 0.8, 0.02), tol = 1e-4)
+#> Error:
+#> ! `tol` has been renamed to `distance_tol`, because the run now also has to
+#> meet a tolerance on the biomass drift, `residual_tol`. See
+#> `?projectUntilSettled`.
+```
+
+The argument is now called `distance_tol`, as on the new steady-state finders.
+It has the same meaning and the same default of 0.001, so the rename is all
+that is needed:
+
+```{r eval=FALSE}
+plotYieldVsF(params, "Cod", F_range = seq(0.2, 0.8, 0.02), distance_tol = 1e-4)
+```
+
+From mizer 3.5, `tol` is accepted again with a deprecation warning.
+
+The plot itself has changed in a few ways:
+
+- When `F_range` is left out, it now runs from `F_min` to `F_max = 1.5` in
+  `no_steps = 16` steps, where it used to stop at 1 after 10 steps.
+- At each fishing mortality the projection must also meet `residual_tol`, the
+  tolerance on the biomass drift, before the yield is read off as a fixed
+  point.
+- On a limit cycle the yield is averaged over exactly one period and the range
+  it covers is drawn as a band.
+- A fishing mortality at which the model settles on neither a fixed point nor a
+  limit cycle is marked with a cross and named in a single message at the end
+  of the scan, rather than being reported by each projection that did not
+  converge.
+- The fishing mortality with the largest yield is marked, and the current
+  fishing mortality is drawn as a "Current F" reference line.
+
+`getYieldVsF()` and `yieldCalculator()` were removed from mizerExperimental and
+did not move to mizer. Use `plotYieldVsF(..., return_data = TRUE)`, which
+returns the [`MizerScan`](../reference/MizerScan.html) object behind the plot, or `scanModel()` itself.
+
 
 ### `compareParams()` compares small parameters properly
 
@@ -1821,7 +2005,7 @@ Several fixes correct earlier behaviour and so change output:
   effort varied over time show the mean, flagged with a note giving the range.
   The printed summary therefore differs for simulations run with time-varying
   effort.
-- **`MizerSim` method for [`plotDiet()`](../reference/plotDiet.html)** introduced in version 3.0 simply
+- **`MizerSim` method for `plotDiet()`** introduced in version 3.0 simply
   plotted the diet at the initial time of the simulation. Now `plotDiet()` for
   a `MizerSim` accepts a `time_range` argument. The diet is now computed from
   the *simulated* abundances at the requested times, defaulting to the final

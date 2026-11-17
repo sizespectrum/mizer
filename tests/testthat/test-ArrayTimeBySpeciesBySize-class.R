@@ -390,3 +390,73 @@ test_that("the time-by-size comparison methods honour highlight", {
     expect_gt(drawn_linewidth(pr, "Cod", NS_params_small, layer = 2),
               drawn_linewidth(pr, "Herring", NS_params_small, layer = 2))
 })
+
+test_that("size subsets keep their original coordinates through time slices", {
+    for (average in c(FALSE, TRUE)) {
+        sim <- NS_sim_small
+        second_order_w(sim@params) <- c(bin_average = average)
+        x <- getFMort(sim)
+        w <- if (average) bin_midpoints(sim@params) else sim@params@w
+        selections <- list(c(9, 3, 9), dimnames(x)[[3]][c(8, 2)],
+                           c(TRUE, FALSE), -c(1, 4), integer(0),
+                           c(2, NA_integer_, 7))
+        for (index in selections) {
+            positions <- setNames(seq_along(w), dimnames(x)[[3]])[index]
+            selected_w <- unname(w[positions])
+            sub <- x[c(4, 1), , index, drop = FALSE]
+            expect_s3_class(sub, "ArrayTimeBySpeciesBySize")
+            expect_equal(as.data.frame(sub)$w,
+                         rep(selected_w, each = 2 * dim(x)[2]))
+            slice <- ArrayTimeBySpeciesBySize_slice(sub)
+            expect_s3_class(slice, "ArraySpeciesBySize")
+            expect_equal(as.data.frame(slice)$w,
+                         rep(selected_w, each = dim(x)[2]))
+            expect_null(attr(sub * 2, "size_grid"))
+            if (length(positions) > 1) {
+                dropped <- x[1, , index]
+                expect_s3_class(dropped, "ArraySpeciesBySize")
+                expect_equal(as.data.frame(dropped)$w,
+                             rep(selected_w, each = dim(x)[2]))
+            }
+        }
+    }
+})
+
+test_that("time slices retain full-width permutations and legacy grids", {
+    x <- fmort_small
+    index <- rev(seq_len(dim(x)[3]))
+    sub <- x[, c(3, 1, 2), index, drop = FALSE]
+    slice <- ArrayTimeBySpeciesBySize_slice(sub)
+    expect_identical(rownames(slice), dimnames(x)[[2]][c(3, 1, 2)])
+    expect_identical(colnames(slice), dimnames(x)[[3]][index])
+    expect_equal(as.data.frame(slice)$w,
+                 rep(unname(NS_params_small@w[index]), each = 3))
+
+    # Arrays saved before size-grid metadata was introduced still work.
+    attr(x, "size_grid") <- NULL
+    sub <- x[, , c(8, 3), drop = FALSE]
+    expect_equal(as.data.frame(sub)$w,
+                 rep(unname(NS_params_small@w[c(8, 3)]), each = 12))
+    expect_s3_class(sub[, , 1], "ArrayTimeBySpecies")
+    expect_null(attr(sub[, , 1], "size_grid"))
+    expect_null(attr(sub[1, 1, ], "size_grid"))
+})
+
+test_that("duplicate size labels do not merge distinct time-array bins", {
+    # Simulate rounded labels on a fine grid without constructing a large model.
+    params <- NS_params_small
+    labels <- colnames(params@metab)
+    labels[2] <- labels[1]
+    colnames(params@metab) <- labels
+    arr <- unclass_tss(fmort_small)
+    dimnames(arr)[[3]] <- labels
+    x <- ArrayTimeBySpeciesBySize(arr, params = params)
+    sub <- x[, , c(2, 1, 2), drop = FALSE]
+    expect_equal(as.data.frame(sub)$w,
+                 rep(unname(params@w[c(2, 1, 2)]), each = 12))
+
+    attr(x, "size_grid") <- NULL
+    expect_equal(get_ArrayTimeBySpeciesBySize_w(x), params@w)
+    attr(sub, "size_grid") <- NULL
+    expect_error(get_ArrayTimeBySpeciesBySize_w(sub), "ambiguous")
+})

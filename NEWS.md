@@ -1,24 +1,193 @@
 # mizer (development version)
 
+## Defaults editions
+
+- A model now records the defaults edition that was active when it was
+  created, and whenever mizer later fills in a default for that model it uses
+  the model's own edition rather than the one that is active at the time
+  (#451). This covers the `gamma` that mizer recalculates after a species
+  parameter has changed, `psi` above `w_repro_max` in `setReproduction()`, a
+  missing `catchability` in `gear_params<-()`, missing or `NA` fishing effort in
+  `project()` and `initial_effort<-()`, the initial abundances from
+  `get_initial_n()`, and the new species and gears that `addSpecies()` adds.
+  Changing the active edition with `defaults_edition()` therefore affects only
+  models created afterwards, and an existing model keeps the defaults it was
+  created with. Models saved with an earlier version are of edition 1.
+- `defaults_edition(params)` returns the edition of a model, and
+  `defaults_edition(params) <- value` changes it without recalculating
+  anything. Saved legacy S4 models without a recorded edition also return
+  edition 1 before they are upgraded. `summary()` of a model reports its edition.
+- `validGearParams()` gains an `edition` argument, which defaults to the
+  active edition.
+- The new defaults edition 3 removes contributions that wrap around the size
+  grid from the encounter rate, the predation rate, the predation diffusion
+  and `getDiet()` (#618). These are convolutions over the predation kernel,
+  evaluated by fast Fourier transform, and that convolution was circular: the
+  part of a small fish's feeding kernel that reached below the smallest
+  resource size `min_w_pp` wrapped around to the top of the grid, so that
+  larvae were fed by the largest fish and the predation rate recorded them as
+  eating those fish. The `ft_mask` removed this only from the predation rate on
+  prey larger than the predator species' maximum size. The error grows with the
+  biomass of the largest fish and with how far the larval kernels reach below
+  `min_w_pp`. In the model reported in #618, with `min_w_pp` three orders of
+  magnitude below the egg size, it made the encounter rate of 1 mg larvae 9%
+  too high, and with `use_predation_diffusion` switched on it made the
+  predation diffusion of the smallest fish several orders of magnitude too
+  large. In a model of edition 3 the convolutions are evaluated on a
+  zero-padded grid, so they agree with the direct sums over the kernel. Models
+  of editions 1 and 2, which include every model created with the default
+  edition and every model saved with an earlier version of mizer, keep the
+  circular convolutions, so their results do not change. To switch an
+  existing model to the zero-padded convolutions, record the new edition in it
+  with `defaults_edition(params) <- 3` and recalculate its kernel with
+  `params <- setPredKernel(params)`. Bear in mind that the model then also
+  gets the defaults of edition 2 whenever mizer next fills them in.
+- For extension packages: the new `convolve_pred_kernel()` evaluates these
+  convolutions for a prey or predator density of your own. Use it instead of
+  multiplying the `ft_pred_kernel_e`, `ft_pred_kernel_p` or `ft_pred_kernel_d`
+  slots by Fourier transforms of your own. In a model of edition 3 those slots
+  are stored on the zero-padded grid and can be longer than `w_full`, so such
+  code fails with "non-conformable arrays".
+- The new defaults edition 3 makes the second-order numerical scheme in size
+  the default for new models (#503): a model created while edition 3 is active
+  gets `second_order_w = TRUE`, that is the van Leer flux limiter and
+  bin-averaged integrals over the size grid. The first-order upwind flux
+  carries enough numerical diffusion to smear out cohorts and damp real
+  oscillations, and code that integrates over the size grid without honouring
+  `bin_average` was only caught by tests that switched the second-order scheme
+  on. The `second_order_w` argument of `newMultispeciesParams()`,
+  `newSingleSpeciesParams()`, `newTraitParams()` and `newCommunityParams()`
+  now defaults to `NULL`, which means the scheme of the edition; set it to
+  `FALSE` to get the first-order scheme in edition 3, or to
+  `c(bin_average = FALSE)` to keep the left-edge integrals, and with them the
+  unnormalised summaries of edition 2, while using the van Leer flux. Models of
+  editions 1 and 2, which include every model created with the default edition
+  and every model saved with an earlier version of mizer, keep the first-order
+  scheme, so their results do not change.
+
 ## New features
 
 - New `getR0()` gives the lifetime reproductive output R0 of each species:
   the number of eggs that one recruit produces over its life, with growth,
-  mortality, diffusion and reproductive investment held fixed (#632). A rare
-  species increases if and only if R0 > 1, so it answers whether an absent
-  species can invade, where `getRDI() / getRequiredRDD()` is 0/0. The rates
-  can be supplied, for example `mort = getMort(other_params)` to separate the
-  effect of food from that of predation. It solves the discretised transport
-  equation that `project()` solves, so unlike the usual hand-written upwind
-  recursion it is right with the second-order flux schemes and with size
-  diffusion. At a Beverton-Holt steady state it is 1 / (1 - reproduction
-  level), not 1.
+  mortality, diffusion and reproductive investment held fixed (#632). It is
+  defined for an absent species too, where `getRDI() / getRequiredRDD()` is
+  0/0. With Beverton-Holt density dependence, or with none, recruitment at low
+  abundance equals egg production, so a rare species increases if and only if
+  R0 > 1 and R0 answers whether an absent species can invade. A custom RDD
+  function whose recruitment at low abundance is a different multiple of egg
+  production moves that threshold: the species then increases if R0 times that
+  multiple exceeds 1. The rates can be supplied, for example
+  `mort = getMort(other_params)` to separate the effect of food from that of
+  predation. It solves the discretised transport equation that `project()`
+  solves, so unlike the usual hand-written upwind recursion it is right with
+  the second-order flux schemes and with size diffusion. At a Beverton-Holt
+  steady state it is 1 / (1 - reproduction level), not 1.
 - New `getNPerRecruit()` gives the steady-state abundance per recruit that
   `getR0()` is built on: the steady state that a recruitment of one
   individual per year produces with the rates held fixed.
+- `getCourant()` reports the growth Courant numbers on the model's active
+  size support. Projections with high-order flux now report large Courant
+  numbers, and optional `subcycle = TRUE` advances consumers, resources and
+  other components together with smaller internal steps, recalculating rates
+  at each step (#571). The requested output times and the spatial scheme stay
+  the same. Fixed-step numerical behaviour remains the default. The Courant
+  target is an advection guideline, not a guarantee of stability, positivity
+  or accuracy for all rates and component dynamics.
+- `removeSpecies()` gains a `compensate` argument (#547). Removing species
+  lowers the encounter rate of their predators and the predation mortality of
+  their prey, so a model at steady state leaves it. With `compensate = TRUE`
+  the external encounter rate, external mortality and external diffusion of
+  the remaining species take over what the removed species contributed, and
+  the resource capacity is rebalanced because the removed species no longer
+  eat the resource. At the initial state the remaining species then have the
+  rates they had before and the resource is at steady state, so a steady state
+  stays a steady state. mizer checks that the rates are restored and warns if
+  a custom rate function prevents that. The default `compensate = FALSE` keeps
+  the previous behaviour. `removeSpecies()` also gains an `info_level`
+  argument.
+- The functions that calculate species parameter defaults from the model —
+  `get_gamma_default()`, `get_f0_default()`, `get_h_default()` and
+  `get_ks_default()` — are now S3 generics, so an extension package can register
+  its own methods for them instead of reimplementing the calculation. The
+  measurement of the energy available in the power-law reference state, which is
+  where those defaults look at the prey in the model, is exported as the generic
+  `measure_avail_energy()`. An extension that replaces mizer's resource by a
+  resource system of its own only needs a method for that one function to have
+  the `gamma` and `f0` defaults derived against its resources. The guide to
+  creating an extension package explains when this is needed (#598).
 
 ## Bug fixes
 
+- Euler projection and steady-state drift diagnostics now share the rule for
+  selecting the upper size boundary. The rule uses the current evaluated
+  diffusion across all species, including custom rates, and the flux scheme.
+  This internal refactor preserves numerical behaviour and the legacy upwind
+  Euler path without positive diffusion.
+
+- Steady-state drift diagnostics no longer count transport into empty size
+  classes above the retained support when projection holds those classes at
+  zero (#658). Losses from the last retained class still contribute, as does
+  inflow into empty classes inside the support. Populated tails and the legacy
+  upwind Euler path without diffusion retain their previous diagnostic
+  behaviour; the numerical details explain these limits.
+
+- Size-resolved array wrappers now retain the exact original size-grid mapping
+  when subsetted (#650). Printing, summaries, data-frame conversion and plots
+  work for sparse selections, and reordered or repeated columns keep the
+  correct coordinates and bin centres. The mapping also survives time slicing
+  and resource-array subsetting; a resource-grid subset is no longer mistaken
+  for the consumer grid merely because their lengths match.
+- The stability-analysis guide now explains how to read `MizerScan` columns
+  with dynamic names, subset scans while preserving metadata, and compare
+  forward and backward continuation sweeps for hysteresis (#651). The
+  `MizerScan` help also corrects its advice on data-frame operations: base
+  `subset()` preserves row-subset metadata, while other operations may drop
+  metadata or retain stale maxima.
+- The Newton steady-state solver now rejects overflowing or underflowing
+  trial densities before evaluating rates and bounds its log-density steps
+  (#653). If its residual tolerance is not met, it retries from a frozen-rate
+  steady spectrum within the remaining iteration budget and keeps the better
+  result. This fixes the reported NA-subscript error and nearly growth-free
+  tail failures while retaining the size support needed by diffusion and
+  custom growth functions.
+
+- `steadySingleSpecies()` and `matchGrowth()` now solve the van Leer
+  steady-state transport equation with upwind-preconditioned defect correction
+  (#652). The previous iteration could oscillate, introduce interior zeros and
+  change an already steady spectrum substantially. Convergence is checked for
+  every species, including the transport residual, and failure now stops with
+  an error naming the unconverged species instead of returning an inaccurate
+  spectrum silently. The first-order upwind calculation is unchanged.
+
+- `newTraitParams()` no longer marks the resource capacity it constructs as
+  set manually (#607). That capacity is exactly the one `setResource()`
+  balances to, so the mark protected nothing, but it stopped `setResource()`
+  from rebalancing the resource and `resource_params<-()` from recalculating
+  the capacity after a change of `kappa`, `lambda` or `w_pp_cutoff`. So that
+  such a recalculation keeps the resource below the cutoff the constructor
+  applied, that cutoff is now recorded in `resource_params()` instead of the
+  maximum size `max_w`. The external mortality rate stays marked as set
+  manually, because the species parameters can not reproduce it. The help
+  page of `newTraitParams()` now explains how that rate is set, and so why
+  changing `z0`, `z_ext` or `d` afterwards has no effect.
+- `addSpecies()` and `adjustSizeGrid()` (and with it `expandSizeGrid()`) now
+  build the new model with the numerical scheme of the model they are given.
+  They used to build it with the first-order scheme and copy the
+  `second_order_w` setting across afterwards, so that on a model with
+  bin-averaging switched on the predation kernels and the fishing selectivity
+  they recalculated were point-sampled at the left bin edges although the
+  model reported `bin_average = TRUE`.
+- `plotYieldVsF()` accepts the `tol` argument it had in mizerExperimental
+  again, with a deprecation warning, and uses it as `distance_tol`. Since the
+  function moved to mizer in 3.3.0, a call that passed `tol` stopped with an
+  error. The upgrade notes for mizer 3.3 now describe the move (#640).
+- With `second_order_w(params) <- c(flux = "van_leer")` a projection could
+  suddenly turn all abundances of a species into `NaN` (#630). Above `w_max` a
+  spectrum can decay to subnormal numbers, and the ratio of successive density
+  jumps that the van Leer limiter takes then overflowed to `Inf`. The limiter
+  is now evaluated from the two jumps without forming their ratio, so it stays
+  between 0 and 2. Results of other van Leer projections change only by
+  rounding.
 - `steadySingleSpecies()` with `keep = "biomass"` or `keep = "number"` no
   longer fills a species with zero abundance with `NaN`, which made the
   returned model fail validation (#615). The same happened with
@@ -96,11 +265,118 @@
   predation-diffusion coefficient by a median of 7.7% and by up to 11%. The
   error was first order, so it did not go away quickly on finer grids. Models
   on the default scheme are unaffected.
+
+- When a species is given an egg size `w_min` below the size grid, mizer
+  raises it to the start of the grid with a warning. It now also raises the
+  value stored among the given species parameters (#642). Before, the rejected
+  value stayed there, so every later change of an unrelated species parameter
+  gave the same warning again. Once the grid had been widened with
+  `adjustSizeGrid()`, the next such change put the rejected `w_min` back
+  without any warning, and the default `h`, `ks` and `gamma` of that species
+  changed with it.
+
+- When an egg size below the size grid is raised to the grid minimum, its
+  supplied length `l_min` is now updated in both species parameter tables too.
+  Later validation or an unrelated parameter edit no longer warns that the
+  egg length and weight disagree.
+
+- The warning that an egg size `w_min` was raised to the size-grid minimum
+  now follows `info_level`: it is reported at level 1 and silenced at level 0,
+  including with `options(mizer_info_level = 0)`. The adjustment still takes
+  effect at every level.
+
+- `getDiet()`, `getTrophicLevel()` and `getTrophicLevelBySpecies()` now agree
+  with the model's own encounter rate, feeding level and growth rate in three
+  cases where they did not (#613). Summed over prey, `getDiet(proportion =
+  FALSE)` reproduces `getEncounter() * (1 - getFeedingLevel())` in all of them.
+  - **The encounter rate has been changed**, by a function registered with
+    `setRateFunction("Encounter", ...)` or by an extension package's
+    `projectEncounter()` method. The diet used to be rebuilt from the search
+    volume and the predation kernel and so ignored the change, and
+    `getTrophicLevel()` divided a numerator built that way by the changed
+    encounter rate. A model whose encounter rate was halved had twice the diet
+    it consumed and a cod trophic level of 25.8 instead of 5.8. The diet is now
+    scaled to the model's encounter rate, with a message saying so, and the
+    numerator of the trophic level is built from the scaled diet. Where the
+    predator encounters food although none of the food sources contributes,
+    the diet shows that food as "External".
+  - **`n_other` differs from the initial values.** The feeding level by which
+    `getDiet()` multiplies the encounter rate was calculated with the initial
+    abundances of the other components rather than the `n_other` passed in.
+  - **The rates depend on time.** `getDiet()`, `getTrophicLevel()` and
+    `getTrophicLevelBySpecies()` gain a `t` argument, defaulting to 0, and
+    pass it to the encounter rate, the feeding level, the growth rate and the
+    encounter functions of components. `getDiet()` on a `MizerSim` evaluates
+    the diet at each saved time with that time. Previously the encounter
+    functions of components were called without a time, so `getDiet()` failed
+    on a model whose component encounter function had no default for `t`,
+    and otherwise evaluated everything at `t = 0`.
+- The new `getEncounterByPrey()` returns the encounter rate resolved by food
+  source, which `getDiet()` multiplies by `1 - getFeedingLevel()`. It is an S3
+  generic, so that an extension package that changes the encounter rate can
+  say how the change is shared between food sources. For extension packages:
+  if your package has a `projectEncounter()` method, give
+  `getEncounterByPrey()` a method that makes the same change and calls
+  `NextMethod()`. `getDiet()` and `getTrophicLevel()` then split the encounter
+  rate between food sources exactly and say nothing. Without it they scale all
+  food sources in proportion, which is exact only if the change affects them
+  all equally, as a change of the search volume does in a model without
+  external encounter or components with an encounter function.
+  `getTrophicLevel()` takes from `getEncounterByPrey()` how much food each prey
+  species and the resource provide, and averages their trophic levels over
+  prey sizes with the predation kernel stored in the model. A food source that
+  an extension switches on, for example by setting a zero interaction to a
+  positive value, therefore gets its proper trophic level. An extension that
+  changes which prey sizes are eaten without storing its kernel with
+  `setPredKernel()` needs a `getTrophicLevel()` method of its own.
 ## Documentation
 
 - The help page of `getDiffusion()` gave the predation-diffusion rate with a
   factor $(\alpha_i(1-\psi_i(w)))^2$. The correct factor, and the one mizer
   has always used, is $\alpha_i^2$, as in the model description (#624).
+- The guide to changing parameters listed the egg size `w_min` and the
+  assimilation efficiency `alpha` among the parameters that change only
+  themselves. Both feed the default for `h`: when `h` is derived from growth
+  information, lowering `w_min` raises `h` and any calculated `ks` and `gamma`.
+  Without usable growth information, the fallback `h = 30` stays unchanged.
+  The guide now says so, and shows how to change only the egg size:
+  pin `h` first, and extend the size grid with `adjustSizeGrid()` before
+  lowering `w_min` below it (sizespectrum/mizerAgents#13).
+- The help page of `tuneSteadyState()` now says when not to use it: because it
+  holds the reproduction rate at its current value and re-derives
+  `erepro`/`R_max` and `cc_pp`, it cannot find a steady state with a very
+  different reproduction rate, such as an alternative stable state, and two
+  states found with it do not share parameters. Its section on checking the
+  result now also tells you to check the re-derived `erepro`: a value greater
+  than 1 means the state found cannot be sustained, even when the
+  `"convergence"` attribute reports a fixed point (#631). The
+  `calibrate-model` skill and its guide give the same advice and add the
+  `erepro` warning to their list of calibration problems, and the diagnostic
+  table of the `understand-size-spectrum-dynamics` skill and guide gains a row
+  for it (sizespectrum/mizerAgents#12).
+- The "Community Model" and "Trait-Based Model" articles no longer explain a
+  trophic cascade as moving down the spectrum one predator-prey mass ratio
+  $\beta$ at a time, which would put its peaks and troughs a factor of $\beta$
+  apart. They are not, and they do not move closer together when $\beta$ is
+  reduced (#3). The "Single-Species Model" article now gives the steady-state
+  spectrum in terms of the growth and mortality rates and shows, with new
+  experiments, that a change in mortality or growth changes the abundance at
+  all larger sizes, so that the abundance has its extremes where the change
+  switches sign, while a change in growth also piles fish up or thins them out
+  locally. Its prey-reduction example now explains that the slow-down in growth
+  costs far more fish than it piles up. The cascade sections build on this: the
+  community model one compares the change in predation mortality with the
+  change in abundance, and the trait-based model one also looks at the change
+  in feeding level and recruitment. The "Understanding size-spectrum dynamics"
+  guide says the same.
+- The detritus example in the "Extending mizer" guide and the `extend-mizer`
+  skill counted the encounter of the fish prey and `ext_encounter()` a second
+  time. Its `encounter_fun` delegated to `mizerEncounter()` with the detritus as
+  `n_pp`, but `mizerEncounter()` returns the whole encounter rate, so an empty
+  detritus pool raised the encounter rate by up to a factor of 2 and the
+  detritus made up about half of the diet of cod. The example now evaluates the
+  encounter of the detritus alone with `convolve_pred_kernel()`, and the guide
+  explains that an `encounter_fun` returns only its component's contribution.
 
 # mizer 3.4.0
 

@@ -7,7 +7,8 @@ that specifies sizes as lengths, that changes the resource power law after
 constructing the model, or that lets mizer fill in a `gamma` or `f0` while
 carrying a hand-set search volume. Three interfaces change: the spectrum plots,
 the names of the steady-state finders, and the `"convergence"` attribute they
-attach. Everything else is a new report, and
+attach. A call to `plotYieldVsF()`, which moved here from mizerExperimental,
+breaks if it passes `tol`. Everything else is a new report, and
 `info_level = 0` silences the lot.
 
 ### `biomass` and `per_log_size` replace `power`
@@ -941,6 +942,58 @@ params <- mizerExperimental::matchYield(params)
 total yield summed over all species matched the total observation. If you were
 using it to set the scale of your model, use `calibrateBiomass()` with observed
 biomasses, or `scaleModel()` with a factor of your own choosing.
+
+### `plotYieldVsF()` has moved from mizerExperimental
+
+`plotYieldVsF()` used to be part of mizerExperimental. It is now part of mizer,
+rebuilt on the new `scanModel()`, and mizerExperimental 3.3 no longer has it.
+The `species`, `F_range`, `F_min`, `F_max`, `no_steps`, `t_max` and
+`distance_func` arguments work as before, but a call that set the tolerance
+stops with an error:
+
+```r
+plotYieldVsF(params, "Cod", F_range = seq(0.2, 0.8, 0.02), tol = 1e-4)
+#> Error:
+#> ! `tol` has been renamed to `distance_tol`, because the run now also has to
+#> meet a tolerance on the biomass drift, `residual_tol`. See
+#> `?projectUntilSettled`.
+```
+
+The argument is now called `distance_tol`, as on the new steady-state finders.
+It has the same meaning and the same default of 0.001, so the rename is all
+that is needed:
+
+```r
+plotYieldVsF(params, "Cod", F_range = seq(0.2, 0.8, 0.02), distance_tol = 1e-4)
+```
+
+From mizer 3.5, `tol` is accepted again with a deprecation warning.
+
+The plot itself has changed in a few ways:
+
+- When `F_range` is left out, it now runs from `F_min` to `F_max = 1.5` in
+  `no_steps = 16` steps, where it used to stop at 1 after 10 steps.
+- At each fishing mortality the projection must also meet `residual_tol`, the
+  tolerance on the biomass drift, before the yield is read off as a fixed
+  point.
+- On a limit cycle the yield is averaged over exactly one period and the range
+  it covers is drawn as a band.
+- A fishing mortality at which the model settles on neither a fixed point nor a
+  limit cycle is marked with a cross and named in a single message at the end
+  of the scan, rather than being reported by each projection that did not
+  converge.
+- The fishing mortality with the largest yield is marked, and the current
+  fishing mortality is drawn as a "Current F" reference line.
+
+`getYieldVsF()` and `yieldCalculator()` were removed from mizerExperimental and
+did not move to mizer. Use `plotYieldVsF(..., return_data = TRUE)`, which
+returns the `MizerScan` object behind the plot, or `scanModel()` itself.
+
+<!-- agent-only -->
+On mizer 3.3 or 3.4 the rename to `distance_tol` is the fix. Upgrading to 3.5
+also makes the old call run, but with a deprecation warning, so rename it either
+way.
+<!-- /agent-only -->
 
 ### `compareParams()` compares small parameters properly
 

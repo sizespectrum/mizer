@@ -162,6 +162,31 @@ test_that("getDiffusion works with a custom predation kernel (#373)", {
     expect_equal(d, expected, ignore_attr = TRUE)
 })
 
+test_that("predation diffusion has no wrap-around when the kernel extends below min_w_pp (#618)", {
+    # The diffusion integrand is weighted by w_p^2, so prey wrapped around from
+    # the top of the grid would dominate the diffusion of the smallest fish.
+    params <- kernel_below_grid_params()
+    params@use_predation_diffusion <- TRUE
+    params_direct <- setPredKernel(params, pred_kernel = pred_kernel(params))
+    expect_lt(max_rel_diff(getDiffusion(params), getDiffusion(params_direct)),
+              1e-8)
+
+    # Under bin averaging, against the direct sum with the diffusion kernel
+    params <- kernel_below_grid_params(bin_average = TRUE)
+    params@use_predation_diffusion <- TRUE
+    no_w_full <- length(params@w_full)
+    idx_sp <- (no_w_full - length(params@w) + 1):no_w_full
+    prey <- outer(params@species_params$interaction_resource,
+                  params@initial_n_pp)
+    prey[, idx_sp] <- prey[, idx_sp] + params@interaction %*% params@initial_n
+    prey <- sweep(prey, 2, params@w_full^2 * params@dw_full, "*")
+    expected <- bin_average_weight(
+        (1 - getFeedingLevel(params)) * params@search_vol, params) *
+        params@species_params$alpha^2 *
+        linear_kernel_sum(params, prey, "diffusion")
+    expect_lt(max_rel_diff(getDiffusion(params), expected), 1e-8)
+})
+
 test_that("predation diffusion default path mirrors the encounter kernel (#384)", {
     # With bin_average off, ft_pred_kernel_d == ft_pred_kernel_e, so the
     # diffusion integral is unchanged from previous mizer.
@@ -178,13 +203,13 @@ test_that("predation diffusion is second order under bin_average (#619)", {
     # predator bin. The kernel averages the prey integral over it, but the
     # factor (1 - f(w)) * gamma(w) in front must be averaged over it too.
     # Measure the order under grid refinement with smooth prescribed densities.
-    diffusion <- function(no_w) {
+    ps <- lapply(nested_no_w, function(no_w) {
         p <- convergence_params(no_w)
         use_predation_diffusion(p) <- TRUE
-        at_bin_centre(getDiffusion(p)["Large", ], w(p), dw(p), 5)
-    }
-    v <- vapply(c(80, 160, 320), diffusion, numeric(1))
-    expect_gt(convergence_order(v), 1.8)
+        p
+    })
+    diffusion <- lapply(ps, function(p) getDiffusion(p)["Large", ])
+    expect_second_order(bin_average_order(diffusion, ps, c(0.5, 5, 50)))
 })
 
 # getDiffusion with predation diffusion ----

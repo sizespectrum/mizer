@@ -21,6 +21,10 @@
 #'   \item `params` – the `MizerParams` object that the value was computed from.
 #' }
 #'
+#' Size selections keep the original model coordinates and bin widths, as for
+#' [ArraySpeciesBySize()]. This also holds when a time slice is extracted or
+#' plotted. Reordered and repeated size columns are not treated as a new grid.
+#'
 #' @param x A 3D array (time x species x size). For
 #'   `is.ArrayTimeBySpeciesBySize()`, any object to test.
 #' @param value_name A string giving the human-readable name for the value.
@@ -61,7 +65,8 @@ ArrayTimeBySpeciesBySize <- function(x, value_name = NULL, units = NULL,
         units = units,
         type = type,
         params = params,
-        representation = representation
+        representation = representation,
+        size_grid = array_size_grid(x, params, size_dim = 3)
     )
 }
 
@@ -70,24 +75,15 @@ ArrayTimeBySpeciesBySize <- function(x, value_name = NULL, units = NULL,
 #' Internal helper, the three-dimensional analogue of
 #' [get_ArraySpeciesBySize_w()]. Returns the geometric bin centres (see
 #' [bin_midpoints()]) when the array is tagged as a bin average and the model
-#' uses second-order bin-averaging, otherwise the grid nodes read from the size
-#' dimension names. Falls back to the dimension names when no `params` is
-#' attached.
+#' uses second-order bin-averaging, otherwise the original grid nodes. The
+#' stored size mapping preserves these coordinates through subsetting. Falls
+#' back to dimension names when no model grid is available.
 #'
 #' @param x An `ArrayTimeBySpeciesBySize` object.
 #' @return A numeric vector giving the size represented by each size slice.
 #' @keywords internal
 get_ArrayTimeBySpeciesBySize_w <- function(x) {
-    w <- as.numeric(dimnames(x)[[3]])
-    if (any(is.na(w))) w <- seq_len(dim(x)[3])
-    params <- attr(x, "params")
-    average <- !is.null(params) &&
-        identical(attr(x, "representation"), "average") &&
-        isTRUE(params@second_order_w[["bin_average"]])
-    if (!average) return(w)
-    if (dim(x)[3] == length(params@w)) return(bin_midpoints(params))
-    if (dim(x)[3] == length(params@w_full)) return(bin_midpoints(params, w_full = TRUE))
-    w
+    array_size_values(x, size_dim = 3)
 }
 
 #' @rdname ArrayTimeBySpeciesBySize
@@ -350,6 +346,7 @@ ArrayTimeBySpeciesBySize_slice <- function(x, time = NULL) {
     slice <- matrix(arr[tidx, , , drop = FALSE],
                     nrow = dim(arr)[2],
                     dimnames = dimnames(arr)[2:3])
+    attr(slice, "size_grid") <- array_size_grid(x, size_dim = 3)
     ArraySpeciesBySize(slice, value_name = value_name,
                        units = units, type = array_type(x),
                        params = params,
@@ -501,6 +498,7 @@ as.data.frame.ArrayTimeBySpeciesBySize <- function(x, row.names = NULL,
         attr(result, "type") <- attr(x, "type")
         attr(result, "params") <- attr(x, "params")
         attr(result, "representation") <- attr(x, "representation")
+        attr(result, "size_grid") <- subset_size_grid(x, 3, k)
         class(result) <- c("ArrayTimeBySpeciesBySize", "array")
     } else if (is.matrix(result)) {
         dim_names <- names(dimnames(result))
@@ -510,6 +508,7 @@ as.data.frame.ArrayTimeBySpeciesBySize <- function(x, row.names = NULL,
                       params = attr(x, "params"),
                       representation = attr(x, "representation") %||% "point")
         if (identical(dim_names, c("sp", "w"))) {
+            attr(result, "size_grid") <- subset_size_grid(x, 3, k)
             result <- ArraySpeciesBySize(result,
                                          value_name = attrs$value_name,
                                          units = attrs$units,
@@ -543,6 +542,7 @@ unclass_tss <- function(x) {
     attr(x, "type") <- NULL
     attr(x, "params") <- NULL
     attr(x, "representation") <- NULL
+    attr(x, "size_grid") <- NULL
     x
 }
 

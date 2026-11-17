@@ -67,6 +67,10 @@ package.
 | `is()` / `setClass()` / `expect_s4_class()` in the package, or `.onLoad()` calling `registerExtension()` / `getRegisteredExtensions()` | written against the S4 mizer | Part 1 |
 | After `rm(list = ls())`, or in the second and later examples of `R CMD check`, mizer reports the extension's class is not a defined class | the dynamic S4 marker classes lived in `.GlobalEnv` | Part 1 — the mechanism is gone, migrate rather than repair |
 | After `devtools::load_all()`, `coerceToExtensionClass()` reports no method or default for coercing `MizerParams` | same obsolete marker-class machinery | Part 1 |
+| `non-conformable arrays` from a line that multiplies `params@ft_pred_kernel_e` (or `_p`, `_d`) by `mvfft()` of a prey or predator matrix, for a model of defaults edition 3 | the Fourier-transformed kernels of such a model are stored on a zero-padded grid longer than `w_full` | Your own FFT convolutions |
+| Message `"does not say how the change is shared between the food"` sources from `getDiet()`, `plotDiet()` or `getTrophicLevel()` on a model of the package | the package changes the encounter rate with a `projectEncounter()` method but has no `getEncounterByPrey()` method | The diet of a changed encounter rate |
+| The package has a `getDiet()` method, or one for `getTrophicLevel()`, only to make them follow its change to the encounter rate | `getEncounterByPrey()` is the hook for that | The diet of a changed encounter rate |
+| `getTrophicLevel()` on a model of the package differs from the equivalent model without the extension, although `getDiet()` agrees | the package changes which prey sizes are eaten during the projection, and `getTrophicLevel()` weights prey sizes with the kernel stored in the model | The diet of a changed encounter rate |
 | The package's results are unchanged when the model is switched to `second_order_w = TRUE`, or a diagnostic is out by a constant factor | the extension's own integrals ignore the `bin_average` flag | Working under both numerical schemes |
 | A component's state advances twice as far per step, or its `dynamics_fun` double-counts, under `method = "second_order"` (`"tr_bdf2"`) or `"predictor_corrector"` | the second-order steppers call `dynamics_fun` twice per step, from the same start-of-step state | Working under both numerical schemes |
 | A method the package defines is never called, and its name starts with `get` | the `get`-prefixed accessors are plain aliases now; dispatch happens on the bare name | Methods on the renamed rate-array accessors |
@@ -312,8 +316,9 @@ stepper `"second_order"`, an alias for `"tr_bdf2"`, or the superseded
 `"predictor_corrector"`. Both default to the
 first-order choice, which is why this is easy to miss: an extension that ignores
 them looks correct, passes its own tests, and is then silently wrong for the
-user who switches them on. Aim to work under all of them, and where you cannot,
-say so out loud.
+user who switches them on. That user need not do it on purpose: a model created
+with defaults edition 3 or later is on the second-order scheme in size from the
+start. Aim to work under all of them, and where you cannot, say so out loud.
 
 **In size.** The rules are in the `extend-mizer` skill, under "Respecting the
 model's quadrature scheme": build derived quantities from the rate functions
@@ -391,6 +396,115 @@ want a per-call warning as well — remembering that it catches only the calls
 that go through `project()`. The steady-state finders run the dynamics through
 an internal stepper, so `tuneSteadyState(method = "second_order")` will not
 reach it.
+
+### Your own FFT convolutions
+
+Some extensions evaluate an encounter rate of their own — for a second
+resource, a size-structured prey component, a diet split by prey group — by
+copying the convolution from `mizerEncounter()`:
+
+```r
+avail_energy <- Re(base::t(mvfft(base::t(params@ft_pred_kernel_e) *
+                                     mvfft(base::t(prey)),
+                                 inverse = TRUE))) / length(params@w_full)
+avail_energy <- avail_energy[, idx_sp, drop = FALSE]
+```
+
+That convolution is circular: the part of a small predator's kernel that
+reaches below the smallest size `min_w_pp` wraps around and picks up the
+largest fish at the top of the grid (mizer issue #618). From defaults edition 3,
+mizer stores the Fourier-transformed kernels `ft_pred_kernel_e`,
+`ft_pred_kernel_p` and `ft_pred_kernel_d` on a zero-padded grid that is
+longer than `w_full`, so for a model of that edition the code above fails with
+"non-conformable arrays". For a model of edition 1 or 2 the kernels keep their
+old length and the code still runs, so the failure only shows up once a user
+works with an edition-3 model. Replace it with `convolve_pred_kernel()`, which
+reads the length of the grid from the kernels and pads the input to match:
+
+```r
+avail_energy <- convolve_pred_kernel(params, prey)
+```
+
+It already returns only the predator sizes in `w`, so the `idx_sp` subsetting
+goes. A vector `prey` is used for every predator species, which is what a diet
+split by prey group needs: call it once per prey group. For a predation rate,
+pass the predator densities on `w` with `kernel = "predation"`; the result is
+on `w_full`. For a model of edition 1 or 2 it gives the same circular
+convolution as the code it replaces, so your extension keeps the results it had
+for those models. It also uses the bin-integrated kernels when `bin_average` is
+on, without any code of its own. This needs `mizer (>= 3.4.0.9002)` in
+`DESCRIPTION`.
+
+### The diet of a changed encounter rate
+
+`getDiet()` and `getTrophicLevel()` split the encounter rate between the food
+sources with the S3 generic `getEncounterByPrey()`, and take the total from the
+model's own encounter rate, `getEncounter()`. If your package changes the
+encounter rate with a `projectEncounter()` method, `getEncounterByPrey()` does
+not know about the change, and the split no longer adds up to the total. Mizer
+then scales the contributions of all food sources in proportion and says so,
+with a message from `getDiet()`, `plotDiet()` or `getTrophicLevel()`. (Earlier
+versions ignored the change: the diet did not add up to what the predator
+consumed, and the trophic levels could be far too high.) The proportional split
+is exact only if your change affects all food sources equally. Even a change of
+the search volume does not, as soon as the model has an external encounter rate
+or a component with an encounter function.
+
+Give `getEncounterByPrey()` a method that makes the same change as your
+`projectEncounter()` method and calls `NextMethod()`:
+
+```r
+#' @method projectEncounter myExtension
+#' @export
+projectEncounter.myExtension <- function(params, n, n_pp, n_other, t = 0, ...) {
+    params <- withMySearchVolume(params, t)
+    NextMethod()
+}
+
+#' @method getEncounterByPrey myExtension
+#' @export
+getEncounterByPrey.myExtension <- function(params, n, n_pp, n_other, t = 0,
+                                           ...) {
+    params <- withMySearchVolume(params, t)
+    NextMethod()
+}
+```
+
+If your change adds encounter of its own, a second resource for example, add it
+to the result of `NextMethod()` as a food source of its own, named in the
+`prey` dimension, rather than spreading it over the existing ones:
+
+```r
+getEncounterByPrey.myExtension <- function(params, n, n_pp, n_other, t = 0,
+                                           ...) {
+    by_prey <- NextMethod()
+    extra <- myResourceEncounter(params, n_other, t)  # species x size
+    dn <- dimnames(by_prey)
+    dn$prey <- c(dn$prey, "My resource")
+    array(c(by_prey, extra), dim = dim(by_prey) + c(0, 0, 1), dimnames = dn)
+}
+```
+
+`getDiet()` then gives a column for it, and `getTrophicLevel()`, which only
+counts prey species and the resource in its numerator, treats it like the
+external encounter rate.
+
+`getTrophicLevel()` takes from your method only how much food each prey species
+and the resource provide. It averages their trophic levels over prey sizes with
+the predation kernel stored in the model, so a change to which prey sizes are
+eaten reaches it only if the changed kernel is stored with `setPredKernel()`.
+If your package changes the kernel during the projection instead, for example
+with temperature, give `getTrophicLevel()` a method that stores the kernel in
+force at time `t` with `setPredKernel()` and calls `NextMethod()`.
+
+A `getDiet()` method of your own that exists only to account for your change to
+the encounter rate is no longer needed: replace it with the
+`getEncounterByPrey()` method. If it calls `NextMethod()` and then computes the
+diet itself, that call now gives the message even though its result is thrown
+away. `getDiet()` also gained a `t` argument, and `getDiet()` on a simulation
+passes the time of each saved step, so a method you keep must accept `t`, at
+least through `...`, and pass it on. This needs `mizer (>= 3.4.0.9003)` in
+`DESCRIPTION`.
 
 ### Methods on the renamed rate-array accessors
 

@@ -442,11 +442,23 @@ test_that("Named effort vectors fill missing gears with the default effort", {
 
   sim <- project(NS_params_small, effort = effort, t_max = 1, progress_bar = FALSE)
 
-  default_effort <- ifelse(defaults_edition() < 2, 0, 1)
+  default_effort <- ifelse(defaults_edition(NS_params_small) < 2, 0, 1)
   expect_equal(sim@effort[1, "Industrial"], 0.25)
   expect_equal(sim@effort[1, "Pelagic"], 0.4)
   expect_true(all(sim@effort[1, setdiff(gear_names, c("Industrial", "Pelagic"))] ==
                     default_effort))
+})
+
+test_that("NA in an effort array is replaced with the model's default", {
+  gear_names <- unique(gear_params(NS_params_small)$gear)
+  effort <- array(NA_real_, dim = c(2, length(gear_names)),
+                  dimnames = list(time = 0:1, gear = gear_names))
+  params <- NS_params_small
+  withr::local_options(mizer_defaults_edition = 2)
+  expect_true(all(validEffortArray(effort, params) == 0))
+  defaults_edition(params) <- 2
+  withr::local_options(mizer_defaults_edition = 1)
+  expect_true(all(validEffortArray(effort, params) == 1))
 })
 
 test_that("t_max less than effort array duration uses effort times", {
@@ -547,6 +559,68 @@ test_that("project_simple matches project for one saved step", {
     expect_equal(out$n, expected_n, tolerance = 1e-12)
     expect_equal(out$n_pp, NResource(sim)[2, ], tolerance = 1e-12,
                  ignore_attr = TRUE)
+})
+
+test_that("Euler reselects its boundary from current custom diffusion", {
+    observed <- new.env(parent = emptyenv())
+    assign("boundary_test_growth", function(params, ...) {
+        growth <- params@initial_n * 0
+        growth[1, ] <- 1
+        growth
+    }, envir = .GlobalEnv)
+    assign("boundary_test_diffusion", function(params, n, n_other, t, ...) {
+        top <- support_top_idx(params)[1]
+        observed$times <- c(observed$times, t)
+        observed$clocks <- c(observed$clocks, n_other$clock)
+        observed$tail <- c(observed$tail, n[1, top + 1L])
+        diffusion <- n * 0
+        # Only Herring diffuses, and only during the middle Euler step.
+        if (n_other$clock > 0.0625 && n_other$clock < 0.1875) {
+            diffusion[2, top] <- 1
+        }
+        diffusion
+    }, envir = .GlobalEnv)
+    assign("boundary_test_clock", function(n_other, component, dt, ...) {
+        n_other[[component]] + dt
+    }, envir = .GlobalEnv)
+    withr::defer(rm(list = c("boundary_test_growth", "boundary_test_diffusion",
+                             "boundary_test_clock"), envir = .GlobalEnv))
+
+    for (flux in c("upwind", "van_leer", "centred")) {
+        for (bin_average in c(FALSE, TRUE)) {
+            p <- NS_params_small
+            second_order_w(p) <- c(flux = flux, bin_average = bin_average)
+            top <- support_top_idx(p)[1]
+            p@initial_n[] <- 0
+            p@initial_n[1, top] <- 1
+            p <- setComponent(p, "clock", initial_value = 0,
+                              dynamics_fun = "boundary_test_clock")
+            p <- setRateFunction(p, "EGrowth", "boundary_test_growth")
+            p <- setRateFunction(p, "Diffusion", "boundary_test_diffusion")
+            expect_true(all(p@ext_diffusion == 0))
+            observed$times <- observed$clocks <- observed$tail <- numeric()
+            dt <- 0.125
+            out <- project_simple(p, dt = dt, steps = 3, method = "euler",
+                                  info_level = 0)
+            expect_equal(observed$times, c(0, dt, 2 * dt))
+            expect_equal(observed$clocks, c(0, dt, 2 * dt))
+            expect_equal(out$n_other$clock, 3 * dt)
+            expect_equal(observed$tail[1], 0)
+            expect_equal(observed$tail[3], 0)
+            if (flux == "upwind") {
+                # No diffusion lets the legacy step fill Sprat's tail. The
+                # next step clears it because another species diffuses; once
+                # diffusion stops, the legacy behaviour returns immediately.
+                expect_gt(observed$tail[2], 0)
+                expect_gt(out$n[1, top + 1L], 0)
+            } else {
+                # Higher-order fluxes keep the hard boundary throughout,
+                # including both steps without diffusion.
+                expect_equal(observed$tail[2], 0)
+                expect_equal(unname(out$n[1, top + 1L]), 0)
+            }
+        }
+    }
 })
 
 test_that("project_simple returns rates from the final update step", {
@@ -740,4 +814,188 @@ test_that("method = 'second_order' projects exactly as 'tr_bdf2' does", {
     expect_identical(getSimParams(sim_alias)$method, "tr_bdf2")
     expect_no_warning(project(sim_alias, t_max = 0.2, dt = 0.2,
                               method = "second_order", progress_bar = FALSE))
+})
+
+test_that("growth Courant advice is once per call and respects info level", {
+    p <- NS_params_small
+    second_order_w(p) <- c(flux = "van_leer")
+    messages <- character()
+    withCallingHandlers({
+        project(p, dt = 0.2, t_max = 0.4, t_save = 0.2,
+                progress_bar = FALSE, info_level = 1)
+    }, warning = function(w) {
+        messages <<- c(messages, conditionMessage(w))
+        invokeRestart("muffleWarning")
+    })
+    expect_length(messages, 1)
+    expect_match(messages, "Growth Courant number")
+    expect_match(messages, "size bin")
+    expect_match(messages, "current-state suggestion")
+    expect_no_warning(project(p, dt = 0.2, t_max = 0.4, t_save = 0.2,
+                              progress_bar = FALSE, info_level = 0))
+    second_order_w(p) <- c(flux = "upwind")
+    expect_no_warning(project(p, dt = 0.2, t_max = 0.4, t_save = 0.2,
+                              progress_bar = FALSE))
+})
+
+test_that("uniform substeps advance consumers resources components and time", {
+    p <- NS_params_small
+    second_order_w(p) <- c(flux = "van_leer")
+    p <- setComponent(p, "tracked", initial_value = 0,
+                      dynamics_fun = "constant_other")
+    fns <- projectRateFunctions(p)
+    original_rates <- fns$Rates
+    g <- p@initial_n * 0
+    g[, 2] <- 20 * p@dw[1]
+    observed <- new.env(parent = emptyenv())
+    observed$times <- numeric()
+    fns$Rates <- function(params, t, ...) {
+        observed$times <- c(observed$times, t)
+        r <- original_rates(params, t = t, ...)
+        r$e_growth <- g
+        r
+    }
+    components <- list(tracked = function(params, n, n_pp, n_other, component,
+                                          t, dt, ...) {
+        n_other[[component]] + dt * (t + sum(n[, 1]) / 1e12 + n_pp[1] / 1e20)
+    })
+    for (method in c("euler", "tr_bdf2")) {
+        observed$times <- numeric()
+        adaptive <- project_simple(p, dt = 0.2, steps = 2, method = method,
+                                   rates_fns = fns,
+                                   other_dynamics_fns = components,
+                                   subcycle = TRUE, info_level = 0)
+        adaptive_times <- observed$times
+        observed$times <- numeric()
+        fine <- project_simple(p, dt = 0.05, steps = 8, method = method,
+                               rates_fns = fns,
+                               other_dynamics_fns = components, info_level = 0)
+        expect_equal(adaptive$n, fine$n, tolerance = 1e-12)
+        expect_equal(adaptive$n_pp, fine$n_pp, tolerance = 1e-12)
+        expect_equal(adaptive$n_other, fine$n_other, tolerance = 1e-12)
+        expect_equal(adaptive_times, observed$times, tolerance = 1e-14)
+    }
+})
+
+test_that("subcycling adapts to current growth and counts actual substeps", {
+    p <- NS_params_small
+    second_order_w(p) <- c(flux = "van_leer")
+    fns <- projectRateFunctions(p)
+    original_rates <- fns$Rates
+    times <- numeric()
+    fns$Rates <- function(params, t, ...) {
+        times <<- c(times, t)
+        r <- original_rates(params, t = t, ...)
+        r$e_growth[] <- 0
+        r$e_growth[, 2] <- if (t < 0.04) 20 * p@dw[1] else 0
+        r
+    }
+    # Initially four substeps are forecast, but growth stops after the first.
+    expect_no_error(project_simple(p, dt = 0.2, steps = 1, rates_fns = fns,
+                                   subcycle = TRUE, max_substeps = 2,
+                                   info_level = 0))
+    expect_equal(times, c(0, 0.05))
+    times <- numeric()
+    fns$Rates <- function(params, t, ...) {
+        times <<- c(times, t)
+        r <- original_rates(params, t = t, ...)
+        r$e_growth[] <- 0
+        r$e_growth[, 2] <- if (t < 0.04) 20 * p@dw[1] else 80 * p@dw[1]
+        r
+    }
+    project_simple(p, dt = 0.2, steps = 1, rates_fns = fns,
+                   subcycle = TRUE, info_level = 0)
+    expect_gt(length(times), 4)
+    expect_lte(max(diff(c(times, 0.2)) * ifelse(times < 0.04, 20, 80)),
+               1 + 1e-12)
+    expect_error(project_simple(p, dt = 0.2, steps = 1, rates_fns = fns,
+                                subcycle = TRUE, max_substeps = 2,
+                                info_level = 0), "max_substeps")
+})
+
+test_that("subcycling controls validate and persist on continuation", {
+    p <- NS_params_small
+    for (bad in list(NA, 1, c(TRUE, FALSE))) {
+        expect_error(project(p, subcycle = bad), "subcycle")
+    }
+    expect_error(project(p, max_courant = 0), "max_courant")
+    expect_error(project(p, max_courant = Inf), "max_courant")
+    expect_error(project(p, max_substeps = 1.5), "max_substeps")
+    callback_times <- numeric()
+    callback <- function(sim, t_idx, ...) {
+        callback_times <<- c(callback_times, getTimes(sim)[t_idx])
+    }
+    s <- project(p, dt = 0.1, t_max = 0.2, t_save = 0.1,
+                 subcycle = TRUE, max_courant = 0.25, max_substeps = 500,
+                 callback = callback, progress_bar = FALSE, info_level = 0)
+    expect_equal(callback_times, c(0, 0.1, 0.2))
+    continued <- project(s, t_max = 0.2, t_save = 0.1,
+                         progress_bar = FALSE, info_level = 0)
+    direct <- project(p, dt = 0.1, t_max = 0.4, t_save = 0.1,
+                      subcycle = TRUE, max_courant = 0.25, max_substeps = 500,
+                      progress_bar = FALSE, info_level = 0)
+    expect_equal(continued@n, direct@n, tolerance = 1e-12)
+    expect_equal(continued@n_pp, direct@n_pp, tolerance = 1e-12)
+    expect_true(getSimParams(continued)$subcycle)
+    expect_equal(getSimParams(continued)$max_courant, 0.25)
+    expect_equal(getSimParams(continued)$max_substeps, 500)
+    old <- s
+    old@sim_params[c("subcycle", "max_courant", "max_substeps")] <- NULL
+    resumed <- project(old, t_max = 0.1, t_save = 0.1,
+                       progress_bar = FALSE, info_level = 0)
+    expect_false(getSimParams(resumed)$subcycle)
+})
+
+test_that("subcycling removes the frozen-rate Cod checkerboard", {
+    for (average in c(FALSE, TRUE)) {
+        p <- NS_params_default_small
+        second_order_w(p) <- c(flux = "van_leer", bin_average = average)
+        rates <- getRates(p)
+        fns <- projectRateFunctions(p)
+        fns$Rates <- function(...) rates
+        residual <- function(dt, steps, subcycle) {
+            out <- project_simple(p, dt = dt, steps = steps, rates_fns = fns,
+                                  method = "tr_bdf2", subcycle = subcycle,
+                                  info_level = 0)
+            n <- out$n
+            attr(n, "chi") <- NULL
+            r <- consumer_residual(p, n, p@initial_n_pp, p@initial_n_other,
+                                   p@initial_effort, rdd = rates$rdd,
+                                   rates = rates)
+            max(abs((r / n)["Cod", 1:25]))
+        }
+        coarse <- residual(1 / 52, 52, FALSE)
+        adaptive <- residual(1 / 52, 52, TRUE)
+        fine <- residual(1 / 520, 520, FALSE)
+        expect_gt(coarse, 1)
+        expect_lt(adaptive, 1e-6)
+        expect_lt(fine, 1e-6)
+    }
+})
+
+test_that("subcycling lands exactly on requested time boundaries", {
+    p <- NS_params_small
+    second_order_w(p) <- c(flux = "van_leer")
+    p <- setComponent(p, "clock", initial_value = 0,
+                      dynamics_fun = "constant_other")
+    fns <- projectRateFunctions(p)
+    original_rates <- fns$Rates
+    observed <- new.env(parent = emptyenv())
+    observed$times <- numeric()
+    fns$Rates <- function(params, t, ...) {
+        observed$times <- c(observed$times, t)
+        r <- original_rates(params, t = t, ...)
+        r$e_growth[] <- 0
+        r$e_growth[, 2] <- 100 * p@dw[1]
+        r
+    }
+    components <- list(clock = function(params, n_other, component,
+                                        t, dt, ...) {
+        n_other[[component]] + dt * as.numeric(t >= 0.1)
+    })
+    out <- project_simple(p, dt = 0.1, steps = 2, rates_fns = fns,
+                          other_dynamics_fns = components,
+                          subcycle = TRUE, info_level = 0)
+    expect_identical(observed$times[11], 0.1)
+    expect_equal(out$n_other$clock, 0.1, tolerance = 1e-14)
 })

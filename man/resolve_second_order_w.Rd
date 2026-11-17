@@ -4,19 +4,24 @@
 \alias{resolve_second_order_w}
 \title{Resolve a \code{second_order_w} value against the default scheme}
 \usage{
-resolve_second_order_w(value)
+resolve_second_order_w(value, edition)
 }
 \arguments{
-\item{value}{The value to resolve, as accepted by \code{\link{second_order_w<-}}.}
+\item{value}{The value to resolve, as accepted by \code{\link{second_order_w<-}}, or
+\code{NULL}.}
+
+\item{edition}{The defaults edition of the model that is being built.}
 }
 \value{
 The resolved \code{second_order_w} list.
 }
 \description{
 Internal helper that validates a \code{second_order_w} \code{value} against the default
-first-order slot (\code{flux = "upwind"}, \code{bin_average = FALSE}) and returns the
-resulting named list. Used by the model constructors to work out the target
-\code{flux} and \code{bin_average} entries before the rest of the model is built.
+scheme of the defaults edition (see \code{\link[=default_second_order_w]{default_second_order_w()}}) and returns
+the resulting named list. A \code{NULL} value gives the default scheme, and a
+value that sets only one entry leaves the other at its default. Used by the
+model constructors to work out the target \code{flux} and \code{bin_average} entries
+before the rest of the model is built.
 }
 \concept{helper}
 \keyword{internal}

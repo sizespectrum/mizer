@@ -4,7 +4,13 @@
 \alias{removeSpecies}
 \title{Remove species}
 \usage{
-removeSpecies(params, species, ...)
+removeSpecies(
+  params,
+  species,
+  compensate = FALSE,
+  info_level = default_info_level(),
+  ...
+)
 }
 \arguments{
 \item{params}{A mizer params object for the original system.}
@@ -13,26 +19,100 @@ removeSpecies(params, species, ...)
 numeric vector of species indices, or a logical vector indicating for
 each species whether it is to be removed (TRUE) or not.}
 
+\item{compensate}{If \code{TRUE}, the external rates of the remaining species
+are adjusted so that the remaining species have the same rates as before
+the removal, and the resource is rebalanced. See the section
+"Compensating for the removed species". Default is \code{FALSE}.}
+
+\item{info_level}{Controls the amount of information messages that are
+shown. Higher levels lead to more messages. Set to 0 to suppress all such
+messages.}
+
 \item{...}{Currently unused.}
 }
 \value{
 An object of type \linkS4class{MizerParams}
 }
 \description{
-This function simply removes all entries from the MizerParams object that
+This function removes all entries from the MizerParams object that
 refer to the selected species. It does not recalculate the steady state for
 the remaining species or retune their reproductive efficiency.
 }
 \details{
+Removing species changes the rates of the species that remain: the
+predators of the removed species lose some of their food, so their encounter
+rate drops, and the prey of the removed species lose some of their
+predators, so their predation mortality drops. A model that was at steady
+state is therefore no longer at steady state after the removal. If you want
+the remaining species not to notice the removal, set \code{compensate = TRUE}, as
+described in the section "Compensating for the removed species" below.
+
 If a gear was targeting only the removed species, then this function will
 NOT remove that gear. If you want to also remove that gear then you can do
 that by calling \code{\link[=setFishing]{setFishing()}}.
 }
+\section{Compensating for the removed species}{
+
+With \code{compensate = TRUE}, the external rates of the remaining species take
+over what the removed species contributed to their rates:
+\itemize{
+\item the food that the remaining species found in the removed species is added
+to their external encounter rate, see \code{\link[=setExtEncounter]{setExtEncounter()}},
+\item the predation mortality that the removed species imposed on the remaining
+species is added to their external mortality rate, see \code{\link[=setExtMort]{setExtMort()}},
+\item the diffusion that the removed prey species caused is added to the
+external diffusion rate, see \code{\link[=setExtDiffusion]{setExtDiffusion()}}. This only matters if
+\code{\link[=use_predation_diffusion]{use_predation_diffusion()}} is switched on.
+}
+
+All of this is calculated at the initial state stored in \code{params}. At that
+state the remaining species then have exactly the rates they had before the
+removal. In effect the removed species are still present, held at their
+initial abundances, but they no longer respond to changes in the rest of the
+model. As the model moves away from its initial state, the compensation no
+longer matches what the removed species would have done.
+
+The removed species also no longer eat the resource, so the resource
+capacity is rebalanced with \code{\link[=setResource]{setResource()}}: it is set so that at the
+initial state the resource replenishes at exactly the rate at which it is now
+consumed. The resource rate is kept. This replaces a resource capacity that
+you had set manually. Rebalancing puts the resource at steady state, so it
+keeps its rate of change only if that was zero. Thus if the model was at
+steady state, it stays at steady state. If the resource was not at steady
+state, it is put at steady state instead of keeping the rate at which it
+was changing.
+
+The compensation is added to the external rates on the assumption that
+they are added unchanged to the rates, as they are in mizer's own rate
+functions. If you have replaced a rate function with \code{\link[=setRateFunction]{setRateFunction()}},
+mizer checks that the rates are restored. Where they are not, it rescales
+the compensation by how much the rate responds to it, which restores a rate
+that your function calculates by multiplying mizer's rate by a factor. If a
+rate is still not restored, you are warned.
+
+Each external rate that is changed is marked as set manually. A later
+change to the species parameters that the rate is usually calculated from
+(such as \code{E_ext}, \code{z0} or \code{D_ext}) therefore does not overwrite the
+compensation; mizer tells you when it ignores such a change. External rates
+to which the removed species contributed nothing are left unchanged and
+unmarked.
+
+The compensation covers the species and the resource. Other components
+added with \code{\link[=setComponent]{setComponent()}} that have dynamics of their own are not
+compensated, and you are warned about them.
+}
+
 \examples{
 params <- NS_params
 species_params(params)$species
 params <- removeSpecies(params, c("Cod", "Haddock"))
 species_params(params)$species
+
+# Removing Cod and Haddock moves the model off its steady state, unless the
+# remaining species are compensated for their loss
+rowSums(getSteadyResidual(removeSpecies(NS_params, c("Cod", "Haddock"))))
+rowSums(getSteadyResidual(removeSpecies(NS_params, c("Cod", "Haddock"),
+                                        compensate = TRUE)))
 }
 \seealso{
 \code{\link[=addSpecies]{addSpecies()}}, \code{\link[=renameSpecies]{renameSpecies()}}

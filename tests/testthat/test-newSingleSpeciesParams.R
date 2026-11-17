@@ -11,6 +11,24 @@ test_that("newSingleSpeciesParams works", {
                  "`f0` must be finite and in the interval")
 })
 
+test_that("newSingleSpeciesParams uses the scheme of the defaults edition", {
+    withr::local_options(mizer_defaults_edition = 2)
+    expect_identical(second_order_w(newSingleSpeciesParams(info_level = 0)),
+                     list(flux = "upwind", bin_average = FALSE))
+    withr::local_options(mizer_defaults_edition = 3)
+    params <- newSingleSpeciesParams(info_level = 0)
+    expect_identical(second_order_w(params),
+                     list(flux = "van_leer", bin_average = TRUE))
+    p_true <- newSingleSpeciesParams(second_order_w = TRUE, info_level = 0)
+    p_true@time_created <- params@time_created
+    p_true@time_modified <- params@time_modified
+    expect_equal(params, p_true)
+    expect_identical(
+        second_order_w(newSingleSpeciesParams(second_order_w = FALSE,
+                                              info_level = 0)),
+        list(flux = "upwind", bin_average = FALSE))
+})
+
 test_that("newSingleSpeciesParams documents and applies grid and deprecation behaviour", {
     expect_message(
         params <- newSingleSpeciesParams(w_max = 100, w_min = 0.001, no_w = 2),

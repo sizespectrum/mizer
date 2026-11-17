@@ -23,7 +23,7 @@ kernel that any summary function must use if its result is to be consistent
 with \code{\link[=getEncounter]{getEncounter()}}.
 }
 \details{
-On the default first-order path this is just the point-sampled kernel
+On the first-order path this is just the point-sampled kernel
 returned by \code{\link[=pred_kernel]{pred_kernel()}}. When second-order bin-averaging is switched on
 (see \code{\link[=second_order_w]{second_order_w()}}) the two differ: \code{setPredKernel()} then builds the
 Fourier-transformed kernel from the kernel \emph{integrated over the prey bin},

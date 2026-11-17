@@ -397,3 +397,58 @@ test_that("plot() and the comparisons share one resource preparation", {
                       return_data = TRUE)
     expect_equal(from_plot, prepared)
 })
+
+test_that("resource subsets retain exact weights in their selected order", {
+    x <- mort_small
+    w <- NS_params_small@w_full
+    selections <- list(c(9, 3, 9), names(x)[c(8, 2)], c(TRUE, FALSE),
+                       rev(seq_along(w)), -c(1, 4), integer(0),
+                       c(2, NA_integer_, 7))
+    for (index in selections) {
+        positions <- setNames(seq_along(w), names(x))[index]
+        sub <- x[index]
+        expect_s3_class(sub, "ArrayResourceBySize")
+        expect_equal(as.data.frame(sub)$w, unname(w[positions]))
+        expect_equal(as.numeric(sub), as.numeric(unclass_resource(x)[index]))
+        expect_null(attr(sub * 2, "size_grid"))
+    }
+
+    # A resource subset can have exactly as many bins as the consumer grid.
+    index <- seq_along(NS_params_small@w)
+    expect_equal(as.data.frame(x[index])$w, unname(w[index]))
+    attr(x, "size_grid") <- NULL
+    expect_equal(as.data.frame(x[c(8, 3)])$w, unname(w[c(8, 3)]))
+})
+
+test_that("resource time slices retain sparse and empty size selections", {
+    x <- n_resource_small
+    w <- NS_params_small@w_full
+    selections <- list(c(9, 3, 9), colnames(x)[c(8, 2)], c(TRUE, FALSE),
+                       rev(seq_along(w)), -c(1, 4), integer(0),
+                       c(2, NA_integer_, 7))
+    for (index in selections) {
+        positions <- setNames(seq_along(w), colnames(x))[index]
+        selected_w <- unname(w[positions])
+        sub <- x[c(4, 1), index, drop = FALSE]
+        expect_s3_class(sub, "ArrayTimeByResourceBySize")
+        expect_equal(as.data.frame(sub)$w, rep(selected_w, each = 2))
+        slice <- ArrayTimeByResourceBySize_slice(sub)
+        expect_s3_class(slice, "ArrayResourceBySize")
+        expect_equal(as.data.frame(slice)$w, selected_w)
+        expect_equal(as.numeric(slice),
+                     as.numeric(unclass_resource(x)[1, index]))
+        expect_null(attr(sub * 2, "size_grid"))
+        if (length(positions) > 1) {
+            dropped <- x[1, index]
+            expect_s3_class(dropped, "ArrayResourceBySize")
+            expect_equal(as.data.frame(dropped)$w, selected_w)
+        }
+    }
+    expect_false(is.ArrayResourceBySize(x[, 1]))
+    expect_null(attr(x[, 1], "size_grid"))
+
+    attr(x, "size_grid") <- NULL
+    sub <- x[, c(8, 3), drop = FALSE]
+    expect_equal(as.data.frame(sub)$w,
+                 rep(unname(w[c(8, 3)]), each = nrow(x)))
+})

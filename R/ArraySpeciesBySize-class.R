@@ -20,6 +20,11 @@
 #'   \item `type` – the kind of quantity the values are.
 #' }
 #'
+#' Subsetting size columns preserves their original model coordinates and bins,
+#' including non-contiguous, reordered and repeated columns. It does not
+#' redefine the bins using the spacing of the selected columns. Use
+#' `drop = FALSE` to keep the wrapper when selecting a single row or column.
+#'
 #' @param x A matrix (species x size). For `is.ArraySpeciesBySize()`, any
 #'   object to test.
 #' @param value_name A string giving the human-readable name for the value.
@@ -33,7 +38,7 @@
 #'   a `value_name` of `"Number density"` or units of `"1/g"` as a density, the
 #'   way mizer recognised one before this attribute existed.
 #' @param params A `MizerParams` object. Used for species colours, linetypes,
-#'   and size ranges in the `plot()` method.
+#'   size ranges, and the original size-grid geometry.
 #' @param representation Either `"point"` (the default) for a quantity sampled
 #'   at the grid nodes, or `"average"` for a finite-volume bin average. A
 #'   bin-averaged quantity is drawn at the geometric bin centre rather than the
@@ -59,7 +64,12 @@ ArraySpeciesBySize <- function(x, value_name = NULL, units = NULL,
     representation <- match.arg(representation)
     type <- resolve_array_type(type, value_name, units)
     if (!is.null(params) && identical(dim(x), dim(params@metab))) {
-        dimnames(x) <- dimnames(params@metab)
+        dn <- dimnames(x)
+        if (is.null(dn)) dn <- vector("list", 2)
+        dn[[1]] <- dn[[1]] %||% dimnames(params@metab)[[1]]
+        dn[[2]] <- dn[[2]] %||% dimnames(params@metab)[[2]]
+        names(dn) <- names(dimnames(params@metab))
+        dimnames(x) <- dn
     }
     structure(x,
         class = c("ArraySpeciesBySize", "matrix", "array"),
@@ -67,7 +77,8 @@ ArraySpeciesBySize <- function(x, value_name = NULL, units = NULL,
         units = units,
         type = type,
         params = params,
-        representation = representation
+        representation = representation,
+        size_grid = array_size_grid(x, params, size_dim = 2)
     )
 }
 
@@ -1206,7 +1217,7 @@ prepare_ArraySpeciesBySize_plot_data <- function(x, species = NULL,
     plot_dat <- data.frame(
         w = rep(w, each = sum(sel)),
         value = c(mat),
-        Species = rownames(mat)
+        Species = rep(rownames(mat) %||% character(0), times = ncol(mat))
     )
 
     if (!all.sizes && !is.null(params)) {
@@ -1277,7 +1288,7 @@ as.data.frame.ArraySpeciesBySize <- function(x, row.names = NULL,
     data.frame(
         w = rep(w, each = nrow(mat)),
         value = c(mat),
-        Species = sp_names,
+        Species = rep(sp_names %||% character(0), times = ncol(mat)),
         row.names = row.names,
         check.names = !optional,
         stringsAsFactors = FALSE
@@ -1337,9 +1348,9 @@ range_stat <- function(x, f) {
 
 #' Get the size grid for an ArraySpeciesBySize object
 #'
-#' Internal helper that returns the consumer size grid `params@w` or the full
-#' prey/resource size grid `params@w_full`, depending on the number of columns
-#' in the array.
+#' Internal helper that follows the array's mapping to the original consumer
+#' or prey/resource grid. A subset keeps its original bins even if its width
+#' happens to equal the length of a different grid.
 #'
 #' @param x An `ArraySpeciesBySize` object.
 #'
@@ -1352,26 +1363,113 @@ range_stat <- function(x, f) {
 #'   unaffected, keeping default plots unchanged.
 #' @keywords internal
 get_ArraySpeciesBySize_w <- function(x) {
-    params <- attr(x, "params")
-    if (is.null(params)) {
-        w <- as.numeric(colnames(x))
-        if (any(is.na(w))) {
-            w <- seq_len(ncol(x))
+    array_size_values(x, size_dim = 2, strict = TRUE)
+}
+
+# Size metadata records positions in the original model grid, not a new grid
+# through the selected columns. Thus sparse selections keep their original
+# widths and bin centres, and repeated or reordered columns remain exact.
+array_size_grid <- function(x, params = attr(x, "params"), size_dim,
+                            full = FALSE) {
+    n <- if (is.null(dim(x))) length(x) else dim(x)[size_dim]
+    if (is.null(params)) return(NULL)
+    grid <- attr(x, "size_grid", exact = TRUE)
+    if (!is.null(grid)) {
+        valid <- is.list(grid) &&
+            (identical(grid$grid, "w") || identical(grid$grid, "w_full")) &&
+            is.numeric(grid$index) && length(grid$index) == n &&
+            !is.null(params)
+        if (valid) {
+            idx <- grid$index[!is.na(grid$index)]
+            valid <- all(is.finite(idx) & idx >= 1 &
+                             idx <= length(params[[grid$grid]]) &
+                             idx == trunc(idx))
         }
-        return(w)
+        if (!isTRUE(valid)) stop("Invalid size-grid metadata.")
+        return(grid)
     }
+    grids <- if (full) "w_full" else c("w", "w_full")
+    labels <- if (is.null(dim(x))) names(x) else dimnames(x)[[size_dim]]
+    canonical <- list(w = dimnames(params@metab)[[2]],
+                      w_full = names(params@initial_n_pp))
+    # A complete canonical grid can have repeated rounded labels. Its order is
+    # known, whereas match() would send every duplicate to its first occurrence.
+    for (name in grids) {
+        for (ref in list(canonical[[name]], as.character(params[[name]]))) {
+            if (n == length(params[[name]]) && identical(labels, ref)) {
+                return(list(grid = name, index = seq_len(n)))
+            }
+        }
+    }
+    if (!is.null(labels)) {
+        for (name in grids) {
+            for (ref in list(canonical[[name]], as.character(params[[name]]))) {
+                idx <- match(labels, ref)
+                if (all(is.na(labels) | !is.na(idx))) {
+                    ambiguous <- ref[duplicated(ref)]
+                    if (any(labels %in% ambiguous)) {
+                        stop("Size labels are ambiguous on the model grid. ",
+                             "Subset the original wrapped array instead.")
+                    }
+                    return(list(grid = name, index = unname(idx)))
+                }
+            }
+            # Also accept exact coordinates printed in a different notation.
+            idx <- match(suppressWarnings(as.numeric(labels)), params[[name]])
+            if (all(is.na(labels) | !is.na(idx))) {
+                return(list(grid = name, index = unname(idx)))
+            }
+        }
+    }
+    # Preserve the established interpretation of full-width matrices with no
+    # recognised size labels. Known labels above always take precedence, so a
+    # resource-grid subset cannot be mistaken for the consumer grid by width.
+    for (name in grids) {
+        if (n == length(params[[name]])) {
+            return(list(grid = name, index = seq_len(n)))
+        }
+    }
+    if (n == 0L) return(list(grid = grids[1], index = integer(0)))
+    NULL
+}
+
+array_size_positions <- function(x, size_dim, index) {
+    n <- if (is.null(dim(x))) length(x) else dim(x)[size_dim]
+    labels <- if (is.null(dim(x))) names(x) else dimnames(x)[[size_dim]]
+    pos <- seq_len(n)
+    names(pos) <- labels
+    if (!missing(index)) pos <- pos[index]
+    unname(pos)
+}
+
+subset_size_grid <- function(x, size_dim, index, full = FALSE) {
+    grid <- array_size_grid(x, size_dim = size_dim, full = full)
+    if (!is.null(grid)) {
+        grid$index <- grid$index[array_size_positions(x, size_dim, index)]
+    }
+    grid
+}
+
+array_size_values <- function(x, size_dim, full = FALSE, strict = FALSE) {
+    params <- attr(x, "params")
+    grid <- array_size_grid(x, size_dim = size_dim, full = full)
     average <- identical(attr(x, "representation"), "average") &&
-        isTRUE(params@second_order_w[["bin_average"]])
-    if (ncol(x) == length(params@w)) {
-        return(if (average) bin_midpoints(params) else params@w)
+        !is.null(params) && isTRUE(params@second_order_w[["bin_average"]])
+    if (!is.null(grid)) {
+        w <- if (average) {
+            bin_midpoints(params, w_full = grid$grid == "w_full")
+        } else {
+            params[[grid$grid]]
+        }
+        return(w[grid$index])
     }
-    if (ncol(x) == length(params@w_full)) {
-        return(if (average) bin_midpoints(params, w_full = TRUE) else params@w_full)
+    if (average || (strict && !is.null(params))) {
+        stop("Can not determine the size grid for this array. ",
+             "Its size labels do not identify bins in the model grid.")
     }
-    stop("Can not determine the size grid for this ArraySpeciesBySize object. ",
-         "The number of columns is ", ncol(x), ", but the params object has ",
-         length(params@w), " consumer sizes and ", length(params@w_full),
-         " full-spectrum sizes.")
+    labels <- if (is.null(dim(x))) names(x) else dimnames(x)[[size_dim]]
+    n <- if (is.null(dim(x))) length(x) else dim(x)[size_dim]
+    parse_numeric_labels(labels, n)
 }
 
 #' @export
@@ -1384,6 +1482,7 @@ get_ArraySpeciesBySize_w <- function(x) {
         attr(result, "type") <- attr(x, "type")
         attr(result, "params") <- attr(x, "params")
         attr(result, "representation") <- attr(x, "representation")
+        attr(result, "size_grid") <- subset_size_grid(x, 2, j)
         class(result) <- c("ArraySpeciesBySize", "matrix", "array")
     }
     result
@@ -1407,6 +1506,7 @@ unclass_rate <- function(x) {
     attr(x, "type") <- NULL
     attr(x, "params") <- NULL
     attr(x, "representation") <- NULL
+    attr(x, "size_grid") <- NULL
     x
 }
 

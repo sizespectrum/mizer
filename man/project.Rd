@@ -20,6 +20,10 @@ project(
   callback = NULL,
   method = c("euler", "predictor_corrector", "tr_bdf2"),
   check_steady = FALSE,
+  subcycle = FALSE,
+  max_courant = 1,
+  max_substeps = 10000,
+  info_level = default_info_level(),
   ...
 )
 }
@@ -108,6 +112,25 @@ object rather than at the \code{effort} supplied here, so that running a fishing
 scenario at a new effort — which legitimately starts away from the steady
 state of that new effort — does not warn. See \code{\link[=getSteadyResidual]{getSteadyResidual()}}.}
 
+\item{subcycle}{If \code{TRUE}, split each requested \code{dt} into coupled substeps
+using the growth Courant target. Consumers, resources and other components
+advance together and rates are recalculated at each substep. Default
+\code{FALSE} keeps the fixed-step calculation. When continuing a \code{MizerSim},
+the stored setting is used unless supplied explicitly.}
+
+\item{max_courant}{Positive growth Courant target, default 1. With
+\code{subcycle = FALSE}, exceeding it produces one advisory report per call for
+the high-order flux schemes. With subcycling it controls the step selected
+from the current rates. This is not a guarantee of stability or positivity;
+it does not bound mortality, diffusion, or changes in rates within a step.
+See \code{\link[=getCourant]{getCourant()}} for the face convention and structural support.}
+
+\item{max_substeps}{Positive integer cap on substeps within one requested
+\code{dt}, default 10000. Exceeding it is an error, not a silent cap. This and
+\code{max_courant} are inherited when continuing a \code{MizerSim} unless overridden.}
+
+\item{info_level}{Level of information reported; see \code{\link[=default_info_level]{default_info_level()}}.}
+
 \item{...}{Other arguments will be passed to rate functions.}
 }
 \value{
@@ -178,12 +201,14 @@ be ignored.
 
 The spatial discretisation of the growth (advection) term is controlled by
 the \code{flux} entry of the \code{second_order_w} slot of the params object, not by
-an argument to \code{project()}. With the default (\code{"upwind"}) the first-order
-upwind flux is used. Setting it to \code{"van_leer"} (for example with
-\code{second_order_w(params) <- TRUE}) switches on a flux-limited (van Leer, TVD)
+an argument to \code{project()}. With \code{"upwind"}, the default for models of
+defaults editions 1 and 2, the first-order upwind flux is used.
+\code{"van_leer"}, the default from edition 3 and also set by
+\code{second_order_w(params) <- TRUE}, switches on a flux-limited (van Leer, TVD)
 deferred correction that removes the leading numerical diffusion
 \eqn{\approx g\,w\,\log\beta} of the upwind flux while keeping the density
-update a tridiagonal solve and preserving positivity. The correction is most
+update a tridiagonal solve. The time step still matters for cell-scale
+oscillations and non-negativity; see \code{\link[=getCourant]{getCourant()}}. The correction is most
 useful on coarse logarithmic grids and pairs naturally with the second-order
 time methods. Because it changes the discrete steady state, the choice lives
 in the params object alongside the steady state rather than being a per-run

@@ -4,10 +4,12 @@
 \alias{get_f0_default}
 \title{Get default value for f0}
 \usage{
-get_f0_default(params)
+get_f0_default(params, ...)
 }
 \arguments{
 \item{params}{A MizerParams object}
+
+\item{...}{Unused.}
 }
 \value{
 A vector with the values of f0 for all species
@@ -35,12 +37,18 @@ so external encounter and contributions registered with \code{\link[=other_encou
 (including component encounter functions) are excluded. The measurement also
 deliberately does not go through the extension dispatch chain, nor through an
 encounter function registered with \code{\link[=setRateFunction]{setRateFunction()}}.
+
+This is an S3 generic. An extension package that replaces mizer's single
+resource by a resource system of its own directs the measurement at that
+system by registering a method for \code{\link[=measure_avail_energy]{measure_avail_energy()}}, which is where
+the energy available in the reference state is measured.
 }
 \seealso{
 Other functions calculating defaults:
 \code{\link[=get_gamma_default]{get_gamma_default()}},
 \code{\link[=get_h_default]{get_h_default()}},
-\code{\link[=get_ks_default]{get_ks_default()}}
+\code{\link[=get_ks_default]{get_ks_default()}},
+\code{\link[=measure_avail_energy]{measure_avail_energy()}}
 }
 \concept{functions calculating defaults}
 \concept{helper}

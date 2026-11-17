@@ -36,6 +36,7 @@ test_that("basic constructor sets dimensions properly", {
     expect_equal(dim(test_params@intake_max), c(no_sp, no_w))
     expect_equal(dim(test_params@search_vol), c(no_sp, no_w))
     expect_equal(dim(test_params@metab), c(no_sp, no_w))
+    # Not zero-padded, because the model is of the default edition 1
     expect_equal(dim(test_params@ft_pred_kernel_e), c(no_sp, no_w_full))
     expect_equal(dim(test_params@catchability), c(0, no_sp))
     expect_equal(dim(test_params@selectivity), c(0, no_sp, no_w))
@@ -57,6 +58,40 @@ test_that("basic constructor sets dimensions properly", {
     # check should ensure the consistency of the others
     expect_equal(dimnames(test_params_gears@psi)$sp, species_names)
     expect_equal(dimnames(test_params_gears@catchability)$gear, gear_names)
+})
+
+test_that("emptyParams() zero-pads the Fourier kernels from edition 3 (#618)", {
+    species_params <- NS_species_params_small
+    p <- withr::with_options(list(mizer_defaults_edition = 2),
+                             emptyParams(species_params, no_w = 20))
+    expect_identical(ncol(p@ft_pred_kernel_e), length(p@w_full))
+    # Before setPredKernel() knows the support of the kernel, the template
+    # allows for a kernel that is non-zero at every offset
+    p <- withr::with_options(list(mizer_defaults_edition = 3),
+                             emptyParams(species_params, no_w = 20))
+    for (s in c("ft_pred_kernel_e", "ft_pred_kernel_p", "ft_pred_kernel_d")) {
+        expect_equal(ncol(slot(p, s)),
+                     nextn(length(p@w_full) + length(p@w) - 1))
+    }
+})
+
+test_that("emptyParams records the active defaults edition", {
+    withr::local_options(mizer_defaults_edition = 2)
+    params <- emptyParams(NS_species_params_small)
+    expect_identical(params@defaults_edition, 2)
+    # and uses it for the initial effort
+    expect_true(all(params@initial_effort == 1))
+})
+
+test_that("emptyParams gives the model the numerical scheme of its edition", {
+    withr::local_options(mizer_defaults_edition = 2)
+    params <- suppressMessages(emptyParams(NS_species_params_small))
+    expect_identical(params@second_order_w,
+                     list(flux = "upwind", bin_average = FALSE))
+    withr::local_options(mizer_defaults_edition = 3)
+    params <- suppressMessages(emptyParams(NS_species_params_small))
+    expect_identical(params@second_order_w,
+                     list(flux = "van_leer", bin_average = TRUE))
 })
 
 test_that("emptyParams validates min_w_pp against min_w", {
@@ -113,6 +148,17 @@ test_that("validParams works", {
     expect_true(validObject(p))
 })
 
+test_that("validParams checks the defaults edition", {
+    params <- NS_params_small
+    msg <- "defaults_edition must be a single number of at least 1"
+    params@defaults_edition <- 0
+    expect_error(validParams(params), msg)
+    params@defaults_edition <- "2"
+    expect_error(validParams(params), msg)
+    params@defaults_edition <- c(1, 2)
+    expect_error(validParams(params), msg)
+})
+
 test_that("validParams checks w_min and w_max", {
     # w_max
     params <- NS_params_small
@@ -124,6 +170,74 @@ test_that("validParams checks w_min and w_max", {
     expect_warning(params <- validParams(params), "adjustSizeGrid")
     expect_true(validObject(params))
     expect_equal(params@w_min_idx[1:3], rep(1, 3), ignore_attr = TRUE)
+})
+
+test_that("raising w_min to the grid also raises the given value (#642)", {
+    withr::local_options(mizer_info_level = 1)
+    params <- NS_params_small
+    min_w <- min(w(params))
+    expect_warning(species_params(params)$w_min[1] <- min_w / 10,
+                   "adjustSizeGrid")
+    expect_equal(species_params(params)$w_min[1], min_w, ignore_attr = TRUE)
+    expect_equal(given_species_params(params)$w_min[1], min_w,
+                 ignore_attr = TRUE)
+    # A later unrelated change does not give the warning again
+    expect_no_warning(species_params(params)$beta[2] <- 50)
+    # and after the grid is widened the rejected value does not come back
+    params <- adjustSizeGrid(params, new_min_w = min_w / 10)
+    species_params(params)$beta[2] <- 60
+    expect_equal(species_params(params)$w_min[1], min_w, ignore_attr = TRUE)
+})
+
+test_that("the egg-size clamp respects info_level", {
+    params <- NS_params_small
+    min_w <- min(w(params))
+    params@species_params$w_min[1] <- min_w / 10
+    expect_silent(quiet <- validParams(params, info_level = 0))
+    expect_warning(reported <- validParams(params, info_level = 1),
+                   "adjustSizeGrid")
+    expect_equal(quiet, reported)
+    expect_equal(species_params(quiet)$w_min[1], min_w, ignore_attr = TRUE)
+
+    # The replacement setters use the option and suppress routine messages.
+    withr::local_options(mizer_info_level = 0)
+    for (accessor in c("species_params", "given_species_params")) {
+        params <- NS_params_small
+        value <- get(accessor)(params)
+        value$w_min[1] <- min_w / 10
+        setter <- get(paste0(accessor, "<-"))
+        expect_silent(params <- setter(params, value = value))
+        expect_equal(species_params(params)$w_min[1], min_w,
+                     ignore_attr = TRUE)
+        expect_equal(given_species_params(params)$w_min[1], min_w,
+                     ignore_attr = TRUE)
+    }
+})
+
+test_that("raising egg weight also updates its supplied length", {
+    withr::local_options(mizer_info_level = 1)
+    for (accessor in c("species_params", "given_species_params")) {
+        params <- NS_params_small
+        species_params(params)$l_min <-
+            w2l(species_params(params)$w_min, params)
+        species_params(params)$l_min[3] <- NA_real_
+        min_w <- min(w(params))
+        original_lengths <- species_params(params)$l_min
+        value <- get(accessor)(params)
+        value$l_min[1] <- w2l(min_w / 10, params)[1]
+        setter <- get(paste0(accessor, "<-"))
+        expect_warning(params <- setter(params, value = value),
+                       "adjustSizeGrid")
+        expect_equal(species_params(params)$l_min, original_lengths)
+        expect_equal(given_species_params(params)$l_min, original_lengths)
+        # Force the repair rather than letting the validation cache skip it.
+        expect_no_warning(repaired <- repair_params(params))
+        expect_equal(repaired, params)
+        expect_no_warning(species_params(params)$beta[2] <- 50)
+        expect_equal(species_params(params)$w_min[1], min_w,
+                     ignore_attr = TRUE)
+        expect_equal(species_params(params)$l_min, original_lengths)
+    }
 })
 
 test_that("validParams skips the repair only for an unchanged object", {
@@ -157,6 +271,9 @@ test_that("validParams skips the repair only for an unchanged object", {
     expect_false(is_validated(validation_key(p)))
     p <- params
     p@mizer_version <- "99.0.0"
+    expect_false(is_validated(validation_key(p)))
+    p <- params
+    p@defaults_edition <- 2
     expect_false(is_validated(validation_key(p)))
 
     # Changing the shape of a rate array is caught, so that the structural

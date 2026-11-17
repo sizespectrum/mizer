@@ -16,8 +16,8 @@ A numeric vector giving the size represented by each size slice.
 Internal helper, the three-dimensional analogue of
 \code{\link[=get_ArraySpeciesBySize_w]{get_ArraySpeciesBySize_w()}}. Returns the geometric bin centres (see
 \code{\link[=bin_midpoints]{bin_midpoints()}}) when the array is tagged as a bin average and the model
-uses second-order bin-averaging, otherwise the grid nodes read from the size
-dimension names. Falls back to the dimension names when no \code{params} is
-attached.
+uses second-order bin-averaging, otherwise the original grid nodes. The
+stored size mapping preserves these coordinates through subsetting. Falls
+back to dimension names when no model grid is available.
 }
 \keyword{internal}

@@ -53,6 +53,10 @@ attributes:
 \item \code{units} – the units of the value (e.g. "1/year").
 \item \code{params} – the \code{MizerParams} object that the value was computed from.
 }
+
+Subsetting preserves the original model sizes, including reordered and
+repeated selections. The same mapping is retained by time slices of
+\code{\link[=ArrayTimeByResourceBySize]{ArrayTimeByResourceBySize()}} objects.
 }
 \examples{
 \donttest{

@@ -33,6 +33,9 @@ sim <- project(params, t_max = 20, effort = 1)
 | `t_save` | interval (years) at which output is stored (default 1) |
 | `t_start` | initial time / calendar year for the output (default 0) |
 | `method` | `"euler"` (default) or `"second_order"` (an alias for `"tr_bdf2"`); the superseded `"predictor_corrector"` is also accepted |
+| `subcycle` | set `TRUE` to advance the whole model with smaller internal steps when the growth Courant target would be exceeded; defaults to `FALSE` |
+| `max_courant` | target growth Courant number for the diagnostic and optional subcycling (default 1); not a universal stability bound |
+| `max_substeps` | maximum number of internal steps per requested `dt`; excessive work stops with an error |
 | `callback` | a function called at each saved step (e.g. to log or intervene) |
 | `progress_bar` | set `FALSE` to silence the progress bar |
 
@@ -107,17 +110,24 @@ plotSpectra2(sim_low, sim_high, "F = 0.5", "F = 1.5")
 
 ## Numerical scheme: watch for numerical diffusion
 
-For steady states and slow biomass or yield trends the defaults are fine. But
-the default flux scheme (first-order **upwind**) carries substantial *numerical
-diffusion*: it smears out cohorts and travelling waves and can **silently damp a
-real oscillation or limit cycle down to a flat line** — with no error to warn
-you. This is a correctness issue, not just an accuracy one, so for **any study
-of dynamics** (oscillations, cohort or wave structure, generation cycles, real
-growth-diffusion effects) switch to the second-order scheme:
+Which scheme in size a model uses depends on the defaults edition it was
+created with (see `?defaults_edition`). A model of edition 3 or later is built
+with the second-order scheme already. Models of editions 1 and 2 — every model
+built with the default edition, and every model saved with an earlier mizer —
+use the first-order **upwind** flux. Check with `second_order_w(params)`.
+
+For steady states and slow biomass or yield trends the first-order scheme is
+fine. But the upwind flux carries substantial *numerical diffusion*: it smears
+out cohorts and travelling waves and can **silently damp a real oscillation or
+limit cycle down to a flat line** — with no error to warn you. This is a
+correctness issue, not just an accuracy one, so for **any study of dynamics**
+(oscillations, cohort or wave structure, generation cycles, real
+growth-diffusion effects) use the second-order scheme:
 
 - **Space:** build the model with `second_order_w = TRUE` (the van Leer,
   flux-limited scheme) — set it in `newMultispeciesParams(..., second_order_w = TRUE)`,
-  or on an existing model with `second_order_w(params) <- TRUE`. Because it
+  or on an existing model with `second_order_w(params) <- TRUE`. It is the
+  default for a model created with `defaults_edition(3)` active. Because it
   changes the discrete steady state it lives in the params object, not in a
   `project()` argument.
 - **Time:** project with `method = "second_order"` (an alias for
@@ -128,10 +138,10 @@ params <- newMultispeciesParams(sp, second_order_w = TRUE)
 sim    <- project(params, t_max = 200, method = "second_order")
 ```
 
-Symptom that you needed this: an oscillation that is present with
-`second_order_w = TRUE` but disappears (settles to a flat steady state) under the
-default upwind scheme is being killed by numerical diffusion, not by real
-dynamics.
+An oscillation that disappears under upwind flux may have been damped by
+numerical diffusion. Check timestep and grid refinement before interpreting
+it as a physical oscillation: high-order flux at a large timestep can itself
+produce alternating, cell-scale numerical wiggles.
 
 **Expect the numbers to move, and don't read that as a bug.** A bare
 `second_order_w = TRUE` sets two things: the flux scheme above *and*
@@ -140,13 +150,16 @@ Riemann sum to a proper bin average. Unnormalised quantities — biomass, yield,
 `getDiet(proportion = FALSE)` — therefore shift by roughly `(1 + beta) / 2`,
 about 10% for a typical grid, where `beta` is the ratio between neighbouring
 grid points. That is the more accurate integral, not a regression. Proportions
-and ratios are largely unaffected because the factor cancels. Set the two
+and ratios are largely unaffected because the factor cancels. The same shift
+separates a model of edition 3 from the same model of edition 2. Set the two
 independently if you want the better flux scheme without moving your summary
 numbers:
 
 ```r
 second_order_w(params) <- c(flux = "van_leer")   # leaves bin_average alone
 second_order_w(params)                           # inspect: flux and bin_average
+# or, for a new model in edition 3, keep the left-edge integrals:
+params <- newMultispeciesParams(sp, second_order_w = c(bin_average = FALSE))
 ```
 
 The scheme lives in the `MizerParams`, so a `MizerSim` carries it: comparing a
@@ -155,6 +168,48 @@ discretisations as well as two scenarios. Recalibrate after switching it on —
 `tuneSteadyState()` handles the `van_leer` flux from mizer 3.3 onwards. On earlier
 versions it fell into a limit cycle there and never converged, so a model built
 with `second_order_w = TRUE` had to be settled under the default flux first.
+
+### Choosing a timestep for high-order flux
+
+With van Leer flux, large growth Courant numbers can produce alternating
+cell-scale residuals even near a stationary state. TR-BDF2 damps stiff linear
+modes, but that does not guarantee positivity or prevent nonlinear limiter
+switching. Inspect the current state's growth Courant numbers with
+
+```r
+courant <- getCourant(params, dt = 1 / 52)
+max(courant)
+```
+
+The diagnostic uses the actual bin widths and the positive growth velocities
+at the inflow and outflow faces of each retained bin. It includes empty bins
+inside the structural size support. A value near or below 1 is practical
+advection guidance, not a bound on mortality, diffusion, resource dynamics or
+custom components. Growth rates can change during a simulation, so a value
+calculated at its start does not bound the whole run.
+
+Reduce `dt` yourself, or request subcycling:
+
+```r
+sim <- project(params, t_max = 20, dt = 1 / 52,
+               method = "tr_bdf2", subcycle = TRUE, max_courant = 1)
+```
+
+Each requested step is divided as needed. Every internal step recalculates
+rates and advances consumers, resources, other components and time together.
+The save times, callbacks and fishing-effort schedule keep their outer
+schedule. The simulation records the policy, and a continued `project(sim)`
+inherits it unless overridden. The same controls can be passed to
+`projectUntilSettled()` and projection-based calibration.
+
+Subcycling can be expensive: a growth Courant number of about 13 requires
+roughly 13 internal steps if the rates remain similar. `max_substeps` limits
+the work per requested step and stops with an error if exceeded. Refine the
+timestep or Courant target to check accuracy; subcycling does not change a
+custom component's integration method or make it unconditionally stable.
+Custom rate and component functions are called more often. Functions with
+side effects or random draws per call therefore need their own timestep
+contract; enabling subcycling does not preserve a per-call random sequence.
 
 **Isolating a feedback loop.** To switch off the resource → growth feedback (the
 "phantom jam") while keeping everything else — for example to separate an
@@ -174,7 +229,7 @@ params <- setResource(params, resource_dynamics = "resource_constant")
   Set `w_max` well above the sizes you actually analyse, so that abundance at the
   boundary stays negligible; the default `1.5 * w_inf` is usually enough, but
   raise it if `D_ext` is large.
-- `t_save` controls output resolution, not accuracy — the model always steps at
-  `dt` internally.
+- `t_save` controls output resolution, not accuracy. The model uses `dt` for
+  its requested steps, with smaller internal steps when subcycling is enabled.
 - The `MizerSim` stores the `MizerParams` it used, so a sim is self-contained
   for later analysis.

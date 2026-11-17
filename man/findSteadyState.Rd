@@ -31,7 +31,8 @@ default is taken from the \code{mizer_info_level} option, see
 
 With \code{solver = "project"}: \code{distance_func}, \code{t_max}, \code{t_check}, \code{dt},
 \code{distance_tol}, \code{residual_tol}, \code{amplitude_tol}, \code{amp_rel_tol},
-\code{extinction_threshold}, \code{progress_bar} and \code{method}, all as described in
+\code{extinction_threshold}, \code{progress_bar}, \code{method}, \code{subcycle},
+\code{max_courant} and \code{max_substeps}, all as described in
 \code{\link[=projectUntilSettled]{projectUntilSettled()}}. There is no \code{t_save}, because no trajectory is
 returned.
 

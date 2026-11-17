@@ -8,9 +8,10 @@
 #' @param params The model parameters. An object of type
 #'   \linkS4class{MizerParams}.
 #' @param a A parameter with a default value of 0.35.
-#' @param n0_mult Multiplier for the abundance at size 0 when using defaults
-#'   edition 1. If not supplied, `kappa / 1000` is used. This argument is
-#'   ignored for defaults edition 2 and later.
+#' @param n0_mult Multiplier for the abundance at size 0 for a model of
+#'   defaults edition 1. If not supplied, `kappa / 1000` is used. This argument
+#'   is ignored for a model of defaults edition 2 or later, see
+#'   [defaults_edition()].
 #' @export
 #' @concept helper
 #' @return An `ArraySpeciesBySize` object (species x size) of population abundances.
@@ -23,7 +24,7 @@ get_initial_n <- function(params, n0_mult = NULL, a = 0.35) {
     no_w <- length(params@w)
     initial_n <- params@initial_n
 
-    if (defaults_edition() < 2) {
+    if (defaults_edition(params) < 2) {
         # N = N0 * Winf^(2*n-q-2+a) * w^(-n-a)
         # Reverse calc n and q from intake_max and search_vol slots (could add get_n function)
         n <- params@species_params[[1, "n"]]
