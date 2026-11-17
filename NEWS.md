@@ -139,6 +139,11 @@
 
 ## Bug fixes
 
+- Plotting size-resolved arrays with `total = TRUE` now works when columns
+  repeat a single size coordinate (#659). Repeated samples contribute only
+  once to the community total, with differing values at the same size averaged
+  within each species. The individual species' plotted values are preserved.
+
 - Euler projection and steady-state drift diagnostics now share the rule for
   selecting the upper size boundary. The rule uses the current evaluated
   diffusion across all species, including custom rates, and the flux scheme.
