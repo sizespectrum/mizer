@@ -2007,16 +2007,13 @@ shown_series <- function(params, species, resource, background) {
 #' @param min_w,max_w Single non-negative numbers giving the weight range in
 #'   grams to integrate over. Defaults are 0 and `Inf`, covering the complete
 #'   grid.
-#'   A boundary inside a bin includes only the overlapping fraction of its
-#'   width. Density is weighted at the left bin boundary in first-order models
-#'   and at the geometric midpoint when bin averaging is enabled.
-#'
-#'   The bounds are exact, which is not yet true of the `min_w` and `max_w` of
-#'   [getBiomass()] and the other summary functions: in a first-order model
-#'   they include a whole bin when its left edge lies in the range, so
-#'   `getBiomass(params, max_w = w)` with `w` on a bin edge still includes the
-#'   bin that starts at `w`, while a cumulative curve with `max_w = w` ends at
-#'   `w`. With bin averaging the two also weight each bin slightly differently.
+#'   A bin at an end of the range contributes exactly the part of it inside
+#'   the range. Each bin is weighted as by [sizeIntegral()] with
+#'   `exact_bounds = TRUE`, so the end of an unnormalised curve is what
+#'   [getBiomass()] (or [getN()] when `power = 0`) reports for the same range
+#'   with `exact_bounds = TRUE`, which is their default in a model of
+#'   [defaults_edition()] 3. In models of editions 1 and 2 those functions
+#'   count a bin at an end of the range whole or not at all by default.
 #' @param min_l,max_l Optional single non-negative numbers giving the length
 #'   range in centimetres to integrate over. Each overrides the corresponding
 #'   weight bound, using each species' own length-weight relationship, including
@@ -2166,25 +2163,14 @@ plot_cdf <- function(params, power, normalise, log_x, log_y, wlim, llim,
     params <- validParams(params)
     shown <- shown_series(params, species, resource, background)
     if (total) shown <- c(shown, "Total")
-    # The density is weighted once, at the left bin edge or at the geometric
-    # bin centre according to bin_average; the rows stay on the left edges so
-    # that prepare_spectra_cdf_data() can find each bin.
-    second_order <- isTRUE(params@second_order_w[["bin_average"]])
-    series <- abundance_series(
-        params, params@initial_n, params@initial_n_pp, power,
-        x = params@w, x_full = params@w_full,
-        weight = if (second_order) bin_midpoints(params) else params@w,
-        weight_full = if (second_order) {
-            bin_midpoints(params, w_full = TRUE)
-        } else {
-            params@w_full
-        },
-        background = background)
-    # A total includes every contributor, whichever curves are drawn.
-    if (!total) series <- series[series$Species %in% shown, , drop = FALSE]
-    cdf_dat <- prepare_spectra_cdf_data(series, params, normalise = FALSE,
+    series <- abundance_series(params, params@initial_n, params@initial_n_pp,
+                               power = 0, x = params@w, x_full = params@w_full,
+                               background = background)
+    cdf_dat <- prepare_spectra_cdf_data(series, params, power,
                                         min_w = min_w, max_w = max_w,
                                         min_l = min_l, max_l = max_l)
+    # A total includes every contributor, whichever curves are drawn.
+    if (!total) cdf_dat <- cdf_dat[cdf_dat$Species %in% shown, , drop = FALSE]
     cdf_dat <- convert_plot_size_axis(cdf_dat, params, size_axis)
     if (total) {
         cdf_dat <- add_total_line(cdf_dat, x_var = plot_size_x_var(size_axis),
@@ -2208,10 +2194,8 @@ plot_cdf <- function(params, power, normalise, log_x, log_y, wlim, llim,
                   highlight = highlight, legend_var = "Legend")
 }
 
-# Convert scalar integration bounds to weights for each contributing species.
-# Length bounds override the corresponding weight bounds, just as they do in
-# get_size_range_array(). The resource uses its own length-weight relationship.
-cdf_weight_bounds <- function(params, species, min_w, max_w, min_l, max_l) {
+# The CDF takes scalar integration bounds.
+check_cdf_bounds <- function(min_w, max_w, min_l, max_l) {
     bounds <- list(min_w = min_w, max_w = max_w, min_l = min_l, max_l = max_l)
     for (name in names(bounds)) {
         value <- bounds[[name]]
@@ -2222,80 +2206,56 @@ cdf_weight_bounds <- function(params, species, min_w, max_w, min_l, max_l) {
                  if (startsWith(name, "min")) " that is finite." else ".")
         }
     }
-    lower <- rep(min_w, length(species))
-    upper <- rep(max_w, length(species))
-    if (!is.null(min_l) || !is.null(max_l)) {
-        lw <- plot_length_params(species, params)
-        if (anyNA(lw) || any(!is.finite(as.matrix(lw))) ||
-                any(lw$a <= 0 | lw$b <= 0)) {
-            stop("CDF length bounds need positive finite ",
-                 "length-weight parameters.")
-        }
-        if (!is.null(min_l)) lower <- lw$a * min_l^lw$b
-        if (!is.null(max_l)) upper <- lw$a * max_l^lw$b
-    }
-    if (any(lower >= upper)) {
-        stop("Each CDF lower integration bound must be less than ",
-             "its upper bound.")
-    }
-    list(lower = lower, upper = upper)
 }
 
-# The density has already been weighted once, at the left boundary or geometric
-# midpoint according to bin_average. Integrate that bin density over the exact
-# overlap with the requested interval: never average or apply the mask again.
-# Cumulative values belong on the upper edge of that overlap, including a
-# partial last bin. Full bins retain the existing CDF quadrature under both
-# schemes, and zero-density bins retain their places in the cumulative curve.
-prepare_spectra_cdf_data <- function(plot_dat, params, normalise = TRUE,
+# Accumulate abundance over size. `series` holds the abundance of every bin of
+# every species and of the resource, as abundance_series() lays it out with
+# power 0. Each bin is weighted by the quadrature weight that
+# size_integral_weights() gives it for `w^power` with exact bounds, so the end
+# of a curve is the integral that getBiomass() or getN() reports over the same
+# range with `exact_bounds = TRUE`, in both numerical schemes. A cumulative
+# value belongs on the upper edge of the part of its bin inside the range.
+prepare_spectra_cdf_data <- function(series, params, power,
                                      min_w = 0, max_w = Inf,
                                      min_l = NULL, max_l = NULL) {
-    plot_dat <- plot_dat[order(plot_dat$Species, plot_dat$w), ]
-    bounds <- cdf_weight_bounds(params, plot_dat$Species,
-                                min_w, max_w, min_l, max_l)
-    widths <- spectra_bin_width(plot_dat$w, params)
-    lower <- pmax(plot_dat$w, bounds$lower)
-    upper <- pmin(plot_dat$w + widths, bounds$upper)
-    overlap <- pmax(0, upper - lower)
-    full_bin <- lower == plot_dat$w & upper == plot_dat$w + widths
-    overlap[full_bin] <- widths[full_bin]
-    plot_dat$value <- plot_dat$value * overlap
-    plot_dat$w <- upper
-    plot_dat <- plot_dat[overlap > 0, , drop = FALSE]
-    if (nrow(plot_dat) == 0) return(plot_dat)
-    plot_dat$value <- stats::ave(plot_dat$value, plot_dat$Species,
-                                 FUN = cumsum)
-    if (normalise) plot_dat <- normalise_cdf(plot_dat)
-    plot_dat
+    check_cdf_bounds(min_w, max_w, min_l, max_l)
+    bins <- lapply(c(FALSE, TRUE), function(resource) {
+        w <- if (resource) params@w_full else params@w
+        dw <- if (resource) params@dw_full else params@dw
+        limits <- size_range_limits(params, min_w = min_w, max_w = max_w,
+                                    min_l = min_l, max_l = max_l,
+                                    resource = resource)
+        if (any(limits$min_w >= limits$max_w)) {
+            stop("Each CDF lower integration bound must be less than ",
+                 "its upper bound.")
+        }
+        weight <- size_integral_weights(params, weighting = w^power,
+                                        min_w = min_w, max_w = max_w,
+                                        min_l = min_l, max_l = max_l,
+                                        exact_bounds = TRUE,
+                                        resource = resource)$weights
+        # As in size_integral_weights(), an upper bound at or beyond the last
+        # grid point covers the whole last bin.
+        upper <- limits$max_w
+        upper[upper >= max(w)] <- Inf
+        rows <- length(upper)
+        list(weight = c(weight),
+             end = pmin(rep(w + dw, each = rows),
+                        rep(upper, times = length(w))))
+    })
+    series$value <- series$value * c(bins[[1]]$weight, bins[[2]]$weight)
+    series$w <- c(bins[[1]]$end, bins[[2]]$end)
+    covered <- which(c(bins[[1]]$weight, bins[[2]]$weight) > 0)
+    series <- series[covered, , drop = FALSE]
+    series <- series[order(series$Species, series$w), , drop = FALSE]
+    series$value <- stats::ave(series$value, series$Species, FUN = cumsum)
+    series
 }
 
 normalise_cdf <- function(plot_dat) {
     totals <- stats::ave(plot_dat$value, plot_dat$Species, FUN = max)
     plot_dat$value <- ifelse(totals > 0, plot_dat$value / totals, NA_real_)
     plot_dat
-}
-
-#' Look up the size-bin widths for spectra data
-#'
-#' Matches the weights in the plotting data to the model's full size grid and
-#' returns the corresponding bin widths.
-#'
-#' @param w Numeric vector of weights.
-#' @param params A MizerParams object.
-#' @return A numeric vector of bin widths, one for each entry of `w`.
-#' @keywords internal
-spectra_bin_width <- function(w, params) {
-    idx <- match(w, params@w_full)
-    if (anyNA(idx)) {
-        missing <- which(is.na(idx))
-        for (i in missing) {
-            idx[i] <- which.min(abs(params@w_full - w[i]))
-        }
-        if (!isTRUE(all.equal(w, params@w_full[idx], scale = 1))) {
-            stop("Could not determine size-bin widths for the spectra data.")
-        }
-    }
-    params@dw_full[idx]
 }
 
 #' Y-axis label for a cumulative-distribution plot
