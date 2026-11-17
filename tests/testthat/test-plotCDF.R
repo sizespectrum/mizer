@@ -134,35 +134,31 @@ test_that("plotCDF places the cumulative on upper bin edges (inclusive conventio
     expect_true(all(diff(sp1[[2]]) >= -1e-12))
 })
 
-test_that("plotCDF cumulative is second-order and free of the one-bin offset", {
-    # For a community spectrum N = C w^-2 with power = 2 the integrand N w^power
-    # is constant, so the exact CDF is linear in w: F(w) = V (w - w_min). The
-    # bin-average of C w^-2 is exact at the geometric centre, so the plotted
-    # density value is the constant V at every bin. We can therefore check the
-    # cumulative analytically, which pins down the edge placement: a one-bin
-    # offset (plotting F at the *left* edge) would break F(w_min-bin) != 0 and
-    # the slope, so this is a sharp regression test for issue #383.
+test_that("plotCDF accumulates the getter weights without a one-bin offset", {
+    # With N = w^-2 and power = 2, the trapezoidal bin-average weight that
+    # size_integral_weights() gives each bin but the last is a constant
+    # multiple, (1 + beta^2) / 2, of its width. The cumulative curve is then
+    # linear in w through the lower edge of the grid, which pins down the edge
+    # placement: plotting each value at the left edge of its bin (#383) would
+    # break it.
     p <- params
     second_order_w(p) <- c(bin_average = TRUE)
     sp <- 1
-    p@initial_n[sp, ] <- p@w^(-2)            # community spectrum N proportional to w^-2
-
-    # The weighted density is the constant V = beta at every bin centre.
-    dens <- plotSpectra(p, species = sp, power = 2, resource = FALSE,
-                        total = FALSE, background = FALSE, return_data = TRUE)
-    V <- mean(dens[[2]])
-    expect_equal(unname(dens[[2]]), rep(V, nrow(dens)))
-
+    p@initial_n[sp, ] <- p@w^(-2)
     cdf <- plotCDF(p, species = sp, power = 2, resource = FALSE, total = FALSE,
                    background = FALSE, normalise = FALSE, return_data = TRUE)
     cdf <- cdf[order(cdf$w), ]
-    w_min <- min(p@w)
-    # F plotted at the upper edge equals the exact integral V (w_upper - w_min).
-    expect_equal(unname(cdf[[2]]), V * (cdf$w - w_min), tolerance = 1e-8)
-    # The smallest plotted x is the upper edge of the first bin, and its value is
-    # one full bin integral (not zero, and not two bins) — i.e. no offset.
-    expect_equal(cdf$w[1], unname(p@w[1] + p@dw_full[match(p@w[1], p@w_full)]))
-    expect_equal(cdf[[2]][1], V * (cdf$w[1] - w_min), tolerance = 1e-8)
+    beta <- p@w[2] / p@w[1]
+    inner <- seq_len(nrow(cdf) - 1)
+    expect_equal(unname(cdf[[2]][inner]),
+                 (1 + beta^2) / 2 * (cdf$w[inner] - min(p@w)),
+                 tolerance = 1e-8)
+    # The smallest plotted x is the upper edge of the first bin.
+    expect_equal(cdf$w[1], unname(p@w[1] + p@dw[1]))
+    # The end is the integral that the summary functions report.
+    expect_equal(tail(cdf[[2]], 1),
+                 unname(sizeIntegral(p, weighting = p@w^2,
+                                     exact_bounds = TRUE)[sp]))
 })
 
 test_that("CDF bounds include partial bins exactly once in both schemes", {
@@ -175,15 +171,21 @@ test_that("CDF bounds include partial bins exactly once in both schemes", {
         lower <- p@w[bin] + 0.2 * p@dw[bin]
         upper <- p@w[bin] + 0.7 * p@dw[bin]
         for (power in c(0, 1, 2, 1.5)) {
-            point <- if (second) bin_midpoints(p)[bin] else p@w[bin]
+            # The rule of sizeIntegral(exact_bounds = TRUE): the weight at the
+            # left edge in a first-order model; otherwise w^power interpolated
+            # linearly across the bin and averaged over the covered part.
+            edge_weight <- p@w[bin + 0:1]^power
+            full_weight <- if (second) mean(edge_weight) else edge_weight[1]
+            cut_weight <- edge_weight[1] +
+                if (second) (0.2 + 0.7) / 2 * diff(edge_weight) else 0
             full <- plotCDF(p, species = "Cod", power = power,
                             normalise = FALSE, return_data = TRUE)
-            expect_equal(max(full[[2]]), 3 * point^power * p@dw[bin])
+            expect_equal(max(full[[2]]), 3 * full_weight * p@dw[bin])
             cut <- plotCDF(p, species = "Cod", power = power,
                            min_w = lower, max_w = upper,
                            normalise = FALSE, return_data = TRUE)
             expect_equal(cut$w, upper)
-            expect_equal(cut[[2]], 3 * point^power * (upper - lower))
+            expect_equal(cut[[2]], 3 * cut_weight * (upper - lower))
             normalised <- plotCDF(p, species = "Cod", power = power,
                                    min_w = lower, max_w = upper,
                                    return_data = TRUE)
@@ -369,15 +371,31 @@ test_that("size viewports preserve returned data and totals", {
     }
 })
 
-test_that("CDF bounds are exact where getBiomass() includes whole bins", {
+test_that("the end of a CDF is the getBiomass() integral over its range", {
+    for (second in c(FALSE, TRUE)) {
+        p <- NS_params_small
+        second_order_w(p) <- c(bin_average = second)
+        w <- p@w
+        lower <- 0.3 * w[5] + 0.7 * w[6]
+        upper <- 0.5 * (w[15] + w[16])
+        cdf <- plotCDF(p, return_data = TRUE, normalise = FALSE,
+                       biomass = TRUE, background = FALSE,
+                       min_w = lower, max_w = upper)
+        ends <- c(tapply(cdf[[2]], cdf$Species, max)[p@species_params$species])
+        expect_equal(unname(ends),
+                     unname(getBiomass(p, min_w = lower, max_w = upper,
+                                       exact_bounds = TRUE)))
+    }
+    # A model of edition 1 or 2 counts whole bins by default: a bound on a
+    # bin edge ends the CDF there, while getBiomass(max_w = w[15]) still
+    # includes the bin that starts at w[15], as documented in ?plotCDF.
     p <- NS_params_small
     w <- p@w
     cdf <- plotCDF(p, return_data = TRUE, normalise = FALSE, biomass = TRUE,
                    background = FALSE, min_w = w[5], max_w = w[15])
     ends <- c(tapply(cdf[[2]], cdf$Species, max)[p@species_params$species])
-    # A bound on a bin edge ends the CDF there; getBiomass(max_w = w[15]) still
-    # includes the bin that starts at w[15], as documented in ?plotCDF.
     expect_equal(unname(ends),
                  unname(getBiomass(p, min_w = w[5], max_w = w[14])))
-    expect_true(all(getBiomass(p, min_w = w[5], max_w = w[15]) >= ends))
+    expect_true(all(getBiomass(p, min_w = w[5], max_w = w[15]) >=
+                        ends * (1 - 1e-12)))
 })

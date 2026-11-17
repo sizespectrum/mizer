@@ -31,8 +31,12 @@ there are the authoritative inventory and are meant to be kept current.
 sizeIntegral(params, weighting = K, min_w = 10, max_w = 5000)
 ```
 
-It applies the size-range mask, gates the bin-averaging on the flag, multiplies
-by `dw`, contracts over the size axis and wraps the result. `getBiomass()`,
+It restricts the integral to the size range, gates the bin-averaging on the
+flag, multiplies by `dw`, contracts over the size axis and wraps the result.
+Everything but the contraction and the wrapping — the quadrature weights
+`W = K̄ · dw` restricted to the size range — is built by the internal
+`size_integral_weights()`, which is the one place the weights of a size-range
+integral are written. `getBiomass()`,
 `getN()`, `getSSB()`, `getYield()`, `getYieldGear()` and
 `getProportionOfLargeFish()` are all implemented with it; add the next one the
 same way rather than writing the sum again. Do not pass `params@dw` in the
@@ -41,9 +45,26 @@ weighting factor over — both are done inside.
 
 - **Average the product, not the factors.** Pass the whole product as `weighting`:
   SSB uses `psi * w`; yield uses `F * w`. Averaging separately is a different
-  (wrong) number. The size-range mask counts as one of the factors — it is
-  multiplied in *before* the averaging, which is what makes the bin straddling
-  the boundary contribute partially.
+  (wrong) number.
+- **The ends of the size range depend on the edition.** A bin at an end of the
+  range lies partly outside it. From defaults edition 3 (`exact_bounds = TRUE`)
+  it contributes exactly its part inside the range: the trapezoidal rule on
+  that part, with `K` interpolated linearly across the bin, under bin
+  averaging; `K(w_j)` times the covered width without. In editions 1 and 2
+  (`exact_bounds = FALSE`) the 0/1 mask of `get_size_range_array()` is
+  multiplied into `K` *before* the averaging: whole bins by their left edge,
+  or about half a bin under bin averaging, wherever the limit lies — first
+  order in the limit's position. The default reads the model's edition,
+  `defaults_edition(params)`, never the active one. Bins wholly inside the
+  range get bit-identical weights under either rule, and an upper limit at or
+  above `max(w)` covers the whole last bin, so the full-range results — and
+  `getSSB()`, `getYield()`, `getYieldGear()` — do not depend on the rule.
+- **Do not write another boundary rule.** Anything else that integrates over a
+  size range — a CDF, a plot of a windowed integral, a resource summary — should
+  take its weights from `size_integral_weights()`. With `resource = TRUE` it
+  builds them on `w_full`, with one row and lengths converted by
+  `resource_length_params()`; with `exact_bounds = TRUE` it uses the exact
+  rule whatever the model's edition.
 - **Never bin-average `N` or `dw`.** `N_j` is already a cell average and `dw_j`
   is exact.
 - **If `K` is an exact power law `w^a`,** and you are writing a rate setter
@@ -173,10 +194,17 @@ rate itself checks that the derivation is complete.
 
    FFT convolution is circular, so allow ~1e-4 when comparing a direct sum
    against a rate function; within one code path the agreement is exact.
-3. **Convergence.** The gap between the two schemes should shrink under grid
+3. **Size ranges.** For an integral with `min_w`/`max_w`, test both
+   `exact_bounds` rules under both schemes, with limits inside bins rather than
+   on grid points (on a grid point the exact rule needs no partial bin and so
+   tests nothing). Assert an analytic value — with `n = 1` and `K = w` the
+   bin-averaged exact rule gives `(b^2 - a^2) / 2` — and additivity over
+   `[a, b] + [b, c]`. `bounds_params()` in `test-sizeIntegral.R` gives an
+   edition-3 copy of `NS_params_small` by recording the edition alone.
+4. **Convergence.** The gap between the two schemes should shrink under grid
    refinement — see the "second-order biomass converges to default" test for the
    pattern.
-4. **Order.** For a rate, measure the order directly. Prescribe smooth
+5. **Order.** For a rate, measure the order directly. Prescribe smooth
    cell-averaged densities, compute the rate on three nested grids an octave
    apart, and take `log2` of the ratio of successive differences: about 1 is
    first order, about 2 second. Check several sizes across the range of the
@@ -227,6 +255,8 @@ after the R file that defines the function.
 | Helper | Exported? | Use |
 |---|---|---|
 | `sizeIntegral(object, weighting, ...)` | yes | the whole integral ∫ N K dw — the default entry point |
+| `size_integral_weights(params, weighting, min_w, max_w, ..., exact_bounds, resource)` | no | the quadrature weights of a size-range integral, on the species or the resource grid |
+| `size_range_limits(params, min_w, max_w, min_l, max_l, resource)` | no | the weight limits of a size range for each row, converting lengths |
 | `bin_average_weight(K, params)` | yes | trapezoidal bin average, gated on the flag, for a weight you are not integrating |
 | `trapezoidal_bin_average(K)` | no | ungated trapezoid; averages along the last dimension of an array |
 | `power_law_bin_average(w, dw, a, w_max)` | no | exact bin average of `w^a`, with optional cutoff |
@@ -237,7 +267,7 @@ after the R file that defines the function.
 (badged experimental, to match `second_order_w()`) so that extension authors and
 users writing their own indicators can reach them; the user-facing guidance lives
 in `inst/skills/analyse-and-plot/SKILL.md` and `inst/skills/extend-mizer/SKILL.md`. Keep
-those two in step with any change here. The other three are internal — prefer
+those two in step with any change here. The others are internal — prefer
 `ArraySpeciesBySize(..., representation = "average")` over telling a user to call
 `bin_midpoints()` by hand.
 

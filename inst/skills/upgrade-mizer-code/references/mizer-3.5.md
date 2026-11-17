@@ -9,7 +9,9 @@ mizerExperimental again, with a deprecation warning. On a model whose encounter
 rate has been changed, `getDiet()` and `getTrophicLevel()` now follow the
 change and say how they split it between the food sources. Projections with
 high-order flux now report large growth Courant numbers; they retain the
-previous fixed-step calculation unless subcycling is requested.
+previous fixed-step calculation unless subcycling is requested. In a model of
+the new defaults edition 3, summary functions given a size range count only
+the part of the bins at its ends that lies inside it.
 
 ### A model keeps the defaults edition it was created with
 
@@ -168,7 +170,60 @@ A completed cumulative contribution stays constant beyond its last bin, so a
 community CDF on a length axis does not fall when one species' grid ends.
 
 The CDF bounds are exact: a bound inside a bin takes only the part of the bin
-on the selected side. The `min_w`/`max_w` of `getBiomass()` and the other
-summaries are not yet exact in that way: in a first-order model they include a
-whole bin whenever its left edge lies in the range. An unnormalised
-`plotCDF()` can therefore end below `getBiomass()` over the same range.
+on the selected side. Each bin is weighted as `sizeIntegral()` weights it with
+`exact_bounds = TRUE`, so an unnormalised `plotCDF()` ends at the value that
+`getBiomass()` or `getN()` reports for the same range in a model of defaults
+edition 3. In models of editions 1 and 2 those functions count the bins at the
+ends of a range whole by default; pass them `exact_bounds = TRUE` to compare.
+In a model that bin-averages its integrals, the cumulative values therefore
+differ slightly from those of earlier versions, which weighted each bin at its
+geometric centre.
+
+### Summary functions count the ends of a size range exactly in edition 3
+
+When you give `getBiomass()`, `getN()` or another summary function a size
+range with `min_w`, `max_w`, `min_l` or `max_l`, the size bins at its two ends
+usually lie partly inside the range and partly outside it. Until now mizer
+counted such a bin whole or not at all, according to whether its left edge
+was inside the range, or, under bin averaging, at about half, wherever in the
+bin the limit lay. A result could therefore be out by up to the content of a
+whole bin, and it jumped as a limit crossed a grid point.
+
+In a model created with defaults edition 3, each bin now contributes exactly
+the part of it that lies inside the range. Results with a size range change
+when you create the model in edition 3 rather than edition 2, by up to the
+content of the two bins at the ends of the range, which on a coarse grid can
+be a large part of a narrow range. This affects `sizeIntegral()`,
+`getBiomass()`, `getN()`, `getMeanWeight()`, `getMeanLength()`,
+`getMeanMaxWeight()`, `getProportionOfLargeFish()` and the plots built on
+them, such as `plotBiomass()` with `min_w`. Through the `biomass_cutoff` and
+`number_cutoff` species parameters it also affects `getBiomass(use_cutoff =
+TRUE)`, `calibrateBiomass()`, `calibrateNumber()`, `matchBiomasses()`,
+`matchNumbers()` and `plotBiomassObservedVsModel()`. Results over the whole
+size range do not change, nor do `getSSB()`, `getYield()` and
+`getYieldGear()`. Models of editions 1 and 2 are not affected.
+
+The new values are the more accurate ones. To get one rule or the other
+whatever the edition of the model, pass `exact_bounds`:
+
+```r
+getBiomass(params, min_w = 10, exact_bounds = FALSE)  # whole bins, by left edge
+getBiomass(params, min_w = 10, exact_bounds = TRUE)   # the part inside the range
+```
+
+An upper limit at or above the largest size in the grid, `max(w(params))`,
+includes the whole of the last bin, so the default limits still cover the
+whole spectrum.
+
+If your own code integrates over a size range by multiplying with
+`get_size_range_array()`, it uses the old rule and no longer agrees with
+`getBiomass()` in an edition-3 model. Replace the sum with `sizeIntegral()`,
+which follows the model's rule:
+
+```r
+# Old
+mask <- get_size_range_array(params, min_w = 10)
+rowSums(sweep(initialN(params) * mask, 2, w(params) * dw(params), "*"))
+# New
+sizeIntegral(params, weighting = w(params), min_w = 10)
+```

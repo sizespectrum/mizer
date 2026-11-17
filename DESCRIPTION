@@ -72,6 +72,7 @@ Collate:
     'saveParams.R'
     'species_params.R'
     'getRequiredRDD.R'
+    'getR0.R'
     'setColours.R'
     'setInteraction.R'
     'setPredKernel.R'

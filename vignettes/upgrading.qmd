@@ -139,7 +139,9 @@ mizerExperimental again, with a deprecation warning. On a model whose encounter
 rate has been changed, [`getDiet()`](../reference/getDiet.html) and [`getTrophicLevel()`](../reference/getTrophicLevel.html) now follow the
 change and say how they split it between the food sources. Projections with
 high-order flux now report large growth Courant numbers; they retain the
-previous fixed-step calculation unless subcycling is requested.
+previous fixed-step calculation unless subcycling is requested. In a model of
+the new defaults edition 3, summary functions given a size range count only
+the part of the bins at its ends that lies inside it.
 
 ### A model keeps the defaults edition it was created with
 
@@ -298,10 +300,63 @@ A completed cumulative contribution stays constant beyond its last bin, so a
 community CDF on a length axis does not fall when one species' grid ends.
 
 The CDF bounds are exact: a bound inside a bin takes only the part of the bin
-on the selected side. The `min_w`/`max_w` of [`getBiomass()`](../reference/getBiomass.html) and the other
-summaries are not yet exact in that way: in a first-order model they include a
-whole bin whenever its left edge lies in the range. An unnormalised
-`plotCDF()` can therefore end below `getBiomass()` over the same range.
+on the selected side. Each bin is weighted as [`sizeIntegral()`](../reference/sizeIntegral.html) weights it with
+`exact_bounds = TRUE`, so an unnormalised `plotCDF()` ends at the value that
+[`getBiomass()`](../reference/getBiomass.html) or [`getN()`](../reference/getN.html) reports for the same range in a model of defaults
+edition 3. In models of editions 1 and 2 those functions count the bins at the
+ends of a range whole by default; pass them `exact_bounds = TRUE` to compare.
+In a model that bin-averages its integrals, the cumulative values therefore
+differ slightly from those of earlier versions, which weighted each bin at its
+geometric centre.
+
+### Summary functions count the ends of a size range exactly in edition 3
+
+When you give `getBiomass()`, `getN()` or another summary function a size
+range with `min_w`, `max_w`, `min_l` or `max_l`, the size bins at its two ends
+usually lie partly inside the range and partly outside it. Until now mizer
+counted such a bin whole or not at all, according to whether its left edge
+was inside the range, or, under bin averaging, at about half, wherever in the
+bin the limit lay. A result could therefore be out by up to the content of a
+whole bin, and it jumped as a limit crossed a grid point.
+
+In a model created with defaults edition 3, each bin now contributes exactly
+the part of it that lies inside the range. Results with a size range change
+when you create the model in edition 3 rather than edition 2, by up to the
+content of the two bins at the ends of the range, which on a coarse grid can
+be a large part of a narrow range. This affects `sizeIntegral()`,
+`getBiomass()`, `getN()`, [`getMeanWeight()`](../reference/getMeanWeight.html), [`getMeanLength()`](../reference/getMeanWeight.html),
+[`getMeanMaxWeight()`](../reference/getMeanMaxWeight.html), [`getProportionOfLargeFish()`](../reference/getProportionOfLargeFish.html) and the plots built on
+them, such as [`plotBiomass()`](../reference/plotBiomass.html) with `min_w`. Through the `biomass_cutoff` and
+`number_cutoff` species parameters it also affects `getBiomass(use_cutoff =
+TRUE)`, `calibrateBiomass()`, `calibrateNumber()`, `matchBiomasses()`,
+[`matchNumbers()`](../reference/matchNumbers.html) and [`plotBiomassObservedVsModel()`](../reference/plotBiomassObservedVsModel.html). Results over the whole
+size range do not change, nor do [`getSSB()`](../reference/getSSB.html), [`getYield()`](../reference/getYield.html) and
+[`getYieldGear()`](../reference/getYieldGear.html). Models of editions 1 and 2 are not affected.
+
+The new values are the more accurate ones. To get one rule or the other
+whatever the edition of the model, pass `exact_bounds`:
+
+```{r eval=FALSE}
+getBiomass(params, min_w = 10, exact_bounds = FALSE)  # whole bins, by left edge
+getBiomass(params, min_w = 10, exact_bounds = TRUE)   # the part inside the range
+```
+
+An upper limit at or above the largest size in the grid, `max(w(params))`,
+includes the whole of the last bin, so the default limits still cover the
+whole spectrum.
+
+If your own code integrates over a size range by multiplying with
+[`get_size_range_array()`](../reference/get_size_range_array.html), it uses the old rule and no longer agrees with
+`getBiomass()` in an edition-3 model. Replace the sum with `sizeIntegral()`,
+which follows the model's rule:
+
+```{r eval=FALSE}
+# Old
+mask <- get_size_range_array(params, min_w = 10)
+rowSums(sweep(initialN(params) * mask, 2, w(params) * dw(params), "*"))
+# New
+sizeIntegral(params, weighting = w(params), min_w = 10)
+```
 
 ---
 
@@ -597,7 +652,7 @@ functions convert `l50`, `l25` and `knife_edge_length` from [`gear_params()`](..
 into weights through `a` and `b`, so a defaulted relationship puts the
 selectivity curve at the wrong weights and changes the dynamics. The same
 applies to `min_l` and `max_l` in the summary and indicator functions, to
-[`getMeanLength()`](../reference/getMeanWeight.html), and to plots drawn with `size_axis = "l"`.
+`getMeanLength()`, and to plots drawn with `size_axis = "l"`.
 
 Because that case is the one that changes results, [`setFishing()`](../reference/setFishing.html) reports it a
 second time, where the conversion actually happens:
@@ -810,7 +865,7 @@ right ones. If that model was calibrated afterwards, the calibration was made
 against the inconsistent model and is worth redoing.
 
 `calibrateBiomass()`, [`calibrateNumber()`](../reference/calibrateNumber.html), `matchBiomasses()` and
-[`matchNumbers()`](../reference/matchNumbers.html) all rescale through `scaleModel()` and inherit the fix.
+`matchNumbers()` all rescale through `scaleModel()` and inherit the fix.
 
 If you have written your own version of this rescaling -- an extension package
 with its own `scale...Model()` function is the likely case -- apply the same
@@ -1016,7 +1071,7 @@ that looked right but was not.
 
 ### Background species and non-positive values in time-series plots
 
-`plot()` on a time-by-species array — which is what [`plotBiomass()`](../reference/plotBiomass.html),
+`plot()` on a time-by-species array — which is what `plotBiomass()`,
 [`plotYield()`](../reference/plotYield.html) and `plotN()` draw — used to select the species and then append
 the background species as a second, separate step. Four things follow from
 doing it in one pass instead.
@@ -1607,18 +1662,18 @@ of using the model's own quadrature, and are now consistent with it:
 - **`getTrophicLevel()`** built its numerator and denominator from different
   quadratures, so reported trophic levels were off by up to 0.06. A predator
   whose prey all have trophic level 1 now comes out at exactly 2 (#474).
-- **[`getN(params, min_w = ...)`](../reference/getN.html)** now bin-averages the size-range window, so the
+- **`getN(params, min_w = ...)`** now bin-averages the size-range window, so the
   bin straddling `min_w` or `max_w` contributes only partially — as
   `getBiomass()` already did. Numbers over a restricted size range therefore
   change slightly; over the full size range nothing changes (#494).
 - **`calibrateBiomass()`, `calibrateNumber()`, `matchNumbers()`,
-  [`plotBiomassObservedVsModel()`](../reference/plotBiomassObservedVsModel.html) and `plotYieldObservedVsModel()`** each wrote
+  `plotBiomassObservedVsModel()` and `plotYieldObservedVsModel()`** each wrote
   out their own sum over the size grid and cut the size range at a bin boundary.
   The calibration functions therefore left the abundances at values that
   disagreed with the `getBiomass()` or `getN()` you would check them against,
   and a species matched to its observed biomass was then plotted off the 1:1
   line. All five now integrate the same way `getBiomass()`, `getN()` and
-  [`getYield()`](../reference/getYield.html) do, so a matched species really does come out at its observation
+  `getYield()` do, so a matched species really does come out at its observation
   (#504, #529). `plotYieldObservedVsModel()` is where the size of the error
   matters: its model yields were 10-20% below `getYield()`, and the total
   relative error in the plot caption is computed from them, so it told you the
@@ -2182,7 +2237,7 @@ interfering with S4 dispatch in other packages, but code that relied on
 
 ### Bug fixes that change results
 
-- **[`getMeanMaxWeight()`](../reference/getMeanMaxWeight.html)** now applies the species selector to the denominator as
+- **`getMeanMaxWeight()`** now applies the species selector to the denominator as
   well, so its values change when a subset of species is selected.
 - **`plotSpectra()` axis limits.** It no longer forces the y-axis lower limit to
   `1e-20` (it auto-scales to the data) and, when `resource = FALSE`, it uses
