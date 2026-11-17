@@ -797,14 +797,16 @@ add_total_line <- function(plot_dat, x_var = names(plot_dat)[[1]],
         series <- series[order(series[[x_var]]), , drop = FALSE]
         x <- series[[x_var]]
         y <- series[[value_col]]
-        if (length(x) < 2) {
-            # `approx()` needs two points; a single one contributes only where
-            # it sits.
-            hit <- match(x, x_all)
-            total[hit] <- total[hit] + y
+        unique_x <- unique(x)
+        if (length(unique_x) < 2) {
+            # `approx()` needs two distinct points. Average ties as it does;
+            # a single coordinate contributes only where it sits.
+            hit <- match(unique_x, x_all)
+            total[hit] <- total[hit] + mean(y, na.rm = TRUE)
             next
         }
-        contribution <- stats::approx(log(x), y, xout = log(x_all))$y
+        contribution <- stats::approx(log(x), y, xout = log(x_all),
+                                      ties = mean)$y
         contribution[is.na(contribution)] <- 0
         total <- total + contribution
     }

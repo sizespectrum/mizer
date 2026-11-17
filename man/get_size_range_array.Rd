@@ -39,6 +39,13 @@ indicating whether that size bin is within the size limits specified by the
 arguments. Either the size limits can be the same for all species or they
 can be specified as vectors with one value for each species in the model.
 }
+\details{
+A size bin is selected when its left edge, the grid point \code{w(params)}, lies
+within the size limits. This is the rule by which the summary functions
+select a size range in models of defaults editions 1 and 2. In a model of
+edition 3 they instead count the part of each bin that lies within the
+limits, see the section "The size range" in \code{\link[=sizeIntegral]{sizeIntegral()}}.
+}
 \section{Length to weight conversion}{
 
 If \code{min_l} is specified there is no need to specify \code{min_w} and so on.

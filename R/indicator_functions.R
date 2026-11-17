@@ -52,6 +52,7 @@ NULL
 #'   is based on biomass, if FALSE it is based on numbers of individuals.
 #'   Default is TRUE.
 #' @inheritDotParams get_size_range_array -params
+#' @inheritDotParams sizeIntegral exact_bounds
 #'
 #' @return A vector containing the proportion of large fish through time, or a
 #'   single value if called with a `MizerParams` object.
@@ -157,6 +158,7 @@ getProportionOfLargeFish.MizerParams <- function(object,
 #' @param object A \linkS4class{MizerSim} or \linkS4class{MizerParams} object
 #' @inheritParams valid_species_arg
 #' @inheritDotParams get_size_range_array -params
+#' @inheritDotParams sizeIntegral exact_bounds
 #'
 #' @return A vector containing the mean weight (in grams) or the mean length (in
 #'   cm) of the community through time, or a single value if called with a
@@ -269,6 +271,7 @@ length_at_size <- function(params) {
 #' @inheritParams getMeanWeight
 #' @param measure The measure to return. Can be 'numbers', 'biomass' or 'both'
 #' @inheritDotParams get_size_range_array -params
+#' @inheritDotParams sizeIntegral exact_bounds
 #'
 #' @return Depends on the `measure` argument. If \code{measure = “both”}
 #'   then you get a matrix with two columns, one with values by numbers,
