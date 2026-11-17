@@ -1400,15 +1400,11 @@ transport_fluxes <- function(params, n, g, d, rdd, flux_limiter) {
 }
 
 # Shared by both getFluxGradient() methods; the rates are evaluated only once.
-# `hard_boundary` is the tail policy of zero_empty_transport_tail(): Euler's
-# when NULL, or TRUE for a simulation whose time stepping always clears it.
-flux_gradient_from_rates <- function(params, n, g, d, rdd, flux_limiter,
-                                     hard_boundary = NULL) {
+flux_gradient_from_rates <- function(params, n, g, d, rdd, flux_limiter) {
     faces <- transport_fluxes(params, n, g, d, rdd, flux_limiter)
     gradient <- sweep(faces$outflow - faces$inflow, 2, params@dw, "/")
     gradient[col(n) < params@w_min_idx] <- 0
     gradient <- zero_empty_transport_tail(gradient, params, n, d, flux_limiter,
-                                          hard_boundary = hard_boundary,
                                           top = faces$top)
     dimnames(gradient) <- dimnames(params@metab)
     gradient
@@ -1478,21 +1474,25 @@ getFlux.MizerSim <- function(object, n, n_pp, n_other, t, power = 0, ...,
 #' condition \eqn{N_{K+1} = 0}.
 #'
 #' At a species' upper cutoff the outgoing loss is retained, but the gradient
-#' in an empty excluded bin is zero when transport holds that bin at zero.
+#' in an empty excluded bin is zero when Euler transport holds that bin at zero.
 #' Thus differencing the whole [getFlux()] array without applying the support
 #' boundary does not give this diagnostic. Below recruitment size the gradient
 #' is zero.
 #'
-#' For a `MizerParams` object the boundary policy is that of the default Euler
-#' method and matches [getSteadyResidual()]: upwind Euler without any positive
-#' evaluated diffusion can populate excluded bins, so their gradients are
-#' retained. For a `MizerSim` object the policy follows the method that made the
-#' simulation: `"predictor_corrector"` and `"tr_bdf2"` always hold the excluded
-#' bins at zero, so their empty excluded bins have zero gradient even without
-#' diffusion. Populated excluded bins keep their algebraic transport rates,
-#' even with diffusion; the instantaneous removal of that tail by projection
-#' has no finite derivative. At such a populated boundary [getFlux()] reports
-#' the retained bin's outgoing flux, while the excluded bin's algebraic equation
+#' The boundary policy is that of the default Euler method of [project()] and
+#' matches [getSteadyResidual()]: upwind Euler without any positive evaluated
+#' diffusion can populate excluded bins, so their gradients are retained. The
+#' same policy is used for a `MizerSim` object, whatever method made the
+#' simulation. The `"predictor_corrector"` and `"tr_bdf2"` methods always hold
+#' the excluded bins at zero, imposing an absorbing boundary even with
+#' first-order upwind fluxes and no diffusion. In that case a negative gradient
+#' in an empty excluded bin shows transport that such a simulation does not
+#' realise: the outgoing flux is lost instead.
+#'
+#' Populated excluded bins keep their algebraic transport rates, even with
+#' diffusion; the instantaneous removal of that tail by projection has no
+#' finite derivative. At such a populated boundary [getFlux()] reports the
+#' retained bin's outgoing flux, while the excluded bin's algebraic equation
 #' still uses its original inflow.
 #'
 #' @template param_object_dots
@@ -1549,20 +1549,14 @@ getFluxGradient.MizerSim <- function(object, n, n_pp, n_other, t, ...,
     params <- validParams(sim@params)
     rates_fns <- projectRateFunctions(params)
     flux_lim <- flux_limiter_scheme(params)
-    # Predictor-corrector and TR-BDF2 clear the excluded tail at every step,
-    # whatever the diffusion; Euler decides per state.
-    clears_tail <- sim_always_clears_tail(sim)
 
     calculate <- function(slice) {
         r <- mizer_rates_subset(params, n = slice$n, n_pp = slice$n_pp,
                                 n_other = slice$n_other, t = slice$t,
                                 effort = slice$effort, rates_fns = rates_fns,
                                 targets = c("EGrowth", "Diffusion", "RDD"), ...)
-        hard_boundary <- clears_tail ||
-            euler_uses_hard_boundary(r$diffusion, flux_lim)
         flux_gradient_from_rates(params, slice$n, r$e_growth,
-                                 r$diffusion, r$rdd, flux_lim,
-                                 hard_boundary = hard_boundary)
+                                 r$diffusion, r$rdd, flux_lim)
     }
     get_species_size_rate_from_sim(sim, time_range, drop, calculate,
                                    value_name = "Flux gradient",

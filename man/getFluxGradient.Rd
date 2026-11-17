@@ -60,21 +60,25 @@ condition \eqn{N_{K+1} = 0}.
 }
 \details{
 At a species' upper cutoff the outgoing loss is retained, but the gradient
-in an empty excluded bin is zero when transport holds that bin at zero.
+in an empty excluded bin is zero when Euler transport holds that bin at zero.
 Thus differencing the whole \code{\link[=getFlux]{getFlux()}} array without applying the support
 boundary does not give this diagnostic. Below recruitment size the gradient
 is zero.
 
-For a \code{MizerParams} object the boundary policy is that of the default Euler
-method and matches \code{\link[=getSteadyResidual]{getSteadyResidual()}}: upwind Euler without any positive
-evaluated diffusion can populate excluded bins, so their gradients are
-retained. For a \code{MizerSim} object the policy follows the method that made the
-simulation: \code{"predictor_corrector"} and \code{"tr_bdf2"} always hold the excluded
-bins at zero, so their empty excluded bins have zero gradient even without
-diffusion. Populated excluded bins keep their algebraic transport rates,
-even with diffusion; the instantaneous removal of that tail by projection
-has no finite derivative. At such a populated boundary \code{\link[=getFlux]{getFlux()}} reports
-the retained bin's outgoing flux, while the excluded bin's algebraic equation
+The boundary policy is that of the default Euler method of \code{\link[=project]{project()}} and
+matches \code{\link[=getSteadyResidual]{getSteadyResidual()}}: upwind Euler without any positive evaluated
+diffusion can populate excluded bins, so their gradients are retained. The
+same policy is used for a \code{MizerSim} object, whatever method made the
+simulation. The \code{"predictor_corrector"} and \code{"tr_bdf2"} methods always hold
+the excluded bins at zero, imposing an absorbing boundary even with
+first-order upwind fluxes and no diffusion. In that case a negative gradient
+in an empty excluded bin shows transport that such a simulation does not
+realise: the outgoing flux is lost instead.
+
+Populated excluded bins keep their algebraic transport rates, even with
+diffusion; the instantaneous removal of that tail by projection has no
+finite derivative. At such a populated boundary \code{\link[=getFlux]{getFlux()}} reports the
+retained bin's outgoing flux, while the excluded bin's algebraic equation
 still uses its original inflow.
 }
 \examples{
