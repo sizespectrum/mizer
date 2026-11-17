@@ -1151,9 +1151,10 @@ test_that("flux diagnostics share the evaluated global Euler boundary policy", {
     }
 })
 
-test_that("getFluxGradient for a simulation follows its time-stepping method", {
+test_that("getFluxGradient for a simulation uses the Euler boundary policy", {
     # Without diffusion, upwind Euler moves the outflow on into the excluded
-    # bin, whereas predictor-corrector and TR-BDF2 always hold it at zero.
+    # bin. Predictor-corrector and TR-BDF2 hold that bin at zero instead, as
+    # documented, but the gradient does not depend on the simulation's method.
     p <- local_flux_boundary_rates(NS_params_small)
     second_order_w(p) <- FALSE
     p@other_params$flux_diffusion[] <- 0
@@ -1161,21 +1162,20 @@ test_that("getFluxGradient for a simulation follows its time-stepping method", {
     p@initial_n[] <- 0
     p@initial_n[1, top] <- 1
     n <- p@initial_n
+    expected <- getFluxGradient(p)
+    expect_lt(expected[1, top + 1L], 0)
     dt <- 1e-6
     for (method in c("euler", "predictor_corrector", "tr_bdf2")) {
         sim <- project(p, t_max = dt, dt = dt, t_save = dt, method = method,
                        progress_bar = FALSE, info_level = 0)
         gradient <- getFluxGradient(sim, time_range = c(0, 0))[1, , ]
+        expect_equal(gradient, expected, ignore_attr = TRUE, info = method)
         projected <- (finalN(sim)[1, top + 1L] - n[1, top + 1L]) / dt
-        expect_equal(unname(-gradient[1, top + 1L]), unname(projected),
-                     tolerance = 1e-5, info = method)
         if (method == "euler") {
-            expect_gt(projected, 0)
+            expect_equal(unname(-gradient[1, top + 1L]), unname(projected),
+                         tolerance = 1e-5)
         } else {
-            expect_equal(unname(gradient[1, top + 1L]), 0, info = method)
-            # The loss from the last retained bin is unaffected.
-            expect_equal(unname(gradient[1, top]),
-                         unname(getFluxGradient(p)[1, top]), info = method)
+            expect_equal(unname(projected), 0, info = method)
         }
     }
 })

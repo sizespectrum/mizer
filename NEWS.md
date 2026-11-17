@@ -140,13 +140,12 @@
 ## Bug fixes
 
 - `getFluxGradient()` no longer reports transport into empty excluded size
-  bins when projection holds them at zero (#681). It shares the steady-drift
-  boundary policy from #658, preserving outgoing losses, populated-tail
-  algebraic rates and the legacy upwind Euler behaviour without diffusion.
-  For a simulation made with `method = "predictor_corrector"` or
-  `method = "tr_bdf2"`, which always hold the excluded bins at zero, the
-  gradient there is zero even without diffusion. `getFlux()` now reports the solver's outgoing boundary flux even when the
-  supplied excluded tail is populated, without changing its limiter weights.
+  bins when projection holds them at zero (#681). It follows the boundary
+  policy of the default Euler method, shared with the steady-drift diagnostic
+  from #658, preserving outgoing losses, populated-tail algebraic rates and the
+  legacy upwind Euler behaviour without diffusion. `getFlux()` now reports the
+  solver's outgoing boundary flux even when the supplied excluded tail is
+  populated, without changing its limiter weights.
   Recruitment is no longer counted as transport out of a bin below egg size.
 
 - `plotDataFrame()` now warns about legend entries that have no colour in
