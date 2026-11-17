@@ -585,16 +585,7 @@ plotlySpectra2 <- function(object1, object2, name1 = "First",
                            highlight = NULL,
                            log_x = TRUE, log_y = TRUE, log = NULL,
                            size_axis = c("w", "l"), ...) {
-    size_axis <- plot_size_axis(size_axis)
-    plotHover(plotSpectra2(object1 = object1, object2 = object2,
-                           name1 = name1, name2 = name2,
-                           species = species, wlim = wlim, llim = llim,
-                           ylim = ylim, power = power, biomass = biomass,
-                           per_log_size = per_log_size, total = total,
-                           resource = resource, background = background,
-                           highlight = highlight, log_x = log_x,
-                           log_y = log_y, log = log, size_axis = size_axis,
-                           ...))
+    plotly_forward("plotSpectra2")
 }
 
 #' Plot relative difference between abundance spectra
@@ -682,16 +673,9 @@ plotlySpectraRelative <- function(object1, object2,
                                   highlight = NULL,
                                   log_x = TRUE,
                                   size_axis = c("w", "l"), ...) {
-    size_axis <- plot_size_axis(size_axis)
-    args <- list(object1 = object1, object2 = object2,
-                 species = species, wlim = wlim, llim = llim, ylim = ylim,
-                 total = total,
-                 resource = resource, background = background,
-                 highlight = highlight, log_x = log_x,
-                 size_axis = size_axis, ...)
-    plotHover(do.call("plotSpectraRelative", args),
-             tooltip = plot_size_tooltip(size_axis, before = "Legend",
-                                         after = "rel_diff"))
+    plotly_forward("plotSpectraRelative",
+                   tooltip = plot_size_tooltip(size_axis, before = "Legend",
+                                               after = "rel_diff"))
 }
 
 #' @rdname plotSpectra
@@ -707,7 +691,5 @@ plotlySpectra <- function(object, species = NULL,
                         highlight = NULL, log_x = TRUE, log_y = TRUE,
                         log = NULL,
                         size_axis = c("w", "l"), ...) {
-    size_axis <- plot_size_axis(size_axis)
-    argg <- as.list(environment())
-    plotHover(do.call("plotSpectra", argg))
+    plotly_forward("plotSpectra")
 }

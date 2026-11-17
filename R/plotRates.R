@@ -220,7 +220,7 @@ plot_feeding_level <- function(params, feed, species, highlight,
 #' @usage NULL
 #' @export
 plotlyFeedingLevel <- function(object, ...) {
-    plotHover(plotFeedingLevel(object, ...))
+    plotly_forward("plotFeedingLevel")
 }
 
 #' Plot predation mortality rate of each species against size
@@ -347,9 +347,7 @@ plotlyPredMort <- function(object, species = NULL,
                            wlim = c(NA, NA), llim = c(NA, NA),
                            size_axis = c("w", "l"),
                            log_x = TRUE, log_y = FALSE, log = NULL, ...) {
-    size_axis <- plot_size_axis(size_axis)
-    argg <- as.list(environment())
-    plotHover(do.call("plotPredMort", argg))
+    plotly_forward("plotPredMort")
 }
 
 #' Plot total fishing mortality of each species by size
@@ -465,7 +463,5 @@ plotlyFMort <- function(object, species = NULL,
                         wlim = c(NA, NA), llim = c(NA, NA),
                         size_axis = c("w", "l"),
                         log_x = TRUE, log_y = FALSE, log = NULL, ...) {
-    size_axis <- plot_size_axis(size_axis)
-    argg <- as.list(environment())
-    plotHover(do.call("plotFMort", argg))
+    plotly_forward("plotFMort")
 }

@@ -130,9 +130,7 @@ plotlyYield <- function(object, sim2 = NULL,
                         ylim = c(NA, NA), tlim = c(NA, NA),
                         highlight = NULL,
                         ...) {
-    argg <- as.list(environment())
-    plotHover(do.call("plotYield", argg),
-              tooltip = c("Species", "Year", "Yield"))
+    plotly_forward("plotYield", tooltip = c("Species", "Year", "Yield"))
 }
 
 #' Plot the total yield of each species by gear through time
@@ -274,7 +272,6 @@ plotlyYieldGear <- function(object, species = NULL,
                             log_x = FALSE, log_y = TRUE, log = NULL,
                             ylim = c(NA, NA), tlim = c(NA, NA),
                             highlight = NULL, ...) {
-    argg <- as.list(environment())
-    plotHover(do.call("plotYieldGear", argg),
-             tooltip = c("Species", "Gear", "Year", "Yield"))
+    plotly_forward("plotYieldGear",
+                   tooltip = c("Species", "Gear", "Year", "Yield"))
 }

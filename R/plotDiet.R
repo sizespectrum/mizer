@@ -212,10 +212,5 @@ plotlyDiet <- function(object, species = NULL,
                        wlim = c(NA, NA), llim = c(NA, NA),
                        size_axis = c("w", "l"),
                        log_x = TRUE, log_y = FALSE, log = NULL, ...) {
-    size_axis <- plot_size_axis(size_axis)
-    plotHover(plotDiet(object, species = species, wlim = wlim, llim = llim,
-                       log_x = log_x, log_y = log_y, log = log,
-                       size_axis = size_axis, ...),
-              tooltip = plot_size_tooltip(size_axis,
-                                         after = c("Proportion", "Prey")))
+    plotly_forward("plotDiet")
 }

@@ -121,6 +121,11 @@
   `params@linecolour` also when the legend comes from `legend_var`. Before,
   the warning looked only at a column called `Legend`, so it never fired for
   any other legend variable (#564).
+- The `plotly…()` wrappers now pass `...` on to their plot functions (#564).
+  `plotlyYield()`, `plotlyYieldGear()`, `plotlyPredMort()`, `plotlyFMort()`
+  and `plotlySpectra()` used to drop them silently, so that for example
+  `plotlyFMort(sim, all.sizes = TRUE)` ignored `all.sizes`. All the wrappers
+  now forward their arguments in the same way.
 - Size-resolved array wrappers now retain the exact original size-grid mapping
   when subsetted (#650). Printing, summaries, data-frame conversion and plots
   work for sparse selections, and reordered or repeated columns keep the

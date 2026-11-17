@@ -196,7 +196,6 @@ plotBiomassObservedVsModel.MizerSim <- function(object, species = NULL, ratio = 
 plotlyBiomassObservedVsModel <- function(object, species = NULL, ratio = FALSE,
                                          log_scale = TRUE,
                                          show_unobserved = FALSE, ...) {
-    argg <- as.list(environment())
-    argg$labels <- FALSE
-    plotHover(do.call("plotBiomassObservedVsModel", argg), ...)
+    plotly_forward("plotBiomassObservedVsModel",
+                   extra = list(labels = FALSE), dots = "hover")
 }

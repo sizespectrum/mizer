@@ -251,6 +251,63 @@ plotHover.mizer_plot <- function(x = ggplot2::last_plot(), ...,
     stable_plotly_ids(widget)
 }
 
+# Every `plotly...()` wrapper ends with a call to `plotly_forward()`, which
+# calls the wrapper's plot function with the wrapper's arguments and converts
+# the result with `plotHover()`. The wrapper keeps its documented signature
+# while the forwarding is implemented only here. It reads the wrapper's formals
+# and arguments from the calling frame, so it must be called directly from the
+# body of the wrapper.
+#
+# Each formal of the calling wrapper other than `...` and those in `exclude` is
+# forwarded by name with its current value. That value is the wrapper's own
+# default if the argument was not supplied, so a wrapper default that differs
+# from the plot function's is kept, as is any change the wrapper made to the
+# value before calling this. An argument that was not supplied and has no
+# default, such as `time_range`, is left missing, so that the plot function's
+# own handling of a missing argument applies, and so is an argument that was
+# not supplied and whose default is `lifecycle::deprecated()`.
+#
+# plot_fun: The plot function, given by name so that its body is not spelled
+#   out in the call shown by errors and tracebacks.
+# tooltip: The tooltip variables passed to `plotHover()`. `NULL` keeps the
+#   tooltip that the plot function stored with the plot.
+# exclude: Names of formals of the wrapper that are not forwarded.
+# extra: A named list of further arguments for the plot function.
+# dots: Where the wrapper's `...` go: to the plot function (`"plot"`) or to
+#   `plotHover()` (`"hover"`).
+plotly_forward <- function(plot_fun, tooltip = NULL, exclude = character(),
+                           extra = list(), dots = c("plot", "hover")) {
+    dots <- match.arg(dots)
+    env <- parent.frame()
+    fmls <- formals(sys.function(sys.parent()))
+    skip_if_missing <- vapply(fmls, function(default) {
+        identical(default, quote(expr = )) ||
+            identical(default, quote(lifecycle::deprecated()))
+    }, logical(1))
+    args <- list()
+    for (name in setdiff(names(fmls), c("...", exclude))) {
+        if (skip_if_missing[[name]] &&
+                eval(call("missing", as.name(name)), env)) {
+            next
+        }
+        args[name] <- list(get(name, envir = env, inherits = FALSE))
+    }
+    dot_args <- list()
+    if ("..." %in% names(fmls)) {
+        dot_args <- eval(quote(list(...)), env)
+    }
+    hover_args <- list()
+    if (dots == "hover") {
+        hover_args <- dot_args
+        dot_args <- list()
+    }
+    p <- do.call(plot_fun, c(args, extra, dot_args))
+    if (!is.null(tooltip)) {
+        hover_args$tooltip <- tooltip
+    }
+    do.call("plotHover", c(list(p), hover_args))
+}
+
 #' Make a plot comparing two data frames
 #'
 #' Used internally by the comparison plotting functions such as [plotSpectra2()]
