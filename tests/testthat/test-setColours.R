@@ -36,7 +36,8 @@ test_that("setColours updates species_params and given_species_params", {
     params <- setColours(params, list(test = "orange"))
     expect_null(species_params(params)[["test"]])
     # The colour survives a recalculation of the model
-    params <- setBevertonHolt(params, erepro = 0.5)
+    params <- setBevertonHolt(params, reproduction_level = 0.5,
+                              info_level = 0)
     expect_identical(species_params(params)["Cod", "linecolour"], "black")
 })
 
@@ -77,7 +78,8 @@ test_that("setLinetypes updates species_params and given_species_params", {
     params <- setLinetypes(params, list(test = "dotted"))
     expect_null(species_params(params)[["test"]])
     # The linetype survives a recalculation of the model
-    params <- setBevertonHolt(params, erepro = 0.5)
+    params <- setBevertonHolt(params, reproduction_level = 0.5,
+                              info_level = 0)
     expect_identical(species_params(params)["Cod", "linetype"], "dashed")
 })
 

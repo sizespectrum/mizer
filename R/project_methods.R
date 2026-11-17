@@ -202,32 +202,116 @@ projectEncounter <- function(params, n, n_pp, n_other, t = 0, ...) {
     UseMethod("projectEncounter")
 }
 
-# Resolve rate functions for projection.
+# Track unfinished evaluations only. This contains no computed rates and is
+# cleared on both return and error, including nested requests from callbacks.
+.rate_evaluation_stack <- new.env(parent = emptyenv())
+.rate_evaluation_stack$active <- list()
+
+guard_rate_callback <- function(fun, rate) {
+    force(fun)
+    force(rate)
+    signature <- if (is.primitive(fun)) args(fun) else fun
+    matched_names <- NULL
+    matched_length <- -1L
+    positions <- NULL
+    guarded <- function(...) {
+        args <- list(...)
+        # Match positions and partial names exactly as the provider will. The
+        # placeholder indices avoid embedding models or arrays in the call.
+        # Matching depends only on the argument names and count, not on the
+        # changing state. Reuse it across time steps; a different call shape
+        # (including a nested call) is matched again before inspecting state.
+        if (length(args) != matched_length ||
+                !identical(names(args), matched_names)) {
+            supplied <- as.list(seq_along(args))
+            names(supplied) <- names(args)
+            call <- as.call(c(list(quote(.rate_callback)), supplied))
+            matched <- as.list(match.call(signature, call,
+                                          expand.dots = TRUE))[-1L]
+            positions <<- unlist(matched, use.names = TRUE)
+            matched_names <<- names(args)
+            matched_length <<- length(args)
+        }
+        context_args <- args[positions]
+        names(context_args) <- names(positions)
+        params <- context_args[["params"]]
+        if (is.null(params) && length(context_args) &&
+                inherits(context_args[[1L]], "MizerParams")) {
+            params <- context_args[[1L]]
+        }
+        if (is.null(params)) return(do.call(fun, args))
+        context <- list(params = params,
+                        n = context_args[["n"]] %||% params$initial_n,
+                        n_pp = context_args[["n_pp"]] %||% params$initial_n_pp,
+                        n_other = context_args[["n_other"]] %||%
+                            params$initial_n_other,
+                        t = context_args[["t"]] %||% 0,
+                        effort = context_args[["effort"]] %||%
+                            params$initial_effort,
+                        rdi = context_args[["rdi"]])
+        active <- .rate_evaluation_stack$active
+        # The normal acyclic path compares only short rate identifiers. Model
+        # and state equality is inspected only for a recursive same-rate call.
+        same <- vapply(active, function(entry) identical(entry$rate, rate),
+                       logical(1))
+        repeated <- which(same)
+        for (i in repeated) {
+            if (identical(active[[i]]$context, context)) {
+                chain <- c(vapply(active[i:length(active)], `[[`, "", "rate"),
+                           rate)
+                stop("Rate dependency cycle: ", paste(chain, collapse = " -> "),
+                     ". A provider requested an unfinished rate at the same ",
+                     "model state and time.", call. = FALSE)
+            }
+        }
+        .rate_evaluation_stack$active <- c(active, list(list(
+            rate = rate, context = context
+        )))
+        on.exit(.rate_evaluation_stack$active <- active, add = TRUE)
+        do.call(fun, args)
+    }
+    attr(guarded, "mizer_rate_provider") <- fun
+    guarded
+}
+
+# Keep provider inspection independent of the runtime cycle guard.
+rate_callback_provider <- function(fun) {
+    attr(fun, "mizer_rate_provider", exact = TRUE) %||% fun
+}
+
+# Prepare one rate without resolving unrelated providers. Individual getters
+# and full-rate evaluations therefore use the same dispatch and cycle boundary.
+project_rate_function <- function(params, rate) {
+    name <- params$rates_funcs[[rate]]
+    fun <- if (rate == "RDD" || identical(name, paste0("mizer", rate))) {
+        get(paste0("project", rate), mode = "function")
+    } else {
+        resolve_model_callback(name, paste0("Rate '", rate, "'"))
+    }
+    # Built-in providers with only core methods cannot introduce a recursive
+    # dependency themselves. Keep their hot path unchanged; guard the outer
+    # evaluation and every custom provider or registered contribution.
+    builtin <- identical(name, paste0("mizer", rate)) ||
+        (rate == "RDD" && sub("^mizer::", "", name) %in%
+             c("BevertonHoltRDD", "RickerRDD", "SheperdRDD", "constantRDD",
+               "noRDD"))
+    methods <- tuning_method_names(params, paste0("project", rate))
+    custom_method <- any(!endsWith(methods, "@mizer"))
+    contribution <- (rate == "Encounter" && length(params$other_encounter)) ||
+        (rate == "Mort" && length(params$other_mort))
+    if (rate == "Rates" || !builtin || custom_method || contribution) {
+        guard_rate_callback(fun, rate)
+    } else {
+        fun
+    }
+}
+
+# Resolve callbacks once for a projection or shared analysis evaluation.
 projectRateFunctions <- function(params) {
-    rates_fns <- lapply(params@rates_funcs, resolve_model_callback)
-    rf <- params@rates_funcs
-
-    # For rates still at their defaults, swap in the S3 generics so that
-    # dispatch proceeds through S3 methods and NextMethod(). Rates overridden
-    # via setRateFunction() keep their resolved custom function.
-    if (rf$Encounter       == "mizerEncounter")       rates_fns$Encounter       <- projectEncounter
-    if (rf$FeedingLevel    == "mizerFeedingLevel")    rates_fns$FeedingLevel    <- projectFeedingLevel
-    if (rf$EReproAndGrowth == "mizerEReproAndGrowth") rates_fns$EReproAndGrowth <- projectEReproAndGrowth
-    if (rf$ERepro          == "mizerERepro")          rates_fns$ERepro          <- projectERepro
-    if (rf$EGrowth         == "mizerEGrowth")         rates_fns$EGrowth         <- projectEGrowth
-    if (rf$Diffusion       == "mizerDiffusion")       rates_fns$Diffusion       <- projectDiffusion
-    if (rf$PredRate        == "mizerPredRate")        rates_fns$PredRate        <- projectPredRate
-    if (rf$PredMort        == "mizerPredMort")        rates_fns$PredMort        <- projectPredMort
-    if (rf$FMort           == "mizerFMort")           rates_fns$FMort           <- projectFMort
-    if (rf$Mort            == "mizerMort")            rates_fns$Mort            <- projectMort
-    if (rf$RDI             == "mizerRDI")             rates_fns$RDI             <- projectRDI
-    if (rf$ResourceMort    == "mizerResourceMort")    rates_fns$ResourceMort    <- projectResourceMort
-    if (rf$Rates           == "mizerRates")           rates_fns$Rates           <- projectRates
-    # RDD is special: projectRDD.MizerParams already dispatches internally
-    # via params@rates_funcs$RDD, so always use the S3 generic here.
-    rates_fns$RDD   <- projectRDD
-
-    rates_fns
+    ids <- names(params$rates_funcs)
+    stats::setNames(lapply(ids, function(rate) {
+        project_rate_function(params, rate)
+    }), ids)
 }
 
 # Freeze the recruitment entering the equations after every effective Rates

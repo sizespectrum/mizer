@@ -1,4 +1,39 @@
 # second_order_w ----
+test_that("trapezoidal bin averages preserve size slices and attributes", {
+    for (d in list(4L, c(1L, 4L), c(4L, 1L), c(2L, 3L, 4L),
+                   c(2L, 1L, 3L, 4L), c(0L, 4L))) {
+        x <- array(seq_len(prod(d)), dim = d,
+                   dimnames = lapply(d, function(n) letters[seq_len(n)]))
+        attr(x, "custom") <- "retained"
+        expected <- x
+        width <- prod(d[-length(d)])
+        if (tail(d, 1L) > 1L) {
+            indices <- seq_len(length(x) - width)
+            expected[indices] <- x[indices] + width / 2
+        }
+        actual <- trapezoidal_bin_average(x)
+        expect_equal(actual, expected, tolerance = 0)
+        expect_identical(attributes(actual), attributes(x))
+    }
+    x <- c(first = 1, second = 3, last = 7)
+    expect_equal(trapezoidal_bin_average(x), c(first = 2, second = 5, last = 7),
+                 tolerance = 0)
+    x <- matrix(c(NA_real_, Inf, 1, -Inf, 3, 4), nrow = 2)
+    expect_equal(trapezoidal_bin_average(x),
+                 matrix(c(NA_real_, NaN, 2, -Inf, 3, 4), nrow = 2),
+                 tolerance = 0)
+
+    p <- NS_params_small
+    x <- p$initial_n
+    x[] <- seq_along(x)
+    x <- ArraySpeciesBySize(x, params = p)
+    expected <- x
+    indices <- seq_len(length(x) - nrow(x))
+    expected[indices] <- as.numeric(x)[indices] + nrow(x) / 2
+    expect_equal(trapezoidal_bin_average(x), expected, tolerance = 0)
+    expect_identical(attributes(trapezoidal_bin_average(x)), attributes(x))
+})
+
 test_that("second_order_w slot defaults to c(flux='upwind', bin_average='FALSE')", {
     params <- NS_params_small
     sow <- second_order_w(params)

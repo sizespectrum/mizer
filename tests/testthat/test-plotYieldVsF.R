@@ -21,7 +21,11 @@ test_that("plotYieldVsF returns a MizerScan with return_data", {
     expect_s3_class(d, "data.frame")
     expect_named(d, c("Fishing mortality on Cod", "Yield rate", "Species",
                       "ymin", "ymax", "termination", "converged", "attractor",
-                      "period", "residual"))
+                      "period", "residual", "scope", "assessment_complete",
+                      "assessment"))
+    expect_true(all(d$scope == "whole"))
+    expect_true(all(vapply(d$assessment, inherits, logical(1),
+                           "MizerSteadyAssessment")))
     # One row per fishing mortality, for the one species asked for
     expect_setequal(unique(d$Species), "Cod")
     expect_equal(nrow(d), 3)

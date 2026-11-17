@@ -587,6 +587,9 @@ runExtensionUpgrades <- function(params) {
     if (extension_upgrade_active(params)) return(params)
     reqs <- extensionRequirements(params@extensions)
     if (length(reqs) == 0) return(params)
+    # A failed author migration must not mutate reference-bearing instance
+    # data on the caller's model through a shared environment.
+    params <- clone_params_runtime(params)
     token <- new.env(parent = emptyenv())
     extension_upgrade_runtime$active <-
         c(extension_upgrade_runtime$active, list(token))

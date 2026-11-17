@@ -390,3 +390,35 @@ test_that("Extension parameter changes refresh dependent cached rates", {
     targets <- capture_tuning_targets(p, plan)
     expect_error(finish_tuning(p, plan, targets), "effective equation rate")
 })
+
+test_that("Tuning preparation and callbacks isolate reference-bearing data", {
+    rlang::local_bindings(
+        failing_preserved_value = function(params, ...) {
+            params$other_params$audit$value <- 2
+            stop("deliberate preservation failure")
+        },
+        failing_transaction_balancer = function(params, ...) {
+            params$other_params$audit$value <- 3
+            stop("deliberate transaction failure")
+        }, .env = globalenv()
+    )
+    p <- NS_params_small
+    p$other_params$audit <- new.env(parent = emptyenv())
+    p$other_params$audit$value <- 1
+    block <- p$capabilities$processes$reproduction$tuning
+    id <- block$default
+    block$strategies[[id]]$preserve <- list(
+        audit = list(fun = "failing_preserved_value")
+    )
+    broken <- setProcess(p, "reproduction", tuning = block)
+    expect_error(prepare_tuning(broken), "deliberate preservation failure")
+    expect_identical(p$other_params$audit$value, 1)
+    block$strategies[[id]]$preserve <- list()
+    block$strategies[[id]]$balance_fun <- "failing_transaction_balancer"
+    broken <- setProcess(p, "reproduction", tuning = block)
+    plan <- prepare_tuning(broken, owners = "reproduction", solver = "balance")
+    targets <- capture_tuning_targets(broken, plan)
+    expect_error(finish_tuning(broken, plan, targets),
+                 "deliberate transaction failure")
+    expect_identical(p$other_params$audit$value, 1)
+})

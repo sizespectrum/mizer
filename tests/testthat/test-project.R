@@ -777,6 +777,17 @@ test_that("project(check_steady) judges at the model's own effort", {
                           t_max = 0.1, progress_bar = FALSE, check_steady = TRUE))
 })
 
+test_that("project.MizerSim checks the steady state only when asked", {
+    sim <- project(off_steady_small, t_max = 0.1, progress_bar = FALSE)
+    for (append in c(TRUE, FALSE)) {
+        expect_silent(project(sim, t_max = 0.1, append = append,
+                              progress_bar = FALSE))
+        expect_warning(project(sim, t_max = 0.1, append = append,
+                               progress_bar = FALSE, check_steady = TRUE),
+                       "not at its steady state")
+    }
+})
+
 test_that("project(check_steady) is silenced by info_level 0", {
     withr::local_options(mizer_info_level = 0)
     expect_silent(project(off_steady_small, t_max = 0.1, progress_bar = FALSE,
@@ -1001,6 +1012,54 @@ test_that("subcycling lands exactly on requested time boundaries", {
 })
 
 # Component equations and complete numerical contexts ----
+test_that("built-in resource steps match the complete callback path exactly", {
+    for (second_order in c(FALSE, TRUE)) {
+        p <- NS_params_small
+        second_order_w(p) <- second_order
+        for (resource in list(resource_semichemostat, resource_logistic,
+                              resource_constant)) {
+            wrapped <- function(...) resource(...)
+            for (method in c("euler", "predictor_corrector", "tr_bdf2")) {
+                for (subcycle in c(FALSE, TRUE)) {
+                    args <- list(params = p, dt = 0.01, steps = 3,
+                                 method = method, subcycle = subcycle,
+                                 max_courant = 0.1, info_level = 0)
+                    direct <- do.call(project_simple,
+                                      c(args, list(resource_dynamics_fn =
+                                                       resource)))
+                    complete <- do.call(project_simple,
+                                        c(args, list(resource_dynamics_fn =
+                                                         wrapped)))
+                    expect_equal(direct$n, complete$n, tolerance = 0)
+                    expect_equal(direct$n_pp, complete$n_pp, tolerance = 0)
+                    expect_equal(direct$n_other, complete$n_other,
+                                 tolerance = 0)
+                }
+            }
+        }
+    }
+})
+
+test_that("replacing a built-in resource retains complete midpoint rates", {
+    testthat::local_mocked_bindings(
+        resource_semichemostat = function(params, n_pp, rates, dt, ...) {
+            n_pp[] <- dt * mean(rates$f_mort)
+            n_pp
+        }
+    )
+    p <- NS_params_small
+    functions <- projectRateFunctions(p)
+    rates <- functions$Rates
+    functions$Rates <- function(params, t, ...) {
+        result <- rates(params, t = t, ...)
+        result$f_mort[] <- 1 + t
+        result
+    }
+    out <- project_simple(p, dt = 0.2, steps = 1, method = "tr_bdf2",
+                          rates_fns = functions, info_level = 0)
+    expect_equal(unname(out$n_pp), rep(0.22, length(p$w_full)))
+})
+
 test_that("component derivatives have Euler and Heun temporal order", {
     assign("projection_decay_rate", function(params, n_other, component, ...) {
         -2 * n_other[[component]]

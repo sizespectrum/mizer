@@ -514,7 +514,7 @@ prepare_tuning <- function(params, strategies = NULL, joint = NULL,
                            solver = "project", species = NULL,
                            effort = params$initial_effort, t = 0,
                            preserve = NULL, owners = NULL) {
-    params <- validParams(params)
+    params <- clone_params_runtime(validParams(params))
     if (!solver %in% c(
         "project", "newton",
         "balance"
@@ -862,6 +862,7 @@ tuning_equation_rates <- function(params, plan, rates, t) {
 
 capture_tuning_targets <- function(params, plan, rates = NULL, t = 0,
                                    rdd_target = NULL) {
+    params <- clone_params_runtime(params)
     if (!identical(
         tuning_provider_binding(params),
         plan$binding
@@ -923,6 +924,7 @@ capture_tuning_targets <- function(params, plan, rates = NULL, t = 0,
 }
 
 apply_tuning_balancers <- function(params, plan, targets) {
+    params <- clone_params_runtime(params)
     for (node in plan$selected) {
         if (node$strategy$action == "none") next
         if (!node$joint && identical(node$owners, "reproduction")) {

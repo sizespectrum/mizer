@@ -1,3 +1,23 @@
+test_that("support tops retain exact grid-boundary and out-of-grid behaviour", {
+    p <- NS_params_small
+    w <- p$w
+    cases <- list(c(-Inf, w[1], max(w)), c(w[2] * (1 - 1e-12),
+                                           w[2], w[2] * (1 + 1e-12)),
+                  c(w[5], Inf, NA_real_))
+    for (flux in c("upwind", "van_leer", "centred")) {
+        p$second_order_w$flux <- flux
+        for (limits in cases) {
+            names(limits) <- p$species_params$species
+            p$species_params$w_max <- limits
+            counts <- vapply(limits, function(limit) sum(w <= limit),
+                             integer(1))
+            expected <- pmin(counts + if (flux == "upwind") 1L else 0L,
+                             length(w))
+            expect_identical(support_top_idx(p), expected)
+        }
+    }
+})
+
 test_that("get_transport_coefs works correctly", {
     params <- trait_params_2sp
     # Force different w_min to test zeroing logic

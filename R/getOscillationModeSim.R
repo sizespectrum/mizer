@@ -106,6 +106,7 @@ getOscillationModeSim <- function(x, amplitude = 0.1, t_save = 0.1, ...) {
         params <- x
         # The returned assessment determines whether an equilibrium mode exists.
         stab <- getStability(params, ...)
+        params <- stab$params
     } else if (is.list(x) && is(x$params, "MizerParams")) {
         stab <- x
         params <- stab$params

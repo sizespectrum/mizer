@@ -176,14 +176,22 @@ get_species_time_rate_from_sim <- function(sim, time_range, rate_fun,
 #' @return A character vector of rate names.
 #' @keywords internal
 needed_rates <- function(targets) {
-    need <- character(0)
+    state <- new.env(parent = emptyenv())
+    state$need <- state$visiting <- character()
     visit <- function(x) {
-        if (x %in% need) return(invisible())
+        if (x %in% state$need) return(invisible())
+        if (x %in% state$visiting) {
+            stop("Rate dependency cycle: ",
+                 paste(c(state$visiting, x), collapse = " -> "), ".",
+                 call. = FALSE)
+        }
+        state$visiting <- c(state$visiting, x)
         for (dep in .rate_dependencies[[x]]) visit(dep)
-        need[[length(need) + 1L]] <<- x
+        state$visiting <- utils::head(state$visiting, -1L)
+        state$need <- c(state$need, x)
     }
     for (target in targets) visit(target)
-    need
+    state$need
 }
 
 #' Calculate a selected subset of the rates

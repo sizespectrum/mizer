@@ -56,7 +56,8 @@ The list records \code{scope}, \code{fixed}, \code{prescribed}, \code{required},
 prescribed coordinates for each owner. \code{unavailable} gives each missing
 owner, capability and reason. \code{measures} has columns \code{owner}, \code{measure},
 \code{value}, \code{tolerance}, \code{units} and \code{passed}. A scope with no required
-dynamic owners is steady by construction and has no measures.
+dynamic owners has a passing numerical verdict and no measures; its
+temporal coverage is still reported separately.
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
@@ -82,6 +83,14 @@ Extensions supply named quantitative measures with their own units and
 tolerances. Mizer compares \code{abs(value) <= tolerance} for every row and
 preserves signed values in the report. \code{tol} and \code{atol} apply only to the
 built-in checks. \code{tolerances} overrides measures from any provider.
+
+The numerical verdict describes state drift at time \code{t}. Separately,
+\code{autonomous} reports whether time-independent dynamics are declared for
+every relevant owner: \code{TRUE}, \code{FALSE}, or \code{NA} for unknown support.
+\code{temporal_unavailable} names the owners and reasons preventing that claim.
+Holding a component's state fixed does not remove explicit time dependence
+from its contributions to other equations. A passing instantaneous check
+alone does not establish an equilibrium of a time-dependent model.
 }
 \seealso{
 \code{\link[=isSteady]{isSteady()}}, \code{\link[=getSteadyResidual]{getSteadyResidual()}}

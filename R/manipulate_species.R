@@ -663,7 +663,7 @@ removeSpecies.MizerParams <- function(params, species, compensate = FALSE,
         p <- remap_core_species(params, keep, drop_unused = TRUE)
         p <- apply_transformation_hooks(p, plan)
 
-    validObject(p)
+        p <- validParams(p)
         if (compensate) {
             verify_removal_compensation(p, compensation, keep)
         }
@@ -859,7 +859,7 @@ renameSpecies.MizerParams <- function(params, replace, ...) {
     }
 
     params <- apply_transformation_hooks(params, plan)
-    validObject(params)
+    params <- validParams(params)
 
     params@time_modified <- lubridate::now()
     return(params)
@@ -900,7 +900,7 @@ reorderSpecies.MizerParams <- function(params, species, ...) {
     plan <- prepare_transformation(params, "reorder_species", details)
     candidate <- remap_core_species(params, match(species, current))
     candidate <- apply_transformation_hooks(candidate, plan)
-    validObject(candidate)
+    candidate <- validParams(candidate)
     candidate$time_modified <- lubridate::now()
     candidate
 }

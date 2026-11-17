@@ -3,6 +3,16 @@ delayedAssign("p_stability",
                   NS_params_small, t_max = 50, progress_bar = FALSE
               ), solver = "newton"))
 
+test_that("Missing resource equations yield incomplete stability reports", {
+    p <- setProcess(NS_params_small, "resource", rate_fun = NULL)
+    result <- getStability(p)
+    expect_identical(result$status, "inconclusive")
+    expect_false(result$coverage$complete)
+    expect_identical(result$coverage$missing, "resource")
+    expect_identical(result$assessment$missing, "resource")
+    expect_null(result$eigenvalues)
+})
+
 test_that("getStability returns a well-formed list for a stable model", {
     skip_unless_experimental()
     pn <- p_stability

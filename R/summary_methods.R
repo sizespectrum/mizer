@@ -497,7 +497,7 @@ matched_encounter_by_prey <- function(params, n, n_pp, n_other, t, encounter,
 #' rates" section there. The consumption from each of these food sources is
 #' multiplied by the mean trophic level of the food it provides, averaged over
 #' prey sizes with the weights of the predation kernel stored in the model (see
-#' [getPredKernel()]). An extension that changes which prey sizes are eaten in
+#' [pred_kernel()]). An extension that changes which prey sizes are eaten in
 #' some other way than by storing its kernel in the model with
 #' [setPredKernel()] is therefore not followed here and needs a
 #' `getTrophicLevel()` method of its own. Food from a prey species or the

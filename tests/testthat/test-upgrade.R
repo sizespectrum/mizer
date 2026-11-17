@@ -369,19 +369,26 @@ test_that("Failed upgrades clear runtime guards and remain retryable", {
     captured <- NULL
     fail <- function(p) {
         captured <<- p
+        p$other_params$audit$value <- 2
         p <- setProcess(p, "consumers", autonomous = TRUE)
         stop("migration failed")
     }
     registerS3method("upgrade", "stats", fail, envir = asNamespace("utils"))
     p <- NS_params_small
     p$extensions <- list(stats = c(requirement = NA, version = "0.0.0"))
+    p$other_params$audit <- new.env(parent = emptyenv())
+    p$other_params$audit$value <- 1
     expect_error(validParams(p), "migration failed")
+    expect_equal(p$other_params$audit$value, 1)
+    expect_equal(captured$other_params$audit$value, 2)
     expect_length(extension_upgrade_runtime$active, 0)
     expect_false(extension_upgrade_active(captured))
     expect_null(attr(p, "mizer_extension_upgrade"))
     registerS3method("upgrade", "stats", function(p) p,
                      envir = asNamespace("utils"))
     q <- validParams(captured)
+    expect_equal(q$other_params$audit$value, 2)
+    expect_equal(p$other_params$audit$value, 1)
     expect_false(extension_needs_upgrading(q))
     expect_null(attr(q, "mizer_extension_upgrade"))
     expect_true(extension_needs_upgrading(p))

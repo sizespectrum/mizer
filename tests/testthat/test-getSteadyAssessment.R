@@ -8,6 +8,8 @@ test_that("Whole-model assessments record complete built-in coverage", {
     expect_setequal(report$covered, report$required)
     expect_identical(report$missing, character())
     expect_equal(nrow(report$unavailable), 0)
+    expect_true(report$autonomous)
+    expect_equal(nrow(report$temporal_unavailable), 0)
     expect_equal(nrow(report$measures),
                  nrow(NS_params_small$species_params) + 1)
     expect_identical(report$verdict, all(report$measures$passed))
@@ -306,7 +308,11 @@ test_that("Custom projection providers do not receive unrelated derivatives", {
     expect_true(is.na(attr(report, "drift_report")$drift))
     p <- setProcess(p, "consumers",
                     convergence_fun = "builtin_consumer_assessment")
-    expect_error(getSteadyAssessment(p), "No built-in consumer derivative")
+    report <- getSteadyAssessment(p)
+    expect_identical(report$verdict, NA)
+    expect_identical(report$missing, "consumers")
+    expect_identical(report$unavailable$capability, "equation")
+    expect_match(report$unavailable$reason, "consumer equation is unavailable")
 })
 
 test_that("Prescribed cells are excluded before either quadrature", {
@@ -402,6 +408,65 @@ test_that("Resource assessments use authored equations without probing steps", {
     expect_equal(report$measures$value[report$measures$owner == "resource"],
                  2 * sum(weight))
     expect_identical(report$missing, character())
+})
+
+test_that("Missing equations leave built-in assessment coverage incomplete", {
+    p <- setProcess(NS_params_small, "resource", rate_fun = NULL)
+    report <- getSteadyAssessment(p, tol = 1e6)
+    expect_identical(report$verdict, NA)
+    expect_identical(report$missing, "resource")
+    expect_identical(report$unavailable$capability, "equation")
+    expect_match(report$unavailable$reason, "No resource equation")
+
+    rlang::local_bindings(independent_convergence = function(params, derivative,
+                                                             rates, ...) {
+        stopifnot(is.null(derivative), !is.null(rates$resource_mort))
+        data.frame(measure = "stock_change", value = 0, tolerance = 1,
+                   units = "g/year")
+    }, .env = globalenv())
+    p <- setProcess(p, "resource", convergence_fun = "independent_convergence")
+    report <- getSteadyAssessment(p, tol = 1e6)
+    expect_true(report$verdict)
+    expect_identical(report$missing, character())
+    expect_true("resource" %in% report$covered)
+    expect_null(p$capabilities$processes$resource$rate_fun)
+})
+
+test_that("Temporal coverage stays separate from instantaneous residuals", {
+    p <- setComponent(NS_params_small, "input", initial_value = 1,
+                      dynamics_fun = "constant_other", role = "prescribed")
+    report <- getSteadyAssessment(p, tol = 1e6)
+    expect_true(report$verdict)
+    expect_identical(report$autonomous, NA)
+    expect_identical(report$temporal_unavailable$owner, "component:input")
+    p <- setComponent(p, "input", autonomous = FALSE)
+    report <- getSteadyAssessment(p, tol = 1e6)
+    expect_true(report$verdict)
+    expect_false(report$autonomous)
+    expect_match(report$temporal_unavailable$reason, "nonautonomous")
+
+    report <- getSteadyAssessment(p, tol = 1e6, scope = "conditional",
+                                  fixed = "component:input")
+    expect_true(report$autonomous)
+    expect_equal(nrow(report$temporal_unavailable), 0)
+
+    rlang::local_bindings(forced_input_encounter = function(params, t, ...) {
+        params$initial_n * 0 + sin(t)^2
+    }, .env = globalenv())
+    p <- setComponent(p, "input", encounter_fun = "forced_input_encounter",
+                      autonomous = FALSE)
+    p <- setProcess(p, "consumers", autonomous = TRUE)
+    p <- setProcess(p, "resource", autonomous = TRUE)
+    report <- getSteadyAssessment(p, tol = 1e6, scope = "conditional",
+                                  fixed = "component:input", t = 0)
+    expect_true(report$verdict)
+    expect_false(report$autonomous)
+    expect_identical(report$temporal_unavailable$owner, "component:input")
+    prepared <- prepare_steady_assessment(p, scope = "conditional",
+                                          fixed = "component:input")
+    coverage <- stability_coverage(p, prepared$state_capabilities)
+    expect_identical(coverage$autonomous, report$autonomous)
+    expect_equal(coverage$unavailable$owner, "component:input")
 })
 
 test_that("Prepared masks become stale after their model parameters change", {

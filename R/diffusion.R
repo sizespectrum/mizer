@@ -73,14 +73,9 @@ getDiffusion.MizerParams <- function(object, n = initialN(object),
     params <- validParams(params)
     feeding_level <- getFeedingLevel(params, n = n, n_pp = n_pp,
                                      n_other = n_other, time_range = t)
-    if (params@rates_funcs$Diffusion == "mizerDiffusion") {
-        d <- projectDiffusion(params, n = n, n_pp = n_pp, n_other = n_other,
-                              t = t, feeding_level = feeding_level, ...)
-    } else {
-        f <- get(params@rates_funcs$Diffusion)
-        d <- f(params, n = n, n_pp = n_pp, n_other = n_other, t = t,
-               feeding_level = feeding_level, ...)
-    }
+    f <- project_rate_function(params, "Diffusion")
+    d <- f(params, n = n, n_pp = n_pp, n_other = n_other, t = t,
+           feeding_level = feeding_level, ...)
     ArraySpeciesBySize(d, value_name = "Diffusion rate",
                        units = "g^2/year", params = params)
 }

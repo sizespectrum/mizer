@@ -1136,6 +1136,36 @@ test_that("authored core arrays reach dependent setters and survive", {
     expect_equal(changed$resource_params$a, 2 * p$resource_params$a)
 })
 
+test_that("structural hooks cannot return non-finite core arrays", {
+    rlang::local_bindings(nonfinite_core = function(params, settings, ...) {
+        params[[settings$field]][1, 1] <- NaN
+        params
+    }, .env = globalenv())
+    operations <- list(
+        remove_species = function(p) removeSpecies(p, 1, info_level = 0),
+        rename_species = function(p) {
+            replacement <- setNames("new_name", p$species_params$species[[1L]])
+            renameSpecies(p, replacement)
+        },
+        reorder_species = function(p) {
+            reorderSpecies(p, rev(p$species_params$species))
+        }
+    )
+    for (operation in names(operations)) {
+        for (field in c("initial_n", "search_vol")) {
+            p <- setProcess(NS_params_small, "consumers",
+                transformations = setNames(list(list(
+                    action = "update", transform_fun = "nonfinite_core",
+                    paths = list(field), settings = list(field = field)
+                )), operation)
+            )
+            expect_error(operations[[operation]](p),
+                         paste0(field, " must not contain non-finite"))
+            expect_true(all(is.finite(p[[field]])))
+        }
+    }
+})
+
 test_that("grid changes preserve frozen kernels and fishing arrays", {
     for (second_order in c(FALSE, TRUE)) {
         p <- NS_params_small

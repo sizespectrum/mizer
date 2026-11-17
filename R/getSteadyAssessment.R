@@ -23,6 +23,14 @@
 #' preserves signed values in the report. `tol` and `atol` apply only to the
 #' built-in checks. `tolerances` overrides measures from any provider.
 #'
+#' The numerical verdict describes state drift at time `t`. Separately,
+#' `autonomous` reports whether time-independent dynamics are declared for
+#' every relevant owner: `TRUE`, `FALSE`, or `NA` for unknown support.
+#' `temporal_unavailable` names the owners and reasons preventing that claim.
+#' Holding a component's state fixed does not remove explicit time dependence
+#' from its contributions to other equations. A passing instantaneous check
+#' alone does not establish an equilibrium of a time-dependent model.
+#'
 #' @param params A MizerParams object.
 #' @param tol Relative tolerance for built-in checks, in 1/year.
 #' @param effort Fishing effort at which to assess the state.
@@ -47,7 +55,8 @@
 #'   prescribed coordinates for each owner. `unavailable` gives each missing
 #'   owner, capability and reason. `measures` has columns `owner`, `measure`,
 #'   `value`, `tolerance`, `units` and `passed`. A scope with no required
-#'   dynamic owners is steady by construction and has no measures.
+#'   dynamic owners has a passing numerical verdict and no measures; its
+#'   temporal coverage is still reported separately.
 #' @seealso [isSteady()], [getSteadyResidual()]
 #' @export
 getSteadyAssessment <- function(params, tol = 0.05,
@@ -153,6 +162,7 @@ prepare_steady_assessment <- function(params, tol = 0.05,
         assessment_capability(params, owner)
     }), owners)
     state_capabilities <- prepare_state_capabilities(params, fixed = fixed)
+    builtin_projection <- builtin_consumer_projection(params)
     prescribed <- owners[vapply(state_capabilities, function(specification) {
         !specification$fixed && isTRUE(specification$mask_current) &&
             !any(specification$dynamic_mask)
@@ -179,10 +189,29 @@ prepare_steady_assessment <- function(params, tol = 0.05,
                 reason = specification$reason, stringsAsFactors = FALSE
             ))
         } else {
-            callbacks[[owner]] <- resolve_model_callback(
+            callback <- resolve_model_callback(
                 specification$convergence_fun,
                 paste0("Convergence assessment for '", owner, "'")
             )
+            needs_resource_rhs <- owner == "resource" &&
+                identical(callback, builtin_resource_assessment)
+            missing_resource_rhs <- needs_resource_rhs &&
+                (!isTRUE(state$equation_current) || is.null(state$rate_fun))
+            missing_consumer_rhs <- owner == "consumers" &&
+                identical(callback, builtin_consumer_assessment) &&
+                !builtin_projection
+            if (missing_resource_rhs || missing_consumer_rhs) {
+                unavailable <- rbind(unavailable, data.frame(
+                    owner = owner, capability = "equation",
+                    reason = if (needs_resource_rhs) {
+                        state$equation_reason
+                    } else {
+                        "The built-in consumer equation is unavailable."
+                    }, stringsAsFactors = FALSE
+                ))
+                next
+            }
+            callbacks[[owner]] <- callback
             if (startsWith(owner, "component:")) {
                 component <- substring(owner, nchar("component:") + 1L)
                 name <- active_component_rate_name(params, component)
@@ -194,7 +223,10 @@ prepare_steady_assessment <- function(params, tol = 0.05,
             }
         }
     }
+    temporal <- assessment_temporal_coverage(state_capabilities)
     list(scope = scope, fixed = fixed, rate_constraints = rate_constraints,
+         autonomous = temporal$autonomous,
+         temporal_unavailable = temporal$temporal_unavailable,
          prescribed = prescribed,
          prescribed_masks = lapply(state_capabilities, `[[`, "prescribed_mask"),
          state_capabilities = state_capabilities,
@@ -205,10 +237,28 @@ prepare_steady_assessment <- function(params, tol = 0.05,
          specifications = specifications,
          tol = tol, criterion = criterion, tolerances = tolerances,
          atol = atol, dt = dt,
-         builtin_projection = !is.null(
-             default_process_registry(params)$consumers$convergence_fun
-         ),
+         builtin_projection = builtin_projection,
          model_key = assessment_model_key(params))
+}
+
+assessment_temporal_coverage <- function(states) {
+    unavailable <- data.frame(owner = character(), reason = character(),
+                              stringsAsFactors = FALSE)
+    autonomous <- TRUE
+    for (owner in names(states)) {
+        state <- states[[owner]]
+        if (isTRUE(state$fixed) && !isTRUE(state$temporal_required)) next
+        if (!isTRUE(state$temporal_current) || !isTRUE(state$autonomous)) {
+            unavailable <- rbind(unavailable, data.frame(
+                owner = owner, reason = state$temporal_reason %||%
+                    "Autonomous dynamics have not been declared.",
+                stringsAsFactors = FALSE
+            ))
+            autonomous <- if (identical(state$autonomous, FALSE) ||
+                                  isFALSE(autonomous)) FALSE else NA
+        }
+    }
+    list(autonomous = autonomous, temporal_unavailable = unavailable)
 }
 
 empty_assessment_measures <- function() {
@@ -372,6 +422,8 @@ steady_assessment <- function(params, prepared = NULL,
     }
     report <- structure(list(
         verdict = verdict, scope = prepared$scope, fixed = prepared$fixed,
+        autonomous = prepared$autonomous,
+        temporal_unavailable = prepared$temporal_unavailable,
         prescribed = prepared$prescribed,
         prescribed_masks = prepared$prescribed_masks,
         required = prepared$required,

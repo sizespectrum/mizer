@@ -788,6 +788,48 @@ test_that("conditional settling freezes inputs and restores their dynamics", {
     expect_equal(conv$assessment$time, conv$years)
 })
 
+test_that("passing at one seasonal phase does not establish a fixed point", {
+    rlang::local_bindings(
+        seasonal_step = function(n_other, component, t, dt, ...) {
+            n_other[[component]] +
+                (cos(20 * pi * t) - cos(20 * pi * (t + dt))) / (20 * pi)
+        },
+        seasonal_check = function(t, ...) {
+            data.frame(measure = "phase_rate", value = sin(20 * pi * t),
+                       tolerance = 1e-12, units = "1/year")
+        }, .env = globalenv()
+    )
+    for (temporal in list(FALSE, NULL)) {
+        p <- setComponent(small_steady_params, "seasonal", initial_value = 1,
+                          dynamics_fun = "seasonal_step",
+                          convergence_fun = "seasonal_check",
+                          autonomous = temporal)
+        sim <- projectUntilSettled(
+            p, t_max = 0.2, t_check = 0.1, dt = 0.1, t_save = 0.1,
+            distance_tol = 1, progress_bar = FALSE, info_level = 0
+        )
+        conv <- attr(sim, "convergence")
+        expect_true(conv$converged)
+        expect_true(conv$assessment$verdict)
+        expect_false(isTRUE(conv$assessment$autonomous))
+        expect_true(is.na(conv$attractor))
+        expect_match(steady_assessment_details(conv$assessment),
+                     "instantaneous assessment does not establish")
+        expect_true("component:seasonal" %in%
+                        conv$assessment$temporal_unavailable$owner)
+
+        conditional <- projectUntilSettled(
+            p, t_max = 0.2, t_check = 0.1, dt = 0.1, t_save = 0.1,
+            distance_tol = 1, scope = "conditional",
+            fixed = "component:seasonal", progress_bar = FALSE, info_level = 0
+        )
+        fixed <- attr(conditional, "convergence")
+        expect_true(fixed$assessment$autonomous)
+        expect_identical(fixed$attractor, "fixed_point")
+        expect_identical(fixed$scope, "conditional")
+    }
+})
+
 test_that("settling combines named component measures at the actual time", {
     assign("assessment_state_step", function(n_other, component, dt, ...) {
         list(ready = TRUE)

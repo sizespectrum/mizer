@@ -186,7 +186,7 @@ tuneSteadyState.MizerParams <- function(params,
     if (missing(preserve)) preserve <- NULL
     solver <- match.arg(solver)
     with_info_level(info_level = info_level, {
-        params <- validParams(params)
+        params <- clone_params_runtime(validParams(params))
         effort <- validEffortVector(effort, params = params)
         params@initial_effort <- effort
         if (solver == "project") {
