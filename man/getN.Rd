@@ -10,7 +10,7 @@ getN(object, ...)
 \item{object}{An object of class \code{MizerParams} or \code{MizerSim}.}
 
 \item{...}{
-  Arguments passed on to \code{\link{get_size_range_array}}
+  Arguments passed on to \code{\link{get_size_range_array}}, \code{\link{sizeIntegral}}
   \describe{
     \item{\code{min_w}}{Smallest weight in size range. Defaults to smallest weight in
 the model.}
@@ -20,6 +20,12 @@ model.}
 precedence over \code{min_w}.}
     \item{\code{max_l}}{Largest length in size range. If supplied, this takes precedence
 over \code{max_w}.}
+    \item{\code{exact_bounds}}{Whether the bins at the ends of the size range contribute
+exactly the part of them that lies inside the range (\code{TRUE}) or are
+included or excluded whole according to their left edge (\code{FALSE}). The
+default \code{NULL} uses \code{TRUE} for a model of \code{\link[=defaults_edition]{defaults_edition()}} 3 or later
+and \code{FALSE} for earlier editions. See the section "The size range" in
+\code{\link[=sizeIntegral]{sizeIntegral()}}.}
   }}
 }
 \value{

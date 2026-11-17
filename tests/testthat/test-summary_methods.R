@@ -107,6 +107,28 @@ test_that("get_size_range_array works", {
     expect_identical(names(dimnames(get_size_range_array(params))), c("sp", "w"))
 })
 
+test_that("size_range_limits converts the limits for each row of the grid", {
+    sp <- params@species_params
+    no_sp <- nrow(sp)
+    # Weight limits are recycled over the species
+    limits <- size_range_limits(params, min_w = 1, max_w = 100)
+    expect_identical(limits, list(min_w = rep(1, no_sp),
+                                  max_w = rep(100, no_sp)))
+    # A length limit takes precedence and is converted for each species
+    limits <- size_range_limits(params, min_w = 1, max_w = 100, min_l = 10)
+    expect_equal(limits$min_w, unname(sp$a * 10^sp$b))
+    expect_identical(limits$max_w, rep(100, no_sp))
+    # The resource has a single row and its own weight-length relationship
+    lw <- resource_length_params(params)
+    limits <- size_range_limits(params, min_w = 1e-6, max_w = 1, max_l = 0.2,
+                                resource = TRUE)
+    expect_identical(limits$min_w, 1e-6)
+    expect_equal(limits$max_w, lw$a * 0.2^lw$b)
+    expect_error(size_range_limits(params, min_w = 1:2, max_w = 1,
+                                   resource = TRUE),
+                 "min_w and max_w must be a single number")
+})
+
 
 # getYieldGear ----
 test_that("getYieldGear works",{

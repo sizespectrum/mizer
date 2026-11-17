@@ -114,6 +114,8 @@ function` — carry no such quote, so match those rows on the function name.
 | Warning `"was created with an earlier version of"` mizer for a model saved with mizer 3.4 | the model is upgraded to record its defaults edition | A model keeps the defaults edition it was created with |
 | `plotYieldVsF()` warns that its `tol` argument is deprecated | the name it had in mizerExperimental is accepted again, as the old name of `distance_tol` | `plotYieldVsF()` accepts `tol` again |
 | Message `"does not say how the change is shared between the food"` sources from `getDiet()`, `plotDiet()` or `getTrophicLevel()` | the model's encounter rate is changed by a function registered with `setRateFunction()` or by an extension, and the diet is now split to match it | `getDiet()` and `getTrophicLevel()` follow a changed encounter rate |
+| `getBiomass()`, `getN()`, `getMeanWeight()`, `getProportionOfLargeFish()` or `plotBiomass()` with `min_w`, `max_w`, `min_l` or `max_l` gives a different value for a model created in defaults edition 3 than for the same model in edition 2 | in edition 3 the bins at the ends of the size range count only their part inside it | Summary functions count the ends of a size range exactly in edition 3 |
+| `calibrateBiomass()`, `matchBiomasses()`, `calibrateNumber()` or `matchNumbers()` reach slightly different values in an edition-3 model with a `biomass_cutoff` or `number_cutoff` | the cutoff is the lower end of a size range, and the bin containing it now counts only its part above the cutoff | Summary functions count the ends of a size range exactly in edition 3 |
 
 ### mizer 3.3 → 3.4 — `references/mizer-3.4.md`
 
@@ -322,6 +324,7 @@ the release sections in range.
 |---|---|---|
 | `defaults_edition(2)` or `options(mizer_defaults_edition = …)` followed by code that changes a model created or loaded before it | the switch no longer reaches that model; it keeps its own edition | A model keeps the defaults edition it was created with |
 | A `MizerParams` or `MizerSim` shipped in `data/` | it is upgraded, with a warning, on every use until it is saved again | A model keeps the defaults edition it was created with |
+| `get_size_range_array()` multiplied into a weight to integrate over a size range | it selects whole bins by their left edge, which `getBiomass()` no longer does in an edition-3 model | Summary functions count the ends of a size range exactly in edition 3 |
 
 ### mizer 3.3 → 3.4 — `references/mizer-3.4.md`
 
