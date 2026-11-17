@@ -50,12 +50,13 @@ appears as the second term in the discretised size-spectrum transport
 equation
 \deqn{\frac{\partial N_j}{\partial t} + \frac{J_{j+1} - J_j}{\Delta w_j}
       = -\mu_j N_j.}
-The bin-boundary fluxes \eqn{J_j} are obtained from \code{\link[=getFlux]{getFlux()}}, which
-uses the advective-flux scheme stored in the \code{flux} entry of the
-\code{\link{second_order_w}} slot of \code{params}.  The flux leaving
-the largest size class through the upper boundary (\eqn{J_{K+1}}) is
-evaluated with the same scheme using the boundary condition
-\eqn{N_{K+1} = 0}.
+The bin-boundary fluxes \eqn{J_j} are those that the transport solver uses.
+They are calculated with the advective-flux scheme stored in the \code{flux}
+entry of the \code{\link{second_order_w}} slot of \code{params}, and away
+from a species' upper size cutoff they are the values that \code{\link[=getFlux]{getFlux()}}
+reports. The flux leaving the largest size class through the upper boundary
+(\eqn{J_{K+1}}) is evaluated with the same scheme using the boundary
+condition \eqn{N_{K+1} = 0}.
 }
 \details{
 At a species' upper cutoff the outgoing loss is retained, but the gradient
@@ -64,14 +65,17 @@ Thus differencing the whole \code{\link[=getFlux]{getFlux()}} array without appl
 boundary does not give this diagnostic. Below recruitment size the gradient
 is zero.
 
-The boundary policy matches \code{\link[=getSteadyResidual]{getSteadyResidual()}}: upwind Euler without any
-positive evaluated diffusion can populate excluded bins, so their gradients
-are retained. Populated excluded bins keep their algebraic transport rates,
+For a \code{MizerParams} object the boundary policy is that of the default Euler
+method and matches \code{\link[=getSteadyResidual]{getSteadyResidual()}}: upwind Euler without any positive
+evaluated diffusion can populate excluded bins, so their gradients are
+retained. For a \code{MizerSim} object the policy follows the method that made the
+simulation: \code{"predictor_corrector"} and \code{"tr_bdf2"} always hold the excluded
+bins at zero, so their empty excluded bins have zero gradient even without
+diffusion. Populated excluded bins keep their algebraic transport rates,
 even with diffusion; the instantaneous removal of that tail by projection
 has no finite derivative. At such a populated boundary \code{\link[=getFlux]{getFlux()}} reports
 the retained bin's outgoing flux, while the excluded bin's algebraic equation
-still uses its original inflow. These conventions also apply to simulations
-made with other time-stepping methods.
+still uses its original inflow.
 }
 \examples{
 \donttest{

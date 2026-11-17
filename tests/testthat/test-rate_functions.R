@@ -979,8 +979,9 @@ local_flux_boundary_rates <- function(p, envir = parent.frame()) {
         assign(name, callbacks[[name]], envir = .GlobalEnv)
     }
     withr::defer(rm(list = names(callbacks), envir = .GlobalEnv), envir = envir)
-    p@other_params$flux_growth <- outer(rep(0.1, 3), p@w)
-    p@other_params$flux_diffusion <- outer(rep(0.1, 3), p@w^2)
+    no_sp <- nrow(p@initial_n)
+    p@other_params$flux_growth <- outer(rep(0.1, no_sp), p@w)
+    p@other_params$flux_diffusion <- outer(rep(0.1, no_sp), p@w^2)
     p <- setRateFunction(p, "EGrowth", "flux_boundary_growth")
     p <- setRateFunction(p, "Diffusion", "flux_boundary_diffusion")
     p <- setRateFunction(p, "Mort", "flux_boundary_mort")
@@ -995,6 +996,10 @@ test_that("flux diagnostics retain upper losses without filling the tail", {
             second_order_w(p) <- c(flux = scheme, bin_average = bin_average)
             # Different egg sizes also exercise the recruitment boundary.
             p@species_params$w_min[2] <- p@w[3]
+            # Let the last species reach the final shared-grid bin, so that
+            # the terminal face is covered whatever the fixture's w_max.
+            last <- nrow(p@species_params)
+            p@species_params$w_max[last] <- max(p@w)
             p <- validParams(p)
             top <- support_top_idx(p)
             cells <- cbind(seq_len(nrow(p@initial_n)), top)
@@ -1008,12 +1013,13 @@ test_that("flux diagnostics retain upper losses without filling the tail", {
                                       p@initial_effort, rates = r)
             outflow <- r$rdd - drop((raw * inside) %*% p@dw)
             expect_true(all(outflow > 0))
-            # Cod reaches the final shared-grid bin; its outflow must also
-            # survive, although getFlux() has no node for that terminal face.
-            expect_equal(unname(top[3]), ncol(n))
+            # The last species' outflow must also survive, although getFlux()
+            # has no node for that terminal face.
+            expect_equal(unname(top[last]), ncol(n))
             flux <- getFlux(p)
             gradient <- getFluxGradient(p)
             sp <- which(top < ncol(n))
+            expect_gt(length(sp), 0)
             expect_equal(flux[cbind(sp, top[sp] + 1L)], outflow[sp],
                          ignore_attr = TRUE)
             expect_true(all(gradient[outside] == 0))
@@ -1061,7 +1067,9 @@ test_that("getFlux excludes tail influx with the solver's original limiter", {
             }
             # Preserve the supplied reconstruction history too. Clipping n
             # before evaluating chi would incorrectly change the operator.
-            if (scheme != "upwind") attr(n, "chi") <- matrix(0.4, 3, ncol(n))
+            if (scheme != "upwind") {
+                attr(n, "chi") <- matrix(0.4, nrow(n), ncol(n))
+            }
             p@initial_n <- n
             inside <- col(n) >= p@w_min_idx & col(n) <= top
             r <- getRates(p)
@@ -1141,4 +1149,66 @@ test_that("flux diagnostics share the evaluated global Euler boundary policy", {
         expect_gt(getFlux(p)[1, top + 1L], 0)
         expect_equal(unname(getFluxGradient(p)[1, top + 1L]), 0)
     }
+})
+
+test_that("getFluxGradient for a simulation follows its time-stepping method", {
+    # Without diffusion, upwind Euler moves the outflow on into the excluded
+    # bin, whereas predictor-corrector and TR-BDF2 always hold it at zero.
+    p <- local_flux_boundary_rates(NS_params_small)
+    second_order_w(p) <- FALSE
+    p@other_params$flux_diffusion[] <- 0
+    top <- support_top_idx(p)[1]
+    p@initial_n[] <- 0
+    p@initial_n[1, top] <- 1
+    n <- p@initial_n
+    dt <- 1e-6
+    for (method in c("euler", "predictor_corrector", "tr_bdf2")) {
+        sim <- project(p, t_max = dt, dt = dt, t_save = dt, method = method,
+                       progress_bar = FALSE, info_level = 0)
+        gradient <- getFluxGradient(sim, time_range = c(0, 0))[1, , ]
+        projected <- (finalN(sim)[1, top + 1L] - n[1, top + 1L]) / dt
+        expect_equal(unname(-gradient[1, top + 1L]), unname(projected),
+                     tolerance = 1e-5, info = method)
+        if (method == "euler") {
+            expect_gt(projected, 0)
+        } else {
+            expect_equal(unname(gradient[1, top + 1L]), 0, info = method)
+            # The loss from the last retained bin is unaffected.
+            expect_equal(unname(gradient[1, top]),
+                         unname(getFluxGradient(p)[1, top]), info = method)
+        }
+    }
+})
+
+test_that("flux diagnostics propagate a non-finite state instead of failing", {
+    # Fixed rates keep a non-finite density where it was put. The retained
+    # bins never read the excluded neighbour, just as in the solver.
+    p0 <- local_flux_boundary_rates(NS_params_small)
+    for (scheme in c("upwind", "van_leer")) {
+        p <- p0
+        second_order_w(p) <- c(flux = scheme)
+        top <- support_top_idx(p)
+        sp <- which(top < ncol(p@initial_n))
+        expect_gt(length(sp), 1)
+        retained <- cbind(sp, top[sp])
+        tail <- cbind(sp, top[sp] + 1L)
+        n <- initialN(p)
+        n[tail] <- NaN
+        flux <- getFlux(p, n = n)
+        gradient <- getFluxGradient(p, n = n)
+        expect_true(all(is.finite(flux[retained])))
+        expect_true(all(is.finite(flux[tail])))
+        expect_true(all(is.finite(gradient[retained])))
+        expect_true(all(is.nan(gradient[tail])))
+    }
+
+    # With the model's own rates a non-finite density makes every rate
+    # non-finite. The diagnostics then return NaN rather than an error, also
+    # when the diffusion that selects the boundary policy is itself NaN.
+    p <- NS_params_small
+    p@use_predation_diffusion <- TRUE
+    n <- initialN(p)
+    n[] <- NaN
+    expect_true(all(is.nan(getFlux(p, n = n))))
+    expect_true(all(is.nan(getFluxGradient(p, n = n))))
 })

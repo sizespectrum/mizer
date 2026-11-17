@@ -35,15 +35,31 @@ euler_uses_hard_boundary <- function(diffusion, flux_limiter) {
     flux_limiter != "none" || any(diffusion > 0)
 }
 
+# Whether the time stepping that made `sim` always clears the excluded tail.
+# Predictor-corrector and TR-BDF2 do; Euler decides per state with
+# euler_uses_hard_boundary(). A simulation that records no method (one made by
+# params_as_sim(), say) is treated as Euler, the default of project().
+sim_always_clears_tail <- function(sim) {
+    method <- sim@sim_params$method
+    !is.null(method) && normalise_project_method(method) != "euler"
+}
+
 # Apply the diagnostic convention shared by flux gradients and steady drift.
 # Empty excluded bins cannot fill under the hard boundary. Populated excluded
 # bins retain their algebraic rates: their immediate removal by projection has
 # no finite instantaneous derivative. Never discard losses from retained bins.
+# `hard_boundary = NULL` selects the Euler policy; a caller that knows the time
+# stepping always clears the tail passes TRUE. A non-finite state can leave the
+# policy undecided (NA). Nothing is zeroed then, so the non-finite values reach
+# the caller rather than an error.
 zero_empty_transport_tail <- function(value, params, n, diffusion,
-                                      flux_limiter) {
-    if (euler_uses_hard_boundary(diffusion, flux_limiter)) {
-        empty_tail <- n == 0 & col(n) > support_top_idx(params)
-        value[empty_tail] <- 0
+                                      flux_limiter, hard_boundary = NULL,
+                                      top = support_top_idx(params)) {
+    if (is.null(hard_boundary)) {
+        hard_boundary <- euler_uses_hard_boundary(diffusion, flux_limiter)
+    }
+    if (isTRUE(hard_boundary)) {
+        value[which(n == 0 & col(n) > top)] <- 0
     }
     value
 }
