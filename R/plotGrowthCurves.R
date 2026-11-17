@@ -296,6 +296,5 @@ plotlyGrowthCurves <- function(object, species = NULL,
                                species_panel = FALSE,
                                highlight = NULL,
                                log_x = FALSE, log_y = FALSE, log = NULL) {
-    argg <- as.list(environment())
-    plotHover(do.call("plotGrowthCurves", argg))
+    plotly_forward("plotGrowthCurves")
 }

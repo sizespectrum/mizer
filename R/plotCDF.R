@@ -463,21 +463,7 @@ plotlyCDF <- function(object, species = NULL,
                       size_axis = c("w", "l"),
                       min_w = 0, max_w = Inf,
                       min_l = NULL, max_l = NULL, ...) {
-    size_axis <- plot_size_axis(size_axis)
-    args <- list(object = object, species = species,
-                 geometric_mean = geometric_mean,
-                 wlim = wlim, ylim = ylim,
-                 power = power, biomass = biomass,
-                 per_log_size = per_log_size, total = total,
-                 resource = resource, background = background,
-                 highlight = highlight, normalise = normalise,
-                 log_x = log_x, log_y = log_y, log = log, llim = llim,
-                 size_axis = size_axis, min_w = min_w, max_w = max_w,
-                 min_l = min_l, max_l = max_l, ...)
-    if (!missing(time_range)) {
-        args$time_range <- time_range
-    }
-    plotHover(do.call("plotCDF", args))
+    plotly_forward("plotCDF")
 }
 
 #' @rdname plotCDF2
@@ -496,16 +482,5 @@ plotlyCDF2 <- function(object1, object2, name1 = "First", name2 = "Second",
                        log = NULL, size_axis = c("w", "l"),
                        min_w = 0, max_w = Inf,
                        min_l = NULL, max_l = NULL, ...) {
-    size_axis <- plot_size_axis(size_axis)
-    plotHover(plotCDF2(object1 = object1, object2 = object2,
-                       name1 = name1, name2 = name2,
-                       species = species, wlim = wlim, llim = llim,
-                       ylim = ylim, power = power, biomass = biomass,
-                       per_log_size = per_log_size, total = total,
-                       resource = resource, background = background,
-                       highlight = highlight, normalise = normalise,
-                       log_x = log_x, log_y = log_y,
-                       log = log, size_axis = size_axis,
-                       min_w = min_w, max_w = max_w,
-                       min_l = min_l, max_l = max_l, ...))
+    plotly_forward("plotCDF2")
 }

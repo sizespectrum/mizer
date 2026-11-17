@@ -138,9 +138,6 @@ plotlyBiomass <- function(object,
         lifecycle::deprecate_warn("2.6.0", "plotlyBiomass(end_time)", "plotlyBiomass(tlim)")
         tlim[[2]] <- end_time
     }
-    argg <- as.list(environment())
-    argg$start_time <- NULL
-    argg$end_time <- NULL
-    plotHover(do.call("plotBiomass", argg),
-             tooltip = c("Species", "Year", "Biomass"))
+    plotly_forward("plotBiomass", tooltip = c("Species", "Year", "Biomass"),
+                   exclude = c("start_time", "end_time"))
 }

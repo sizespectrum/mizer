@@ -253,3 +253,52 @@ test_that("comparison renderers hide the LineSpec legend", {
     p2 <- plot2(getBiomass(NS_sim_small), getBiomass(NS_sim_small), species = "Cod")
     expect_equal(p2$scales$get_scales("linewidth")$guide, "none")
 })
+
+test_that("plotly wrappers pass `...` on to their plot function (#564)", {
+    # `all.sizes` is not a formal of `plotlyFMort()`, so it arrives in `...`,
+    # which the wrapper used to drop.
+    built_data <- function(p) plotly::plotly_build(p)$x$data
+    all_sizes <- built_data(plotlyFMort(sim, all.sizes = TRUE))
+    expect_identical(all_sizes,
+                     built_data(plotHover(plotFMort(sim, all.sizes = TRUE))))
+    expect_false(identical(all_sizes, built_data(plotlyFMort(sim))))
+})
+
+test_that("plotly_forward() forwards the arguments of its wrapper", {
+    seen <- NULL
+    fake_plot <- function(object, time_range, start_time, highlight = NULL,
+                          ...) {
+        seen <<- list(time_range = if (!missing(time_range)) time_range,
+                      time_range_missing = missing(time_range),
+                      start_time_missing = missing(start_time),
+                      highlight = highlight, dots = list(...))
+        plotFMort(object)
+    }
+    wrapper <- function(object, time_range,
+                        start_time = lifecycle::deprecated(),
+                        highlight = 2, ...) {
+        plotly_forward(fake_plot)
+    }
+
+    expect_s3_class(wrapper(params), "plotly")
+    # Without a default, a missing argument stays missing, so that the plot
+    # function can apply its own default ...
+    expect_true(seen$time_range_missing)
+    # ... and so does one whose default is `lifecycle::deprecated()`.
+    expect_true(seen$start_time_missing)
+    # The wrapper's own default is forwarded rather than the plot function's.
+    expect_identical(seen$highlight, 2)
+    expect_identical(seen$dots, list())
+
+    wrapper(params, time_range = 1, highlight = 3, power = 0)
+    expect_false(seen$time_range_missing)
+    expect_identical(seen$time_range, 1)
+    expect_identical(seen$highlight, 3)
+    expect_identical(seen$dots, list(power = 0))
+})
+
+test_that("a plotly wrapper leaves a missing `time_range` missing", {
+    # `plotFMort()` then uses the final time of the simulation.
+    expect_identical(plotly::plotly_build(plotlyFMort(sim))$x$data,
+                     plotly::plotly_build(plotHover(plotFMort(sim)))$x$data)
+})

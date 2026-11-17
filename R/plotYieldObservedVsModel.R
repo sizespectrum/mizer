@@ -244,9 +244,8 @@ plotlyYieldObservedVsModel <- function(object, species = NULL, ratio = FALSE,
                                          log_scale = TRUE,
                                          show_unobserved = FALSE,
                                          gear = NULL, ...) {
-    argg <- as.list(environment())
-    argg$labels <- FALSE
-    plotHover(do.call("plotYieldObservedVsModel", argg), ...)
+    plotly_forward("plotYieldObservedVsModel",
+                   extra = list(labels = FALSE), dots = "hover")
 }
 
 
