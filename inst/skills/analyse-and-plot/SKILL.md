@@ -152,9 +152,15 @@ array class. Doing the sum by hand instead means getting all of that right
 yourself, silently and only for some users. Three things are worth knowing:
 
 - **The size range is an argument, not a subsetting step.** `min_w`/`max_w` or
-  `min_l`/`max_l` are passed through to `get_size_range_array()`, which does the
-  length-weight conversion per species and accepts either a single number or one
-  value per species. Never subset the size grid by hand.
+  `min_l`/`max_l` accept either a single number or one value per species, and
+  lengths are converted to weights per species, as in `get_size_range_array()`.
+  In a model of defaults edition 3 the bins at the two ends of the range count
+  only the part of them inside it, so the result changes smoothly as a limit
+  moves; models of earlier editions count each bin whole or not at all, by its
+  left edge. `exact_bounds = TRUE` or `FALSE` chooses either rule for any
+  model. Never subset the size grid by hand, and do not multiply by
+  `get_size_range_array()` yourself: that is the left-edge rule, and in an
+  edition-3 model it does not agree with `getBiomass()`.
 - **Pass the whole product to `weighting`.** If $K$ is a product of several
   size-dependent terms, build the combined product first — SSB uses
   `sweep(params@maturity, 2, params@w, "*")` (maturity $\times$ body weight),

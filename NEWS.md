@@ -64,6 +64,27 @@
   editions 1 and 2, which include every model created with the default edition
   and every model saved with an earlier version of mizer, keep the first-order
   scheme, so their results do not change.
+- In a model of the new defaults edition 3, an integral over a size range
+  counts exactly the part of the bins at the ends of the range that lies
+  inside it. This applies to `sizeIntegral()` and to every summary built on
+  it that takes `min_w`, `max_w`, `min_l` or `max_l`: `getBiomass()`,
+  `getN()`, `getMeanWeight()`, `getMeanLength()`, `getMeanMaxWeight()` and
+  `getProportionOfLargeFish()`, and through the `biomass_cutoff` and
+  `number_cutoff` species parameters to `getBiomass(use_cutoff = TRUE)` and
+  the calibration and matching functions. Previously a boundary bin was
+  counted whole or not at all, according to whether its left edge was inside
+  the range, or under bin averaging at about half, wherever in the bin the
+  limit lay. Either way the result could be out by up to a whole bin and
+  jumped as a limit moved across a bin. Now, with bin averaging, the weighting
+  factor is interpolated linearly across the bin and integrated over the part
+  inside the range by the trapezoidal rule, and without it the left-edge
+  weighting factor is multiplied by the width of that part. Bins entirely
+  inside the range contribute exactly as before, an upper limit at or above
+  the largest grid point includes the whole last bin, and results over the
+  whole size range, including `getSSB()`, `getYield()` and `getYieldGear()`,
+  do not change. Models of editions 1 and 2 keep the left-edge rule. The new
+  `exact_bounds` argument of `sizeIntegral()`, which the summary functions
+  pass on, chooses either rule for any model.
 
 ## New features
 

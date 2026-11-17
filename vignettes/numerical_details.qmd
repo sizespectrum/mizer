@@ -141,7 +141,7 @@ The table below records which factor of each integral is bin-integrated, and whe
 | external mortality and external diffusion sinks | the power laws $z_{ext}w^{d}$ and $D_{ext}w^{n+1}$ | `setExtMort()`, `setExtDiffusion()` |
 | resource semichemostat terms | the power laws $r_{pp}w^{n-1}$ and $\kappa w^{-\lambda}$ | `setResource()`, into `rr_pp` and `cc_pp` |
 | reproduction $\int \psi(w)\,e(w)\,N(w)\,dw$ | the product $\psi e$ | `mizerRDI()` |
-| summary integrals $\int K(w)\,N(w)\,dw$ | the weight $K$: $w$ for biomass, $\psi w$ for SSB, $F w$ for yield, together with the size-range window | `sizeIntegral()`, and `getBiomass()`, `getSSB()`, `getYield()`, … through it |
+| summary integrals $\int_{w_{min}}^{w_{max}} K(w)\,N(w)\,dw$ | the weight $K$: $w$ for biomass, $\psi w$ for SSB, $F w$ for yield, over the part of each bin inside the size range (@sec-size-range-ends) | `size_integral_weights()`, called by `sizeIntegral()`, and so by `getBiomass()`, `getSSB()`, `getYield()`, … |
 
 Two corollaries are worth stating explicitly.
 
@@ -192,12 +192,24 @@ which mizer computes with the internal helper `power_law_bin_average()` and uses
 | reproduction integrand $\psi\,e$ | point value at $w_j$ | trapezoidal bin average |
 | predator factor $(1-f)\gamma$ in the predation integral and the predation-diffusion coefficient | point value at $w_j$ | trapezoidal bin average over the predator bin |
 | summary weights in `sizeIntegral()`, and so in `getBiomass()`, `getN()`, `getSSB()`, `getYield()`, `getYieldGear()` | $K(w_j)$ | trapezoidal bin average of $K$ |
+| a bin at an end of a size range, edition 3 (`exact_bounds = TRUE`) | $K(w_j)$ times the width of the part of the bin inside the range | trapezoidal rule on the part inside the range, with $K$ interpolated linearly across the bin |
+| a bin at an end of a size range, editions 1 and 2 (`exact_bounds = FALSE`) | $K(w_j)\,\Delta w_j$ if $w_j$ is inside the range, else 0 | trapezoidal average of $K$ times the 0/1 window, about half the bin wherever the limit lies |
 | plotting position of a bin-averaged quantity | node $w_j$ | bin centre $w_j\sqrt\beta$ |
 | growth rate $g$, encounter rate $E$, feeding level $f$ | point value at $w_j$ | **unchanged** — point value at $w_j$ |
 
-The last two rows are the ones that are easy to get wrong. `getN()` over the full size range is also unchanged, because its weight is $K\equiv 1$ and the bin average of a constant is the constant; over a restricted size range the window itself is part of the weight, so the bin straddling the boundary contributes only partially. And the growth-type rates stay point values under both settings: they are boundary velocities (@sec-point-values), so bin-averaging them would be an error, not an improvement — what improves them under `bin_average` is that the encounter integral feeding them is now second order, not any averaging of $g$ itself. The feeding level is in that last row and also, as part of $(1-f)\gamma$, in the predator-factor row. This is not a contradiction: the stored rate stays a point value, and only the predation integral and the diffusion coefficient average the product, exactly as reproduction averages $\psi e$ without changing the stored $e$.
+The last two rows are the ones that are easy to get wrong. `getN()` over the full size range is also unchanged, because its weight is $K\equiv 1$ and the bin average of a constant is the constant; over a restricted size range the bins at the two ends of the range contribute only partially, in a way that depends on the defaults edition (@sec-size-range-ends). And the growth-type rates stay point values under both settings: they are boundary velocities (@sec-point-values), so bin-averaging them would be an error, not an improvement — what improves them under `bin_average` is that the encounter integral feeding them is now second order, not any averaging of $g$ itself. The feeding level is in that last row and also, as part of $(1-f)\gamma$, in the predator-factor row. This is not a contradiction: the stored rate stays a point value, and only the predation integral and the diffusion coefficient average the product, exactly as reproduction averages $\psi e$ without changing the stored $e$.
 
 Because one setting is first order and the other second, the difference between them is itself $O(\Delta x)$ and is a usable estimate of the discretisation error of the first-order scheme: if flipping the flag moves a result by more than you are willing to tolerate, the grid is too coarse for that result.
+
+### The ends of a size range {#sec-size-range-ends}
+
+A summary over a size range $[w_{min}, w_{max}]$, such as `getBiomass(params, min_w = 10, max_w = 1000)`, has at each end a bin that lies only partly inside the range. Write $s_0 < s_1$ for the fractions of the width of the bin $[w_j, w_{j+1}]$ at which the part inside the range begins and ends. The density is known only as the bin average $N_j$, so the best available approximation of that part of the integral is $N_j$ times the integral of the weight $K$ over the part. In a model of defaults edition 3, `sizeIntegral()` computes it with the quadrature that it uses for whole bins, which gives the weight
+$$
+W_j = (s_1 - s_0)\,\Delta w_j\,\Big(K_j + (K_{j+1} - K_j)\,\frac{s_0 + s_1}{2}\Big)
+$$ {#eq-boundary-bin-weight}
+under bin averaging. That is the trapezoidal rule on the part inside the range, with $K$ interpolated linearly across the bin. Without bin averaging the weight is $(s_1 - s_0)\,\Delta w_j\,K_j$. A bin entirely inside the range has $s_0 = 0$ and $s_1 = 1$ and keeps, to the last bit, the weight $\bar K_j\,\Delta w_j$ it has in an integral over the whole spectrum. The result changes continuously as a limit moves through a bin, and it is additive: the integrals over $[a, b]$ and $[b, c]$ add up to the one over $[a, c]$ wherever $b$ lies. Treating the density as uniform within the boundary bin leaves an error of second order. The last bin $[w_N, w_N + \Delta w_N]$ has no right-hand neighbour, so $K$ is taken to be constant across it, and an upper limit at or above $w_N$ covers it whole. The default limits, and the explicit `max_w = max(w(params))` that the plotting functions pass, therefore cover the whole spectrum.
+
+Models of editions 1 and 2 keep the rule of earlier versions of mizer. It selects whole bins by their left edge, as `get_size_range_array()` does, so a boundary bin counts in full or not at all. Under bin averaging the 0/1 window is averaged together with $K$, so a boundary bin counts about half, wherever in the bin the limit lies. Either way the error is of first order in the bin width, and the result jumps as a limit crosses a grid point. The `exact_bounds` argument of `sizeIntegral()`, which the summary functions pass on, chooses either rule for any model.
 
 ### Making your own quantity second-order accurate {#sec-second-order-recipe}
 
