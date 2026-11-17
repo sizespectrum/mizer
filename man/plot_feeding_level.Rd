@@ -18,6 +18,7 @@ plot_feeding_level(
   log_x = TRUE,
   log_y = FALSE,
   log = NULL,
+  ylim = c(NA, NA),
   ...
 )
 }
@@ -36,7 +37,7 @@ are removed.}
 \item{include_critical}{Whether to also plot the critical feeding level.}
 
 \item{wlim, llim}{Numeric vectors of length two giving the weight and length
-limits.}
+viewport limits.}
 
 \item{size_axis}{Either \code{"w"} (weight) or \code{"l"} (length).}
 
@@ -46,6 +47,9 @@ plot.}
 \item{log_x, log_y}{Logical flags for log10 axes.}
 
 \item{log}{Optional base-R log argument string or boolean.}
+
+\item{ylim}{Numeric vector of length two giving the y-axis viewport limits.
+On a linear axis they are widened to show the whole interval from 0 to 1.}
 
 \item{...}{Additional arguments passed to \code{\link[=plot.ArraySpeciesBySize]{plot.ArraySpeciesBySize()}}.}
 }

@@ -213,6 +213,9 @@ print.summary.ArraySpeciesBySize <- function(x, ...) {
 #' to an existing plot, use [addPlot()]. All three, and [animate()], have
 #' methods for every mizer array class.
 #'
+#' `wlim`, `llim`, `tlim` and `ylim` only change the visible window. They do
+#' not change the calculations, totals or data returned by `return_data`.
+#'
 #' All methods return a ggplot2 object, unless `return_data = TRUE`, in
 #' which case they return the underlying data frame instead. [plotHover()]
 #' returns a plotly object.
@@ -381,7 +384,7 @@ plot.ArraySpeciesBySize <- function(x, species = NULL,
                 length(ylim) == 2)
     params <- attr(x, "params")
     plot_dat <- ArraySpeciesBySize_plot_data(
-        x, species = species, all.sizes = all.sizes, wlim = wlim, llim = llim,
+        x, species = species, all.sizes = all.sizes,
         total = total, background = background, size_axis = size_axis,
         per_log_size = per_log_size)
 
@@ -443,6 +446,9 @@ parsePlotLog <- function(log, log_x = FALSE, log_y = FALSE) {
 #' `plot2()` compares two compatible mizer array objects in a single ggplot.
 #' Colours identify species or groups, and linetype identifies which object
 #' the values came from.
+#'
+#' Size, time and value limits only change the visible window; both objects
+#' are prepared and their totals calculated from the complete data.
 #'
 #' @param x The first of two compatible mizer array objects to compare.
 #'   Can be an `ArraySpeciesBySize`, `ArrayTimeBySpecies`,
@@ -565,11 +571,11 @@ plot2.ArraySpeciesBySize <- function(x, y, name1 = "First", name2 = "Second",
     # Each array is prepared with its own model, so that a length axis and a
     # density Jacobian use the weight-length relationship the values belong to.
     plot_dat1 <- ArraySpeciesBySize_plot_data(
-        x, species = species, all.sizes = all.sizes, wlim = wlim, llim = llim,
+        x, species = species, all.sizes = all.sizes,
         total = total, background = background, size_axis = size_axis,
         per_log_size = per_log_size)
     plot_dat2 <- ArraySpeciesBySize_plot_data(
-        y, species = species, all.sizes = all.sizes, wlim = wlim, llim = llim,
+        y, species = species, all.sizes = all.sizes,
         total = total, background = background, size_axis = size_axis,
         per_log_size = per_log_size)
 
@@ -591,6 +597,9 @@ plot2.ArraySpeciesBySize <- function(x, y, name1 = "First", name2 = "Second",
 #' objects relative to their average. If the values in the first object are
 #' \eqn{N_1} and the values in the second are \eqn{N_2}, it plots
 #' \deqn{2 (N_2 - N_1) / (N_1 + N_2).}
+#'
+#' Size, time and value limits only change the visible window. The relative
+#' differences and totals are calculated from the complete data.
 #'
 #' @param x The first of two compatible mizer array objects to compare.
 #'   Can be an `ArraySpeciesBySize`, `ArrayTimeBySpecies`,
@@ -703,11 +712,11 @@ plotRelative.ArraySpeciesBySize <- function(x, y, species = NULL,
     # convert weight to length differently, and the two grids no longer
     # coincide, which is why the comparison is interpolated.
     plot_dat1 <- ArraySpeciesBySize_plot_data(
-        x, species = species, all.sizes = all.sizes, wlim = wlim, llim = llim,
+        x, species = species, all.sizes = all.sizes,
         total = total, background = background, size_axis = size_axis,
         per_log_size = per_log_size)
     plot_dat2 <- ArraySpeciesBySize_plot_data(
-        y, species = species, all.sizes = all.sizes, wlim = wlim, llim = llim,
+        y, species = species, all.sizes = all.sizes,
         total = total, background = background, size_axis = size_axis,
         per_log_size = per_log_size)
 
@@ -890,6 +899,9 @@ check_per_log_size <- function(x, per_log_size) {
 #' compatible x variable, and warns if the y variable or y-axis units appear to
 #' differ.
 #'
+#' Limits change the shared viewport without filtering the added data. Each
+#' `NA` endpoint retains the existing viewport limit.
+#'
 #' @param plot A ggplot2 object to which the new values should be added.
 #' @param x An object containing the values to add. Can be an
 #'   `ArraySpeciesBySize`, `ArrayTimeBySpecies`, `ArrayTimeBySpeciesBySize`,
@@ -945,8 +957,8 @@ check_per_log_size <- function(x, per_log_size) {
 #'   **For `ArrayTimeBySpecies` methods:**
 #'   \describe{
 #'     \item{`tlim`}{A numeric vector of length two providing lower and upper
-#'       limits for the time axis, e.g. `c(1980, 2000)`. Use `NA` to apply no
-#'       limit at that end. Default is `c(NA, NA)`.}
+#'       limits for the time axis, e.g. `c(1980, 2000)`. Use `NA` to retain
+#'       the existing limit at that end. Default is `c(NA, NA)`.}
 #'     \item{`ylim`}{A numeric vector of length two providing lower and upper
 #'       limits for the value (y) axis.}
 #'   }
@@ -1006,13 +1018,15 @@ addPlot.ArraySpeciesBySize <- function(plot, x, species = NULL,
 
     plot <- deep_copy(plot)
     plot_dat <- ArraySpeciesBySize_plot_data(
-        x, species = species, all.sizes = all.sizes, wlim = wlim, llim = llim,
+        x, species = species, all.sizes = all.sizes,
         total = total, background = background, size_axis = size_axis,
         per_log_size = per_log_size)
     x_var <- plot_size_x_var(size_axis)
     y_var <- names(plot_dat)[2]
     check_addPlot_compatible(plot, x_var = x_var, y_var = y_var,
                              units = array_units(x, size_axis, per_log_size))
+    plot <- set_plot_viewport(plot,
+                              xlim = plot_size_xlim(wlim, size_axis, llim))
 
     mapping <- aes(x = .data[[x_var]], y = .data[[y_var]],
                    group = .data[["Species"]])
@@ -1122,8 +1136,9 @@ label_units <- function(label) {
 #' Restrict plot data to a range of weights
 #'
 #' Internal helper that filters a plot data frame to the weight range given by
-#' `wlim`. It is exported so that extension packages (such as mizerMR) can reuse
-#' it in their own array `plot()` methods.
+#' `wlim`. mizer's own plots no longer filter by their limits, which only set
+#' the visible window, but the function stays exported for extension packages
+#' (such as mizerMR) that still call it in their own array `plot()` methods.
 #'
 #' @param data A data frame with a numeric `w` column.
 #' @param wlim A length-2 numeric vector giving the lower and upper weight
@@ -1142,9 +1157,9 @@ apply_wlim <- function(data, wlim) {
 #'
 #' Everything a plot of an `ArraySpeciesBySize` needs, prepared once: the
 #' species selection, the background grouping, the masking of sizes outside a
-#' species' own range, the weight limits, the conversion of the values and of
-#' the size coordinate onto the requested axis, the total line, and the length
-#' limits.
+#' species' own range, the conversion of the values and of
+#' the size coordinate onto the requested axis, and the total line. Viewport
+#' limits are applied only when rendering.
 #'
 #' All of it uses the array's *own* `params`. That matters for the comparison
 #' plots, where the two operands may come from different models: a length axis
@@ -1158,9 +1173,6 @@ apply_wlim <- function(data, wlim) {
 #' @param species Character vector of species to include, or `NULL` for all.
 #' @param all.sizes If `FALSE`, values outside a species' size range are
 #'   removed.
-#' @param wlim Numeric vector of length two giving the weight limits.
-#' @param llim Numeric vector of length two giving the length limits, applied
-#'   only on a length axis.
 #' @param total Whether to append the total line, see [total_contributors()].
 #' @param background Whether background species are included.
 #' @param size_axis Either `"w"` (weight) or `"l"` (length).
@@ -1170,31 +1182,26 @@ apply_wlim <- function(data, wlim) {
 #' @keywords internal
 ArraySpeciesBySize_plot_data <- function(x, species = NULL,
                                          all.sizes = FALSE,
-                                         wlim = c(NA, NA), llim = c(NA, NA),
                                          total = FALSE, background = TRUE,
                                          size_axis = "w",
                                          per_log_size = NULL) {
     params <- attr(x, "params")
     size_axis <- plot_size_axis(size_axis)
     plot_dat <- prepare_ArraySpeciesBySize_plot_data(
-        x, species = species, all.sizes = all.sizes, wlim = wlim,
+        x, species = species, all.sizes = all.sizes,
         total = total, background = background)
     plot_dat <- convert_plot_density_axis(plot_dat, params, size_axis,
                                           density_wrt = array_density_wrt(x),
                                           per_log_size = per_log_size)
     if (total) {
-        plot_dat <- append_total_line(plot_dat, total_contributors(x, wlim),
+        plot_dat <- append_total_line(plot_dat, total_contributors(x),
                                       params, size_axis, x, per_log_size)
-    }
-    if (identical(size_axis, "l")) {
-        plot_dat <- filter_plot_length_limits(plot_dat, llim)
     }
     plot_dat
 }
 
 prepare_ArraySpeciesBySize_plot_data <- function(x, species = NULL,
                                                  all.sizes = FALSE,
-                                                 wlim = c(NA, NA),
                                                  total = FALSE,
                                                  background = TRUE) {
     params <- attr(x, "params")
@@ -1228,7 +1235,6 @@ prepare_ArraySpeciesBySize_plot_data <- function(x, species = NULL,
         plot_dat <- plot_dat[complete.cases(plot_dat), ]
     }
 
-    plot_dat <- apply_wlim(plot_dat, wlim)
 
     plot_dat$Legend <- plot_dat$Species
 
@@ -1260,12 +1266,11 @@ prepare_ArraySpeciesBySize_plot_data <- function(x, species = NULL,
 #' share a grid; see [add_total_line()].
 #'
 #' @param x An `ArraySpeciesBySize` object.
-#' @param wlim Numeric vector of length two giving the weight limits.
 #' @return A data frame of plotting data holding every value in the array.
 #' @keywords internal
-total_contributors <- function(x, wlim = c(NA, NA)) {
+total_contributors <- function(x) {
     prepare_ArraySpeciesBySize_plot_data(x, species = NULL, all.sizes = TRUE,
-                                         wlim = wlim, background = TRUE)
+                                         background = TRUE)
 }
 
 #' @rdname plotHover

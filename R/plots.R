@@ -197,9 +197,11 @@ drop_nonpositive_values <- function(frame, var, trans) {
 #'   instead of the default of "identity".
 #' @param ytrans Transformation for the y-axis.
 #' @param xlim A numeric vector of length two providing lower and upper limits
-#'   for the x axis. Use NA to refer to the existing minimum or maximum.
+#'   for the x-axis viewport. Use `NA` for the existing minimum or maximum.
+#'   The limits do not filter data.
 #' @param ylim A numeric vector of length two providing lower and upper limits
-#'   for the y axis. Use NA to refer to the existing minimum or maximum.
+#'   for the y-axis viewport. Use `NA` for the existing minimum or maximum.
+#'   The limits do not filter data.
 #' @param y_ticks The approximate number of ticks desired on the y axis
 #' @param highlight Name or vector of names of the species to be highlighted.
 #' @return A ggplot2 object
@@ -256,6 +258,8 @@ make_linesize <- function(levels, highlight) {
 #'
 #' Attaches the tooltip information to a ggplot object and adds the
 #' `"mizer_plot"` class so that [plotHover()] knows which aesthetics to show.
+#' It also gives the plot the layout that fits an open end of its y limits to
+#' the data visible within its x limits when the plot is built.
 #'
 #' @param plot A ggplot object.
 #' @param tooltip Character vector of variable names to include in the plotly
@@ -264,6 +268,7 @@ make_linesize <- function(levels, highlight) {
 #'   `"mizer_plot"` prepended to its class.
 #' @keywords internal
 make_mizer_plot <- function(plot, tooltip) {
+    plot <- with_mizer_layout(plot)
     attr(plot, "mizer_tooltip") <- tooltip
     class(plot) <- unique(c("mizer_plot", class(plot)))
     plot
@@ -372,7 +377,7 @@ plotHover.mizer_plot <- function(x = ggplot2::last_plot(), ...,
                                      "all") {
     class(x) <- setdiff(class(x), "mizer_plot")
     widget <- withCallingHandlers(
-        plotly::ggplotly(x, ..., tooltip = tooltip),
+        plotly::ggplotly(hover_viewport(x), ..., tooltip = tooltip),
         warning = function(w) {
             if (grepl("transformation introduced infinite values",
                       conditionMessage(w))) {
@@ -643,24 +648,6 @@ plot_size_xlim <- function(wlim, size_axis, llim = c(NA, NA)) {
     if (identical(plot_size_axis(size_axis), "l")) llim else wlim
 }
 
-#' Filter plotting data to the requested length limits
-#'
-#' @param plot_dat A data frame of plotting data, possibly with an `l` (length)
-#'   column.
-#' @param llim Numeric vector of length two giving the lower and upper length
-#'   limits. Use `NA` to apply no limit at that end.
-#' @return `plot_dat` filtered to the length limits, or unchanged if it has no
-#'   `l` column.
-#' @keywords internal
-filter_plot_length_limits <- function(plot_dat, llim) {
-    if (!"l" %in% names(plot_dat)) {
-        return(plot_dat)
-    }
-    if (!is.na(llim[1])) plot_dat <- plot_dat[plot_dat$l >= llim[1], ]
-    if (!is.na(llim[2])) plot_dat <- plot_dat[plot_dat$l <= llim[2], ]
-    plot_dat
-}
-
 #' Assemble the tooltip variables for a size-axis plot
 #'
 #' @param size_axis Either `"w"` (weight) or `"l"` (length).
@@ -708,12 +695,14 @@ proportion_ylim <- function(ylim, log_y, values) {
 #' @return `TRUE` if the plot's y axis uses a log10 transformation.
 #' @keywords internal
 plot_y_is_log <- function(plot) {
-    for (scale in plot$scales$scales) {
-        if ("y" %in% scale$aesthetics) {
-            return(identical(scale$trans$name, "log-10"))
-        }
-    }
-    FALSE
+    plot_axis_is_log(plot, "y")
+}
+
+# Whether a plot's x or y scale is log10.
+plot_axis_is_log <- function(plot, axis) {
+    scale <- plot$scales$get_scales(axis)
+    if (is.null(scale)) return(FALSE)
+    identical(scale$get_transformation()$name, "log-10")
 }
 
 #' Y-axis limits an array's type calls for
@@ -764,7 +753,8 @@ array_log_y <- function(x, log_y, log, given) {
 #'
 #' Each series is interpolated onto the sorted union of all the size
 #' coordinates, linearly in the logarithm of size, since the grid is
-#' logarithmic. A series contributes nothing outside its own range. When the
+#' logarithmic. A density contributes nothing outside its own range; a
+#' cumulative series retains its final value beyond its range. When the
 #' series already share a grid — always on a weight axis, and on a length axis
 #' whenever the weight-length parameters agree — the union is that grid and the
 #' interpolation reproduces the values exactly, so nothing is approximated in
@@ -777,16 +767,18 @@ array_log_y <- function(x, log_y, log, given) {
 #' @param by Names of further columns identifying separate plots, such as the
 #'   time of an animation frame or the model of a comparison. A total is formed
 #'   within each of their combinations.
+#' @param cumulative Whether completed cumulative curves retain their final
+#'   value beyond their last size, rather than contributing zero there.
 #' @return `plot_dat` with the total appended as a series named `"Total"`.
 #' @keywords internal
 add_total_line <- function(plot_dat, x_var = names(plot_dat)[[1]],
-                           value_col = 2, by = NULL) {
+                           value_col = 2, by = NULL, cumulative = FALSE) {
     if (nrow(plot_dat) == 0) return(plot_dat)
     if (is.numeric(value_col)) value_col <- names(plot_dat)[[value_col]]
     if (length(by) > 0) {
         groups <- split(plot_dat, plot_dat[, by, drop = FALSE], drop = TRUE)
         out <- lapply(groups, add_total_line, x_var = x_var,
-                      value_col = value_col)
+                      value_col = value_col, cumulative = cumulative)
         out <- do.call(rbind, unname(out))
         rownames(out) <- NULL
         return(out)
@@ -799,14 +791,27 @@ add_total_line <- function(plot_dat, x_var = names(plot_dat)[[1]],
         y <- series[[value_col]]
         unique_x <- unique(x)
         if (length(unique_x) < 2) {
-            # `approx()` needs two distinct points. Average ties as it does;
-            # a single coordinate contributes only where it sits.
-            hit <- match(unique_x, x_all)
-            total[hit] <- total[hit] + mean(y, na.rm = TRUE)
+            # `approx()` needs two distinct points. Average ties as it does.
+            # A single density coordinate contributes only where it sits; a
+            # cumulative value persists beyond it.
+            y_mean <- mean(y, na.rm = TRUE)
+            if (cumulative) {
+                beyond <- x_all >= unique_x
+                total[beyond] <- total[beyond] + y_mean
+            } else {
+                hit <- match(unique_x, x_all)
+                total[hit] <- total[hit] + y_mean
+            }
             next
         }
+        # A completed cumulative series keeps the value at its last size,
+        # averaged over ties as approx() averages them.
+        last <- mean(y[x == x[length(x)]], na.rm = TRUE)
         contribution <- stats::approx(log(x), y, xout = log(x_all),
-                                      ties = mean)$y
+                                      ties = mean,
+                                      yleft = if (cumulative) 0 else NA_real_,
+                                      yright = if (cumulative) last else
+                                          NA_real_)$y
         contribution[is.na(contribution)] <- 0
         total <- total + contribution
     }
@@ -1447,7 +1452,7 @@ plotYield.MizerSim <- function(object, sim2 = NULL,
                   ylab = "Yield [g/year]",
                   xtrans = ifelse(log_axes$log_x, "log10", "identity"),
                   ytrans = ifelse(log_axes$log_y, "log10", "identity"),
-                  ylim = ylim,
+                  xlim = tlim, ylim = ylim,
                   highlight = highlight, wrap_var = "Simulation")
 }
 
@@ -1552,14 +1557,6 @@ plotYieldGear.MizerSim <- function(object,
     gears <- valid_gears_arg(object, gears, error_on_empty = TRUE)
 
     y <- getYieldGear(object, ...)
-    times <- as.numeric(dimnames(y)[[1]])
-    if (!is.na(tlim[1])) {
-        y <- y[times >= tlim[1], , , drop = FALSE]
-        times <- as.numeric(dimnames(y)[[1]])
-    }
-    if (!is.na(tlim[2])) {
-        y <- y[times <= tlim[2], , , drop = FALSE]
-    }
     y_total <- rowSums(y, dims = 2)
     y <- y[, dimnames(y)$gear %in% gears, dimnames(y)$sp %in% species, drop = FALSE]
     names(dimnames(y))[names(dimnames(y)) == "sp"] <- "Species"
@@ -1583,14 +1580,16 @@ plotYieldGear.MizerSim <- function(object,
     ym$Species <- factor(ym$Species, levels = species_levels)
     ym$Legend <- ym$Species
     linesize <- make_linesize(species_levels, highlight)
+    xtrans <- if (log_axes$log_x) "log10" else "identity"
+    ytrans <- if (log_axes$log_y) "log10" else "identity"
     make_mizer_plot(
         ggplot(ym) +
             geom_line(aes(x = Year, y = Yield, colour = Species,
                           linetype = Gear, linewidth = Legend)) +
-            scale_y_continuous(trans = if (log_axes$log_y) "log10" else "identity",
-                               name = "Yield [g]",
-                               limits = ylim) +
-            scale_x_continuous(trans = if (log_axes$log_x) "log10" else "identity") +
+            scale_y_continuous(trans = ytrans, name = "Yield [g]") +
+            scale_x_continuous(trans = xtrans) +
+            coord_cartesian(xlim = drop_nonpositive_limits(tlim, xtrans),
+                            ylim = drop_nonpositive_limits(ylim, ytrans)) +
             scale_colour_manual(values = params@linecolour[species_levels]) +
             scale_discrete_manual("linewidth", values = linesize),
         c("Species", "Gear", "Year", "Yield")
@@ -1661,16 +1660,14 @@ plotlyYieldGear <- function(object, species = NULL,
 #'   for the w axis. Use NA for the default: the lower default is
 #'   `min(params@w) / 100` when `resource = TRUE` (to show some resource below
 #'   the fish grid) or `min(params@w)` when `resource = FALSE`; the upper
-#'   default is `max(params@w_full)`. Data is filtered to this range and the
-#'   axis limits are set accordingly.
+#'   default is `max(params@w_full)`. These limits only set the visible window;
+#'   they do not filter the returned data or change any calculation.
 #' @param llim A numeric vector of length two providing lower and upper limits
 #'   for the length axis when `size_axis = "l"`. Use `NA` to auto-scale to the
-#'   data range. Data is filtered to this range and the axis limits are set
-#'   accordingly.
+#'   data range. These limits only set the visible window.
 #' @param ylim A numeric vector of length two providing lower and upper limits
-#'   for the y axis. Use NA to auto-scale to the data range. Values below 1e-20
-#'   are always filtered out from the data regardless of `ylim[1]`. Data above
-#'   `ylim[2]` is filtered and the upper axis limit is set accordingly.
+#'   for the y axis. Use `NA` to auto-scale to the data range. These limits
+#'   only set the visible window, without filtering the returned data.
 #' @param biomass Whether to plot the biomass density (`TRUE`, the default) or
 #'   the number density (`FALSE`).
 #' @param per_log_size Whether to plot the density with respect to logarithmic
@@ -1772,19 +1769,8 @@ plotSpectra.MizerSim <- function(object, species = NULL,
     if (length(species) == 0 && !total && !resource) {
         stop("There is nothing to plot as no valid species have been selected.")
     }
-    if (missing(time_range)) {
-        time_range  <- max(as.numeric(dimnames(object@n)$time))
-    }
-    time_elements <- get_time_elements(object, time_range)
-    mean_fn <- mean
-    if (geometric_mean) {
-        mean_fn <- function(x) {
-            exp(mean(log(x)))
-        }
-    }
-    n <- apply(object@n[time_elements, , , drop = FALSE], c(2, 3), mean_fn)
-    n_pp <- apply(object@n_pp[time_elements, , drop = FALSE], 2, mean_fn)
-    plot_spectra(object@params, n = n, n_pp = n_pp,
+    abundance <- sim_mean_abundance(object, time_range, geometric_mean)
+    plot_spectra(object@params, n = abundance$n, n_pp = abundance$n_pp,
                  species = species, wlim = wlim, ylim = ylim,
                  llim = llim,
                  power = spectrum$power, biomass = spectrum$biomass,
@@ -1840,8 +1826,8 @@ plotSpectra.MizerParams <- function(object, species = NULL,
 #' Build the size-spectrum plot
 #'
 #' Internal worker shared by the [plotSpectra()] methods. It assembles the
-#' plotting data frame from the species and resource abundances, applies the
-#' size and abundance limits, optionally converts to a length axis, and either
+#' plotting data frame from the species and resource abundances, optionally
+#' converts to a length axis, and either
 #' returns the data or draws the plot via [plotDataFrame()].
 #'
 #' @param params A MizerParams object.
@@ -1895,48 +1881,18 @@ plot_spectra <- function(params, n, n_pp,
         wlim[2] <- max(w_full_grid)
     }
 
-    species <- valid_species_arg(params, species)
     y_label <- spectra_y_label(power, size_axis, biomass = biomass,
                                per_log_size = per_log_size)
-    n <- sweep(n, 2, w_grid^power, "*")
-    # Select only the desired species
-    spec_n <- n[as.character(dimnames(n)[[1]]) %in% species, , drop = FALSE]
-    # Make data.frame for plot
-    plot_dat <- data.frame(w = rep(w_grid,
-                                   each = dim(spec_n)[[1]]),
-                           value = c(spec_n),
-                           Species = dimnames(spec_n)[[1]],
-                           Legend = dimnames(spec_n)[[1]])
-    if (resource) {
-        resource_sel <- (params@w_full >= wlim[1]) &
-                        (params@w_full <= wlim[2])
-        # Do we have any resource to plot?
-        if (sum(resource_sel) > 0) {
-            w_resource <- w_full_grid[resource_sel]
-            plank_n <- n_pp[resource_sel] * w_resource^power
-            plot_dat <- rbind(plot_dat,
-                              data.frame(w = w_resource,
-                                         value = c(plank_n),
-                                         Species = "Resource",
-                                         Legend = "Resource")
-            )
-        }
-    }
-    if (background && any(params@species_params$is_background)) {
-        back_n <- n[params@species_params$is_background, , drop = FALSE]
-        plot_dat <-
-            rbind(plot_dat,
-                  data.frame(w = rep(w_grid,
-                                     each = dim(back_n)[[1]]),
-                             value = c(back_n),
-                             Species = as.factor(dimnames(back_n)[[1]]),
-                             Legend = "Background")
-            )
-    }
-    # lop off 0s and apply wlim
-    plot_dat <- plot_dat[(plot_dat$value > 0) &
-                             (plot_dat$w >= wlim[1]) &
-                             (plot_dat$w <= wlim[2]), ]
+    series <- abundance_series(params, n, n_pp, power, w_grid, w_full_grid,
+                               background = background)
+    plot_dat <- series[series$Species %in%
+                           shown_series(params, species, resource, background),
+                       , drop = FALSE]
+    # Species first, then the resource, then the background.
+    block <- ifelse(plot_dat$Legend == "Background", 2,
+                    ifelse(plot_dat$Species == "Resource", 1, 0))
+    plot_dat <- plot_dat[order(block), , drop = FALSE]
+    plot_dat <- plot_dat[plot_dat$value > 0, ]
     plot_dat <- convert_plot_spectrum_axis(plot_dat, params, size_axis, power,
                                            per_log_size = per_log_size)
     if (total) {
@@ -1944,41 +1900,23 @@ plot_spectra <- function(params, n, n_pp,
         # whether or not it was selected for display, and the resource, whether
         # or not it is drawn. It is summed over the series as they are plotted,
         # which on a length axis means at equal length rather than at equal
-        # weight.
-        # `n` has already been multiplied by the power of weight above.
-        resource_dat <- data.frame(w = w_full_grid,
-                                   value = c(n_pp * w_full_grid^power),
-                                   Species = "Resource",
-                                   Legend = "Total")
-        total_dat <- rbind(data.frame(w = rep(w_grid, each = nrow(n)),
-                                      value = c(unclass(n)),
-                                      Species = rep(dimnames(n)[[1]],
-                                                    times = length(w_grid)),
-                                      Legend = "Total"),
-                           resource_dat)
-        # Zeros are kept here, unlike in the plotted data: they are part of
-        # each series and dropping them would let the interpolation bridge a
-        # gap that is really empty.
-        total_dat <- total_dat[total_dat$w >= wlim[1] &
-                                   total_dat$w <= wlim[2], ]
+        # weight. Zeros are kept here, unlike in the plotted data: they are
+        # part of each series and dropping them would let the interpolation
+        # bridge a gap that is really empty.
+        total_dat <- series
+        total_dat$Legend <- "Total"
         total_dat <- convert_plot_spectrum_axis(total_dat, params, size_axis,
                                                 power,
                                                 per_log_size = per_log_size)
-        total_dat <- add_total_line(total_dat)
+        total_dat <- add_total_line(total_dat,
+                                    x_var = plot_size_x_var(size_axis),
+                                    value_col = "value")
         total_dat <- total_dat[total_dat$Species == "Total" &
                                    total_dat$value > 0, ]
         plot_dat <- rbind(plot_dat, total_dat[, names(plot_dat), drop = FALSE])
     }
-    if (identical(size_axis, "l")) {
-        plot_dat <- filter_plot_length_limits(plot_dat, llim)
-    }
-    # Impose limits on the displayed density, after its units have been
-    # converted for a length axis.
-    if (!is.na(ylim[2])) {
-        plot_dat <- plot_dat[plot_dat$value <= ylim[2], ]
-    }
-    filter_min <- if (is.na(ylim[1])) 1e-20 else ylim[1]
-    plot_dat <- plot_dat[plot_dat$value > filter_min, ]
+    # Retain the existing negligible-density floor, independently of limits.
+    plot_dat <- plot_dat[plot_dat$value > 1e-20, ]
     names(plot_dat)[2] <- y_label
     if (return_data) return(plot_dat)
 
@@ -1990,11 +1928,66 @@ plot_spectra <- function(params, n, n_pp,
                   highlight = highlight, legend_var = "Legend")
 }
 
+# The abundances of a simulation averaged over `time_range` (by default the
+# final saved time), arithmetically or geometrically, as plotSpectra() and
+# plotCDF() show them.
+sim_mean_abundance <- function(sim, time_range, geometric_mean = FALSE) {
+    if (missing(time_range)) {
+        time_range <- max(as.numeric(dimnames(sim@n)$time))
+    }
+    time_elements <- get_time_elements(sim, time_range)
+    mean_fn <- if (geometric_mean) function(x) exp(mean(log(x))) else mean
+    list(n = apply(sim@n[time_elements, , , drop = FALSE], c(2, 3), mean_fn),
+         n_pp = apply(sim@n_pp[time_elements, , drop = FALSE], 2, mean_fn))
+}
+
+# One row for every size bin of every species and of the resource, holding the
+# abundance times `weight^power`. The rows are placed at `x` (`x_full` for the
+# resource) and the power of weight is evaluated at `weight` (`weight_full`):
+# a spectrum uses one grid for both, a cumulative distribution places rows on
+# the left bin edges but weights them where the scheme does. Background
+# species carry the "Background" legend when `background = TRUE`.
+abundance_series <- function(params, n, n_pp, power, x, x_full,
+                             weight = x, weight_full = x_full,
+                             background = TRUE) {
+    species <- as.character(params@species_params$species)
+    series <- rbind(
+        data.frame(w = rep(x, each = length(species)),
+                   value = c(sweep(unclass(n), 2, weight^power, "*")),
+                   Species = rep(species, times = length(x))),
+        data.frame(w = x_full, value = c(n_pp) * weight_full^power,
+                   Species = "Resource")
+    )
+    series$Legend <- series$Species
+    if (background) {
+        background_species <- species[params@species_params$is_background]
+        series$Legend[series$Species %in% background_species] <- "Background"
+    }
+    series
+}
+
+# The series a spectrum or cumulative plot draws: the selected species, every
+# background species when `background = TRUE` (once, under the "Background"
+# legend, even when it was also selected by name) and the resource when
+# `resource = TRUE`.
+shown_series <- function(params, species, resource, background) {
+    shown <- valid_species_arg(params, species)
+    if (background) {
+        species_params <- params@species_params
+        shown <- union(shown, as.character(
+            species_params$species[species_params$is_background]))
+    }
+    if (resource) shown <- c(shown, "Resource")
+    shown
+}
+
 #' Plot cumulative abundance or biomass distributions
 #'
 #' `plotCDF()` plots the cumulative distribution over body size from small to
-#' large sizes. It uses the same spectra data preparation as [plotSpectra()]:
-#' the number density is multiplied by `w^power` and then integrated over size.
+#' large sizes. The complete number density is multiplied by `w^power` and
+#' integrated over the range chosen by `min_w`, `max_w`, `min_l` and `max_l`.
+#' Plot limits only change the visible window; they do not change the
+#' cumulative values, normalisation, totals or `return_data`.
 #' With `normalise = TRUE`, each curve is divided by its final value so that it
 #' ends at 1.
 #'
@@ -2013,20 +2006,28 @@ plot_spectra <- function(params, n, n_pp,
 #'   species are selected. A vector of species names, or a numeric vector with
 #'   the species indices, or a logical vector indicating for each species
 #'   whether it is to be selected (TRUE) or not.
-#' @param wlim A numeric vector of length two providing lower and upper limits
-#'   for the w axis. Use NA for the default: the lower default is
-#'   `min(params@w) / 100` when `resource = TRUE` (to show some resource below
-#'   the fish grid) or `min(params@w)` when `resource = FALSE`; the upper
-#'   default is `max(params@w_full)`. Data is filtered to this range and the
-#'   axis limits are set accordingly.
+#' @param min_w,max_w Single non-negative numbers giving the weight range in
+#'   grams to integrate over. Defaults are 0 and `Inf`, covering the complete
+#'   grid.
+#'   A bin at an end of the range contributes exactly the part of it inside
+#'   the range. Each bin is weighted as by [sizeIntegral()] with
+#'   `exact_bounds = TRUE`, so the end of an unnormalised curve is what
+#'   [getBiomass()] (or [getN()] when `power = 0`) reports for the same range
+#'   with `exact_bounds = TRUE`, which is their default in a model of
+#'   [defaults_edition()] 3. In models of editions 1 and 2 those functions
+#'   count a bin at an end of the range whole or not at all by default.
+#' @param min_l,max_l Optional single non-negative numbers giving the length
+#'   range in centimetres to integrate over. Each overrides the corresponding
+#'   weight bound, using each species' own length-weight relationship, including
+#'   the resource's equivalent-sphere convention. Independent of `size_axis`.
+#' @param wlim A numeric vector of length two giving the visible weight-axis
+#'   limits. Use `NA` to auto-scale. Does not select the integration range.
 #' @param llim A numeric vector of length two providing lower and upper limits
 #'   for the length axis when `size_axis = "l"`. Use `NA` to auto-scale to the
-#'   data range. Data is filtered to this range and the axis limits are set
-#'   accordingly.
+#'   data range. These limits only set the visible window.
 #' @param ylim A numeric vector of length two providing lower and upper limits
-#'   for the y axis. Use NA to auto-scale to the data range. Values below 1e-20
-#'   are always filtered out from the data regardless of `ylim[1]`. Data above
-#'   `ylim[2]` is filtered and the upper axis limit is set accordingly.
+#'   for the y axis. Use `NA` to auto-scale to the data range. These limits
+#'   only set the visible window, without filtering the returned data.
 #' @param biomass Whether to plot the cumulative biomass (`TRUE`, the default)
 #'   or the cumulative abundance (`FALSE`).
 #' @param per_log_size Only `FALSE` (the default) is accepted; see Details.
@@ -2047,7 +2048,8 @@ plot_spectra <- function(params, n, n_pp,
 #'   being plotted with thicker lines.
 #' @param normalise If `TRUE` (default), plot the cumulative proportion. If
 #'   `FALSE`, plot the cumulative abundance, biomass, or other unnormalised
-#'   integral.
+#'   integral. A curve with zero mass in the integration range has `NA`
+#'   normalised values (and zero unnormalised values).
 #' @param log_x If `TRUE` (default), use a log10 x-axis.
 #' @param log_y If `TRUE`, use a log10 y-axis. Default is `FALSE`.
 #' @param log Character string specifying which axes should use a log10 scale,
@@ -2084,7 +2086,8 @@ plotCDF <- function(object, species = NULL,
                     total = FALSE,
                     resource = FALSE, background = TRUE, highlight = NULL,
                     normalise = TRUE, log_x = TRUE, log_y = FALSE, log = NULL,
-                    size_axis = c("w", "l"), return_data = FALSE, ...) {
+                    size_axis = c("w", "l"), return_data = FALSE,
+                    min_w = 0, max_w = Inf, min_l = NULL, max_l = NULL, ...) {
     UseMethod("plotCDF")
 }
 
@@ -2103,32 +2106,20 @@ plotCDF.MizerSim <- function(object, species = NULL,
                              size_axis = c("w", "l"),
                              return_data = FALSE,
                              time_range,
-                             geometric_mean = FALSE, ...) {
-    size_axis <- plot_size_axis(size_axis)
-    power <- resolve_cdf_power(power, biomass, per_log_size)$power
-    log_axes <- parsePlotLog(log, log_x = log_x, log_y = log_y)
-    assert_that(is.flag(total), is.flag(resource),
-                is.flag(background), is.flag(normalise),
-                length(wlim) == 2,
-                length(llim) == 2,
-                length(ylim) == 2)
-
-    args <- list(object = object, species = species,
-                 geometric_mean = geometric_mean,
-                 wlim = wlim, llim = llim, ylim = c(NA, NA),
-                 power = power, total = total,
-                 resource = resource, background = background,
-                 size_axis = "w",
-                 return_data = TRUE)
-    if (!missing(time_range)) {
-        args$time_range <- time_range
-    }
-    plot_dat <- do.call(plotSpectra, args)
-    plot_cdf(plot_dat, object@params, power = power, normalise = normalise,
-             log_x = log_axes$log_x, log_y = log_axes$log_y,
-             wlim = wlim, ylim = ylim,
-             llim = llim, highlight = highlight, size_axis = size_axis,
-             return_data = return_data)
+                             geometric_mean = FALSE,
+                             min_w = 0, max_w = Inf,
+                             min_l = NULL, max_l = NULL, ...) {
+    abundance <- sim_mean_abundance(object, time_range, geometric_mean)
+    params <- object@params
+    params@initial_n[] <- abundance$n
+    params@initial_n_pp[] <- abundance$n_pp
+    plotCDF(params, species = species, wlim = wlim, llim = llim, ylim = ylim,
+            power = power, biomass = biomass, per_log_size = per_log_size,
+            total = total, resource = resource, background = background,
+            highlight = highlight, normalise = normalise,
+            log_x = log_x, log_y = log_y, log = log, size_axis = size_axis,
+            return_data = return_data, min_w = min_w, max_w = max_w,
+            min_l = min_l, max_l = max_l, ...)
 }
 
 #' @rdname plotCDF
@@ -2144,7 +2135,9 @@ plotCDF.MizerParams <- function(object, species = NULL,
                                 highlight = NULL, normalise = TRUE,
                                 log_x = TRUE, log_y = FALSE, log = NULL,
                                 size_axis = c("w", "l"),
-                                return_data = FALSE, ...) {
+                                return_data = FALSE,
+                                min_w = 0, max_w = Inf,
+                                min_l = NULL, max_l = NULL, ...) {
     size_axis <- plot_size_axis(size_axis)
     power <- resolve_cdf_power(power, biomass, per_log_size)$power
     log_axes <- parsePlotLog(log, log_x = log_x, log_y = log_y)
@@ -2154,161 +2147,128 @@ plotCDF.MizerParams <- function(object, species = NULL,
                 length(llim) == 2,
                 length(ylim) == 2)
 
-    plot_dat <- plotSpectra(object, species = species,
-                            wlim = wlim, ylim = c(NA, NA),
-                            llim = llim,
-                            power = power, total = total,
-                            resource = resource, background = background,
-                            size_axis = "w",
-                            return_data = TRUE)
-    plot_cdf(plot_dat, object, power = power, normalise = normalise,
+    plot_cdf(object, power = power, normalise = normalise,
              log_x = log_axes$log_x, log_y = log_axes$log_y,
-             wlim = wlim, ylim = ylim,
-             llim = llim, highlight = highlight, size_axis = size_axis,
-             return_data = return_data)
+             wlim = wlim, ylim = ylim, llim = llim,
+             highlight = highlight, size_axis = size_axis,
+             return_data = return_data, species = species, total = total,
+             resource = resource, background = background,
+             min_w = min_w, max_w = max_w, min_l = min_l, max_l = max_l)
 }
 
-#' Build the cumulative-distribution plot
-#'
-#' Internal worker shared by the [plotCDF()] methods. It integrates the spectra
-#' data over size (optionally normalising), converts to a length axis if
-#' requested, and either returns the data or draws the plot via
-#' [plotDataFrame()].
-#'
-#' @param plot_dat Spectra plotting data as produced for [plotSpectra()].
-#' @param params A MizerParams object.
-#' @param power The power of weight that the abundance was multiplied by, used
-#'   for the y-axis label.
-#' @param normalise If `TRUE`, each curve is divided by its final value.
-#' @param log_x,log_y Logical flags for log10 axes.
-#' @param wlim,llim Numeric vectors of length two giving the weight and length
-#'   limits.
-#' @param ylim Numeric vector of length two giving the y-axis limits.
-#' @param highlight Name or vector of names of species to be highlighted.
-#' @param size_axis Either `"w"` (weight) or `"l"` (length).
-#' @param return_data If `TRUE`, return the cumulative-distribution data frame
-#'   instead of the plot.
-#' @return A `mizer_plot` (ggplot2) object, or the data frame if
-#'   `return_data = TRUE`.
-#' @keywords internal
-plot_cdf <- function(plot_dat, params, power, normalise, log_x, log_y, wlim, llim,
-                     ylim, highlight, size_axis, return_data) {
+# Build CDFs from complete, unfiltered abundance data. A display selection must
+# never decide which species or resource bins contribute to the community total.
+plot_cdf <- function(params, power, normalise, log_x, log_y, wlim, llim,
+                     ylim, highlight, size_axis, return_data, species,
+                     total, resource, background,
+                     min_w = 0, max_w = Inf, min_l = NULL, max_l = NULL) {
     params <- validParams(params)
-    size_axis <- plot_size_axis(size_axis)
-    had_total <- "Total" %in% plot_dat$Species
-    # A CDF value is cumulative *up to a size* — a boundary quantity — so it
-    # belongs on the bin edges, not the bin centres. Under second-order
-    # bin-averaging `plot_spectra()` returns its density on the geometric bin
-    # centres (issue #383). Here we map those back to the grid nodes
-    # (w = w* / sqrt(beta)) so that `prepare_spectra_cdf_data()` can look up the
-    # bin widths and form the bin integrals; that helper then places the
-    # cumulative on the *upper* bin edges (see its comments for the inclusive
-    # convention). The density *values* are kept centre-weighted, so each
-    # increment value * dw_k = N_k (w*_k)^power dw_k is the second-order bin
-    # integral of N w^power. (See get_ArraySpeciesBySize_w() and the
-    # FFT/numerical-details vignettes.)
-    if (isTRUE(params@second_order_w[["bin_average"]])) {
-        beta <- params@w_full[2] / params@w_full[1]
-        plot_dat$w <- plot_dat$w / sqrt(beta)
+    shown <- shown_series(params, species, resource, background)
+    if (total) shown <- c(shown, "Total")
+    series <- abundance_series(params, params@initial_n, params@initial_n_pp,
+                               power = 0, x = params@w, x_full = params@w_full,
+                               background = background)
+    # A total includes every contributor, whichever curves are drawn.
+    contributors <- if (total) unique(series$Species) else shown
+    cdf_dat <- prepare_spectra_cdf_data(series, params, power,
+                                        min_w = min_w, max_w = max_w,
+                                        min_l = min_l, max_l = max_l,
+                                        contributors = contributors)
+    cdf_dat <- cdf_dat[cdf_dat$Species %in% contributors, , drop = FALSE]
+    cdf_dat <- convert_plot_size_axis(cdf_dat, params, size_axis)
+    if (total) {
+        cdf_dat <- add_total_line(cdf_dat, x_var = plot_size_x_var(size_axis),
+                                  value_col = "value", cumulative = TRUE)
     }
-    if (identical(size_axis, "l")) {
-        plot_dat_l <- convert_plot_size_axis(plot_dat, params, size_axis,
-                                             drop_w = FALSE)
-        plot_dat_l <- filter_plot_length_limits(plot_dat_l, llim)
-        plot_dat <- plot_dat_l[, setdiff(names(plot_dat_l), "l"),
-                                drop = FALSE]
-        cdf_dat <- prepare_spectra_cdf_data(plot_dat, params,
-                                            normalise = FALSE)
-        cdf_dat <- convert_plot_size_axis(cdf_dat, params, size_axis)
-        if (had_total) {
-            cdf_dat <- add_total_line(cdf_dat, x_var = "l",
-                                      value_col = names(cdf_dat)[2])
-        }
-        if (normalise) {
-            totals <- stats::ave(cdf_dat[[names(cdf_dat)[2]]],
-                                 cdf_dat$Species, FUN = max)
-            cdf_dat[[names(cdf_dat)[2]]] <- cdf_dat[[names(cdf_dat)[2]]] / totals
-        }
-    } else {
-        cdf_dat <- prepare_spectra_cdf_data(plot_dat, params,
-                                            normalise = normalise)
-        cdf_dat <- convert_plot_size_axis(cdf_dat, params, size_axis)
+    cdf_dat <- cdf_dat[cdf_dat$Species %in% shown, , drop = FALSE]
+    if (nrow(cdf_dat) == 0) {
+        stop("The CDF integration bounds do not overlap ",
+             "the selected size grids.")
     }
-    cdf_y <- cdf_y_label(power, normalise)
-    names(cdf_dat)[2] <- cdf_y
+    if (normalise) cdf_dat <- normalise_cdf(cdf_dat)
+    names(cdf_dat)[names(cdf_dat) == "value"] <- cdf_y_label(power, normalise)
     if (return_data) return(cdf_dat)
 
     plotDataFrame(cdf_dat, params,
                   xlab = plot_size_xlab(size_axis),
-                  ylab = cdf_y,
+                  ylab = cdf_y_label(power, normalise),
                   xtrans = if (log_x) "log10" else "identity",
                   ytrans = if (log_y) "log10" else "identity",
                   xlim = plot_size_xlim(wlim, size_axis, llim), ylim = ylim,
                   highlight = highlight, legend_var = "Legend")
 }
 
-#' Integrate spectra data into a cumulative distribution
-#'
-#' Multiplies the spectra density by the size-bin widths and forms the
-#' cumulative sum over size for each species, optionally normalising each curve
-#' to end at 1.
-#'
-#' @param plot_dat Spectra plotting data with a `w` column, a `Species` column
-#'   and the value in the second column.
-#' @param params A MizerParams object, used for the size-bin widths.
-#' @param normalise If `TRUE` (default), divide each species' curve by its
-#'   maximum.
-#' @return The plotting data with the value column replaced by its cumulative
-#'   distribution over size.
-#' @keywords internal
-prepare_spectra_cdf_data <- function(plot_dat, params, normalise = TRUE) {
-    params <- validParams(params)
-    y_var <- names(plot_dat)[2]
-    plot_dat <- plot_dat[order(plot_dat$Species, plot_dat$w), ]
-    # Each bin contributes its integral, value * dw_k, which under second-order
-    # bin-averaging is N_k (w*_k)^power dw_k, the second-order bin integral of
-    # N w^power.
-    widths <- spectra_bin_width(plot_dat$w, params)
-    plot_dat[[y_var]] <- plot_dat[[y_var]] * widths
-    # The cumulative sum is *inclusive*: the sum through bin k integrates
-    # N w^power over all bins up to and including bin k, so it equals the CDF at
-    # that bin's *upper* edge w_k + dw_k, not at its left edge w_k.
-    plot_dat[[y_var]] <- stats::ave(plot_dat[[y_var]], plot_dat$Species,
-                                    FUN = cumsum)
-    if (normalise) {
-        totals <- stats::ave(plot_dat[[y_var]], plot_dat$Species, FUN = max)
-        plot_dat[[y_var]] <- plot_dat[[y_var]] / totals
+# The CDF takes scalar integration bounds.
+check_cdf_bounds <- function(min_w, max_w, min_l, max_l) {
+    bounds <- list(min_w = min_w, max_w = max_w, min_l = min_l, max_l = max_l)
+    for (name in names(bounds)) {
+        value <- bounds[[name]]
+        if (is.null(value) && name %in% c("min_l", "max_l")) next
+        if (!is.numeric(value) || length(value) != 1 || is.na(value) ||
+                value < 0 || (startsWith(name, "min") && !is.finite(value))) {
+            stop("`", name, "` must be a single non-negative number",
+                 if (startsWith(name, "min")) " that is finite." else ".")
+        }
     }
-    # Make the inclusive convention explicit by placing each cumulative value at
-    # its bin's upper edge w_k + dw_k, the size up to which it accumulates. This
-    # corrects the historical one-bin (O(dx)) location offset (the inclusive sum
-    # was previously plotted at the left edge) and applies in both the default
-    # and the second-order schemes.
-    plot_dat$w <- plot_dat$w + widths
-    plot_dat
 }
 
-#' Look up the size-bin widths for spectra data
-#'
-#' Matches the weights in the plotting data to the model's full size grid and
-#' returns the corresponding bin widths.
-#'
-#' @param w Numeric vector of weights.
-#' @param params A MizerParams object.
-#' @return A numeric vector of bin widths, one for each entry of `w`.
-#' @keywords internal
-spectra_bin_width <- function(w, params) {
-    idx <- match(w, params@w_full)
-    if (anyNA(idx)) {
-        missing <- which(is.na(idx))
-        for (i in missing) {
-            idx[i] <- which.min(abs(params@w_full - w[i]))
+# Accumulate abundance over size. `series` holds the abundance of every bin of
+# every species and of the resource, as abundance_series() lays it out with
+# power 0. Each bin is weighted by the quadrature weight that
+# size_integral_weights() gives it for `w^power` with exact bounds, so the end
+# of a curve is the integral that getBiomass() or getN() reports over the same
+# range with `exact_bounds = TRUE`, in both numerical schemes. A cumulative
+# value belongs on the upper edge of the part of its bin inside the range.
+#
+# Length bounds convert to different weights for each species and for the
+# resource, so they can be in order for some and crossed for others. Only the
+# `contributors`, the series that are drawn or summed into a total, must have
+# them in order; any other series gets zero weights and is discarded.
+prepare_spectra_cdf_data <- function(series, params, power,
+                                     min_w = 0, max_w = Inf,
+                                     min_l = NULL, max_l = NULL,
+                                     contributors = unique(series$Species)) {
+    check_cdf_bounds(min_w, max_w, min_l, max_l)
+    bins <- lapply(c(FALSE, TRUE), function(resource) {
+        w <- if (resource) params@w_full else params@w
+        dw <- if (resource) params@dw_full else params@dw
+        limits <- size_range_limits(params, min_w = min_w, max_w = max_w,
+                                    min_l = min_l, max_l = max_l,
+                                    resource = resource)
+        row_names <- if (resource) "Resource" else
+            as.character(params@species_params$species)
+        checked <- row_names %in% contributors
+        if (any(limits$min_w[checked] >= limits$max_w[checked])) {
+            stop("Each CDF lower integration bound must be less than ",
+                 "its upper bound.")
         }
-        if (!isTRUE(all.equal(w, params@w_full[idx], scale = 1))) {
-            stop("Could not determine size-bin widths for the spectra data.")
-        }
-    }
-    params@dw_full[idx]
+        weight <- size_integral_weights(params, weighting = w^power,
+                                        min_w = min_w, max_w = max_w,
+                                        min_l = min_l, max_l = max_l,
+                                        exact_bounds = TRUE,
+                                        resource = resource)$weights
+        # As in size_integral_weights(), an upper bound at or beyond the last
+        # grid point covers the whole last bin.
+        upper <- limits$max_w
+        upper[upper >= max(w)] <- Inf
+        rows <- length(upper)
+        list(weight = c(weight),
+             end = pmin(rep(w + dw, each = rows),
+                        rep(upper, times = length(w))))
+    })
+    series$value <- series$value * c(bins[[1]]$weight, bins[[2]]$weight)
+    series$w <- c(bins[[1]]$end, bins[[2]]$end)
+    covered <- which(c(bins[[1]]$weight, bins[[2]]$weight) > 0)
+    series <- series[covered, , drop = FALSE]
+    series <- series[order(series$Species, series$w), , drop = FALSE]
+    series$value <- stats::ave(series$value, series$Species, FUN = cumsum)
+    series
+}
+
+normalise_cdf <- function(plot_dat) {
+    totals <- stats::ave(plot_dat$value, plot_dat$Species, FUN = max)
+    plot_dat$value <- ifelse(totals > 0, plot_dat$value / totals, NA_real_)
+    plot_dat
 }
 
 #' Y-axis label for a cumulative-distribution plot
@@ -2374,21 +2334,27 @@ plotCDF2 <- function(object1, object2, name1 = "First", name2 = "Second",
                      highlight = NULL,
                      normalise = TRUE,
                      log_x = TRUE, log_y = FALSE,
-                     log = NULL, size_axis = c("w", "l"), ...) {
+                     log = NULL, size_axis = c("w", "l"),
+                     min_w = 0, max_w = Inf,
+                     min_l = NULL, max_l = NULL, ...) {
     size_axis <- plot_size_axis(size_axis)
     power <- resolve_cdf_power(power, biomass, per_log_size)$power
     log_axes <- parsePlotLog(log, log_x = log_x, log_y = log_y)
     assert_that(is.flag(normalise),
                 length(wlim) == 2, length(llim) == 2, length(ylim) == 2)
 
-    cf1 <- plotCDF(object1, species = species, wlim = wlim,
+    cf1 <- plotCDF(object1, species = species,
                    power = power, total = total, resource = resource,
                    background = background, normalise = normalise,
-                   size_axis = size_axis, return_data = TRUE, ...)
-    cf2 <- plotCDF(object2, species = species, wlim = wlim,
+                   size_axis = size_axis, return_data = TRUE,
+                   min_w = min_w, max_w = max_w,
+                   min_l = min_l, max_l = max_l, ...)
+    cf2 <- plotCDF(object2, species = species,
                    power = power, total = total, resource = resource,
                    background = background, normalise = normalise,
-                   size_axis = size_axis, return_data = TRUE, ...)
+                   size_axis = size_axis, return_data = TRUE,
+                   min_w = min_w, max_w = max_w,
+                   min_l = min_l, max_l = max_l, ...)
     params <- if (is(object1, "MizerSim")) object1@params else object1
 
     plotComparisonDataFrame(cf1, cf2, params,
@@ -2734,7 +2700,9 @@ plotlyCDF <- function(object, species = NULL,
                       background = TRUE,
                       highlight = NULL, normalise = TRUE,
                       log_x = TRUE, log_y = FALSE, log = NULL,
-                      size_axis = c("w", "l"), ...) {
+                      size_axis = c("w", "l"),
+                      min_w = 0, max_w = Inf,
+                      min_l = NULL, max_l = NULL, ...) {
     size_axis <- plot_size_axis(size_axis)
     args <- list(object = object, species = species,
                  geometric_mean = geometric_mean,
@@ -2744,7 +2712,8 @@ plotlyCDF <- function(object, species = NULL,
                  resource = resource, background = background,
                  highlight = highlight, normalise = normalise,
                  log_x = log_x, log_y = log_y, log = log, llim = llim,
-                 size_axis = size_axis, ...)
+                 size_axis = size_axis, min_w = min_w, max_w = max_w,
+                 min_l = min_l, max_l = max_l, ...)
     if (!missing(time_range)) {
         args$time_range <- time_range
     }
@@ -2764,7 +2733,9 @@ plotlyCDF2 <- function(object1, object2, name1 = "First", name2 = "Second",
                        highlight = NULL,
                        normalise = TRUE,
                        log_x = TRUE, log_y = FALSE,
-                       log = NULL, size_axis = c("w", "l"), ...) {
+                       log = NULL, size_axis = c("w", "l"),
+                       min_w = 0, max_w = Inf,
+                       min_l = NULL, max_l = NULL, ...) {
     size_axis <- plot_size_axis(size_axis)
     plotHover(plotCDF2(object1 = object1, object2 = object2,
                        name1 = name1, name2 = name2,
@@ -2774,7 +2745,9 @@ plotlyCDF2 <- function(object1, object2, name1 = "First", name2 = "Second",
                        resource = resource, background = background,
                        highlight = highlight, normalise = normalise,
                        log_x = log_x, log_y = log_y,
-                       log = log, size_axis = size_axis, ...))
+                       log = log, size_axis = size_axis,
+                       min_w = min_w, max_w = max_w,
+                       min_l = min_l, max_l = max_l, ...))
 }
 
 #' @rdname plotSpectra
@@ -2945,10 +2918,12 @@ plotFeedingLevel.MizerParams <- function(object, species = NULL,
 #' @param log_x,log_y Logical flags for log10 axes.
 #' @param log Optional base-R log argument string or boolean.
 #' @param wlim,llim Numeric vectors of length two giving the weight and length
-#'   limits.
+#'   viewport limits.
 #' @param size_axis Either `"w"` (weight) or `"l"` (length).
 #' @param return_data If `TRUE`, return the plotting data frame instead of the
 #'   plot.
+#' @param ylim Numeric vector of length two giving the y-axis viewport limits.
+#'   On a linear axis they are widened to show the whole interval from 0 to 1.
 #' @param ... Additional arguments passed to [plot.ArraySpeciesBySize()].
 #' @return A `mizer_plot` (ggplot2) object, or the plotting data frame if
 #'   `return_data = TRUE`.
@@ -2956,7 +2931,8 @@ plotFeedingLevel.MizerParams <- function(object, species = NULL,
 plot_feeding_level <- function(params, feed, species, highlight,
                                all.sizes, include_critical,
                                wlim, llim, size_axis, return_data,
-                               log_x = TRUE, log_y = FALSE, log = NULL, ...) {
+                               log_x = TRUE, log_y = FALSE, log = NULL,
+                               ylim = c(NA, NA), ...) {
     size_axis <- plot_size_axis(size_axis)
     log_axes <- parsePlotLog(log, log_x = log_x, log_y = log_y)
     log_x <- log_axes$log_x
@@ -2971,10 +2947,8 @@ plot_feeding_level <- function(params, feed, species, highlight,
         }
         p <- plot(feed, species = species, all.sizes = all.sizes,
                   highlight = highlight, wlim = wlim, llim = llim,
-                  size_axis = size_axis, log_x = log_x, log_y = log_y, ...)
-        if (!log_y) {
-            p <- p + coord_cartesian(ylim = c(0, 1))
-        }
+                  size_axis = size_axis, log_x = log_x, log_y = log_y,
+                  ylim = ylim, ...)
         return(p)
     }
     crit <- getCriticalFeedingLevel(params)
@@ -2994,14 +2968,15 @@ plot_feeding_level <- function(params, feed, species, highlight,
     }
     p <- plot(feed, species = species, all.sizes = all.sizes,
               highlight = highlight, wlim = wlim, llim = llim,
-              size_axis = size_axis, log_x = log_x, log_y = log_y, ...)
+              size_axis = size_axis, log_x = log_x, log_y = log_y,
+              ylim = ylim, ...)
     p <- addPlot(p, crit, species = species, all.sizes = all.sizes,
                  wlim = wlim, llim = llim, size_axis = size_axis,
                  alpha = 0.5)
     if (!log_y) {
-        feeding_level_ylim <- array_ylim(feed, c(NA, NA), log_y,
-                                         c(df_actual[[2]], df_crit[[2]]))
-        p <- p + coord_cartesian(ylim = feeding_level_ylim)
+        p <- set_plot_viewport(
+            p, ylim = array_ylim(feed, ylim, log_y,
+                                 c(df_actual[[2]], df_crit[[2]])))
     }
     p
 }
@@ -3740,8 +3715,6 @@ plot_diet <- function(params, n, diet, species, log_x, log_y, wlim, llim,
     plot_dat$Prey <- factor(plot_dat$Prey, levels = rev(prey))
 
     plot_dat <- plot_dat[plot_dat$Proportion > 0.001, ]
-    if (!is.na(wlim[1])) plot_dat <- plot_dat[plot_dat$w >= wlim[1], ]
-    if (!is.na(wlim[2])) plot_dat <- plot_dat[plot_dat$w <= wlim[2], ]
 
     # Restrict plot to relevant size ranges where abundance is meaningful
     # For each predator species, find the maximum size where density is meaningful
@@ -3765,9 +3738,6 @@ plot_diet <- function(params, n, diet, species, log_x, log_y, wlim, llim,
 
     plot_dat <- convert_plot_size_axis(plot_dat, params, size_axis,
                                        species_col = "Predator")
-    if (identical(size_axis, "l")) {
-        plot_dat <- filter_plot_length_limits(plot_dat, llim)
-    }
     if (return_data) return(plot_dat)
     x_var <- plot_size_x_var(size_axis)
 
@@ -3775,8 +3745,8 @@ plot_diet <- function(params, n, diet, species, log_x, log_y, wlim, llim,
         intersect(names(params@linecolour), plot_dat$Prey)
     p <- ggplot(plot_dat) +
         geom_area(aes(x = .data[[x_var]], y = Proportion, fill = Prey)) +
-        scale_x_continuous(trans = if (log_x) "log10" else "identity",
-                           limits = plot_size_xlim(wlim, size_axis, llim)) +
+        scale_x_continuous(trans = if (log_x) "log10" else "identity") +
+        coord_cartesian(xlim = plot_size_xlim(wlim, size_axis, llim)) +
         scale_y_continuous(trans = if (log_y) "log10" else "identity") +
         labs(x = plot_size_xlab(size_axis), y = "Proportion") +
         scale_fill_manual(values = params@linecolour[legend_levels],

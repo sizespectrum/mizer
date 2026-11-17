@@ -430,7 +430,8 @@ test_that("plotCDF rejects per_log_size and accepts biomass", {
 test_that("plotCDF plots cumulative spectra from small to large sizes", {
     p <- plotCDF(params, species = species, resource = FALSE, power = 0,
                  wlim = c(1, NA), return_data = TRUE)
-    expect_true(all(p$w >= 1))
+    expect_equal(p, plotCDF(params, species = species, resource = FALSE,
+                            power = 0, return_data = TRUE))
     expect_true(all(p[[2]] >= 0))
     for (sp in unique(p$Species)) {
         sp_dat <- p[p$Species == sp, ]
@@ -502,7 +503,8 @@ test_that("plotCDF2 compares cumulative distributions", {
     expect_s3_class(p, "ggplot")
     expect_identical(levels(p$data$Model), c("Original", "Changed"))
     expect_true("Total" %in% p$data$Legend)
-    expect_true(all(p$data$w >= 1))
+    expect_equal(p$coordinates$limits$x, c(1, NA))
+    expect_true(any(p$data$w < 1))
     expect_identical(p$scales$get_scales("x")$trans$name, "identity")
 
     p_log <- plotCDF2(params, sim, species = species, resource = FALSE,
@@ -543,8 +545,7 @@ test_that("size-based plots support length axes", {
                                      resource = FALSE, total = FALSE,
                                      size_axis = "l", llim = llim,
                                      return_data = TRUE)
-    expect_true(all(spectra_l_limited$l >= llim[1]))
-    expect_true(all(spectra_l_limited$l <= llim[2]))
+    expect_equal(spectra_l_limited, spectra_l)
 
     # The resource and the total both appear on a length axis: the resource
     # has its own weight-length relationship, and the total is summed after
@@ -566,13 +567,9 @@ test_that("size-based plots support length axes", {
     cdf_l_limited <- plotCDF(params_len, species = species, resource = FALSE,
                              size_axis = "l", llim = llim,
                              return_data = TRUE)
-    expect_true(all(cdf_l_limited$l >= llim[1]))
-    # The cumulative now sits on each bin's upper edge (#383), so the top
-    # in-window point — where the normalised CDF reaches 1 — may exceed llim[2]
-    # by up to one bin, but no more (one weight-bin ratio is a safe length bound
-    # since the length ratio beta^(1/b) < beta).
-    beta_w <- params_len@w_full[2] / params_len@w_full[1]
-    expect_true(all(cdf_l_limited$l <= llim[2] * beta_w))
+    expect_equal(cdf_l_limited,
+                 plotCDF(params_len, species = species, resource = FALSE,
+                         size_axis = "l", return_data = TRUE))
     y_var <- names(cdf_l_limited)[2]
     expect_equal(stats::aggregate(cdf_l_limited[[y_var]] ~ cdf_l_limited$Species,
                                   FUN = max)[[2]],
@@ -602,17 +599,19 @@ test_that("size-based plots support length axes", {
     expect_true("l" %in% names(plotDiet(params_len, species = species[[1]],
                                         size_axis = "l",
                                         return_data = TRUE)))
-    expect_true(all(plotDiet(params_len, species = species[[1]],
-                             size_axis = "l", llim = llim,
-                             return_data = TRUE)$l >= llim[1]))
+    expect_equal(plotDiet(params_len, species = species[[1]],
+                          size_axis = "l", llim = llim, return_data = TRUE),
+                 plotDiet(params_len, species = species[[1]],
+                          size_axis = "l", return_data = TRUE))
     expect_true("l" %in% names(plot(getPredMort(params_len),
                                     species = species, size_axis = "l",
                                     return_data = TRUE)))
     rate_l_limited <- plot(getPredMort(params_len), species = species,
                            size_axis = "l", llim = llim,
                            return_data = TRUE)
-    expect_true(all(rate_l_limited$l >= llim[1]))
-    expect_true(all(rate_l_limited$l <= llim[2]))
+    expect_equal(rate_l_limited,
+                 plot(getPredMort(params_len), species = species,
+                      size_axis = "l", return_data = TRUE))
     expect_true("l" %in% names(plot(getFMort(sim_len), species = species,
                                     size_axis = "l", return_data = TRUE)))
 })
@@ -654,15 +653,13 @@ test_that("length-axis spectra transform their densities", {
         compared_data$l
     expect_equal(compared_data[[2]], unname(by_weight[[2]] * jacobian))
 
-    # `ylim` is applied to the converted values, not to the weight-axis ones it
-    # would be off by a Jacobian from, and it filters the data exactly as it
-    # does for a single spectrum plot.
+    # The viewport uses converted units without filtering either operand.
     limit <- stats::median(compared_data[[2]])
     limited <- plotSpectra2(params, params, species = species,
                             resource = FALSE, power = 0, size_axis = "l",
                             ylim = c(limit, NA))
-    expect_true(all(limited$data[[2]] >= limit))
-    expect_equal(limited$scales$get_scales("y")$limits, c(log10(limit), NA))
+    expect_equal(limited$data, compared$data)
+    expect_equal(limited$coordinates$limits$y, c(limit, NA))
     single <- plotSpectra(params, species = species, resource = FALSE,
                           power = 0, size_axis = "l", ylim = c(limit, NA),
                           return_data = TRUE)
@@ -744,6 +741,23 @@ test_that("add_total_line averages ties before interpolating distinct sizes", {
     expect_equal(out[out$Species != "Total", ], plot_dat)
 })
 
+test_that("a cumulative total averages ties and keeps final values", {
+    plot_dat <- data.frame(w = c(1, 1, 2, 2, 4),
+                           value = c(1, 3, 5, 7, 10),
+                           Species = c("a", "a", "a", "a", "b"))
+    expect_no_warning(out <- add_total_line(plot_dat, cumulative = TRUE))
+    total <- out[out$Species == "Total", ]
+    expect_equal(total$w, c(1, 2, 4))
+    # a averages to 2 at w = 1 and to 6 at w = 2, and keeps 6 beyond its
+    # last size; b's single value counts from w = 4.
+    expect_equal(total$value, c(2, 6, 16))
+    # A series at a single repeated size also keeps its average beyond it.
+    single <- data.frame(w = c(2, 2, 4), value = c(1, 3, 10),
+                         Species = c("a", "a", "b"))
+    out <- add_total_line(single, cumulative = TRUE)
+    expect_equal(out$value[out$Species == "Total"], c(2, 12))
+})
+
 test_that("add_total_line groups by the columns it is told to", {
     plot_dat <- data.frame(w = rep(c(1, 2), 4), value = 1:8,
                            Species = rep(c("a", "b"), each = 2),
@@ -769,7 +783,7 @@ test_that("the spectrum total is unchanged on a weight axis", {
         expected <- params@initial_n_pp
         expected[fish_idx] <- expected[fish_idx] + colSums(params@initial_n)
         expected <- expected * params@w_full^power
-        keep <- expected > 0 & params@w_full >= min(params@w) / 100
+        keep <- expected > 1e-20
         expect_equal(total[[2]], unname(expected[keep]))
     }
 })
@@ -1068,10 +1082,10 @@ test_that("yield plotly wrappers return plotly objects", {
 
 test_that("yield plotting helpers accept ylim", {
     p <- plotYield(sim, species = species, ylim = c(1e-5, 1))
-    expect_equal(p$scales$get_scales("y")$limits, log10(c(1e-5, 1)))
+    expect_equal(p$coordinates$limits$y, c(1e-5, 1))
 
     p_gear <- plotYieldGear(sim, species = species, ylim = c(1e-5, 1))
-    expect_equal(p_gear$scales$get_scales("y")$limits, log10(c(1e-5, 1)))
+    expect_equal(p_gear$coordinates$limits$y, c(1e-5, 1))
 })
 
 test_that("plotYieldGear supports log_x, log_y, and log arguments", {
@@ -1095,14 +1109,15 @@ test_that("plotYieldGear supports log_x, log_y, and log arguments", {
 # testing the plot outputs
 test_that("return_data is identical",{
     expect_equal(dim(plotBiomass(sim, species = species, total = TRUE,
-                                 tlim = c(0, 2.8), y_ticks = 4, return_data = TRUE)), c(9,4))
+                                 tlim = c(0, 2.8), y_ticks = 4, return_data = TRUE)), c(12,4))
     expect_warning(p <- plotYield(sim, sim0, species = species, return_data = TRUE))
     expect_equal(dim(p), c(8,4))
 
     expect_equal(dim(plotYieldGear(sim, species = species, return_data = TRUE)), c(8,4))
 
-    expect_equal(dim(plotSpectra(sim, species = species, wlim = c(1,NA),
-                                 return_data = TRUE)), c(22, 4))
+    expect_equal(plotSpectra(sim, species = species, wlim = c(1, NA),
+                             return_data = TRUE),
+                 plotSpectra(sim, species = species, return_data = TRUE))
 
     expect_equal(dim(plotFeedingLevel(sim, species = species,
                                       return_data = TRUE)), c(40, 4))
@@ -1127,28 +1142,28 @@ test_that("return_data is identical",{
 )
 
 # tlim parameter ----
-test_that("tlim filters time axis correctly", {
+test_that("tlim only sets the time viewport", {
     # plotBiomass: deprecated start_time/end_time triggers warning
     expect_warning(plotBiomass(sim, start_time = 0), "deprecated")
     expect_warning(plotBiomass(sim, end_time = 2), "deprecated")
 
-    # plotBiomass: tlim reduces number of rows
+    # plotBiomass: tlim retains all rows
     all_rows <- nrow(plotBiomass(sim, species = species, return_data = TRUE))
     limited_rows <- nrow(plotBiomass(sim, species = species,
                                      tlim = c(1, 3), return_data = TRUE))
-    expect_lt(limited_rows, all_rows)
+    expect_equal(limited_rows, all_rows)
 
-    # plotYield: tlim reduces number of rows
+    # plotYield: tlim retains all rows
     all_rows <- nrow(plotYield(sim, species = species, return_data = TRUE))
     limited_rows <- nrow(plotYield(sim, species = species,
                                    tlim = c(1, 3), return_data = TRUE))
-    expect_lt(limited_rows, all_rows)
+    expect_equal(limited_rows, all_rows)
 
-    # plotYieldGear: tlim reduces number of rows
+    # plotYieldGear: tlim retains all rows
     all_rows <- nrow(plotYieldGear(sim, species = species, return_data = TRUE))
     limited_rows <- nrow(plotYieldGear(sim, species = species,
                                        tlim = c(1, 3), return_data = TRUE))
-    expect_lt(limited_rows, all_rows)
+    expect_equal(limited_rows, all_rows)
 
     # The deprecation of animate(time_range) is tested in
     # test-animateSpectra.R, where animate() is defined. It cannot be tested
@@ -1261,7 +1276,8 @@ test_that("plotFeedingLevel shows the whole of [0, 1] without hiding data", {
     expect_gte(limits[[2]], max(plotted))
 
     # A logarithmic axis is left to the data, as before
-    expect_null(plotFeedingLevel(params, log_y = TRUE)$coordinates$limits$y)
+    expect_true(all(is.na(
+        plotFeedingLevel(params, log_y = TRUE)$coordinates$limits$y)))
 })
 
 test_that("plotGrowthCurves validates size_at_age input", {
@@ -1301,29 +1317,29 @@ test_that("plotDiet restricts to meaningful abundance ranges", {
 test_that("axis limits are set correctly", {
     # Test ylim in plotBiomass
     p <- plotBiomass(sim, species = species, ylim = c(1e3, 1e6))
-    expect_equal(p$scales$scales[[1]]$limits, c(3, 6))
+    expect_equal(p$coordinates$limits$y, c(1e3, 1e6))
 
     # Test with NA values
     p <- plotBiomass(sim, species = species, ylim = c(NA, 1e6))
-    expect_equal(p$scales$scales[[1]]$limits[2], 6)
-    expect_true(is.na(p$scales$scales[[1]]$limits[1]))
+    expect_equal(p$coordinates$limits$y[2], 1e6)
+    expect_true(is.na(p$coordinates$limits$y[1]))
 
     # Test wlim and ylim in plotSpectra
     p <- plotSpectra(sim, species = species, wlim = c(1, 100), ylim = c(1e5, 1e8))
     # x-axis is first scale, y-axis is second
-    expect_equal(p$scales$scales[[2]]$limits, c(0, 2))
-    expect_equal(p$scales$scales[[1]]$limits, c(5, 8))
+    expect_equal(p$coordinates$limits$x, c(1, 100))
+    expect_equal(p$coordinates$limits$y, c(1e5, 1e8))
 
     # Test with NA values in wlim
     p <- plotSpectra(sim, species = species, wlim = c(10, NA), ylim = c(NA, 1e8))
-    expect_equal(p$scales$scales[[2]]$limits[1], 1)
-    expect_equal(p$scales$scales[[2]]$limits[2], log10(max(params@w_full)))
-    expect_true(is.na(p$scales$scales[[1]]$limits[1]))
-    expect_equal(p$scales$scales[[1]]$limits[2], 8)
+    expect_equal(p$coordinates$limits$x[1], 10)
+    expect_equal(p$coordinates$limits$x[2], max(params@w_full))
+    expect_true(is.na(p$coordinates$limits$y[1]))
+    expect_equal(p$coordinates$limits$y[2], 1e8)
 
     p <- plotSpectra(sim, species = species, resource = FALSE,
                      size_axis = "l", llim = c(10, 100))
-    expect_equal(p$scales$scales[[2]]$limits, c(1, 2))
+    expect_equal(p$coordinates$limits$x, c(10, 100))
 
     # Default wlim lower depends on resource argument
     p_res <- plotSpectra(sim, species = species, return_data = TRUE)
@@ -1435,35 +1451,31 @@ test_that("plotCDF places the cumulative on upper bin edges (inclusive conventio
     expect_true(all(diff(sp1[[2]]) >= -1e-12))
 })
 
-test_that("plotCDF cumulative is second-order and free of the one-bin offset", {
-    # For a community spectrum N = C w^-2 with power = 2 the integrand N w^power
-    # is constant, so the exact CDF is linear in w: F(w) = V (w - w_min). The
-    # bin-average of C w^-2 is exact at the geometric centre, so the plotted
-    # density value is the constant V at every bin. We can therefore check the
-    # cumulative analytically, which pins down the edge placement: a one-bin
-    # offset (plotting F at the *left* edge) would break F(w_min-bin) != 0 and
-    # the slope, so this is a sharp regression test for issue #383.
+test_that("plotCDF accumulates the getter weights without a one-bin offset", {
+    # With N = w^-2 and power = 2, the trapezoidal bin-average weight that
+    # size_integral_weights() gives each bin but the last is a constant
+    # multiple, (1 + beta^2) / 2, of its width. The cumulative curve is then
+    # linear in w through the lower edge of the grid, which pins down the edge
+    # placement: plotting each value at the left edge of its bin (#383) would
+    # break it.
     p <- params
     second_order_w(p) <- c(bin_average = TRUE)
     sp <- 1
-    p@initial_n[sp, ] <- p@w^(-2)            # community spectrum N proportional to w^-2
-
-    # The weighted density is the constant V = beta at every bin centre.
-    dens <- plotSpectra(p, species = sp, power = 2, resource = FALSE,
-                        total = FALSE, background = FALSE, return_data = TRUE)
-    V <- mean(dens[[2]])
-    expect_equal(unname(dens[[2]]), rep(V, nrow(dens)))
-
+    p@initial_n[sp, ] <- p@w^(-2)
     cdf <- plotCDF(p, species = sp, power = 2, resource = FALSE, total = FALSE,
                    background = FALSE, normalise = FALSE, return_data = TRUE)
     cdf <- cdf[order(cdf$w), ]
-    w_min <- min(p@w)
-    # F plotted at the upper edge equals the exact integral V (w_upper - w_min).
-    expect_equal(unname(cdf[[2]]), V * (cdf$w - w_min), tolerance = 1e-8)
-    # The smallest plotted x is the upper edge of the first bin, and its value is
-    # one full bin integral (not zero, and not two bins) — i.e. no offset.
-    expect_equal(cdf$w[1], unname(p@w[1] + p@dw_full[match(p@w[1], p@w_full)]))
-    expect_equal(cdf[[2]][1], V * (cdf$w[1] - w_min), tolerance = 1e-8)
+    beta <- p@w[2] / p@w[1]
+    inner <- seq_len(nrow(cdf) - 1)
+    expect_equal(unname(cdf[[2]][inner]),
+                 (1 + beta^2) / 2 * (cdf$w[inner] - min(p@w)),
+                 tolerance = 1e-8)
+    # The smallest plotted x is the upper edge of the first bin.
+    expect_equal(cdf$w[1], unname(p@w[1] + p@dw[1]))
+    # The end is the integral that the summary functions report.
+    expect_equal(tail(cdf[[2]], 1),
+                 unname(sizeIntegral(p, weighting = p@w^2,
+                                     exact_bounds = TRUE)[sp]))
 })
 
 test_that("plotSpectraRelative shifts x to centres", {
@@ -1558,11 +1570,11 @@ test_that("a log axis drops the values and limits it cannot show", {
             plotDataFrame(df, params, ytrans = "log10", ylim = c(0, NA),
                           legend_var = "Species")))
     expect_equal(nrow(p$plot$data), 5)
-    expect_true(all(is.na(p$plot$scales$scales[[1]]$limits)))
+    expect_true(all(is.na(p$plot$coordinates$limits$y)))
     # On a linear axis nothing is dropped and the limit is kept.
     p2 <- plotDataFrame(df, params, ylim = c(0, NA), legend_var = "Species")
     expect_equal(nrow(p2$data), 6)
-    expect_equal(p2$scales$scales[[1]]$limits, c(0, NA))
+    expect_equal(p2$coordinates$limits$y, c(0, NA))
 })
 
 test_that("plotPredMort tolerates a log y axis", {
@@ -1845,4 +1857,243 @@ test_that("explicit tooltips and user ggplot edits survive hover conversion", {
     text <- unlist(lapply(hover$x$data, `[[`, "text"))
     expect_true(any(grepl("response", text)))
     expect_false(any(grepl("fish:|mass:", text)))
+})
+
+test_that("named plotting limits leave returned data and totals unchanged", {
+    for (fun in list(plotBiomass, plotYield, plotYieldGear)) {
+        full <- fun(NS_sim_small, total = TRUE, return_data = TRUE)
+        zoom <- fun(NS_sim_small, total = TRUE, tlim = c(0.5, 2.5),
+                    ylim = c(1, 10), return_data = TRUE)
+        expect_equal(zoom, full)
+    }
+    for (second in c(FALSE, TRUE)) {
+        p <- NS_params_small
+        second_order_w(p) <- c(bin_average = second)
+        for (axis in c("w", "l")) {
+            for (fun in list(plotSpectra, plotCDF, plotFeedingLevel,
+                             plotPredMort, plotFMort, plotDiet)) {
+                full <- fun(p, species = "Cod", size_axis = axis,
+                            return_data = TRUE)
+                zoom <- fun(p, species = "Cod", size_axis = axis,
+                            wlim = c(1, 100), llim = c(5, 20),
+                            ylim = c(0.2, 0.8), return_data = TRUE)
+                expect_equal(zoom, full)
+            }
+            for (fun in list(plotSpectra2, plotCDF2, plotSpectraRelative)) {
+                full <- fun(p, p, total = TRUE, size_axis = axis)
+                zoom <- fun(p, p, total = TRUE, size_axis = axis,
+                            wlim = c(1, 100), llim = c(5, 20),
+                            ylim = c(0.2, 0.8))
+                expect_equal(zoom$data, full$data)
+            }
+        }
+    }
+    feeding <- plotFeedingLevel(NS_params_small, wlim = c(1, 100),
+                                ylim = c(0.2, 0.8), include_critical = TRUE)
+    expect_equal(feeding$coordinates$limits$x, c(1, 100))
+    expect_equal(feeding$coordinates$limits$y, c(0.2, 0.8))
+})
+
+test_that("CDF bounds include partial bins exactly once in both schemes", {
+    for (second in c(FALSE, TRUE)) {
+        p <- NS_params_small
+        second_order_w(p) <- c(bin_average = second)
+        p@initial_n[] <- 0
+        bin <- 8
+        p@initial_n["Cod", bin] <- 3
+        lower <- p@w[bin] + 0.2 * p@dw[bin]
+        upper <- p@w[bin] + 0.7 * p@dw[bin]
+        for (power in c(0, 1, 2, 1.5)) {
+            # The rule of sizeIntegral(exact_bounds = TRUE): the weight at the
+            # left edge in a first-order model; otherwise w^power interpolated
+            # linearly across the bin and averaged over the covered part.
+            edge_weight <- p@w[bin + 0:1]^power
+            full_weight <- if (second) mean(edge_weight) else edge_weight[1]
+            cut_weight <- edge_weight[1] +
+                if (second) (0.2 + 0.7) / 2 * diff(edge_weight) else 0
+            full <- plotCDF(p, species = "Cod", power = power,
+                            normalise = FALSE, return_data = TRUE)
+            expect_equal(max(full[[2]]), 3 * full_weight * p@dw[bin])
+            cut <- plotCDF(p, species = "Cod", power = power,
+                           min_w = lower, max_w = upper,
+                           normalise = FALSE, return_data = TRUE)
+            expect_equal(cut$w, upper)
+            expect_equal(cut[[2]], 3 * cut_weight * (upper - lower))
+            normalised <- plotCDF(p, species = "Cod", power = power,
+                                   min_w = lower, max_w = upper,
+                                   return_data = TRUE)
+            expect_equal(normalised[[2]], 1)
+        }
+        # Several full bins between two partial ones; no neighbour may leak
+        # into the mask, and a viewport may not mask the result a second time.
+        p@initial_n["Cod", ] <- 2
+        upper <- p@w[11] + 0.6 * p@dw[11]
+        cut <- plotCDF(p, species = "Cod", biomass = FALSE,
+                       min_w = lower, max_w = upper,
+                       normalise = FALSE, return_data = TRUE)
+        expect_equal(tail(cut[[2]], 1), 2 * (upper - lower))
+        expect_equal(cut[[2]], 2 * (cut$w - lower))
+        zoom <- plotCDF(p, species = "Cod", biomass = FALSE,
+                        min_w = lower, max_w = upper,
+                        wlim = c(lower + 1, upper - 1), ylim = c(0.1, 0.9),
+                        normalise = FALSE, return_data = TRUE)
+        expect_equal(zoom, cut)
+    }
+})
+
+test_that("CDF length bounds use each species and the resource's conversion", {
+    for (second in c(FALSE, TRUE)) {
+        p <- NS_params_small
+        second_order_w(p) <- c(bin_average = second)
+        p@species_params$a <- c(0.01, 0.03, 0.02)
+        p@species_params$b <- c(3, 2.8, 3.2)
+        p@initial_n[] <- 1
+        p@initial_n_pp[] <- 1
+        result <- plotCDF(p, min_l = 1, max_l = 2, size_axis = "l",
+                          resource = TRUE, total = TRUE, biomass = FALSE,
+                          normalise = FALSE, return_data = TRUE)
+        sp <- p@species_params
+        rp <- resource_length_params(p)
+        amounts <- c(setNames(sp$a * (2^sp$b - 1), sp$species),
+                     Resource = rp$a * (2^rp$b - 1))
+        amounts <- c(amounts, Total = sum(amounts))
+        for (name in names(amounts)) {
+            curve <- result[result$Species == name, ]
+            expect_equal(tail(curve$l, 1), 2)
+            expect_equal(tail(curve[[2]], 1), unname(amounts[name]))
+        }
+        # Length bounds also select the same integrals on a weight axis.
+        by_weight <- plotCDF(p, min_l = 1, max_l = 2,
+                             resource = TRUE, biomass = FALSE,
+                             normalise = FALSE, return_data = TRUE)
+        expect_equal(by_weight[[2]], result[[2]][result$Species != "Total"])
+        expect_equal(plotCDF(p, min_w = 999, max_w = 1000,
+                             min_l = 1, max_l = 2, biomass = FALSE,
+                             return_data = TRUE),
+                     plotCDF(p, min_l = 1, max_l = 2, biomass = FALSE,
+                             return_data = TRUE))
+    }
+})
+
+test_that("CDF totals include hidden contributors and keep completed mass", {
+    p <- NS_params_small
+    p@initial_n[] <- 1
+    p@initial_n_pp[] <- 1
+    all <- plotCDF(p, biomass = FALSE, normalise = FALSE, total = TRUE,
+                   resource = TRUE, size_axis = "l",
+                   min_w = 0.2, max_w = 100, return_data = TRUE)
+    hidden <- plotCDF(p, species = "Cod", biomass = FALSE, normalise = FALSE,
+                      total = TRUE, resource = FALSE, background = FALSE,
+                      size_axis = "l", min_w = 0.2, max_w = 100,
+                      return_data = TRUE)
+    total <- all[all$Species == "Total", ]
+    expect_equal(hidden[hidden$Species == "Total", ], total)
+    expect_true(all(diff(total[[2]]) >= -1e-10))
+    expect_equal(tail(total[[2]], 1), 4 * (100 - 0.2))
+})
+
+test_that("CDF bounds validate, handle empty mass and reach every entry point", {
+    p <- NS_params_small
+    expect_error(plotCDF(p, min_w = NA), "min_w")
+    expect_error(plotCDF(p, min_l = -1), "min_l")
+    expect_error(plotCDF(p, max_w = c(1, 2)), "max_w")
+    expect_error(plotCDF(p, min_w = 10, max_w = 1), "lower integration bound")
+    expect_error(plotCDF(p, min_w = max(p@w) * 10), "do not overlap")
+    p@initial_n["Cod", ] <- 0
+    empty <- plotCDF(p, species = "Cod", return_data = TRUE)
+    expect_true(all(is.na(empty[[2]])))
+    empty <- plotCDF(p, species = "Cod", normalise = FALSE, return_data = TRUE)
+    expect_true(all(empty[[2]] == 0))
+
+    sim <- NS_sim_small
+    expected <- plotCDF(getParams(sim, time_range = 1:2, geometric_mean = TRUE),
+                        min_w = 1, max_w = 100, return_data = TRUE)
+    expect_equal(plotCDF(sim, time_range = 1:2, geometric_mean = TRUE,
+                         min_w = 1, max_w = 100, return_data = TRUE), expected)
+    compared <- plotCDF2(sim, sim, time_range = 1:2, geometric_mean = TRUE,
+                         min_w = 1, max_w = 100)
+    expect_equal(compared$data[[2]][compared$data$Model == "First"], expected[[2]])
+    expect_s3_class(plotlyCDF(sim, min_w = 1, max_w = 100), "plotly")
+    expect_s3_class(plotlyCDF2(sim, sim, min_l = 1, max_l = 10), "plotly")
+})
+
+test_that("zooming the size or time axis fits the y axis to what is visible", {
+    # Both plots have a logarithmic y axis.
+    y_range <- function(p) {
+        10^ggplot2::ggplot_build(p)$layout$panel_params[[1]]$y.range
+    }
+    full <- plotSpectra(NS_params_small)
+    zoom <- plotSpectra(NS_params_small, wlim = c(1, 100))
+    expect_lt(diff(log(y_range(zoom))), diff(log(y_range(full))))
+    # The data are unchanged; only the window moved.
+    expect_equal(zoom$data, full$data)
+    visible <- full$data[full$data$w >= 1 & full$data$w <= 100, 2]
+    expect_lte(y_range(zoom)[1], min(visible))
+    expect_gte(y_range(zoom)[2], max(visible))
+
+    bm <- plotBiomass(sim, tlim = c(2, 3))
+    years <- bm$data$Year >= 2 & bm$data$Year <= 3
+    expect_lt(diff(log(y_range(bm))), diff(log(y_range(plotBiomass(sim)))))
+    expect_lte(y_range(bm)[1], min(bm$data[years, 2]))
+    expect_gte(y_range(bm)[2], max(bm$data[years, 2]))
+})
+
+test_that("CDF bounds need only be in order for the curves they affect", {
+    # 10 cm is less than 100 g for each fish but not for the resource.
+    cdf <- plotCDF(NS_params_small, min_l = 10, max_w = 100,
+                   resource = FALSE, total = FALSE, return_data = TRUE)
+    expect_setequal(unique(cdf$Species),
+                    NS_params_small@species_params$species)
+    expect_error(plotCDF(NS_params_small, min_l = 10, max_w = 100,
+                         resource = TRUE, return_data = TRUE),
+                 "lower integration bound must be less than")
+    # A total sums the resource too, whichever curves are drawn.
+    expect_error(plotCDF(NS_params_small, min_l = 10, max_w = 100,
+                         resource = FALSE, total = TRUE, return_data = TRUE),
+                 "lower integration bound must be less than")
+})
+
+test_that("the end of a CDF is the getBiomass() integral over its range", {
+    for (second in c(FALSE, TRUE)) {
+        p <- NS_params_small
+        second_order_w(p) <- c(bin_average = second)
+        w <- p@w
+        lower <- 0.3 * w[5] + 0.7 * w[6]
+        upper <- 0.5 * (w[15] + w[16])
+        cdf <- plotCDF(p, return_data = TRUE, normalise = FALSE,
+                       biomass = TRUE, background = FALSE,
+                       min_w = lower, max_w = upper)
+        ends <- c(tapply(cdf[[2]], cdf$Species, max)[p@species_params$species])
+        expect_equal(unname(ends),
+                     unname(getBiomass(p, min_w = lower, max_w = upper,
+                                       exact_bounds = TRUE)))
+    }
+    # A model of edition 1 or 2 counts whole bins by default: a bound on a
+    # bin edge ends the CDF there, while getBiomass(max_w = w[15]) still
+    # includes the bin that starts at w[15], as documented in ?plotCDF.
+    p <- NS_params_small
+    w <- p@w
+    cdf <- plotCDF(p, return_data = TRUE, normalise = FALSE, biomass = TRUE,
+                   background = FALSE, min_w = w[5], max_w = w[15])
+    ends <- c(tapply(cdf[[2]], cdf$Species, max)[p@species_params$species])
+    expect_equal(unname(ends),
+                 unname(getBiomass(p, min_w = w[5], max_w = w[14])))
+    expect_true(all(getBiomass(p, min_w = w[5], max_w = w[15]) >=
+                        ends * (1 - 1e-12)))
+})
+
+test_that("a background species selected by name is drawn once", {
+    p <- NS_params_small
+    p@species_params$is_background <- p@species_params$species == "Sprat"
+    for (fun in list(plotSpectra, plotCDF)) {
+        dat <- fun(p, species = c("Sprat", "Cod"), resource = FALSE,
+                   return_data = TRUE)
+        sprat <- unique(dat[dat$Species == "Sprat", "Legend"])
+        expect_identical(sprat, "Background")
+        expect_false(anyDuplicated(dat[, c(1, 3)]) > 0)
+    }
+    # Without the background it keeps its own name, as before.
+    dat <- plotSpectra(p, species = c("Sprat", "Cod"), resource = FALSE,
+                       background = FALSE, return_data = TRUE)
+    expect_identical(unique(dat$Legend), c("Sprat", "Cod"))
 })
