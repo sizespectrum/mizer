@@ -106,7 +106,7 @@ newSingleSpeciesParams <-
             )
         }
     assert_that(is.string(species_name), length(species_name) == 1)
-    assert_that(is.number(D_ext), is.finite(D_ext), D_ext >= 0)
+    check_D_ext(D_ext) # nolint: object_usage_linter.
 
     ## Much of the following code is copied from newTraitParams
 
@@ -247,6 +247,10 @@ newSingleSpeciesParams <-
     mort_matrix <- params@mu_b
     n_exact <- get_steady_state_n(params, growth_matrix, mort_matrix,
                                   params@ext_diffusion, c(1))
+    # The projection scheme may retain fewer upper size classes than the
+    # upwind scheme used for construction. Keep its excluded tail empty.
+    w_top <- support_top_idx_for_scheme(params, target_sow) # nolint
+    n_exact <- zero_above_support(n_exact, w_top)
     initial_n[1, ] <- n_exact[1, ]
 
     # The resource was already set up by newMultispeciesParams()

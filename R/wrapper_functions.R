@@ -102,7 +102,7 @@ newCommunityParams <- function(max_w = 1e6,
     # Collect the information signals raised while the model is built and
     # report them together at the end.
     with_info_level(info_level = info_level, {
-    assert_that(is.number(D_ext), is.finite(D_ext), D_ext >= 0)
+    check_D_ext(D_ext) # nolint: object_usage_linter.
     w_max <- max_w
     w_pp_cutoff <- min_w
     ks <- 0 # Turn off standard metabolism
@@ -391,7 +391,7 @@ newTraitParams <- function(no_sp = 11,
     assert_that(is.flag(egg_size_scaling),
                 is.flag(resource_scaling),
                 is.flag(perfect_scaling))
-    assert_that(is.number(D_ext), is.finite(D_ext), D_ext >= 0)
+    check_D_ext(D_ext) # nolint: object_usage_linter.
     if (ext_mort_prop >= 1 || ext_mort_prop < 0) {
         stop("ext_mort_prop must be a number between 0 and 1",
              " because it should be the proportion of the total mortality",
@@ -594,17 +594,17 @@ newTraitParams <- function(no_sp = 11,
     if (D_ext > 0) {
         # The projection scheme may retain fewer upper size classes than the
         # upwind scheme used for construction. Keep its excluded tail empty.
-        projection_params <- params
-        projection_params@second_order_w <- target_sow
-        n_exact_matrix <- zero_above_support(n_exact_matrix,
-                                             support_top_idx(projection_params))
+        n_exact_matrix <- zero_above_support(
+            n_exact_matrix, support_top_idx_for_scheme(params, target_sow))
     }
 
     i_inf <- min_i_inf  # index of maximum size
     i_min <- 1  # index of natural egg size
     for (i in 1:no_sp) {
-        # With diffusion retain the entire solved spectrum, including the
-        # upper size classes that deterministic growth cannot populate.
+        # With diffusion retain the entire solved spectrum up to the support
+        # top. Without diffusion stop below the w_max bin: upwind growth also
+        # piles abundance up there, but it has always been dropped, so the
+        # D_ext = 0 spectra stay exactly as in earlier versions.
         idxs <- if (D_ext > 0) {
             w_min_idx[i]:length(w)
         } else {

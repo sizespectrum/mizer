@@ -1296,6 +1296,15 @@ check_f0 <- function(f0, species = NULL) {
     invisible(NULL)
 }
 
+# Check the scalar `D_ext` argument of the wrapper constructors.
+check_D_ext <- function(D_ext) {
+    if (!is.numeric(D_ext) || length(D_ext) != 1 || !is.finite(D_ext) ||
+        D_ext < 0) {
+        stop("`D_ext` must be a single finite, non-negative number.")
+    }
+    invisible(NULL)
+}
+
 check_and_convert_species_params <- function(x) {
     if ("f0" %in% names(x)) {
         check_f0(x[["f0"]], x[["species"]])

@@ -95,6 +95,23 @@ support_top_idx <- function(params) {
     pmin(w_max_idx + offset, no_w)
 }
 
+#' Support top under a given numerical scheme
+#'
+#' The wrapper constructors solve for their initial spectra with the upwind
+#' flux and activate the requested flux scheme only at the end. This returns
+#' the support top (see `support_top_idx()`) that the requested scheme will
+#' impose in [project()], so the constructed spectrum can be held at zero
+#' above it.
+#'
+#' @param params A \linkS4class{MizerParams} object.
+#' @param second_order_w The resolved `second_order_w` list of the scheme.
+#' @return A per-species integer vector of the top retained size-class index.
+#' @noRd
+support_top_idx_for_scheme <- function(params, second_order_w) {
+    params@second_order_w <- second_order_w
+    support_top_idx(params)
+}
+
 #' Sever the coupling to the size classes above the support top
 #'
 #' Sets `c = 0` at the support-top class `w_top` (see `support_top_idx()`), which

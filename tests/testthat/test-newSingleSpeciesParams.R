@@ -78,11 +78,27 @@ test_that("newSingleSpeciesParams includes external diffusion", {
 })
 
 test_that("newSingleSpeciesParams defaults to zero external diffusion", {
+    # single_sp_params is built without a D_ext argument.
+    expect_true(all(single_sp_params@ext_diffusion == 0))
+    expect_equal(unname(given_species_params(single_sp_params)$D_ext), 0)
     params <- newSingleSpeciesParams(D_ext = 0, info_level = 0)
-    expect_true(all(params@ext_diffusion == 0))
-    expect_equal(unname(given_species_params(params)$D_ext), 0)
     expect_equal(params@initial_n, single_sp_params@initial_n)
     expect_equal(params@species_params, single_sp_params@species_params)
+})
+
+test_that("newSingleSpeciesParams keeps initial_n inside the projection support", {
+    # With w_max = 77.7 the top grid point rounds to just above w_max, so the
+    # second-order support stops one bin below the upwind support used for
+    # construction.
+    for (D_ext in c(0, 0.1)) {
+        params <- newSingleSpeciesParams(w_max = 77.7, D_ext = D_ext,
+                                         second_order_w = TRUE,
+                                         info_level = 0)
+        top <- support_top_idx(params)
+        expect_lt(top, length(params@w))
+        expect_true(params@initial_n[1, top] > 0)
+        expect_true(all(params@initial_n[1, -seq_len(top)] == 0))
+    }
 })
 
 test_that("single-species diffusive equilibrium also uses bin-averaged rates", {

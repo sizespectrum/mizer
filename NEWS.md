@@ -105,6 +105,11 @@
 
 ## Bug fixes
 
+- `newSingleSpeciesParams()` with the second-order flux no longer leaves
+  abundance in a top size class that lies outside the support of that scheme.
+  This happened when the top grid point rounded to just above `w_max`; the
+  class was emptied at the first step of `project()`.
+
 - Euler projection and steady-state drift diagnostics now share the rule for
   selecting the upper size boundary. The rule uses the current evaluated
   diffusion across all species, including custom rates, and the flux scheme.

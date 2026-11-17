@@ -236,7 +236,8 @@ test_that("newTraitParams includes diffusion in its initial spectra", {
             # respecting the support of the requested projection scheme.
             top <- support_top_idx(params)
             expect_true(all(params@initial_n[cbind(seq_len(3), top)] > 0))
-            expect_true(all(params@initial_n[col(params@initial_n) > top] == 0))
+            above <- col(params@initial_n) > top[row(params@initial_n)]
+            expect_true(all(params@initial_n[above] == 0))
             sim <- project(params, t_max = 0.01, dt = 0.001, t_save = 0.01,
                            effort = 0, progress_bar = FALSE)
             expect_true(all(is.finite(sim@n)))
@@ -246,7 +247,8 @@ test_that("newTraitParams includes diffusion in its initial spectra", {
 })
 
 test_that("wrapper constructors set recalculable external diffusion", {
-    for (constructor in list(newTraitParams, newCommunityParams)) {
+    small_trait <- function(...) newTraitParams(no_sp = 3, ...)
+    for (constructor in list(small_trait, newCommunityParams)) {
         for (sow in c(FALSE, TRUE)) {
             params <- constructor(D_ext = 0.1, second_order_w = sow,
                                   info_level = 0)
